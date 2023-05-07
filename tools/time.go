@@ -11,7 +11,7 @@ var pf = fmt.Sprintf
 
 // GetCurrentTimeInSeconds returns the current time in seconds
 func GetCurrentTimeInSeconds() string {
-	return strconv.FormatInt(time.Now().Unix(), 10)
+	return strconv.FormatInt(now.Unix(), 10)
 }
 
 // TimeInHMSFormat returns the current time in the format HH-MM-SS
