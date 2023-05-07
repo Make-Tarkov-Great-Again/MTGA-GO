@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -9,8 +10,8 @@ var now = time.Now()
 var pf = fmt.Sprintf
 
 // GetCurrentTimeInSeconds returns the current time in seconds
-var GetCurrentTimeInSeconds = func() string {
-	return pf("%v", now.Unix())
+func GetCurrentTimeInSeconds() string {
+	return strconv.FormatInt(time.Now().Unix(), 10)
 }
 
 // TimeInHMSFormat returns the current time in the format HH-MM-SS
