@@ -1,11 +1,35 @@
 package tools
 
 import (
-	"encoding/json"
+	"bufio"
 	"log"
 	"os"
 	"path/filepath"
 )
+
+// WriteToFile writes the given string of data to the specified file path
+func WriteToFile(filePath string, data string) error {
+	path := GetAbsolutePathFrom(filePath)
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	_, err = writer.WriteString(data)
+	if err != nil {
+		return err
+	}
+
+	err = writer.Flush()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // GetAbsolutePathFrom returns the absolute path from a relative path
 func GetAbsolutePathFrom(path string) string {
@@ -18,7 +42,12 @@ func GetAbsolutePathFrom(path string) string {
 
 // CreateDirectory creates a directory at the specified path
 func CreateDirectory(filePath string) error {
+	if FileExist(filePath) {
+		log.Print("File already exists")
+		return nil
+	}
 	path := GetAbsolutePathFrom(filePath)
+
 	err := os.MkdirAll(path, 0755)
 	if err != nil {
 		log.Fatal(err)
@@ -33,21 +62,8 @@ func FileExist(filePath string) bool {
 	return err == nil || !os.IsNotExist(err)
 }
 
-func Stringify(data interface{}, oneline bool) string {
-	var bytes, err = []byte{}, error(nil)
-	if oneline {
-		bytes, err = json.Marshal(data)
-	} else {
-		bytes, err = json.MarshalIndent(data, "", "\t")
-	}
-	if err != nil {
-		return ""
-	}
-	return string(bytes[:])
-}
-
-// ReadParsed reads a file path and parses it into an interface
-func ReadParsed(filePath string) (interface{}, error) {
+// ReadFile reads the file at filePath and returns its contents as a byte slice.
+func ReadFile(filePath string) ([]byte, error) {
 	path := GetAbsolutePathFrom(filePath)
 
 	data, err := os.ReadFile(path)
@@ -55,12 +71,7 @@ func ReadParsed(filePath string) (interface{}, error) {
 		return nil, err
 	}
 
-	var result interface{}
-	err = json.Unmarshal(data, &result)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+	return data, nil
 }
 
 // GetDirectoriesFrom returns a list of directories from a file path
