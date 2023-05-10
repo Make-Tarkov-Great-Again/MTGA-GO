@@ -2,6 +2,7 @@ package tools
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 )
 
@@ -24,14 +25,23 @@ func Stringify(data interface{}, oneline bool) string {
 	return buf.String()
 }
 
-// ParseJSON parses the given byte slice as JSON and returns an interface{} representation of the parsed data.
-func ParseJSON(data []byte) (interface{}, error) {
+// ParseJSON parses the given byte slice as JSON and returns an array or object representation of the parsed data.
+func ParseJSON(data *[]byte) (interface{}, error) {
 	var result interface{}
-	err := json.Unmarshal(data, &result)
+	err := json.Unmarshal(*data, &result)
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+
+	if arr, ok := result.([]interface{}); ok {
+		return arr, nil
+	}
+
+	if obj, ok := result.(map[string]interface{}); ok {
+		return obj, nil
+	}
+
+	return nil, errors.New("unexpected JSON structure")
 }
 
 // ReadParsed reads a file path and parses it into an interface.
@@ -41,7 +51,7 @@ func ReadParsed(filePath string) (interface{}, error) {
 		return nil, err
 	}
 
-	result, err := ParseJSON(data)
+	result, err := ParseJSON(&data)
 	if err != nil {
 		return nil, err
 	}
