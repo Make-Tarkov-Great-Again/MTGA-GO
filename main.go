@@ -1,23 +1,28 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
+var pl = fmt.Println
+
 func main() {
-	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
-		log.Print("welcome to the pool")
-		fmt.Fprintf(response, "Hello my friend, welcome to the pool")
+
+	err := InitializeDatabase()
+	if err != nil {
+		pl("error initialize database: %w", err)
+	}
+
+	r := gin.Default()
+	r.GET("/serverConfig", func(c *gin.Context) {
+		c.JSON(http.StatusOK, Database.core.serverConfig)
 	})
 
-	log.Print("pool is open")
-	var err error = http.ListenAndServe(":80", nil)
-	if errors.Is(err, http.ErrServerClosed) {
-		log.Print("pool is closed")
-	} else if err != nil {
-		log.Fatal(err)
-	}
+	port := strconv.FormatFloat(Database.core.serverConfig["port"].(float64), 'f', -1, 64)
+	ipport := fmt.Sprintf("%s:%s", Database.core.serverConfig["ip"].(string), port)
+	r.Run(ipport)
 }
