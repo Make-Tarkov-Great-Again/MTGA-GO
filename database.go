@@ -26,15 +26,16 @@ type DatabaseStruct struct {
 }
 
 type CoreStruct struct {
-	/* 	botTemplate     map[string]interface{}
-	   	clientSettings  map[string]interface{} */
-	serverConfig map[string]interface{}
-	/* 	globals         map[string]interface{}
-	   	gameplay        map[string]interface{}
-	   	hideoutSettings map[string]interface{}
-	   	blacklist       []interface{}
-	   	matchMetrics    map[string]interface{}
-	   	connections     ConnectionStruct */
+	botTemplate    map[string]interface{}
+	clientSettings map[string]interface{}
+	serverConfig   map[string]interface{}
+	globals        map[string]interface{}
+	locations      map[string]interface{}
+	//gameplay        map[string]interface{}
+	//hideoutSettings map[string]interface{}
+	//blacklist       []interface{}
+	matchMetrics map[string]interface{}
+	//connections     ConnectionStruct
 }
 
 /* type ConnectionStruct struct {
@@ -45,21 +46,110 @@ type CoreStruct struct {
 var Database = &DatabaseStruct{}
 
 func InitializeDatabase() error {
-	if err := setCoreDatabase(); err != nil {
+	if err := setDatabaseCore(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func setCoreDatabase() error {
+func setDatabaseCore() error {
 	core := &CoreStruct{}
 
+	if err := setServerConfigCore(core); err != nil {
+		return err
+	}
+	if err := setMatchMetricsCore(core); err != nil {
+		return err
+	}
+	if err := setGlobalsCore(core); err != nil {
+		return err
+	}
+	if err := setClientSettingsCore(core); err != nil {
+		return err
+	}
+	if err := setLocationsCore(core); err != nil {
+		return err
+	}
+	if err := setBotTemplateCore(core); err != nil {
+		return err
+	}
+
+	Database.core = core
+
+	return nil
+}
+
+func checkAndReturnIfDataPropertyExists(data interface{}) map[string]interface{} {
+	ifData, ok := data.(map[string]interface{})["data"]
+
+	if !ok || ifData == nil {
+		return data.(map[string]interface{})
+	}
+
+	return ifData.(map[string]interface{})
+}
+
+func setServerConfigCore(core *CoreStruct) error {
 	serverConfig, err := tools.ReadParsed("assets/server.json")
+
 	if err != nil {
 		return fmt.Errorf("error reading server.json: %w", err)
 	}
-	core.serverConfig = serverConfig.(map[string]interface{})
-	Database.core = core
 
+	core.serverConfig = checkAndReturnIfDataPropertyExists(serverConfig)
+	return nil
+}
+
+func setMatchMetricsCore(core *CoreStruct) error {
+	matchMetrics, err := tools.ReadParsed("assets/matchMetrics.json")
+
+	if err != nil {
+		return fmt.Errorf("error reading matchMetrics.json: %w", err)
+	}
+
+	core.matchMetrics = checkAndReturnIfDataPropertyExists(matchMetrics)
+	return nil
+}
+
+func setGlobalsCore(core *CoreStruct) error {
+	globals, err := tools.ReadParsed("assets/globals.json")
+
+	if err != nil {
+		return fmt.Errorf("error reading globals.json: %w", err)
+	}
+
+	core.globals = checkAndReturnIfDataPropertyExists(globals)
+	return nil
+}
+
+func setClientSettingsCore(core *CoreStruct) error {
+	clientSettings, err := tools.ReadParsed("assets/client.settings.json")
+
+	if err != nil {
+		return fmt.Errorf("error reading client.settings.json: %w", err)
+	}
+	core.clientSettings = checkAndReturnIfDataPropertyExists(clientSettings)
+	return nil
+}
+
+func setLocationsCore(core *CoreStruct) error {
+	locations, err := tools.ReadParsed("assets/locations.json")
+
+	if err != nil {
+		return fmt.Errorf("error reading locations.json: %w", err)
+	}
+
+	core.locations = checkAndReturnIfDataPropertyExists(locations)
+	return nil
+}
+
+func setBotTemplateCore(core *CoreStruct) error {
+	botTemplate, err := tools.ReadParsed("assets/botTemplate.json")
+
+	if err != nil {
+		return fmt.Errorf("error reading botTemplate.json: %w", err)
+	}
+
+	core.botTemplate = checkAndReturnIfDataPropertyExists(botTemplate)
 	return nil
 }
