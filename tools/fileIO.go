@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -42,11 +43,12 @@ func GetAbsolutePathFrom(path string) string {
 
 // CreateDirectory creates a directory at the specified path
 func CreateDirectory(filePath string) error {
-	if FileExist(filePath) {
+	path := GetAbsolutePathFrom(filePath)
+
+	if FileExist(path) {
 		log.Print("File already exists")
 		return nil
 	}
-	path := GetAbsolutePathFrom(filePath)
 
 	err := os.MkdirAll(path, 0755)
 	if err != nil {
@@ -66,9 +68,13 @@ func FileExist(filePath string) bool {
 func ReadFile(filePath string) ([]byte, error) {
 	path := GetAbsolutePathFrom(filePath)
 
+	if !FileExist(path) {
+		return nil, fmt.Errorf("file does not exist: %s", filePath)
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read file: %s: %w", filePath, err)
 	}
 
 	return data, nil
