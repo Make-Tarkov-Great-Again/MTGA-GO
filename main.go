@@ -4,7 +4,6 @@ import (
 	"compress/zlib"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"strconv"
@@ -17,31 +16,34 @@ var pl = fmt.Println
 
 func main() {
 
-	err := setDatabase()
-	if err != nil {
-		pl("error initialize database: %w", err)
+	dbErr := setDatabase()
+	if dbErr != nil {
+		pl("error initialize database: %w", dbErr)
 	}
 
-	setGin()
+	ginErr := setGin()
+	if ginErr != nil {
+		pl("error setting gin: %w", ginErr)
+	}
 }
 
-func setGin() {
+func setGin() error {
 	r := gin.New()
 	setGinRoutes(r)
 
 	portFloat, ok := Database.core.serverConfig["port"].(float64)
 	if !ok {
-		log.Fatal("Invalid port")
+		return fmt.Errorf("invalid port")
 	}
 	port := strconv.FormatFloat(portFloat, 'f', -1, 64)
 
 	ip, ok := Database.core.serverConfig["ip"].(string)
 	if !ok {
-		log.Fatal("Invalid IP address")
+		return fmt.Errorf("invalid ip address")
 	}
 
 	ipport := net.JoinHostPort(ip, port)
-	r.Run(ipport)
+	return r.Run(ipport)
 }
 
 const (
