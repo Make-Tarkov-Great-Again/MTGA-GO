@@ -7,22 +7,22 @@ import (
 
 type DatabaseStruct struct {
 	core *CoreStruct
-	/* 	items         map[string]interface{}
-	   	locales       map[string]interface{}
-	   	languages     map[string]interface{}
-	   	templates     map[string]interface{}
-	   	traders       map[string]interface{}
-	   	flea          map[string]interface{}
-	   	quests        map[string]interface{}
-	   	hideout       map[string]interface{}
-	   	locations     map[string]interface{}
-	   	weather       map[string]interface{}
-	   	customization map[string]interface{}
-	   	editions      map[string]interface{}
-	   	presets       map[string]interface{}
-	   	bot           map[string]interface{}
-	   	profiles      map[string]interface{}
-	   	bundles       []interface{} */
+	//items         map[string]interface{}
+	//locales       map[string]interface{}
+	//languages     map[string]interface{}
+	//templates     map[string]interface{}
+	//traders       map[string]interface{}
+	//flea          map[string]interface{}
+	//quests        map[string]interface{}
+	//hideout       map[string]interface{}
+	//locations     map[string]interface{}
+	//weather       map[string]interface{}
+	//customization map[string]interface{}
+	//editions      map[string]interface{}
+	//presets       map[string]interface{}
+	//bot           map[string]interface{}
+	//profiles      map[string]interface{}
+	//bundles       []interface{}
 }
 
 type CoreStruct struct {
@@ -35,17 +35,17 @@ type CoreStruct struct {
 	//hideoutSettings map[string]interface{}
 	//blacklist       []interface{}
 	matchMetrics map[string]interface{}
-	//connections     ConnectionStruct
+	connections  ConnectionStruct
 }
 
-/* type ConnectionStruct struct {
+type ConnectionStruct struct {
 	webSocket      map[string]interface{}
 	webSocketPings map[string]interface{}
-} */
+}
 
 var Database = &DatabaseStruct{}
 
-func InitializeDatabase() error {
+func setDatabase() error {
 	if err := setDatabaseCore(); err != nil {
 		return err
 	}
@@ -56,22 +56,22 @@ func setDatabaseCore() error {
 	core := &CoreStruct{}
 
 	if err := setServerConfigCore(core); err != nil {
-		return err
+		return fmt.Errorf("error setting server config: %w", err)
 	}
 	if err := setMatchMetricsCore(core); err != nil {
-		return err
+		return fmt.Errorf("error setting match metrics: %w", err)
 	}
 	if err := setGlobalsCore(core); err != nil {
-		return err
+		return fmt.Errorf("error setting globals: %w", err)
 	}
 	if err := setClientSettingsCore(core); err != nil {
-		return err
+		return fmt.Errorf("error setting client settings: %w", err)
 	}
 	if err := setLocationsCore(core); err != nil {
-		return err
+		return fmt.Errorf("error setting locations: %w", err)
 	}
 	if err := setBotTemplateCore(core); err != nil {
-		return err
+		return fmt.Errorf("error setting bot template: %w", err)
 	}
 
 	Database.core = core
@@ -80,13 +80,11 @@ func setDatabaseCore() error {
 }
 
 func checkAndReturnIfDataPropertyExists(data interface{}) map[string]interface{} {
-	ifData, ok := data.(map[string]interface{})["data"]
-
-	if !ok || ifData == nil {
+	ifData, ok := data.(map[string]interface{})["data"].(map[string]interface{})
+	if !ok {
 		return data.(map[string]interface{})
 	}
-
-	return ifData.(map[string]interface{})
+	return ifData
 }
 
 func setServerConfigCore(core *CoreStruct) error {

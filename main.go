@@ -4,6 +4,8 @@ import (
 	"compress/zlib"
 	"fmt"
 	"io"
+	"log"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,30 +17,53 @@ var pl = fmt.Println
 
 func main() {
 
-	err := InitializeDatabase()
+	err := setDatabase()
 	if err != nil {
 		pl("error initialize database: %w", err)
 	}
 
-	r := gin.New()
-	mtga := r.Group("/")
-	//mtga.Use(jsonContentTypeParser())
+	setGin()
+}
 
-	mtga.GET("/serverConfig", func(c *gin.Context) {
+func setGin() {
+	r := gin.New()
+	setGinRoutes(r)
+
+	portFloat, ok := Database.core.serverConfig["port"].(float64)
+	if !ok {
+		log.Fatal("Invalid port")
+	}
+	port := strconv.FormatFloat(portFloat, 'f', -1, 64)
+
+	ip, ok := Database.core.serverConfig["ip"].(string)
+	if !ok {
+		log.Fatal("Invalid IP address")
+	}
+
+	ipport := net.JoinHostPort(ip, port)
+	r.Run(ipport)
+}
+
+const (
+	serverConfigPath   = "/serverConfig"
+	clientSettingsPath = "/clientSettings"
+	globalsPath        = "/globals"
+)
+
+func setGinRoutes(r *gin.Engine) {
+	mtga := r.Group("/")
+
+	mtga.GET(serverConfigPath, func(c *gin.Context) {
 		c.JSON(http.StatusOK, Database.core.serverConfig)
 	})
 
-	mtga.GET("/clientSettings", func(c *gin.Context) {
+	mtga.GET(clientSettingsPath, func(c *gin.Context) {
 		c.JSON(http.StatusOK, Database.core.clientSettings)
 	})
 
-	mtga.GET("/globals", func(c *gin.Context) {
+	mtga.GET(globalsPath, func(c *gin.Context) {
 		c.JSON(http.StatusOK, Database.core.globals)
 	})
-
-	port := strconv.FormatFloat(Database.core.serverConfig["port"].(float64), 'f', -1, 64)
-	ipport := fmt.Sprintf("%s:%s", Database.core.serverConfig["ip"].(string), port)
-	r.Run(ipport)
 }
 
 // jsonContentTypeParser parses the body of a request and sets it to the context.
