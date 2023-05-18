@@ -8,6 +8,19 @@ import (
 	"path/filepath"
 )
 
+const (
+	FILE_DOES_NOT_EXIST      string = "file does not exist"
+	FAIL_TO_READ_FILE        string = "failed to read file"
+	DIRECTORY_EXISTS         string = "directory already exists"
+	DIRECTORY_DOES_NOT_EXIST string = "directory does not exist"
+	FAIL_TO_READ_DIRECTORY   string = "failed to read directory"
+)
+
+const (
+	SSW_FORMAT string = "%s: %s: %w"
+	SS_FORMAT  string = "%s: %s"
+)
+
 // WriteToFile writes the given string of data to the specified file path
 func WriteToFile(filePath string, data string) error {
 	path := GetAbsolutePathFrom(filePath)
@@ -46,7 +59,7 @@ func CreateDirectory(filePath string) error {
 	path := GetAbsolutePathFrom(filePath)
 
 	if FileExist(path) {
-		return fmt.Errorf("directory already exists: %s", filePath)
+		return fmt.Errorf(SS_FORMAT, DIRECTORY_EXISTS, filePath)
 	}
 
 	err := os.MkdirAll(path, 0755)
@@ -68,12 +81,12 @@ func ReadFile(filePath string) ([]byte, error) {
 	path := GetAbsolutePathFrom(filePath)
 
 	if !FileExist(path) {
-		return nil, fmt.Errorf("file does not exist: %s", filePath)
+		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
 	}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read file: %s: %w", filePath, err)
+		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_FILE, filePath, err)
 	}
 
 	return data, nil
@@ -83,12 +96,12 @@ func ReadFile(filePath string) ([]byte, error) {
 func GetDirectoriesFrom(filePath string) ([]string, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
-		return nil, fmt.Errorf("file does not exist: %s", filePath)
+		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
 	}
 
 	directory, err := os.ReadDir(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read directory: %s: %w", filePath, err)
+		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_DIRECTORY, filePath, err)
 	}
 
 	files := make([]string, 0, len(directory))
@@ -104,12 +117,12 @@ func GetDirectoriesFrom(filePath string) ([]string, error) {
 func GetFilesFrom(filePath string) ([]string, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
-		return nil, fmt.Errorf("file does not exist: %s", filePath)
+		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
 	}
 
 	directory, err := os.ReadDir(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read directory: %s: %w", filePath, err)
+		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_DIRECTORY, filePath, err)
 	}
 
 	files := make([]string, 0, len(directory))

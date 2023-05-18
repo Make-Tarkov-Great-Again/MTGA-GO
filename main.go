@@ -1,20 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"log"
 )
-
-var pl = fmt.Println
 
 func main() {
 
 	dbErr := initializeDatabase()
 	if dbErr != nil {
-		pl("error initialize database: %w", dbErr)
+		log.Fatalf("error initializing database: %v", dbErr)
 	}
 
 	ginErr := setGin()
 	if ginErr != nil {
-		pl("error setting gin: %w", ginErr)
+		log.Fatalf("error setting gin: %v", ginErr)
 	}
 }
