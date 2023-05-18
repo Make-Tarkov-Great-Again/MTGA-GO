@@ -900,7 +900,7 @@ func setBot() error {
 }
 
 func setBotCore(bot *BotStruct) error {
-	botGlobalSettingsData, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "__BotGlobalSettingsData.json"))
+	botGlobalSettingsData, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "__BotGlobalSettings.json"))
 	if err != nil {
 		return fmt.Errorf("error reading __BotGlobalSettings.json: %w", err)
 	}
