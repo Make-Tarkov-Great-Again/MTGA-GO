@@ -46,8 +46,7 @@ func CreateDirectory(filePath string) error {
 	path := GetAbsolutePathFrom(filePath)
 
 	if FileExist(path) {
-		log.Print("File already exists")
-		return nil
+		return fmt.Errorf("directory already exists: %s", filePath)
 	}
 
 	err := os.MkdirAll(path, 0755)
@@ -81,45 +80,67 @@ func ReadFile(filePath string) ([]byte, error) {
 }
 
 // GetDirectoriesFrom returns a list of directories from a file path
-func GetDirectoriesFrom(filePath string) []string {
+func GetDirectoriesFrom(filePath string) ([]string, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
-		log.Fatal("File does not exist")
-		return nil
+		return nil, fmt.Errorf("file does not exist: %s", filePath)
 	}
 
-	files := []string{}
 	directory, err := os.ReadDir(path)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to read directory: %s: %w", filePath, err)
 	}
 
+	files := make([]string, 0, len(directory))
 	for _, file := range directory {
 		if file.IsDir() {
 			files = append(files, file.Name())
 		}
 	}
-	return files
+	return files, nil
 }
 
 // GetFilesFrom returns a list of files from a file path
-func GetFilesFrom(filePath string) []string {
+func GetFilesFrom(filePath string) ([]string, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
-		log.Fatal("File does not exist")
-		return nil
+		return nil, fmt.Errorf("file does not exist: %s", filePath)
 	}
 
-	files := []string{}
 	directory, err := os.ReadDir(path)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to read directory: %s: %w", filePath, err)
 	}
 
+	files := make([]string, 0, len(directory))
 	for _, file := range directory {
 		if !file.IsDir() {
 			files = append(files, file.Name())
 		}
 	}
-	return files
+	return files, nil
+}
+
+func TransformInterfaceIntoMappedArray(data []interface{}) []map[string]interface{} {
+	results := make([]map[string]interface{}, 0, len(data))
+	for _, v := range data {
+		result := v.(map[string]interface{})
+		results = append(results, result)
+	}
+	return results
+}
+
+func TransformInterfaceIntoMappedObject(data interface{}) map[string]interface{} {
+	result := data.(map[string]interface{})
+	return result
+}
+
+func AuditArrayCapacity(data []map[string]interface{}) []map[string]interface{} {
+	dataLen := len(data)
+	results := make([]map[string]interface{}, 0, dataLen)
+	for i := 0; i < dataLen; i++ {
+		result := data[i]
+		results = append(results, result)
+	}
+	return results
 }

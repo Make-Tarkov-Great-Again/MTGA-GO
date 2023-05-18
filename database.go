@@ -3,26 +3,29 @@ package main
 import (
 	"MT-GO/tools"
 	"fmt"
+	"log"
 	"path/filepath"
+	"strings"
 )
 
 type DatabaseStruct struct {
-	core      CoreStruct
-	items     map[string]interface{}
-	locales   LocaleStruct
-	templates TemplatesStruct
-	//traders       map[string]interface{}
-	//flea          map[string]interface{}
-	//quests        map[string]interface{}
-	//hideout       map[string]interface{}
-	//locations     map[string]interface{}
-	//weather       map[string]interface{}
-	//customization map[string]interface{}
-	editions map[string]interface{}
+	core        CoreStruct
+	connections ConnectionStruct
+	items       map[string]interface{}
+	locales     LocaleStruct
+	templates   TemplatesStruct
+	traders     map[string]interface{}
+	flea        FleaStruct
+	quests      map[string]interface{}
+	hideout     HideoutStruct
+	//locations map[string]interface{}
+	weather       map[string]interface{}
+	customization map[string]interface{}
+	editions      map[string]interface{}
 	//presets       map[string]interface{}
-	//bot           map[string]interface{}
-	//profiles      map[string]interface{}
-	//bundles       []interface{}
+	bot      BotStruct
+	profiles map[string]interface{}
+	//bundles  []map[string]interface{}
 }
 
 type CoreStruct struct {
@@ -32,15 +35,28 @@ type CoreStruct struct {
 	globals        map[string]interface{}
 	locations      map[string]interface{}
 	//gameplay        map[string]interface{}
-	//hideoutSettings map[string]interface{}
 	//blacklist       []interface{}
 	matchMetrics map[string]interface{}
-	connections  ConnectionStruct
 }
 
 type ConnectionStruct struct {
 	webSocket      map[string]interface{}
 	webSocketPings map[string]interface{}
+}
+
+type FleaStruct struct {
+	offers           []map[string]interface{}
+	offerscount      int
+	selectedCategory string
+	categories       map[string]interface{}
+}
+
+type HideoutStruct struct {
+	areas       []map[string]interface{}
+	productions map[string]interface{}
+	scavcase    []map[string]interface{}
+	qte         []map[string]interface{}
+	settings    map[string]interface{}
 }
 
 var Database = DatabaseStruct{}
@@ -53,35 +69,44 @@ func initializeDatabase() error {
 		globals:        make(map[string]interface{}),
 		locations:      make(map[string]interface{}),
 		matchMetrics:   make(map[string]interface{}),
-		connections: ConnectionStruct{
-			webSocket:      make(map[string]interface{}),
-			webSocketPings: make(map[string]interface{}),
-		},
+	}
+	Database.connections = ConnectionStruct{
+		webSocket:      make(map[string]interface{}),
+		webSocketPings: make(map[string]interface{}),
 	}
 	Database.items = make(map[string]interface{})
-	Database.locales = LocaleStruct{
-		locales:   make(map[string]interface{}),
-		extras:    make(map[string]interface{}),
-		languages: make(map[string]interface{}),
-	}
+	Database.locales = LocaleStruct{}
 	Database.templates = TemplatesStruct{
 		Handbook: HandbookStruct{
-			Items:      []interface{}{},
-			Categories: []interface{}{},
+			Items:      []map[string]interface{}{},
+			Categories: []map[string]interface{}{},
 		},
 		Prices: make(map[string]interface{}),
 		TplLookup: TplLookupStruct{
-			Items: ItemsLookupStruct{
-				byId:     make(map[string]interface{}),
-				byParent: make(map[string]interface{}),
-			},
-			Categories: CategoriesLookupStruct{
-				byId:     make(map[string]interface{}),
-				byParent: make(map[string]interface{}),
-			},
+			Items:      ItemsLookupStruct{},
+			Categories: CategoriesLookupStruct{},
 		},
 	}
 	Database.editions = make(map[string]interface{})
+	Database.traders = make(map[string]interface{})
+	Database.quests = make(map[string]interface{})
+	Database.flea = FleaStruct{
+		offers:           []map[string]interface{}{},
+		offerscount:      0,
+		selectedCategory: "",
+		categories:       make(map[string]interface{}),
+	}
+	Database.hideout = HideoutStruct{
+		areas:       []map[string]interface{}{},
+		productions: make(map[string]interface{}),
+		scavcase:    []map[string]interface{}{},
+		qte:         []map[string]interface{}{},
+		settings:    make(map[string]interface{}),
+	}
+	Database.customization = make(map[string]interface{})
+	Database.profiles = map[string]interface{}{}
+	Database.weather = make(map[string]interface{})
+	Database.bot = BotStruct{}
 
 	if err := setDatabase(); err != nil {
 		return fmt.Errorf("error setting database: %w", err)
@@ -108,6 +133,34 @@ func setDatabase() error {
 	}
 
 	if err := setTemplates(); err != nil {
+		return err
+	}
+
+	if err := setTraders(); err != nil {
+		return err
+	}
+
+	if err := setQuests(); err != nil {
+		return err
+	}
+
+	if err := setHideout(); err != nil {
+		return err
+	}
+
+	if err := setCustomization(); err != nil {
+		return err
+	}
+
+	if err := setProfiles(); err != nil {
+		return err
+	}
+
+	if err := setWeather(); err != nil {
+		return err
+	}
+
+	if err := setBot(); err != nil {
 		return err
 	}
 
@@ -139,31 +192,14 @@ func setDatabaseCore() error {
 	return nil
 }
 
-// checkAndReturnIfDataPropertyExists checks if the data property exists and returns it if it does.
-func checkAndReturnIfDataPropertyExists(data interface{}) map[string]interface{} {
-	dataMap, ok := data.(map[string]interface{})
-	if !ok {
-		return nil
-	}
-	dataValue, ok := dataMap["data"]
-	if !ok {
-		return dataMap
-	}
-	dataType, ok := dataValue.(map[string]interface{})
-	if !ok {
-		return dataMap
-	}
-	return dataType
-}
-
-const CORE_FILE_PATH = "database/core"
+const CORE_FILE_PATH string = "database/core"
 const (
-	BOT_TEMPLATE_FILE_PATH = CORE_FILE_PATH + "/botTemplate.json"
-	CLIENT_SETTINGS_PATH   = CORE_FILE_PATH + "/client.settings.json"
-	GLOBALS_FILE_PATH      = CORE_FILE_PATH + "/globals.json"
-	LOCATIONS_FILE_PATH    = CORE_FILE_PATH + "/locations.json"
-	MATCH_METRICS_PATH     = CORE_FILE_PATH + "/matchMetrics.json"
-	SERVER_CONFIG_PATH     = CORE_FILE_PATH + "/server.json"
+	BOT_TEMPLATE_FILE_PATH string = CORE_FILE_PATH + "/botTemplate.json"
+	CLIENT_SETTINGS_PATH   string = CORE_FILE_PATH + "/client.settings.json"
+	GLOBALS_FILE_PATH      string = CORE_FILE_PATH + "/globals.json"
+	LOCATIONS_FILE_PATH    string = CORE_FILE_PATH + "/locations.json"
+	MATCH_METRICS_PATH     string = CORE_FILE_PATH + "/matchMetrics.json"
+	SERVER_CONFIG_PATH     string = CORE_FILE_PATH + "/server.json"
 )
 
 func setServerConfigCore(core *CoreStruct) error {
@@ -173,7 +209,7 @@ func setServerConfigCore(core *CoreStruct) error {
 		return fmt.Errorf("error reading server.json: %w", err)
 	}
 
-	core.serverConfig = checkAndReturnIfDataPropertyExists(serverConfig)
+	core.serverConfig = serverConfig.(map[string]interface{})
 	return nil
 }
 
@@ -184,7 +220,7 @@ func setMatchMetricsCore(core *CoreStruct) error {
 		return fmt.Errorf("error reading matchMetrics.json: %w", err)
 	}
 
-	core.matchMetrics = checkAndReturnIfDataPropertyExists(matchMetrics)
+	core.matchMetrics = matchMetrics.(map[string]interface{})
 	return nil
 }
 
@@ -195,7 +231,7 @@ func setGlobalsCore(core *CoreStruct) error {
 		return fmt.Errorf("error reading globals.json: %w", err)
 	}
 
-	core.globals = checkAndReturnIfDataPropertyExists(globals)
+	core.globals = globals.(map[string]interface{})
 	return nil
 }
 
@@ -205,7 +241,7 @@ func setClientSettingsCore(core *CoreStruct) error {
 	if err != nil {
 		return fmt.Errorf("error reading client.settings.json: %w", err)
 	}
-	core.clientSettings = checkAndReturnIfDataPropertyExists(clientSettings)
+	core.clientSettings = clientSettings.(map[string]interface{})["data"].(map[string]interface{})
 	return nil
 }
 
@@ -216,7 +252,7 @@ func setLocationsCore(core *CoreStruct) error {
 		return fmt.Errorf("error reading locations.json: %w", err)
 	}
 
-	core.locations = checkAndReturnIfDataPropertyExists(locations)
+	core.locations = locations.(map[string]interface{})["data"].(map[string]interface{})
 	return nil
 }
 
@@ -227,11 +263,11 @@ func setBotTemplateCore(core *CoreStruct) error {
 		return fmt.Errorf("error reading botTemplate.json: %w", err)
 	}
 
-	core.botTemplate = checkAndReturnIfDataPropertyExists(botTemplate)
+	core.botTemplate = botTemplate.(map[string]interface{})
 	return nil
 }
 
-const EDITIONS_FILE_PATH = "database/editions"
+const EDITIONS_FILE_PATH string = "database/editions"
 
 type EditionStruct struct {
 	bear    map[string]interface{}
@@ -240,7 +276,10 @@ type EditionStruct struct {
 }
 
 func setEditions() error {
-	editionsDirectory := tools.GetDirectoriesFrom(EDITIONS_FILE_PATH)
+	editionsDirectory, err := tools.GetDirectoriesFrom(EDITIONS_FILE_PATH)
+	if err != nil {
+		return fmt.Errorf("error reading editions directory: %w", err)
+	}
 
 	for _, edition := range editionsDirectory {
 		editionPath := filepath.Join(EDITIONS_FILE_PATH, edition)
@@ -276,7 +315,7 @@ func setEditions() error {
 	return nil
 }
 
-const LOCALES_FILE_PATH = "database/locales"
+const LOCALES_FILE_PATH string = "database/locales"
 
 type LocaleStruct struct {
 	locales   map[string]interface{}
@@ -289,7 +328,10 @@ type LanguageStruct struct {
 }
 
 func setLocales() error {
-	localesDirectory := tools.GetDirectoriesFrom(LOCALES_FILE_PATH)
+	localesDirectory, err := tools.GetDirectoriesFrom(LOCALES_FILE_PATH)
+	if err != nil {
+		return fmt.Errorf("error reading locales directory: %w", err)
+	}
 	locales := &Database.locales
 
 	for _, locale := range localesDirectory {
@@ -324,7 +366,7 @@ func setLocales() error {
 	if err != nil {
 		return fmt.Errorf("error reading languages.json: %w", err)
 	}
-	locales.languages = checkAndReturnIfDataPropertyExists(languages)
+	locales.languages = languages.(map[string]interface{})["data"].(map[string]interface{})
 
 	extrasFilePath := filepath.Join(LOCALES_FILE_PATH, "extras.json")
 	if !tools.FileExist(extrasFilePath) {
@@ -334,7 +376,7 @@ func setLocales() error {
 	if err != nil {
 		return fmt.Errorf("error reading extras.json: %w", err)
 	}
-	locales.extras = checkAndReturnIfDataPropertyExists(extras)
+	locales.extras = extras.(map[string]interface{})
 	return nil
 }
 
@@ -345,7 +387,7 @@ func setItems() error {
 		return fmt.Errorf("error reading items.json: %w", err)
 	}
 
-	Database.items = checkAndReturnIfDataPropertyExists(items)
+	Database.items = items.(map[string]interface{})
 	return nil
 }
 
@@ -356,8 +398,8 @@ type TemplatesStruct struct {
 }
 
 type HandbookStruct struct {
-	Items      []interface{}
-	Categories []interface{}
+	Items      []map[string]interface{}
+	Categories []map[string]interface{}
 }
 
 type TplLookupStruct struct {
@@ -383,49 +425,39 @@ func setTemplates() error {
 		return fmt.Errorf("error reading templates.json: %w", err)
 	}
 
-	handbookData := checkAndReturnIfDataPropertyExists(templatesData)
-	setHandbookItems(handbookData, templates)
-	setHandbookCategories(handbookData, templates)
+	handbookData := templatesData.(map[string]interface{})["data"].(map[string]interface{})
+
+	items := tools.TransformInterfaceIntoMappedArray(handbookData["Items"].([]interface{}))
+	categories := tools.TransformInterfaceIntoMappedArray(handbookData["Categories"].([]interface{}))
+
+	setHandbookItems(items, templates)
+	setHandbookCategories(categories, templates)
 
 	return nil
 }
 
-func setHandbookCategories(handbookData map[string]interface{}, templates *TemplatesStruct) error {
-	categories := handbookData["Categories"].([]interface{})
-	categoriesSize := len(categories)
-
-	templates.Handbook.Categories = make([]interface{}, 0, categoriesSize) // Create a new slice with capacity of the old slice length
-	for i := 0; i < categoriesSize; i++ {
-		templates.Handbook.Categories = append(templates.Handbook.Categories, categories[i]) // Append the value from old slice to the new slice
-	}
+func setHandbookCategories(categories []map[string]interface{}, templates *TemplatesStruct) error {
+	templates.Handbook.Categories = tools.AuditArrayCapacity(categories)
 
 	byCategory := &templates.TplLookup.Categories // pointer to the CategoriesLookupStruct
-	for _, value := range templates.Handbook.Categories {
-
-		category := value.(map[string]interface{})
+	for _, category := range templates.Handbook.Categories {
 		Id := category["Id"].(string)
 		ParentId, hasParent := category["ParentId"].(string)
 
 		byCategory.byId[Id] = ParentId
 		if hasParent {
-			if _, ok := byCategory.byParent[ParentId]; ok {
-				byCategory.byParent[ParentId] = append(byCategory.byParent[ParentId].([]interface{}), Id)
+			if mapSlice, ok := byCategory.byParent[ParentId].([]string); ok {
+				byCategory.byParent[ParentId] = append(mapSlice, Id)
 			} else {
-				byCategory.byParent[ParentId] = []interface{}{Id}
+				byCategory.byParent[ParentId] = []string{Id}
 			}
 		}
 	}
 	return nil
 }
 
-func setHandbookItems(handbookData map[string]interface{}, templates *TemplatesStruct) error {
-	items := handbookData["Items"].([]interface{})
-	itemsSize := len(items)
-
-	templates.Handbook.Items = make([]interface{}, 0, itemsSize) // Create a new slice with capacity of the old slice length
-	for i := 0; i < itemsSize; i++ {
-		templates.Handbook.Items = append(templates.Handbook.Items, items[i]) // Append the value from old slice to the new slice
-	}
+func setHandbookItems(items []map[string]interface{}, templates *TemplatesStruct) error {
+	templates.Handbook.Items = tools.AuditArrayCapacity(items)
 
 	pricesData, err := tools.ReadParsed("database/liveflea.json")
 	if err != nil {
@@ -435,9 +467,8 @@ func setHandbookItems(handbookData map[string]interface{}, templates *TemplatesS
 
 	byItem := &templates.TplLookup.Items // pointer to the ItemsLookupStruct
 	for _, item := range templates.Handbook.Items {
-		itemMap := item.(map[string]interface{})
-		Id := itemMap["Id"].(string)
-		ParentId := itemMap["ParentId"].(string)
+		Id := item["Id"].(string)
+		ParentId := item["ParentId"].(string)
 
 		// set the item price to the price from liveflea.json if it exists, otherwise use the item from items.json
 		var price interface{} // store price in this variable
@@ -450,13 +481,424 @@ func setHandbookItems(handbookData map[string]interface{}, templates *TemplatesS
 		templates.Prices[Id] = price
 
 		// add the item to the byParent map
-		if _, ok := byItem.byParent[ParentId]; ok {
+		if mapSlice, ok := byItem.byParent[ParentId].([]string); ok {
 			// if the key exists, append the value to the slice
-			byItem.byParent[ParentId] = append(byItem.byParent[ParentId].([]interface{}), Id)
+			byItem.byParent[ParentId] = append(mapSlice, Id)
 		} else {
-			byItem.byParent[ParentId] = []interface{}{Id}
+			byItem.byParent[ParentId] = []string{Id}
 		}
 	}
 
+	return nil
+}
+
+const TRADERS_FILE_PATH string = "database/traders"
+
+type AssortStruct struct {
+	items             []map[string]interface{}
+	barter_scheme     map[string]interface{}
+	loyal_level_items map[string]interface{}
+}
+
+func setTraders() error {
+	tradersDirectory, err := tools.GetDirectoriesFrom(TRADERS_FILE_PATH)
+	if err != nil {
+		return fmt.Errorf("error reading traders directory: %w", err)
+	}
+
+	for i := 0; i < len(tradersDirectory); i++ {
+		traderID := tradersDirectory[i]
+		traderPath := filepath.Join(TRADERS_FILE_PATH, traderID)
+
+		trader := make(map[string]interface{})
+
+		for _, file := range []string{"base.json", "assort.json", "questassort.json", "suits.json", "dialogue.json"} {
+			if parsed, err := tools.ReadParsed(filepath.Join(traderPath, file)); err != nil {
+				continue
+				//return fmt.Errorf("error reading %s for trader %s: %w", file, traderID, err)
+			} else {
+				fileName := strings.Split(file, ".")[0]
+
+				if file == "assort.json" {
+					assort := parsed.(map[string]interface{})
+					trader["assort"] = AssortStruct{}
+					trader["baseAssort"] = AssortStruct{
+						items:             tools.TransformInterfaceIntoMappedArray(assort["items"].([]interface{})),
+						barter_scheme:     assort["barter_scheme"].(map[string]interface{}),
+						loyal_level_items: assort["loyal_level_items"].(map[string]interface{}),
+					}
+				} else if file == "suits.json" {
+					trader["suits"] = tools.TransformInterfaceIntoMappedArray(parsed.([]interface{}))
+				} else {
+					trader[fileName] = parsed.(map[string]interface{})
+				}
+			}
+		}
+
+		Database.traders[traderID] = trader
+	}
+
+	return nil
+}
+
+func setQuests() error {
+	quests, err := tools.ReadParsed("database/quests.json")
+
+	if err != nil {
+		return fmt.Errorf("error reading quests.json: %w", err)
+	}
+
+	Database.quests = quests.(map[string]interface{})
+	return nil
+}
+
+const HIDEOUT_FILE_PATH string = "database/hideout"
+
+func setHideout() error {
+	hideoutFiles, err := tools.GetFilesFrom(HIDEOUT_FILE_PATH)
+	if err != nil {
+		return fmt.Errorf("error reading hideout directory: %w", err)
+	}
+
+	for _, file := range hideoutFiles {
+		fileName := strings.Split(file, ".")[0]
+		filePath := filepath.Join(HIDEOUT_FILE_PATH, file)
+
+		if data, err := tools.ReadParsed(filePath); err != nil {
+			return fmt.Errorf("error reading %s: %w", file, err)
+		} else {
+			switch fileName {
+			case "areas":
+				Database.hideout.areas = tools.TransformInterfaceIntoMappedArray(data.([]interface{}))
+			case "productions":
+				Database.hideout.productions = data.(map[string]interface{})
+			case "scavcase":
+				Database.hideout.scavcase = tools.TransformInterfaceIntoMappedArray(data.([]interface{}))
+			case "qte":
+				Database.hideout.qte = tools.TransformInterfaceIntoMappedArray(data.([]interface{}))
+			case "settings":
+				Database.hideout.settings = data.(map[string]interface{})
+			}
+		}
+	}
+
+	return nil
+}
+
+func setCustomization() error {
+	customization, err := tools.ReadParsed("database/customization.json")
+
+	if err != nil {
+		return fmt.Errorf("error reading customization.json: %w", err)
+	}
+
+	Database.customization = customization.(map[string]interface{})["data"].(map[string]interface{})
+	return nil
+}
+
+const USER_FILE_PATH string = "user"
+const PROFILES_FILE_PATH string = USER_FILE_PATH + "/profiles"
+
+type ProfileStruct struct {
+	account   map[string]interface{}
+	character map[string]interface{}
+	storage   map[string]interface{}
+	dialogues map[string]interface{}
+	raid      RaidProfileStruct
+}
+type RaidProfileStruct struct {
+	lastLocation RaidLocationStruct
+	carExtracts  int
+}
+type RaidLocationStruct struct {
+	name      string
+	insurance bool
+}
+
+func setProfiles() error {
+	if !tools.FileExist(USER_FILE_PATH) || !tools.FileExist(PROFILES_FILE_PATH) {
+		if err := tools.CreateDirectory(PROFILES_FILE_PATH); err != nil {
+			return fmt.Errorf("error creating profiles directory: %w", err)
+		}
+		return nil
+	}
+
+	profilesDirectory, err := tools.GetDirectoriesFrom(USER_FILE_PATH)
+	if err != nil {
+		return fmt.Errorf("error reading user directory: %w", err)
+	} else if profilesDirectory == nil {
+		log.Printf("No profiles found in %s", USER_FILE_PATH)
+		return nil
+	}
+
+	for _, profileID := range profilesDirectory {
+		profilePath := filepath.Join(PROFILES_FILE_PATH, profileID)
+		profile := ProfileStruct{
+			account:   setAccount(profilePath, profileID),
+			character: setCharacter(profilePath, profileID),
+			storage:   setStorage(profilePath, profileID),
+			dialogues: setDialogues(profilePath, profileID),
+			raid: RaidProfileStruct{
+				lastLocation: RaidLocationStruct{
+					name:      "",
+					insurance: false,
+				},
+				carExtracts: 0,
+			},
+		}
+		Database.profiles[profileID] = profile
+	}
+	return nil
+}
+
+func setAccount(path string, profileID string) map[string]interface{} {
+	accountPath := filepath.Join(path, "account.json")
+	data, err := tools.ReadParsed(accountPath)
+	if err != nil {
+		log.Printf("Error reading account.json for profile %s: %v", profileID, err)
+		return nil
+	}
+
+	account, ok := data.(map[string]interface{})
+	if !ok || account == nil {
+		log.Printf("Account.json for profile %s is empty", profileID)
+		return nil
+	}
+
+	return account
+}
+
+func setCharacter(path string, profileID string) map[string]interface{} {
+	characterPath := filepath.Join(path, "character.json")
+	data, err := tools.ReadParsed(characterPath)
+	if err != nil {
+		log.Printf("Error reading character.json for profile %s: %v", profileID, err)
+		return nil
+	}
+
+	character, ok := data.(map[string]interface{})
+	if !ok || character == nil {
+		log.Printf("Character.json for profile %s is empty", profileID)
+		return nil
+	}
+
+	return character
+}
+
+func setStorage(path string, profileID string) map[string]interface{} {
+	storagePath := filepath.Join(path, "storage.json")
+	data, err := tools.ReadParsed(storagePath)
+	if err != nil {
+		log.Printf("Error reading storage.json for profile %s: %v", profileID, err)
+		return nil
+	}
+
+	storage, ok := data.(map[string]interface{})
+	if !ok || storage == nil {
+		log.Printf("Storage.json for profile %s is empty", profileID)
+		return nil
+	}
+
+	return storage
+}
+
+func setDialogues(path string, profileID string) map[string]interface{} {
+	dialoguesPath := filepath.Join(path, "dialogues.json")
+	data, err := tools.ReadParsed(dialoguesPath)
+	if err != nil {
+		log.Printf("Error reading dialogues.json for profile %s: %v", profileID, err)
+		return nil
+	}
+
+	dialogues, ok := data.(map[string]interface{})
+	if !ok || dialogues == nil {
+		log.Printf("Dialogues.json for profile %s is empty", profileID)
+		return nil
+	}
+
+	return dialogues
+}
+
+func setWeather() error {
+	weather, err := tools.ReadParsed("database/weather.json")
+
+	if err != nil {
+		return fmt.Errorf("error reading weather.json: %w", err)
+	}
+
+	Database.weather = weather.(map[string]interface{})
+	return nil
+}
+
+const BOT_FILE_PATH string = "database/bot"
+
+type BotStruct struct {
+	bots        map[string]interface{}
+	core        map[string]interface{}
+	names       map[string]interface{}
+	appearance  map[string]interface{}
+	playerScav  map[string]interface{}
+	weaponCache map[string]interface{}
+}
+
+func setBot() error {
+	bot := &Database.bot
+
+	if err := setBotCore(bot); err != nil {
+		return err
+	}
+
+	if err := setBotNames(bot); err != nil {
+		return err
+	}
+
+	if err := setBotAppearance(bot); err != nil {
+		return err
+	}
+
+	if err := setBotPlayerScav(bot); err != nil {
+		return err
+	}
+
+	if err := setBotWeaponCache(bot); err != nil {
+		return err
+	}
+
+	if err := setBots(bot); err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func setBotCore(bot *BotStruct) error {
+	core, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "__BotGlobalSettings.json"))
+
+	if err != nil {
+		return fmt.Errorf("error reading core.json: %w", err)
+	}
+
+	bot.core = core.(map[string]interface{})
+	return nil
+}
+
+func setBotNames(bot *BotStruct) error {
+	names, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "names.json"))
+
+	if err != nil {
+		return fmt.Errorf("error reading names.json: %w", err)
+	}
+	bot.names = names.(map[string]interface{})
+	return nil
+}
+
+func setBotAppearance(bot *BotStruct) error {
+	appearance, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "appearance.json"))
+
+	if err != nil {
+		return fmt.Errorf("error reading appearance.json: %w", err)
+	}
+	bot.appearance = appearance.(map[string]interface{})
+	return nil
+}
+
+func setBotPlayerScav(bot *BotStruct) error {
+	playerScav, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "playerScav.json"))
+
+	if err != nil {
+		return fmt.Errorf("error reading playerScav.json: %w", err)
+	}
+	bot.playerScav = playerScav.(map[string]interface{})
+	return nil
+}
+
+func setBotWeaponCache(bot *BotStruct) error {
+	weaponCache, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "weaponCache.json"))
+
+	if err != nil {
+		return fmt.Errorf("error reading weaponCache.json: %w", err)
+	}
+	bot.weaponCache = weaponCache.(map[string]interface{})
+	return nil
+}
+
+const BOTS_FILE_PATH string = "database/bot/bots"
+
+type BotTypeStruct struct {
+	health     map[string]interface{}
+	loadout    map[string]interface{}
+	difficulty map[string]interface{}
+}
+
+func setBots(bot *BotStruct) error {
+	botsFiles, err := tools.GetDirectoriesFrom(BOTS_FILE_PATH)
+	if err != nil {
+		return fmt.Errorf("error reading bots directory: %w", err)
+	}
+
+	for _, aiType := range botsFiles {
+		botTypePath := filepath.Join(BOTS_FILE_PATH, aiType)
+
+		bot.bots[aiType] = BotTypeStruct{
+			health:     make(map[string]interface{}),
+			loadout:    make(map[string]interface{}),
+			difficulty: make(map[string]interface{}),
+		}
+
+		botType := bot.bots[aiType].(BotTypeStruct)
+		setBotTypeHealth(&botType, botTypePath)
+		setBotTypeLoadout(&botType, botTypePath)
+		setBotTypeDifficulty(&botType, botTypePath)
+
+	}
+
+	return nil
+}
+
+func setBotTypeHealth(botType *BotTypeStruct, path string) error {
+	healthData, _ := tools.ReadParsed(filepath.Join(path, "health.json"))
+	if healthData != nil {
+		health := healthData.(map[string]interface{})
+		if len(health) > 0 {
+			for key, value := range health {
+				botType.health[key] = value.(map[string]interface{})
+			}
+			return nil
+		} else {
+			botType.health = health
+			return nil
+		}
+	}
+	return fmt.Errorf("error reading health.json for %s", path)
+}
+
+func setBotTypeLoadout(botType *BotTypeStruct, path string) error {
+	loadoutData, _ := tools.ReadParsed(filepath.Join(path, "loadout.json"))
+	if loadoutData != nil {
+		botType.loadout = loadoutData.(map[string]interface{})
+		return nil
+	}
+	return fmt.Errorf("error reading loadout.json for %s", path)
+}
+
+func setBotTypeDifficulty(botType *BotTypeStruct, path string) error {
+	difficultiesPath := filepath.Join(path, "difficulties")
+
+	difficultiesDirectory, err := tools.GetFilesFrom(difficultiesPath)
+	if err != nil {
+		return fmt.Errorf("error reading difficulties directory: %w", err)
+	}
+
+	for _, difficulty := range difficultiesDirectory {
+		difficultyPath := filepath.Join(difficultiesPath, difficulty)
+
+		difficultyData, err := tools.ReadParsed(difficultyPath)
+		if err != nil {
+			return fmt.Errorf("error reading %s: %w", difficultyPath, err)
+		}
+		difficultyName := strings.Split(difficulty, ".")[0]
+		botType.difficulty[difficultyName] = difficultyData.(map[string]interface{})
+	}
 	return nil
 }
