@@ -226,7 +226,12 @@ func setServerConfigCore(core *CoreStruct) error {
 		return fmt.Errorf("error reading server.json: %w", err)
 	}
 
-	core.serverConfig = serverConfig.(map[string]interface{})
+	serverConfigMap, ok := serverConfig.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in server.json")
+	}
+
+	core.serverConfig = serverConfigMap
 	return nil
 }
 
@@ -237,7 +242,12 @@ func setMatchMetricsCore(core *CoreStruct) error {
 		return fmt.Errorf("error reading matchMetrics.json: %w", err)
 	}
 
-	core.matchMetrics = matchMetrics.(map[string]interface{})
+	matchMetricsMap, ok := matchMetrics.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in matchMetrics.json")
+	}
+
+	core.matchMetrics = matchMetricsMap
 	return nil
 }
 
@@ -248,7 +258,12 @@ func setGlobalsCore(core *CoreStruct) error {
 		return fmt.Errorf("error reading globals.json: %w", err)
 	}
 
-	core.globals = globals.(map[string]interface{})
+	globalsMap, ok := globals.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in globals.json")
+	}
+
+	core.globals = globalsMap
 	return nil
 }
 
@@ -258,29 +273,49 @@ func setClientSettingsCore(core *CoreStruct) error {
 	if err != nil {
 		return fmt.Errorf("error reading client.settings.json: %w", err)
 	}
-	core.clientSettings = clientSettings.(map[string]interface{})["data"].(map[string]interface{})
+
+	clientSettingsMap, ok := clientSettings.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in client.settings.json")
+	}
+
+	clientSettingsData, ok := clientSettingsMap["data"].(map[string]interface{})
+	if !ok {
+		core.clientSettings = clientSettingsMap
+		return nil
+	}
+
+	core.clientSettings = clientSettingsData
 	return nil
 }
 
 func setLocationsCore(core *CoreStruct) error {
 	locations, err := tools.ReadParsed(LOCATIONS_FILE_PATH)
-
 	if err != nil {
 		return fmt.Errorf("error reading locations.json: %w", err)
 	}
 
-	core.locations = locations.(map[string]interface{})["data"].(map[string]interface{})
+	locationsMap, ok := locations.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in locations.json")
+	}
+
+	core.locations = locationsMap
 	return nil
 }
 
 func setBotTemplateCore(core *CoreStruct) error {
 	botTemplate, err := tools.ReadParsed(BOT_TEMPLATE_FILE_PATH)
-
 	if err != nil {
 		return fmt.Errorf("error reading botTemplate.json: %w", err)
 	}
 
-	core.botTemplate = botTemplate.(map[string]interface{})
+	botTemplateMap, ok := botTemplate.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in botTemplate.json")
+	}
+
+	core.botTemplate = botTemplateMap
 	return nil
 }
 
@@ -307,10 +342,20 @@ func setEditions() error {
 			return fmt.Errorf("error reading character_bear.json for edition %s: %w", edition, err)
 		}
 
+		bearMap, ok := bearData.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid data structure in character_bear.json for edition %s", edition)
+		}
+
 		// Read character_usec.json and store in usec map
 		usecData, err := tools.ReadParsed(filepath.Join(editionPath, "character_usec.json"))
 		if err != nil {
 			return fmt.Errorf("error reading character_usec.json for edition %s: %w", edition, err)
+		}
+
+		usecMap, ok := usecData.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid data structure in character_usec.json for edition %s", edition)
 		}
 
 		// Read storage.json and store in storage map
@@ -319,11 +364,16 @@ func setEditions() error {
 			return fmt.Errorf("error reading storage.json for edition %s: %w", edition, err)
 		}
 
+		storageMap, ok := storageData.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid data structure in storage.json for edition %s", edition)
+		}
+
 		// Create an EditionStruct for this edition and populate the maps
 		editionData := EditionStruct{
-			bear:    bearData.(map[string]interface{}),
-			usec:    usecData.(map[string]interface{}),
-			storage: storageData.(map[string]interface{}),
+			bear:    bearMap,
+			usec:    usecMap,
+			storage: storageMap,
 		}
 
 		// Add the editionData to the Database.editions map
@@ -362,16 +412,26 @@ func setLocales() error {
 			return fmt.Errorf("error reading locale.json for locale %s: %w", locale, err)
 		}
 
+		localeMap, ok := localeData.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid data structure in locale.json for locale %s", locale)
+		}
+
 		// Read menu.json and store in menu map
 		menuData, err := tools.ReadParsed(menu)
 		if err != nil {
 			return fmt.Errorf("error reading menu.json for locale %s: %w", locale, err)
 		}
 
+		menuMap, ok := menuData.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid data structure in menu.json for locale %s", locale)
+		}
+
 		// Create a LanguageStruct for this locale and populate the maps
 		languageData := LanguageStruct{
-			locale: localeData.(map[string]interface{}),
-			menu:   menuData.(map[string]interface{}),
+			locale: localeMap,
+			menu:   menuMap,
 		}
 
 		// Add the localeData to the locales map
@@ -383,7 +443,18 @@ func setLocales() error {
 	if err != nil {
 		return fmt.Errorf("error reading languages.json: %w", err)
 	}
-	locales.languages = languages.(map[string]interface{})["data"].(map[string]interface{})
+
+	languagesMap, ok := languages.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in languages.json")
+	}
+
+	languagesData, ok := languagesMap["data"].(map[string]interface{})
+	if !ok {
+		locales.languages = languagesMap
+	} else {
+		locales.languages = languagesData
+	}
 
 	extrasFilePath := filepath.Join(LOCALES_FILE_PATH, "extras.json")
 	if !tools.FileExist(extrasFilePath) {
@@ -393,7 +464,13 @@ func setLocales() error {
 	if err != nil {
 		return fmt.Errorf("error reading extras.json: %w", err)
 	}
-	locales.extras = extras.(map[string]interface{})
+
+	extrasMap, ok := extras.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in extras.json")
+	}
+
+	locales.extras = extrasMap
 	return nil
 }
 
@@ -534,7 +611,7 @@ func setTraders() error {
 				continue
 				//return fmt.Errorf("error reading %s for trader %s: %w", file, traderID, err)
 			} else {
-				fileName := strings.Split(file, ".")[0]
+				fileName := strings.TrimSuffix(file, ".json")
 
 				if file == "assort.json" {
 					assort := parsed.(map[string]interface{})
@@ -565,7 +642,12 @@ func setQuests() error {
 		return fmt.Errorf("error reading quests.json: %w", err)
 	}
 
-	Database.quests = quests.(map[string]interface{})
+	questsMap, ok := quests.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in quests.json")
+	}
+
+	Database.quests = questsMap
 	return nil
 }
 
@@ -578,7 +660,7 @@ func setHideout() error {
 	}
 
 	for _, file := range hideoutFiles {
-		fileName := strings.Split(file, ".")[0]
+		fileName := strings.TrimSuffix(file, ".json")
 		filePath := filepath.Join(HIDEOUT_FILE_PATH, file)
 
 		if data, err := tools.ReadParsed(filePath); err != nil {
@@ -604,12 +686,16 @@ func setHideout() error {
 
 func setCustomization() error {
 	customization, err := tools.ReadParsed("database/customization.json")
-
 	if err != nil {
 		return fmt.Errorf("error reading customization.json: %w", err)
 	}
 
-	Database.customization = customization.(map[string]interface{})["data"].(map[string]interface{})
+	data, ok := customization.(map[string]interface{})["data"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("customization.json has invalid structure")
+	}
+
+	Database.customization = data
 	return nil
 }
 
@@ -677,7 +763,12 @@ func setAccount(path string, profileID string) map[string]interface{} {
 	}
 
 	account, ok := data.(map[string]interface{})
-	if !ok || account == nil {
+	if !ok {
+		log.Printf("Account.json for profile %s has invalid structure", profileID)
+		return nil
+	}
+
+	if len(account) == 0 {
 		log.Printf("Account.json for profile %s is empty", profileID)
 		return nil
 	}
@@ -694,7 +785,12 @@ func setCharacter(path string, profileID string) map[string]interface{} {
 	}
 
 	character, ok := data.(map[string]interface{})
-	if !ok || character == nil {
+	if !ok {
+		log.Printf("Character.json for profile %s has invalid structure", profileID)
+		return nil
+	}
+
+	if len(character) == 0 {
 		log.Printf("Character.json for profile %s is empty", profileID)
 		return nil
 	}
@@ -711,7 +807,12 @@ func setStorage(path string, profileID string) map[string]interface{} {
 	}
 
 	storage, ok := data.(map[string]interface{})
-	if !ok || storage == nil {
+	if !ok {
+		log.Printf("Storage.json for profile %s has invalid structure", profileID)
+		return nil
+	}
+
+	if len(storage) == 0 {
 		log.Printf("Storage.json for profile %s is empty", profileID)
 		return nil
 	}
@@ -728,7 +829,12 @@ func setDialogues(path string, profileID string) map[string]interface{} {
 	}
 
 	dialogues, ok := data.(map[string]interface{})
-	if !ok || dialogues == nil {
+	if !ok {
+		log.Printf("Dialogues.json for profile %s has invalid structure", profileID)
+		return nil
+	}
+
+	if len(dialogues) == 0 {
 		log.Printf("Dialogues.json for profile %s is empty", profileID)
 		return nil
 	}
@@ -738,12 +844,16 @@ func setDialogues(path string, profileID string) map[string]interface{} {
 
 func setWeather() error {
 	weather, err := tools.ReadParsed("database/weather.json")
-
 	if err != nil {
 		return fmt.Errorf("error reading weather.json: %w", err)
 	}
 
-	Database.weather = weather.(map[string]interface{})
+	wMap, ok := weather.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in weather.json")
+	}
+
+	Database.weather = wMap
 	return nil
 }
 
@@ -790,53 +900,77 @@ func setBot() error {
 }
 
 func setBotCore(bot *BotStruct) error {
-	core, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "__BotGlobalSettings.json"))
-
+	botGlobalSettingsData, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "__BotGlobalSettingsData.json"))
 	if err != nil {
-		return fmt.Errorf("error reading core.json: %w", err)
+		return fmt.Errorf("error reading __BotGlobalSettings.json: %w", err)
 	}
 
-	bot.core = core.(map[string]interface{})
+	botGlobals, ok := botGlobalSettingsData.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in __BotGlobalSettings.json")
+	}
+
+	bot.core = botGlobals
 	return nil
 }
 
 func setBotNames(bot *BotStruct) error {
 	names, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "names.json"))
-
 	if err != nil {
 		return fmt.Errorf("error reading names.json: %w", err)
 	}
-	bot.names = names.(map[string]interface{})
+
+	nameMap, ok := names.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in names.json")
+	}
+
+	bot.names = nameMap
 	return nil
 }
 
 func setBotAppearance(bot *BotStruct) error {
 	appearance, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "appearance.json"))
-
 	if err != nil {
 		return fmt.Errorf("error reading appearance.json: %w", err)
 	}
-	bot.appearance = appearance.(map[string]interface{})
+
+	appearanceMap, ok := appearance.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in appearance.json")
+	}
+
+	bot.appearance = appearanceMap
 	return nil
 }
 
 func setBotPlayerScav(bot *BotStruct) error {
 	playerScav, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "playerScav.json"))
-
 	if err != nil {
 		return fmt.Errorf("error reading playerScav.json: %w", err)
 	}
-	bot.playerScav = playerScav.(map[string]interface{})
+
+	playerScavMap, ok := playerScav.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in playerScav.json")
+	}
+
+	bot.playerScav = playerScavMap
 	return nil
 }
 
 func setBotWeaponCache(bot *BotStruct) error {
 	weaponCache, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "weaponCache.json"))
-
 	if err != nil {
 		return fmt.Errorf("error reading weaponCache.json: %w", err)
 	}
-	bot.weaponCache = weaponCache.(map[string]interface{})
+
+	weaponCacheMap, ok := weaponCache.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in weaponCache.json")
+	}
+
+	bot.weaponCache = weaponCacheMap
 	return nil
 }
 
@@ -870,33 +1004,38 @@ func setBots(bot *BotStruct) error {
 func setBotTypeHealth(path string) map[string]interface{} {
 	healthFilePath := filepath.Join(path, "health.json")
 
-	healthData, _ := tools.ReadParsed(healthFilePath)
-	if healthData != nil {
-		health := healthData.(map[string]interface{})
-		if len(health) > 1 {
-			healthMap := make(map[string]interface{})
-			for key, value := range health {
-				healthMap[key] = value.(map[string]interface{})
-			}
-			return healthMap
-		} else {
-			return health
+	healthData, err := tools.ReadParsed(healthFilePath)
+	if err != nil || healthData == nil {
+		return nil
+	}
+
+	if health, ok := healthData.(map[string]interface{}); ok && len(health) == 1 {
+		return health
+	}
+
+	healthMap := make(map[string]interface{})
+	for key, value := range healthData.(map[string]interface{}) {
+		if v, ok := value.(map[string]interface{}); ok {
+			healthMap[key] = v
 		}
 	}
-	//log.Printf("health.json for %s is empty", path)
-	return nil
+
+	return healthMap
 }
 
 func setBotTypeLoadout(path string) map[string]interface{} {
 	loadoutFilePath := filepath.Join(path, "loadout.json")
 
-	loadoutData, _ := tools.ReadParsed(loadoutFilePath)
-	if loadoutData == nil {
-		//log.Printf("loadout.json for %s is empty", path)
+	loadoutData, err := tools.ReadParsed(loadoutFilePath)
+	if err != nil || loadoutData == nil {
 		return nil
-	} else {
-		return loadoutData.(map[string]interface{})
 	}
+
+	if loadout, ok := loadoutData.(map[string]interface{}); ok {
+		return loadout
+	}
+
+	return nil
 }
 
 func setBotTypeDifficulty(path string) map[string]interface{} {
@@ -908,8 +1047,9 @@ func setBotTypeDifficulty(path string) map[string]interface{} {
 		return nil
 	}
 
-	difficulties := make(map[string]interface{})
+	difficulties := make(map[string]interface{}, len(difficultiesDirectory))
 	for _, difficulty := range difficultiesDirectory {
+		difficultyName := strings.TrimSuffix(difficulty, ".json")
 		difficultyPath := filepath.Join(difficultiesPath, difficulty)
 
 		difficultyData, err := tools.ReadParsed(difficultyPath)
@@ -917,8 +1057,7 @@ func setBotTypeDifficulty(path string) map[string]interface{} {
 			log.Panicf("error reading %s: %v", difficulty, err)
 			return nil
 		}
-		difficultyName := strings.Split(difficulty, ".")[0]
-		difficulties[difficultyName] = difficultyData.(map[string]interface{})
+		difficulties[difficultyName] = difficultyData
 	}
 	return difficulties
 }
