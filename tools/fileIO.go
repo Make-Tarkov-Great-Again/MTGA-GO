@@ -2,9 +2,23 @@ package tools
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+)
+
+const (
+	FILE_DOES_NOT_EXIST      string = "file does not exist"
+	FAIL_TO_READ_FILE        string = "failed to read file"
+	DIRECTORY_EXISTS         string = "directory already exists"
+	DIRECTORY_DOES_NOT_EXIST string = "directory does not exist"
+	FAIL_TO_READ_DIRECTORY   string = "failed to read directory"
+)
+
+const (
+	SSW_FORMAT string = "%s: %s: %w"
+	SS_FORMAT  string = "%s: %s"
 )
 
 // WriteToFile writes the given string of data to the specified file path
@@ -42,11 +56,11 @@ func GetAbsolutePathFrom(path string) string {
 
 // CreateDirectory creates a directory at the specified path
 func CreateDirectory(filePath string) error {
-	if FileExist(filePath) {
-		log.Print("File already exists")
-		return nil
-	}
 	path := GetAbsolutePathFrom(filePath)
+
+	if FileExist(path) {
+		return fmt.Errorf(SS_FORMAT, DIRECTORY_EXISTS, filePath)
+	}
 
 	err := os.MkdirAll(path, 0755)
 	if err != nil {
@@ -66,54 +80,80 @@ func FileExist(filePath string) bool {
 func ReadFile(filePath string) ([]byte, error) {
 	path := GetAbsolutePathFrom(filePath)
 
+	if !FileExist(path) {
+		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_FILE, filePath, err)
 	}
 
 	return data, nil
 }
 
 // GetDirectoriesFrom returns a list of directories from a file path
-func GetDirectoriesFrom(filePath string) []string {
+func GetDirectoriesFrom(filePath string) ([]string, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
-		log.Fatal("File does not exist")
-		return nil
+		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
 	}
 
-	files := []string{}
 	directory, err := os.ReadDir(path)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_DIRECTORY, filePath, err)
 	}
 
+	files := make([]string, 0, len(directory))
 	for _, file := range directory {
 		if file.IsDir() {
 			files = append(files, file.Name())
 		}
 	}
-	return files
+	return files, nil
 }
 
 // GetFilesFrom returns a list of files from a file path
-func GetFilesFrom(filePath string) []string {
+func GetFilesFrom(filePath string) ([]string, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
-		log.Fatal("File does not exist")
-		return nil
+		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
 	}
 
-	files := []string{}
 	directory, err := os.ReadDir(path)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_DIRECTORY, filePath, err)
 	}
 
+	files := make([]string, 0, len(directory))
 	for _, file := range directory {
 		if !file.IsDir() {
 			files = append(files, file.Name())
 		}
 	}
-	return files
+	return files, nil
+}
+
+func TransformInterfaceIntoMappedArray(data []interface{}) []map[string]interface{} {
+	results := make([]map[string]interface{}, 0, len(data))
+	for _, v := range data {
+		result := v.(map[string]interface{})
+		results = append(results, result)
+	}
+	return results
+}
+
+func TransformInterfaceIntoMappedObject(data interface{}) map[string]interface{} {
+	result := data.(map[string]interface{})
+	return result
+}
+
+func AuditArrayCapacity(data []map[string]interface{}) []map[string]interface{} {
+	dataLen := len(data)
+	results := make([]map[string]interface{}, 0, dataLen)
+	for i := 0; i < dataLen; i++ {
+		result := data[i]
+		results = append(results, result)
+	}
+	return results
 }
