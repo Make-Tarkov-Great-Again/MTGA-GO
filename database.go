@@ -75,7 +75,11 @@ func initializeDatabase() error {
 		webSocketPings: make(map[string]interface{}),
 	}
 	Database.items = make(map[string]interface{})
-	Database.locales = LocaleStruct{}
+	Database.locales = LocaleStruct{
+		locales:   make(map[string]interface{}),
+		extras:    make(map[string]interface{}),
+		languages: make(map[string]interface{}),
+	}
 	Database.templates = TemplatesStruct{
 		Handbook: HandbookStruct{
 			Items:      []map[string]interface{}{},
@@ -83,8 +87,14 @@ func initializeDatabase() error {
 		},
 		Prices: make(map[string]interface{}),
 		TplLookup: TplLookupStruct{
-			Items:      ItemsLookupStruct{},
-			Categories: CategoriesLookupStruct{},
+			Items: ItemsLookupStruct{
+				byId:     make(map[string]interface{}),
+				byParent: make(map[string]interface{}),
+			},
+			Categories: CategoriesLookupStruct{
+				byId:     make(map[string]interface{}),
+				byParent: make(map[string]interface{}),
+			},
 		},
 	}
 	Database.editions = make(map[string]interface{})
@@ -106,7 +116,14 @@ func initializeDatabase() error {
 	Database.customization = make(map[string]interface{})
 	Database.profiles = map[string]interface{}{}
 	Database.weather = make(map[string]interface{})
-	Database.bot = BotStruct{}
+	Database.bot = BotStruct{
+		bots:        make(map[string]interface{}),
+		core:        make(map[string]interface{}),
+		names:       make(map[string]interface{}),
+		appearance:  make(map[string]interface{}),
+		playerScav:  make(map[string]interface{}),
+		weaponCache: make(map[string]interface{}),
+	}
 
 	if err := setDatabase(); err != nil {
 		return fmt.Errorf("error setting database: %w", err)
@@ -623,11 +640,11 @@ func setProfiles() error {
 		return nil
 	}
 
-	profilesDirectory, err := tools.GetDirectoriesFrom(USER_FILE_PATH)
+	profilesDirectory, err := tools.GetDirectoriesFrom(PROFILES_FILE_PATH)
 	if err != nil {
 		return fmt.Errorf("error reading user directory: %w", err)
 	} else if profilesDirectory == nil {
-		log.Printf("No profiles found in %s", USER_FILE_PATH)
+		log.Printf("No profiles found in %s", PROFILES_FILE_PATH)
 		return nil
 	}
 
@@ -841,64 +858,67 @@ func setBots(bot *BotStruct) error {
 		botTypePath := filepath.Join(BOTS_FILE_PATH, aiType)
 
 		bot.bots[aiType] = BotTypeStruct{
-			health:     make(map[string]interface{}),
-			loadout:    make(map[string]interface{}),
-			difficulty: make(map[string]interface{}),
+			health:     setBotTypeHealth(botTypePath),
+			loadout:    setBotTypeLoadout(botTypePath),
+			difficulty: setBotTypeDifficulty(botTypePath),
 		}
-
-		botType := bot.bots[aiType].(BotTypeStruct)
-		setBotTypeHealth(&botType, botTypePath)
-		setBotTypeLoadout(&botType, botTypePath)
-		setBotTypeDifficulty(&botType, botTypePath)
-
 	}
 
 	return nil
 }
 
-func setBotTypeHealth(botType *BotTypeStruct, path string) error {
-	healthData, _ := tools.ReadParsed(filepath.Join(path, "health.json"))
+func setBotTypeHealth(path string) map[string]interface{} {
+	healthFilePath := filepath.Join(path, "health.json")
+
+	healthData, _ := tools.ReadParsed(healthFilePath)
 	if healthData != nil {
 		health := healthData.(map[string]interface{})
-		if len(health) > 0 {
+		if len(health) > 1 {
+			healthMap := make(map[string]interface{})
 			for key, value := range health {
-				botType.health[key] = value.(map[string]interface{})
+				healthMap[key] = value.(map[string]interface{})
 			}
-			return nil
+			return healthMap
 		} else {
-			botType.health = health
-			return nil
+			return health
 		}
 	}
-	return fmt.Errorf("error reading health.json for %s", path)
+	//log.Printf("health.json for %s is empty", path)
+	return nil
 }
 
-func setBotTypeLoadout(botType *BotTypeStruct, path string) error {
-	loadoutData, _ := tools.ReadParsed(filepath.Join(path, "loadout.json"))
-	if loadoutData != nil {
-		botType.loadout = loadoutData.(map[string]interface{})
+func setBotTypeLoadout(path string) map[string]interface{} {
+	loadoutFilePath := filepath.Join(path, "loadout.json")
+
+	loadoutData, _ := tools.ReadParsed(loadoutFilePath)
+	if loadoutData == nil {
+		//log.Printf("loadout.json for %s is empty", path)
 		return nil
+	} else {
+		return loadoutData.(map[string]interface{})
 	}
-	return fmt.Errorf("error reading loadout.json for %s", path)
 }
 
-func setBotTypeDifficulty(botType *BotTypeStruct, path string) error {
+func setBotTypeDifficulty(path string) map[string]interface{} {
 	difficultiesPath := filepath.Join(path, "difficulties")
 
 	difficultiesDirectory, err := tools.GetFilesFrom(difficultiesPath)
 	if err != nil {
-		return fmt.Errorf("error reading difficulties directory: %w", err)
+		log.Panicf("error reading difficulties directory: %v", err)
+		return nil
 	}
 
+	difficulties := make(map[string]interface{})
 	for _, difficulty := range difficultiesDirectory {
 		difficultyPath := filepath.Join(difficultiesPath, difficulty)
 
 		difficultyData, err := tools.ReadParsed(difficultyPath)
 		if err != nil {
-			return fmt.Errorf("error reading %s: %w", difficultyPath, err)
+			log.Panicf("error reading %s: %v", difficulty, err)
+			return nil
 		}
 		difficultyName := strings.Split(difficulty, ".")[0]
-		botType.difficulty[difficultyName] = difficultyData.(map[string]interface{})
+		difficulties[difficultyName] = difficultyData.(map[string]interface{})
 	}
-	return nil
+	return difficulties
 }
