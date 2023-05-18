@@ -9,22 +9,21 @@ import (
 )
 
 type DatabaseStruct struct {
-	core        CoreStruct
-	connections ConnectionStruct
-	items       map[string]interface{}
-	locales     LocaleStruct
-	templates   TemplatesStruct
-	traders     map[string]interface{}
-	flea        FleaStruct
-	quests      map[string]interface{}
-	hideout     HideoutStruct
-	//locations map[string]interface{}
+	core          CoreStruct
+	connections   ConnectionStruct
+	items         map[string]interface{}
+	locales       LocaleStruct
+	templates     TemplatesStruct
+	traders       map[string]interface{}
+	flea          FleaStruct
+	quests        map[string]interface{}
+	hideout       HideoutStruct
+	locations     LocationsStruct
 	weather       map[string]interface{}
 	customization map[string]interface{}
 	editions      map[string]interface{}
-	//presets       map[string]interface{}
-	bot      BotStruct
-	profiles map[string]interface{}
+	bot           BotStruct
+	profiles      map[string]interface{}
 	//bundles  []map[string]interface{}
 }
 
@@ -34,6 +33,7 @@ type CoreStruct struct {
 	serverConfig   map[string]interface{}
 	globals        map[string]interface{}
 	locations      map[string]interface{}
+	presets        map[string]interface{}
 	//gameplay        map[string]interface{}
 	//blacklist       []interface{}
 	matchMetrics map[string]interface{}
@@ -59,6 +59,11 @@ type HideoutStruct struct {
 	settings    map[string]interface{}
 }
 
+type LocationsStruct struct {
+	locations map[string]interface{}
+	lootGen   LootGenStruct
+}
+
 var Database = DatabaseStruct{}
 
 func initializeDatabase() error {
@@ -69,6 +74,7 @@ func initializeDatabase() error {
 		globals:        make(map[string]interface{}),
 		locations:      make(map[string]interface{}),
 		matchMetrics:   make(map[string]interface{}),
+		presets:        make(map[string]interface{}),
 	}
 	Database.connections = ConnectionStruct{
 		webSocket:      make(map[string]interface{}),
@@ -123,6 +129,13 @@ func initializeDatabase() error {
 		appearance:  make(map[string]interface{}),
 		playerScav:  make(map[string]interface{}),
 		weaponCache: make(map[string]interface{}),
+	}
+	Database.locations = LocationsStruct{
+		locations: make(map[string]interface{}),
+		lootGen: LootGenStruct{
+			containers: make(map[string]interface{}),
+			static:     make(map[string]interface{}),
+		},
 	}
 
 	if err := setDatabase(); err != nil {
@@ -181,6 +194,10 @@ func setDatabase() error {
 		return err
 	}
 
+	if err := setLocations(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -195,6 +212,9 @@ func setDatabaseCore() error {
 	}
 	if err := setGlobalsCore(core); err != nil {
 		return fmt.Errorf("error setting globals: %w", err)
+	}
+	if err := setPresetsCore(core); err != nil {
+		return fmt.Errorf("error setting presets: %w", err)
 	}
 	if err := setClientSettingsCore(core); err != nil {
 		return fmt.Errorf("error setting client settings: %w", err)
@@ -264,6 +284,44 @@ func setGlobalsCore(core *CoreStruct) error {
 	}
 
 	core.globals = globalsMap
+	return nil
+}
+
+func setPresetsCore(core *CoreStruct) error {
+	presets, ok := core.globals["ItemPresets"]
+	if !ok {
+		return fmt.Errorf("error reading ItemPresets from globals")
+	}
+
+	globalPresets, ok := presets.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in ItemPresets")
+	}
+
+	for id, preset := range globalPresets {
+
+		tpl, ok := preset.(map[string]interface{})["_items"].([]interface{})[0].(map[string]interface{})["_tpl"].(string)
+		if !ok {
+			return fmt.Errorf("tpl not found in preset %s", id)
+		}
+
+		if _, ok := core.presets[tpl]; !ok {
+			core.presets[tpl] = map[string]interface{}{}
+		}
+
+		presetId, ok := preset.(map[string]interface{})["_id"].(string)
+		if !ok {
+			return fmt.Errorf("presetId not found in preset %s", id)
+		}
+
+		itemPreset, ok := core.presets[tpl].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid data structure in ItemPresets")
+		}
+
+		itemPreset[presetId] = preset
+
+	}
 	return nil
 }
 
@@ -438,6 +496,36 @@ func setLocales() error {
 		locales.locales[locale] = languageData
 	}
 
+	if err := setLocalesLanguages(locales); err != nil {
+		return err
+	}
+
+	if err := setLocalesExtras(locales); err != nil {
+		return err
+	}
+	return nil
+}
+
+func setLocalesExtras(locales *LocaleStruct) error {
+	extrasFilePath := filepath.Join(LOCALES_FILE_PATH, "extras.json")
+	if !tools.FileExist(extrasFilePath) {
+		return fmt.Errorf("error reading extras.json")
+	}
+	extras, err := tools.ReadParsed(extrasFilePath)
+	if err != nil {
+		return fmt.Errorf("error reading extras.json: %w", err)
+	}
+
+	extrasMap, ok := extras.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in extras.json")
+	}
+
+	locales.extras = extrasMap
+	return nil
+}
+
+func setLocalesLanguages(locales *LocaleStruct) error {
 	languagesFilePath := filepath.Join(LOCALES_FILE_PATH, "languages.json")
 	languages, err := tools.ReadParsed(languagesFilePath)
 	if err != nil {
@@ -455,22 +543,6 @@ func setLocales() error {
 	} else {
 		locales.languages = languagesData
 	}
-
-	extrasFilePath := filepath.Join(LOCALES_FILE_PATH, "extras.json")
-	if !tools.FileExist(extrasFilePath) {
-		return fmt.Errorf("error reading extras.json")
-	}
-	extras, err := tools.ReadParsed(extrasFilePath)
-	if err != nil {
-		return fmt.Errorf("error reading extras.json: %w", err)
-	}
-
-	extrasMap, ok := extras.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in extras.json")
-	}
-
-	locales.extras = extrasMap
 	return nil
 }
 
@@ -1060,4 +1132,151 @@ func setBotTypeDifficulty(path string) map[string]interface{} {
 		difficulties[difficultyName] = difficultyData
 	}
 	return difficulties
+}
+
+type LocationStruct struct {
+	base                   map[string]interface{}
+	dynamicAvailableSpawns map[string]interface{}
+	lootSpawns             map[string]interface{}
+	//waves                  []map[string]interface{}
+	//bossWaves              []map[string]interface{}
+	presets map[string]interface{}
+}
+
+func setLocations() error {
+	locationsDirectory, err := tools.GetDirectoriesFrom("database/locations")
+	if err != nil {
+		return fmt.Errorf("error reading locations directory: %w", err)
+	}
+
+	locations := &Database.locations
+
+	for _, location := range locationsDirectory {
+		locationPath := filepath.Join("database/locations", location)
+
+		base, err := tools.ReadParsed(filepath.Join(locationPath, "base.json"))
+		if err != nil {
+			return fmt.Errorf("error reading base.json for location %s: %w", location, err)
+		}
+		baseMap, ok := base.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid data structure in base.json for location %s", location)
+		}
+
+		dynamicAvailableSpawns, err := tools.ReadParsed(filepath.Join(locationPath, "availableSpawns.json"))
+		if err != nil {
+			return fmt.Errorf("error reading availableSpawns.json for location %s: %w", location, err)
+		}
+		dynamicAvailableSpawnsMap, ok := dynamicAvailableSpawns.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid data structure in availableSpawns.json for location %s", location)
+		}
+
+		locationStruct := LocationStruct{
+			base:                   baseMap,
+			dynamicAvailableSpawns: dynamicAvailableSpawnsMap,
+			lootSpawns:             setLootSpawns(locationPath),
+			presets:                setLocationPresets(locationPath),
+		}
+
+		locations.locations[location] = locationStruct
+	}
+
+	if err := setLocationsLootGen(locations); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setLootSpawns(path string) map[string]interface{} {
+	lootSpawnsPath := filepath.Join(path, "lootSpawns")
+	lootSpawns, err := tools.GetFilesFrom(lootSpawnsPath)
+	if err != nil {
+		log.Panicf("error reading lootSpawns directory: %v", err)
+		return nil
+	}
+	lootSpawnsMap := make(map[string]interface{}, len(lootSpawns))
+
+	for _, lootSpawn := range lootSpawns {
+		lootSpawnName := strings.TrimSuffix(lootSpawn, ".json")
+		lootSpawnPath := filepath.Join(lootSpawnsPath, lootSpawn)
+
+		lootSpawnData, err := tools.ReadParsed(lootSpawnPath)
+		if err != nil {
+			log.Panicf("error reading %s: %v", lootSpawn, err)
+			return nil
+		}
+		lootSpawnArray, ok := lootSpawnData.([]interface{})
+		if !ok {
+			log.Panicf("invalid data structure in %s", lootSpawn)
+			return nil
+		}
+
+		lootSpawnMap := tools.TransformInterfaceIntoMappedArray(lootSpawnArray)
+		lootSpawnsMap[lootSpawnName] = lootSpawnMap
+	}
+	return lootSpawnsMap
+}
+
+func setLocationPresets(path string) map[string]interface{} {
+	presetsPath := filepath.Join(path, "#presets")
+	presets, err := tools.GetFilesFrom(presetsPath)
+	if err != nil {
+		log.Panicf("error reading presets directory: %v", err)
+		return nil
+	}
+
+	presetsMap := make(map[string]interface{}, len(presets))
+	for _, preset := range presets {
+		presetName := strings.TrimSuffix(preset, ".json")
+		presetPath := filepath.Join(presetsPath, preset)
+		preset, err := tools.ReadParsed(presetPath)
+		if err != nil {
+			log.Panicf("error reading %s: %v", preset, err)
+			return nil
+		}
+
+		presetMap, ok := preset.(map[string]interface{})
+		if !ok {
+			log.Panicf("invalid data structure in %s", preset)
+			return nil
+		}
+
+		presetsMap[presetName] = presetMap
+	}
+
+	return presetsMap
+}
+
+type LootGenStruct struct {
+	containers map[string]interface{}
+	static     map[string]interface{}
+}
+
+func setLocationsLootGen(locations *LocationsStruct) error {
+	lootGenPath := "database/lootGen"
+	lootGen := &locations.lootGen
+
+	containers, err := tools.ReadParsed(filepath.Join(lootGenPath, "containersSpawnData.json"))
+	if err != nil {
+		return fmt.Errorf("error reading containersSpawnData.json: %w", err)
+	}
+	containersMap, ok := containers.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in containersSpawnData.json")
+	}
+	lootGen.containers = containersMap
+
+	static, err := tools.ReadParsed(filepath.Join(lootGenPath, "staticWeaponsData.json"))
+	if err != nil {
+		return fmt.Errorf("error reading staticWeaponsData.json: %w", err)
+	}
+	staticMap, ok := static.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid data structure in staticWeaponsData.json")
+	}
+	lootGen.static = staticMap
+
+	return nil
 }
