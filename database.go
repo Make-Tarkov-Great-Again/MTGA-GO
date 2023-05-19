@@ -5,25 +5,25 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
-	"strings"
+	"sync"
 )
 
 type DatabaseStruct struct {
 	core          CoreStruct
 	connections   ConnectionStruct
-	items         map[string]interface{}
+	items         map[string]map[string]interface{}
 	locales       LocaleStruct
 	templates     TemplatesStruct
-	traders       map[string]interface{}
+	traders       map[string]TraderStruct
 	flea          FleaStruct
-	quests        map[string]interface{}
+	quests        map[string]map[string]interface{}
 	hideout       HideoutStruct
 	locations     LocationsStruct
 	weather       map[string]interface{}
-	customization map[string]interface{}
+	customization map[string]map[string]interface{}
 	editions      map[string]interface{}
 	bot           BotStruct
-	profiles      map[string]interface{}
+	profiles      map[string]ProfileStruct
 	//bundles  []map[string]interface{}
 }
 
@@ -60,7 +60,7 @@ type HideoutStruct struct {
 }
 
 type LocationsStruct struct {
-	locations map[string]interface{}
+	locations map[string]LocationStruct
 	lootGen   LootGenStruct
 }
 
@@ -80,9 +80,9 @@ func initializeDatabase() error {
 		webSocket:      map[string]interface{}{},
 		webSocketPings: map[string]interface{}{},
 	}
-	Database.items = tools.SetProperObjectDataStructure("database/items.json")
+	Database.items = setItems()
 	Database.locales = LocaleStruct{
-		locales:   map[string]interface{}{},
+		locales:   make(map[string]LanguageStruct),
 		extras:    map[string]interface{}{},
 		languages: map[string]interface{}{},
 	}
@@ -104,8 +104,8 @@ func initializeDatabase() error {
 		},
 	}
 	Database.editions = map[string]interface{}{}
-	Database.traders = map[string]interface{}{}
-	Database.quests = tools.SetProperObjectDataStructure("database/quests.json")
+	Database.traders = make(map[string]TraderStruct)
+	Database.quests = setQuests()
 	Database.flea = FleaStruct{
 		offers:           []map[string]interface{}{},
 		offerscount:      0,
@@ -119,8 +119,8 @@ func initializeDatabase() error {
 		qte:         []map[string]interface{}{},
 		settings:    map[string]interface{}{},
 	}
-	Database.customization = tools.SetProperObjectDataStructure("database/customization.json")
-	Database.profiles = map[string]interface{}{}
+	Database.customization = setCustomization()
+	Database.profiles = map[string]ProfileStruct{}
 	Database.weather = tools.SetProperObjectDataStructure("database/weather.json")
 
 	Database.bot = BotStruct{
@@ -132,7 +132,7 @@ func initializeDatabase() error {
 		weaponCache: map[string]interface{}{},
 	}
 	Database.locations = LocationsStruct{
-		locations: map[string]interface{}{},
+		locations: make(map[string]LocationStruct),
 		lootGen: LootGenStruct{
 			containers: map[string]interface{}{},
 			static:     map[string]interface{}{},
@@ -184,6 +184,39 @@ func setDatabase() error {
 	}
 
 	return nil
+}
+
+func setItems() map[string]map[string]interface{} {
+	items := tools.SetProperObjectDataStructure("database/items.json")
+	itemsMap := make(map[string]map[string]interface{}, len(items))
+
+	for id, quest := range items {
+		itemsMap[id] = quest.(map[string]interface{})
+	}
+
+	return itemsMap
+}
+
+func setCustomization() map[string]map[string]interface{} {
+	customizations := tools.SetProperObjectDataStructure("database/customization.json")
+	customizationsMap := make(map[string]map[string]interface{}, len(customizations))
+
+	for id, customization := range customizations {
+		customizationsMap[id] = customization.(map[string]interface{})
+	}
+
+	return customizationsMap
+}
+
+func setQuests() map[string]map[string]interface{} {
+	quests := tools.SetProperObjectDataStructure("database/quests.json")
+	questsMap := make(map[string]map[string]interface{}, len(quests))
+
+	for id, quest := range quests {
+		questsMap[id] = quest.(map[string]interface{})
+	}
+
+	return questsMap
 }
 
 func setDatabaseCore() error {
@@ -377,7 +410,7 @@ const (
 )
 
 type LocaleStruct struct {
-	locales   map[string]interface{}
+	locales   map[string]LanguageStruct
 	extras    map[string]interface{}
 	languages map[string]interface{}
 }
@@ -397,15 +430,29 @@ func setLocales() error {
 	locales.languages = tools.SetProperObjectDataStructure(LOCALES_LANGUAGES_PATH)
 	locales.extras = tools.SetProperObjectDataStructure(LOCALES_EXTRAS_FILE_PATH)
 
+	dataChan := make(chan LanguageStruct, len(localesDirectory))
 	for _, locale := range localesDirectory {
-		localePath := filepath.Join(LOCALES_FILE_PATH, locale, "locale.json")
-		menuPath := filepath.Join(LOCALES_FILE_PATH, locale, "menu.json")
+		go func(locale string) {
 
-		// Add the localeData to the locales map
-		locales.locales[locale] = LanguageStruct{
-			locale: tools.SetProperObjectDataStructure(localePath),
-			menu:   tools.SetProperObjectDataStructure(menuPath),
+			var data LanguageStruct
+			localePath := filepath.Join(LOCALES_FILE_PATH, locale, "locale.json")
+			menuPath := filepath.Join(LOCALES_FILE_PATH, locale, "menu.json")
+
+			data.locale = tools.SetProperObjectDataStructure(localePath)
+			data.menu = tools.SetProperObjectDataStructure(menuPath)
+
+			// Add the localeData to the locales map
+			dataChan <- data
+		}(locale)
+	}
+
+	for i := 0; i < len(localesDirectory); i++ {
+		data := <-dataChan
+		locales.locales[localesDirectory[i]] = LanguageStruct{
+			locale: data.locale,
+			menu:   data.menu,
 		}
+
 	}
 	return nil
 }
@@ -518,49 +565,58 @@ func setTraders() error {
 		return fmt.Errorf("error reading traders directory: %w", err)
 	}
 
-	trader := TraderStruct{}
+	type traderData struct {
+		id         string
+		assort     AssortStruct
+		base       map[string]interface{}
+		baseassort map[string]interface{}
+		dialogue   map[string]interface{}
+		quest      map[string]interface{}
+		suits      map[string]interface{}
+	}
+	var wg sync.WaitGroup
+	traderDataChan := make(chan traderData, len(tradersDirectory))
+
+	// Launch goroutines to process each trader concurrently
 	for _, traderID := range tradersDirectory {
-		trader.assort = AssortStruct{
-			items:             []map[string]interface{}{},
-			barter_scheme:     map[string]interface{}{},
-			loyal_level_items: map[string]interface{}{},
-		}
+		wg.Add(1)
+		go func(id string) {
+			defer wg.Done()
+			var traderData traderData
 
-		trader.base = map[string]interface{}{}
-		trader.baseAssort = map[string]interface{}{}
-		trader.dialogue = map[string]interface{}{}
-		trader.questassort = map[string]interface{}{}
-		trader.suits = map[string]interface{}{}
+			traderData.id = id
+			if assort, err := setTraderAssort(filepath.Join(TRADERS_FILE_PATH, id)); err != nil {
+				log.Printf("Error setting trader assort for %s: %v\n", id, err)
+			} else {
+				traderData.assort = assort
+			}
 
-		traderPath := filepath.Join(TRADERS_FILE_PATH, traderID)
+			traderData.base = tools.SetProperObjectDataStructure(filepath.Join(TRADERS_FILE_PATH, id, "base.json"))
 
-		if assort, err := setTraderAssort(filepath.Join(traderPath)); err != nil {
-			return err
-		} else {
-			trader.assort = assort
-		}
+			if dialogue, _ := setTraderDialogue(filepath.Join(TRADERS_FILE_PATH, id)); dialogue != nil {
+				traderData.dialogue = dialogue
+			}
 
-		trader.base = tools.SetProperObjectDataStructure(filepath.Join(traderPath, "base.json"))
+			if questAssort, _ := setTraderQuestAssort(filepath.Join(TRADERS_FILE_PATH, id)); questAssort != nil {
+				traderData.quest = questAssort
+			}
 
-		if dialogue, err := setTraderDialogue(traderPath); err != nil {
-			trader.dialogue = map[string]interface{}{}
-		} else {
-			trader.dialogue = dialogue
-		}
+			if suits, _ := setTraderSuits(filepath.Join(TRADERS_FILE_PATH, id)); suits != nil {
+				traderData.suits = suits
+			}
 
-		if questassort, err := setTraderQuestAssort(traderPath); err != nil {
-			trader.questassort = map[string]interface{}{}
-		} else {
-			trader.questassort = questassort
-		}
+			traderDataChan <- traderData
+		}(traderID)
+	}
 
-		if suits, err := setTraderSuits(traderPath); err != nil {
-			trader.suits = map[string]interface{}{}
-		} else {
-			trader.suits = suits
-		}
+	// Wait for all goroutines to finish and update database
+	go func() {
+		wg.Wait()
+		close(traderDataChan)
+	}()
 
-		Database.traders[traderID] = trader
+	for traderData := range traderDataChan {
+		Database.traders[traderData.id] = TraderStruct{traderData.assort, traderData.base, traderData.baseassort, traderData.dialogue, traderData.quest, traderData.suits}
 	}
 
 	return nil
@@ -849,6 +905,8 @@ func setProfiles() error {
 		return nil
 	}
 
+	Database.profiles = make(map[string]ProfileStruct, len(profilesDirectory))
+
 	for _, profileID := range profilesDirectory {
 		profilePath := filepath.Join(PROFILES_FILE_PATH, profileID)
 		profile := ProfileStruct{
@@ -996,7 +1054,6 @@ func setBot() error {
 	}
 
 	return nil
-
 }
 
 func setBotCore(bot *BotStruct) error {
@@ -1088,13 +1145,42 @@ func setBots(bot *BotStruct) error {
 		return fmt.Errorf("error reading bots directory: %w", err)
 	}
 
-	for _, aiType := range botsFiles {
-		botTypePath := filepath.Join(BOTS_FILE_PATH, aiType)
+	type botData struct {
+		aiType     string
+		health     map[string]interface{}
+		loadout    map[string]interface{}
+		difficulty map[string]interface{}
+	}
 
-		bot.bots[aiType] = BotTypeStruct{
-			health:     setBotTypeHealth(botTypePath),
-			loadout:    setBotTypeLoadout(botTypePath),
-			difficulty: setBotTypeDifficulty(botTypePath),
+	var wg sync.WaitGroup
+	botDataChan := make(chan botData, len(botsFiles))
+
+	for _, aiType := range botsFiles {
+		wg.Add(1)
+		go func(aiType string) {
+			defer wg.Done()
+			var data botData
+			botTypePath := filepath.Join(BOTS_FILE_PATH, aiType)
+
+			data.aiType = aiType
+			data.health = setBotTypeHealth(botTypePath)
+			data.loadout = setBotTypeLoadout(botTypePath)
+			data.difficulty = setBotTypeDifficulty(botTypePath)
+
+			botDataChan <- data
+		}(aiType)
+	}
+
+	go func() {
+		wg.Wait()
+		close(botDataChan)
+	}()
+
+	for data := range botDataChan {
+		bot.bots[data.aiType] = BotTypeStruct{
+			health:     data.health,
+			loadout:    data.loadout,
+			difficulty: data.difficulty,
 		}
 	}
 
@@ -1149,7 +1235,7 @@ func setBotTypeDifficulty(path string) map[string]interface{} {
 
 	difficulties := make(map[string]interface{}, len(difficultiesDirectory))
 	for _, difficulty := range difficultiesDirectory {
-		difficultyName := strings.TrimSuffix(difficulty, ".json")
+		difficultyName := difficulty[:len(difficulty)-5]
 		difficultyPath := filepath.Join(difficultiesPath, difficulty)
 
 		difficultyData, err := tools.ReadParsed(difficultyPath)
@@ -1168,7 +1254,7 @@ type LocationStruct struct {
 	lootSpawns             map[string]interface{}
 	//waves                  []map[string]interface{}
 	//bossWaves              []map[string]interface{}
-	presets map[string]interface{}
+	presets map[string]map[string]interface{}
 }
 
 func setLocations() error {
@@ -1178,6 +1264,7 @@ func setLocations() error {
 	}
 
 	locations := &Database.locations
+	locations.locations = make(map[string]LocationStruct, len(locationsDirectory))
 
 	for _, location := range locationsDirectory {
 		locationPath := filepath.Join("database/locations", location)
@@ -1233,7 +1320,7 @@ func setLootSpawns(path string) map[string]interface{} {
 	lootSpawnsMap := make(map[string]interface{}, len(lootSpawns))
 
 	for _, lootSpawn := range lootSpawns {
-		lootSpawnName := strings.TrimSuffix(lootSpawn, ".json")
+		lootSpawnName := lootSpawn[:len(lootSpawn)-5]
 		lootSpawnPath := filepath.Join(lootSpawnsPath, lootSpawn)
 
 		lootSpawnData, err := tools.ReadParsed(lootSpawnPath)
@@ -1253,33 +1340,45 @@ func setLootSpawns(path string) map[string]interface{} {
 	return lootSpawnsMap
 }
 
-func setLocationPresets(path string) map[string]interface{} {
+func setLocationPresets(path string) map[string]map[string]interface{} {
 	presetsPath := filepath.Join(path, "#presets")
-	presets, err := tools.GetFilesFrom(presetsPath)
+	presetFiles, err := tools.GetFilesFrom(presetsPath)
 	if err != nil {
 		log.Panicf("error reading presets directory: %v", err)
 		return nil
 	}
 
-	presetsMap := make(map[string]interface{}, len(presets))
-	for _, preset := range presets {
-		presetName := strings.TrimSuffix(preset, ".json")
-		presetPath := filepath.Join(presetsPath, preset)
-
-		presetData, err := tools.ReadParsed(presetPath)
-		if err != nil {
-			log.Panicf("error reading %s: %v", presetData, err)
-			return nil
-		}
-
-		preset, ok := presetData.(map[string]interface{})
-		if !ok {
-			log.Panicf("invalid data structure in %s", preset)
-			return nil
-		}
-
-		presetsMap[presetName] = preset
+	presetCount := len(presetFiles)
+	presetNames := make([]string, presetCount)
+	for i, file := range presetFiles {
+		presetNames[i] = file[:len(file)-5]
 	}
+
+	presetsMap := make(map[string]map[string]interface{}, presetCount)
+	var wg sync.WaitGroup
+	wg.Add(presetCount)
+
+	for i := 0; i < presetCount; i++ {
+		go func(i int) {
+			defer wg.Done()
+
+			filePath := filepath.Join(presetsPath, presetFiles[i])
+			presetData, err := tools.ReadParsed(filePath)
+			if err != nil {
+				log.Panicf("error reading %s: %v", presetFiles[i], err)
+				return
+			}
+
+			preset, ok := presetData.(map[string]interface{})
+			if !ok {
+				log.Panicf("invalid data structure in %s", presetFiles[i])
+				return
+			}
+
+			presetsMap[presetNames[i]] = preset
+		}(i)
+	}
+	wg.Wait()
 
 	return presetsMap
 }
