@@ -157,3 +157,22 @@ func AuditArrayCapacity(data []map[string]interface{}) []map[string]interface{} 
 	}
 	return results
 }
+
+// Checks if the data structure is an object or an object with a data key and returns the proper data structure
+func SetProperObjectDataStructure(path string) map[string]interface{} {
+	data, err := ReadParsed(path)
+	if err != nil {
+		log.Fatalf("error reading %s: %v", path, err)
+	}
+
+	result, ok := data.(map[string]interface{})
+	if !ok {
+		log.Fatalf("invalid data structure in %s", path)
+	}
+
+	if dataData, ok := result["data"].(map[string]interface{}); ok {
+		result = dataData
+	}
+
+	return result
+}

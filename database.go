@@ -80,7 +80,7 @@ func initializeDatabase() error {
 		webSocket:      map[string]interface{}{},
 		webSocketPings: map[string]interface{}{},
 	}
-	Database.items = map[string]interface{}{}
+	Database.items = tools.SetProperObjectDataStructure("database/items.json")
 	Database.locales = LocaleStruct{
 		locales:   map[string]interface{}{},
 		extras:    map[string]interface{}{},
@@ -105,7 +105,7 @@ func initializeDatabase() error {
 	}
 	Database.editions = map[string]interface{}{}
 	Database.traders = map[string]interface{}{}
-	Database.quests = map[string]interface{}{}
+	Database.quests = tools.SetProperObjectDataStructure("database/quests.json")
 	Database.flea = FleaStruct{
 		offers:           []map[string]interface{}{},
 		offerscount:      0,
@@ -119,9 +119,10 @@ func initializeDatabase() error {
 		qte:         []map[string]interface{}{},
 		settings:    map[string]interface{}{},
 	}
-	Database.customization = map[string]interface{}{}
+	Database.customization = tools.SetProperObjectDataStructure("database/customization.json")
 	Database.profiles = map[string]interface{}{}
-	Database.weather = map[string]interface{}{}
+	Database.weather = tools.SetProperObjectDataStructure("database/weather.json")
+
 	Database.bot = BotStruct{
 		bots:        map[string]interface{}{},
 		core:        map[string]interface{}{},
@@ -154,10 +155,6 @@ func setDatabase() error {
 		return err
 	}
 
-	if err := setItems(); err != nil {
-		return err
-	}
-
 	if err := setLocales(); err != nil {
 		return err
 	}
@@ -170,23 +167,11 @@ func setDatabase() error {
 		return err
 	}
 
-	if err := setQuests(); err != nil {
-		return err
-	}
-
 	if err := setHideout(); err != nil {
 		return err
 	}
 
-	if err := setCustomization(); err != nil {
-		return err
-	}
-
 	if err := setProfiles(); err != nil {
-		return err
-	}
-
-	if err := setWeather(); err != nil {
 		return err
 	}
 
@@ -207,21 +192,18 @@ func setDatabaseCore() error {
 	if err := setServerConfigCore(core); err != nil {
 		return fmt.Errorf("error setting server config: %w", err)
 	}
-	if err := setMatchMetricsCore(core); err != nil {
-		return fmt.Errorf("error setting match metrics: %w", err)
-	}
-	if err := setGlobalsCore(core); err != nil {
-		return fmt.Errorf("error setting globals: %w", err)
-	}
+
+	core.matchMetrics = tools.SetProperObjectDataStructure(MATCH_METRICS_PATH)
+
+	core.globals = tools.SetProperObjectDataStructure(GLOBALS_FILE_PATH)
+
 	if err := setPresetsCore(core); err != nil {
 		return fmt.Errorf("error setting presets: %w", err)
 	}
-	if err := setClientSettingsCore(core); err != nil {
-		return fmt.Errorf("error setting client settings: %w", err)
-	}
-	if err := setLocationsCore(core); err != nil {
-		return fmt.Errorf("error setting locations: %w", err)
-	}
+	core.clientSettings = tools.SetProperObjectDataStructure(CLIENT_SETTINGS_PATH)
+
+	core.locations = tools.SetProperObjectDataStructure(LOCATIONS_FILE_PATH)
+
 	if err := setBotTemplateCore(core); err != nil {
 		return fmt.Errorf("error setting bot template: %w", err)
 	}
@@ -252,44 +234,6 @@ func setServerConfigCore(core *CoreStruct) error {
 	}
 
 	core.serverConfig = serverConfigMap
-	return nil
-}
-
-func setMatchMetricsCore(core *CoreStruct) error {
-	matchMetrics, err := tools.ReadParsed(MATCH_METRICS_PATH)
-
-	if err != nil {
-		return fmt.Errorf("error reading matchMetrics.json: %w", err)
-	}
-
-	matchMetricsMap, ok := matchMetrics.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in matchMetrics.json")
-	}
-
-	core.matchMetrics = matchMetricsMap
-	return nil
-}
-
-func setGlobalsCore(core *CoreStruct) error {
-	globals, err := tools.ReadParsed(GLOBALS_FILE_PATH)
-
-	if err != nil {
-		return fmt.Errorf("error reading globals.json: %w", err)
-	}
-
-	globalsMap, ok := globals.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in globals.json")
-	}
-
-	globalsData, ok := globalsMap["data"].(map[string]interface{})
-	if !ok {
-		core.globals = globalsMap
-	} else {
-		core.globals = globalsData
-	}
-
 	return nil
 }
 
@@ -344,48 +288,6 @@ func setPresetsCore(core *CoreStruct) error {
 
 		itemPreset[presetId] = preset
 
-	}
-	return nil
-}
-
-func setClientSettingsCore(core *CoreStruct) error {
-	clientSettings, err := tools.ReadParsed(CLIENT_SETTINGS_PATH)
-
-	if err != nil {
-		return fmt.Errorf("error reading client.settings.json: %w", err)
-	}
-
-	clientSettingsMap, ok := clientSettings.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in client.settings.json")
-	}
-
-	clientSettingsData, ok := clientSettingsMap["data"].(map[string]interface{})
-	if !ok {
-		core.clientSettings = clientSettingsMap
-		return nil
-	}
-
-	core.clientSettings = clientSettingsData
-	return nil
-}
-
-func setLocationsCore(core *CoreStruct) error {
-	locations, err := tools.ReadParsed(LOCATIONS_FILE_PATH)
-	if err != nil {
-		return fmt.Errorf("error reading locations.json: %w", err)
-	}
-
-	locationsMap, ok := locations.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in locations.json")
-	}
-
-	locationsData, ok := locationsMap["data"].(map[string]interface{})
-	if !ok {
-		core.locations = locationsMap
-	} else {
-		core.locations = locationsData
 	}
 	return nil
 }
@@ -469,6 +371,10 @@ func setEditions() error {
 }
 
 const LOCALES_FILE_PATH string = "database/locales"
+const (
+	LOCALES_EXTRAS_FILE_PATH string = LOCALES_FILE_PATH + "/extras.json"
+	LOCALES_LANGUAGES_PATH   string = LOCALES_FILE_PATH + "/languages.json"
+)
 
 type LocaleStruct struct {
 	locales   map[string]interface{}
@@ -485,7 +391,11 @@ func setLocales() error {
 	if err != nil {
 		return fmt.Errorf("error reading locales directory: %w", err)
 	}
+
 	locales := &Database.locales
+
+	locales.languages = tools.SetProperObjectDataStructure(LOCALES_LANGUAGES_PATH)
+	locales.extras = tools.SetProperObjectDataStructure(LOCALES_EXTRAS_FILE_PATH)
 
 	for _, locale := range localesDirectory {
 		localePath := filepath.Join(LOCALES_FILE_PATH, locale, "locale.json")
@@ -493,110 +403,10 @@ func setLocales() error {
 
 		// Add the localeData to the locales map
 		locales.locales[locale] = LanguageStruct{
-			locale: setLocale(localePath),
-			menu:   setMenu(menuPath),
+			locale: tools.SetProperObjectDataStructure(localePath),
+			menu:   tools.SetProperObjectDataStructure(menuPath),
 		}
 	}
-
-	if err := setLocalesLanguages(locales); err != nil {
-		return err
-	}
-
-	if err := setLocalesExtras(locales); err != nil {
-		return err
-	}
-	return nil
-}
-
-func setLocale(languagePath string) map[string]interface{} {
-	localeData, err := tools.ReadParsed(languagePath)
-	if err != nil {
-		log.Panicf("error reading locale.json for locale: %v", err)
-		return nil
-	}
-
-	localeMap, ok := localeData.(map[string]interface{})
-	if !ok {
-		log.Panicf("invalid data structure in locale.json for locale")
-		return nil
-	}
-
-	localeDataMap, ok := localeMap["data"].(map[string]interface{})
-	if !ok {
-		return localeMap
-	} else {
-		return localeDataMap
-	}
-}
-
-func setMenu(menuPath string) map[string]interface{} {
-	menuData, err := tools.ReadParsed(menuPath)
-	if err != nil {
-		log.Panicf("error reading menu.json for locale: %v", err)
-		return nil
-	}
-
-	menuMap, ok := menuData.(map[string]interface{})
-	if !ok {
-		log.Panicf("invalid data structure in menu.json for locale")
-		return nil
-	}
-	menuDataMap, ok := menuMap["data"].(map[string]interface{})
-	if !ok {
-		return menuMap
-	} else {
-		return menuDataMap
-	}
-}
-
-func setLocalesExtras(locales *LocaleStruct) error {
-	extrasFilePath := filepath.Join(LOCALES_FILE_PATH, "extras.json")
-	if !tools.FileExist(extrasFilePath) {
-		return fmt.Errorf("error reading extras.json")
-	}
-	extras, err := tools.ReadParsed(extrasFilePath)
-	if err != nil {
-		return fmt.Errorf("error reading extras.json: %w", err)
-	}
-
-	extrasMap, ok := extras.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in extras.json")
-	}
-
-	locales.extras = extrasMap
-	return nil
-}
-
-func setLocalesLanguages(locales *LocaleStruct) error {
-	languagesFilePath := filepath.Join(LOCALES_FILE_PATH, "languages.json")
-	languages, err := tools.ReadParsed(languagesFilePath)
-	if err != nil {
-		return fmt.Errorf("error reading languages.json: %w", err)
-	}
-
-	languagesMap, ok := languages.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in languages.json")
-	}
-
-	languagesData, ok := languagesMap["data"].(map[string]interface{})
-	if !ok {
-		locales.languages = languagesMap
-	} else {
-		locales.languages = languagesData
-	}
-	return nil
-}
-
-func setItems() error {
-	items, err := tools.ReadParsed("database/items.json")
-
-	if err != nil {
-		return fmt.Errorf("error reading items.json: %w", err)
-	}
-
-	Database.items = items.(map[string]interface{})
 	return nil
 }
 
@@ -628,21 +438,7 @@ type CategoriesLookupStruct struct {
 
 func setTemplates() error {
 	templates := &Database.templates
-
-	templatesData, err := tools.ReadParsed("database/templates.json")
-	if err != nil {
-		return fmt.Errorf("error reading templates.json: %w", err)
-	}
-
-	handbook, ok := templatesData.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in templates.json")
-	}
-
-	handbookData, ok := handbook["data"].(map[string]interface{})
-	if ok {
-		handbook = handbookData
-	}
+	handbook := tools.SetProperObjectDataStructure("database/templates.json")
 
 	items := tools.TransformInterfaceIntoMappedArray(handbook["Items"].([]interface{}))
 	categories := tools.TransformInterfaceIntoMappedArray(handbook["Categories"].([]interface{}))
@@ -676,11 +472,7 @@ func setHandbookCategories(categories []map[string]interface{}, templates *Templ
 func setHandbookItems(items []map[string]interface{}, templates *TemplatesStruct) error {
 	templates.Handbook.Items = tools.AuditArrayCapacity(items)
 
-	pricesData, err := tools.ReadParsed("database/liveflea.json")
-	if err != nil {
-		return fmt.Errorf("error reading liveflea.json: %w", err)
-	}
-	prices := pricesData.(map[string]interface{}) // prices is a map[string]interface{}
+	prices := tools.SetProperObjectDataStructure("database/liveflea.json")
 
 	byItem := &templates.TplLookup.Items // pointer to the ItemsLookupStruct
 	for _, item := range templates.Handbook.Items {
@@ -748,11 +540,7 @@ func setTraders() error {
 			trader.assort = assort
 		}
 
-		if base, err := setTraderBase(traderPath); err != nil {
-			return fmt.Errorf("error reading base.json for trader %s: %w", traderID, err)
-		} else {
-			trader.base = base
-		}
+		trader.base = tools.SetProperObjectDataStructure(filepath.Join(traderPath, "base.json"))
 
 		if dialogue, err := setTraderDialogue(traderPath); err != nil {
 			trader.dialogue = map[string]interface{}{}
@@ -782,24 +570,6 @@ type AssortStruct struct {
 	items             []map[string]interface{}
 	barter_scheme     map[string]interface{}
 	loyal_level_items map[string]interface{}
-}
-
-func setTraderBase(path string) (map[string]interface{}, error) {
-	data, err := tools.ReadParsed(filepath.Join(path, "base.json"))
-	if err != nil {
-		return nil, fmt.Errorf("error reading %s: %w", path, err)
-	}
-
-	base, ok := data.(map[string]interface{})
-	if !ok {
-		return nil, fmt.Errorf("invalid data structure in base @ %s", path)
-	}
-
-	if baseData, ok := base["data"].(map[string]interface{}); ok {
-		base = baseData
-	}
-
-	return base, nil
 }
 
 func setTraderAssort(path string) (AssortStruct, error) {
@@ -894,28 +664,6 @@ func setTraderSuits(path string) (map[string]interface{}, error) {
 	return suits, nil
 }
 
-func setQuests() error {
-	quests, err := tools.ReadParsed("database/quests.json")
-
-	if err != nil {
-		return fmt.Errorf("error reading quests.json: %w", err)
-	}
-
-	questsMap, ok := quests.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in quests.json")
-	}
-
-	questsData, ok := questsMap["data"].(map[string]interface{})
-	if !ok {
-		Database.quests = questsMap
-	} else {
-		Database.quests = questsData
-	}
-
-	return nil
-}
-
 const HIDEOUT_FILE_PATH string = "database/hideout"
 const (
 	AREAS_FILE_PATH       string = HIDEOUT_FILE_PATH + "/areas.json"
@@ -980,7 +728,6 @@ func setHideoutSettings() (map[string]interface{}, error) {
 	} else {
 		return settingsData, nil
 	}
-
 }
 
 func setHideoutProductions() ([]map[string]interface{}, error) {
@@ -1065,26 +812,6 @@ func setHideoutQTE() ([]map[string]interface{}, error) {
 		return nil, fmt.Errorf("invalid data structure in qteData")
 	}
 	return tools.TransformInterfaceIntoMappedArray(qteData), nil
-}
-
-func setCustomization() error {
-	data, err := tools.ReadParsed("database/customization.json")
-	if err != nil {
-		return fmt.Errorf("error reading customization.json: %w", err)
-	}
-
-	customization, ok := data.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("customization.json has invalid structure")
-	}
-
-	customizationData, ok := customization["data"].(map[string]interface{})
-	if ok {
-		customization = customizationData
-	}
-
-	Database.customization = customization
-	return nil
 }
 
 const USER_FILE_PATH string = "user"
@@ -1228,26 +955,6 @@ func setDialogues(path string, profileID string) map[string]interface{} {
 	}
 
 	return dialogues
-}
-
-func setWeather() error {
-	data, err := tools.ReadParsed("database/weather.json")
-	if err != nil {
-		return fmt.Errorf("error reading weather.json: %w", err)
-	}
-
-	weather, ok := data.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid data structure in weather.json")
-	}
-
-	weatherData, ok := weather["data"].(map[string]interface{})
-	if ok {
-		weather = weatherData
-	}
-
-	Database.weather = weather
-	return nil
 }
 
 const BOT_FILE_PATH string = "database/bot"
