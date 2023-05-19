@@ -617,16 +617,13 @@ func setTemplates() error {
 		return fmt.Errorf("error reading templates.json: %w", err)
 	}
 
-	handbookMap, ok := templatesData.(map[string]interface{})
+	handbook, ok := templatesData.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("invalid data structure in templates.json")
 	}
 
-	handbook := make(map[string]interface{})
-	handbookData, ok := handbookMap["data"].(map[string]interface{})
-	if !ok {
-		handbook = handbookMap
-	} else {
+	handbookData, ok := handbook["data"].(map[string]interface{})
+	if ok {
 		handbook = handbookData
 	}
 
@@ -696,7 +693,15 @@ func setHandbookItems(items []map[string]interface{}, templates *TemplatesStruct
 }
 
 const TRADERS_FILE_PATH string = "database/traders"
-const INVALID_DATA_STRUCTURE_FOR_TRADER = "invalid data structure in %s for trader %s"
+
+type TraderStruct struct {
+	assort      AssortStruct
+	base        map[string]interface{}
+	baseAssort  map[string]interface{}
+	dialogue    map[string]interface{}
+	questassort map[string]interface{}
+	suits       map[string]interface{}
+}
 
 func setTraders() error {
 	tradersDirectory, err := tools.GetDirectoriesFrom(TRADERS_FILE_PATH)
@@ -704,29 +709,50 @@ func setTraders() error {
 		return fmt.Errorf("error reading traders directory: %w", err)
 	}
 
+	trader := TraderStruct{}
 	for _, traderID := range tradersDirectory {
+		trader.assort = AssortStruct{
+			items:             []map[string]interface{}{},
+			barter_scheme:     map[string]interface{}{},
+			loyal_level_items: map[string]interface{}{},
+		}
+
+		trader.base = map[string]interface{}{}
+		trader.baseAssort = map[string]interface{}{}
+		trader.dialogue = map[string]interface{}{}
+		trader.questassort = map[string]interface{}{}
+		trader.suits = map[string]interface{}{}
+
 		traderPath := filepath.Join(TRADERS_FILE_PATH, traderID)
 
-		trader := make(map[string]interface{})
+		if assort, err := setTraderAssort(filepath.Join(traderPath)); err != nil {
+			return err
+		} else {
+			trader.assort = assort
+		}
 
-		files := [5]string{"base.json", "assort.json", "questassort.json", "suits.json", "dialogue.json"}
-		for _, file := range files {
-			if parsed, err := tools.ReadParsed(filepath.Join(traderPath, file)); err != nil {
-				continue
-			} else {
-				fileName := strings.TrimSuffix(file, ".json")
+		if base, err := setTraderBase(traderPath); err != nil {
+			return fmt.Errorf("error reading base.json for trader %s: %w", traderID, err)
+		} else {
+			trader.base = base
+		}
 
-				switch file {
-				case "assort.json":
-					if err := setTraderAssort(parsed, trader, file, traderID); err != nil {
-						return err
-					}
-				case "suits.json":
-					trader["suits"] = tools.TransformInterfaceIntoMappedArray(parsed.([]interface{}))
-				default:
-					trader[fileName] = parsed.(map[string]interface{})
-				}
-			}
+		if dialogue, err := setTraderDialogue(traderPath); err != nil {
+			trader.dialogue = map[string]interface{}{}
+		} else {
+			trader.dialogue = dialogue
+		}
+
+		if questassort, err := setTraderQuestAssort(traderPath); err != nil {
+			trader.questassort = map[string]interface{}{}
+		} else {
+			trader.questassort = questassort
+		}
+
+		if suits, err := setTraderSuits(traderPath); err != nil {
+			trader.suits = map[string]interface{}{}
+		} else {
+			trader.suits = suits
 		}
 
 		Database.traders[traderID] = trader
@@ -741,43 +767,114 @@ type AssortStruct struct {
 	loyal_level_items map[string]interface{}
 }
 
-func setTraderAssort(parsed interface{}, trader map[string]interface{}, file string, traderID string) error {
-	assortMap, ok := parsed.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf(INVALID_DATA_STRUCTURE_FOR_TRADER, file, traderID)
+func setTraderBase(path string) (map[string]interface{}, error) {
+	data, err := tools.ReadParsed(filepath.Join(path, "base.json"))
+	if err != nil {
+		return nil, fmt.Errorf("error reading %s: %w", path, err)
 	}
 
-	assort := make(map[string]interface{})
-	assortData, ok := assortMap["data"].(map[string]interface{})
+	base, ok := data.(map[string]interface{})
 	if !ok {
-		assort = assortMap
-	} else {
+		return nil, fmt.Errorf("invalid data structure in base @ %s", path)
+	}
+
+	if baseData, ok := base["data"].(map[string]interface{}); ok {
+		base = baseData
+	}
+
+	return base, nil
+}
+
+func setTraderAssort(path string) (AssortStruct, error) {
+	data, err := tools.ReadParsed(filepath.Join(path, "assort.json"))
+	if err != nil {
+		return AssortStruct{}, fmt.Errorf("error reading %s: %w", path, err)
+	}
+
+	assort, ok := data.(map[string]interface{})
+	if !ok {
+		return AssortStruct{}, fmt.Errorf("invalid data structure in assort @ %s", path)
+	}
+
+	if assortData, ok := assort["data"].(map[string]interface{}); ok {
 		assort = assortData
 	}
 
 	itemsData, ok := assort["items"].([]interface{})
 	if !ok {
-		return fmt.Errorf(INVALID_DATA_STRUCTURE_FOR_TRADER, file, traderID)
+		return AssortStruct{}, fmt.Errorf("invalid data structure in itemsData @ %s", path)
 	}
 	items := tools.TransformInterfaceIntoMappedArray(itemsData)
 
 	barter_scheme, ok := assort["barter_scheme"].(map[string]interface{})
 	if !ok {
-		return fmt.Errorf(INVALID_DATA_STRUCTURE_FOR_TRADER, file, traderID)
+		return AssortStruct{}, fmt.Errorf("invalid data structure in barter_scheme @ %s", path)
 	}
 
 	loyal_level_items, ok := assort["loyal_level_items"].(map[string]interface{})
 	if !ok {
-		return fmt.Errorf(INVALID_DATA_STRUCTURE_FOR_TRADER, file, traderID)
+		return AssortStruct{}, fmt.Errorf("invalid data structure in loyal_level_items @ %s", path)
 	}
 
-	trader["assort"] = AssortStruct{}
-	trader["baseAssort"] = AssortStruct{
+	return AssortStruct{
 		items:             items,
 		barter_scheme:     barter_scheme,
 		loyal_level_items: loyal_level_items,
+	}, nil
+}
+
+func setTraderDialogue(path string) (map[string]interface{}, error) {
+	data, err := tools.ReadParsed(filepath.Join(path, "dialogue.json"))
+	if err != nil {
+		return nil, fmt.Errorf("error reading dialogue.json: %w", err)
 	}
-	return nil
+
+	dialogue, ok := data.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid data structure in dialogue.json")
+	}
+
+	if dialogueData, ok := dialogue["data"].(map[string]interface{}); ok {
+		dialogue = dialogueData
+	}
+
+	return dialogue, nil
+}
+
+func setTraderQuestAssort(path string) (map[string]interface{}, error) {
+	data, err := tools.ReadParsed(filepath.Join(path, "questassort.json"))
+	if err != nil {
+		return nil, fmt.Errorf("error reading questassort.json: %w", err)
+	}
+
+	questassort, ok := data.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid data structure in questassort.json")
+	}
+
+	if questassortData, ok := questassort["data"].(map[string]interface{}); ok {
+		questassort = questassortData
+	}
+
+	return questassort, nil
+}
+
+func setTraderSuits(path string) (map[string]interface{}, error) {
+	data, err := tools.ReadParsed(filepath.Join(path, "suits.json"))
+	if err != nil {
+		return nil, fmt.Errorf("error reading suits.json: %w", err)
+	}
+
+	suits, ok := data.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid data structure in suits.json")
+	}
+
+	if suitsData, ok := suits["data"].(map[string]interface{}); ok {
+		suits = suitsData
+	}
+
+	return suits, nil
 }
 
 func setQuests() error {
@@ -803,112 +900,154 @@ func setQuests() error {
 }
 
 const HIDEOUT_FILE_PATH string = "database/hideout"
+const (
+	AREAS_FILE_PATH       string = HIDEOUT_FILE_PATH + "/areas.json"
+	PRODUCTIONS_FILE_PATH string = HIDEOUT_FILE_PATH + "/productions.json"
+	SCAVCASE_FILE_PATH    string = HIDEOUT_FILE_PATH + "/scavcase.json"
+	QTE_FILE_PATH         string = HIDEOUT_FILE_PATH + "/qte.json"
+	SETTINGS_FILE_PATH    string = HIDEOUT_FILE_PATH + "/settings.json"
+)
 
 func setHideout() error {
-	hideoutFiles, err := tools.GetFilesFrom(HIDEOUT_FILE_PATH)
+
+	areas, err := setHideoutAreas()
 	if err != nil {
-		return fmt.Errorf("error reading hideout directory: %w", err)
+		return err
 	}
 
-	for _, file := range hideoutFiles {
-		fileName := strings.TrimSuffix(file, ".json")
-		filePath := filepath.Join(HIDEOUT_FILE_PATH, file)
+	productions, err := setHideoutProductions()
+	if err != nil {
+		return err
+	}
 
-		if data, err := tools.ReadParsed(filePath); err != nil {
-			return fmt.Errorf("error reading %s: %w", file, err)
-		} else {
-			switch fileName {
-			case "areas":
-				Database.hideout.areas = setHideoutAreas(data)
-			case "productions":
-				Database.hideout.productions = setHideoutProductions(data)
-			case "scavcase":
-				Database.hideout.scavcase = setHideoutScavcase(data)
-			case "qte":
-				Database.hideout.qte = setHideoutQTE(data)
-			case "settings":
-				settingsMap, ok := data.(map[string]interface{})
-				if !ok {
-					return fmt.Errorf("invalid data structure in settings.json")
-				}
-				Database.hideout.settings = settingsMap
-			}
-		}
+	scavcase, err := setHideoutScavcase()
+	if err != nil {
+		return err
+	}
+
+	qte, err := setHideoutQTE()
+	if err != nil {
+		return err
+	}
+
+	settings, err := setHideoutSettings()
+	if err != nil {
+		return err
+	}
+
+	Database.hideout = HideoutStruct{
+		areas:       areas,
+		productions: productions,
+		scavcase:    scavcase,
+		qte:         qte,
+		settings:    settings,
 	}
 
 	return nil
 }
 
-func setHideoutProductions(data interface{}) []map[string]interface{} {
+func setHideoutSettings() (map[string]interface{}, error) {
+	settings, err := tools.ReadParsed(SETTINGS_FILE_PATH)
+	if err != nil {
+		return nil, fmt.Errorf("error reading settings.json: %w", err)
+	}
+
+	settingsMap, ok := settings.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid data structure in settings.json")
+	}
+
+	settingsData, ok := settingsMap["data"].(map[string]interface{})
+	if !ok {
+		return settingsMap, nil
+	} else {
+		return settingsData, nil
+	}
+
+}
+
+func setHideoutProductions() ([]map[string]interface{}, error) {
+	data, err := tools.ReadParsed(PRODUCTIONS_FILE_PATH)
+	if err != nil {
+		return nil, fmt.Errorf("error reading productions.json: %w", err)
+	}
+
 	productionMap, ok := data.(map[string]interface{})
 	if !ok {
 		productionArray, ok := data.([]interface{})
 		if !ok {
-			log.Fatalf("invalid data structure in productionMap")
-			return nil
+			return nil, fmt.Errorf("invalid data structure in productionMap")
 		}
-		return tools.TransformInterfaceIntoMappedArray(productionArray)
+		return tools.TransformInterfaceIntoMappedArray(productionArray), nil
 	}
 	productionData, ok := productionMap["data"].([]interface{})
 	if !ok {
-		log.Fatalf("invalid data structure in productionData")
-		return nil
+		return nil, fmt.Errorf("invalid data structure in productionData")
 	}
-	return tools.TransformInterfaceIntoMappedArray(productionData)
+	return tools.TransformInterfaceIntoMappedArray(productionData), nil
 }
 
-func setHideoutAreas(data interface{}) []map[string]interface{} {
+func setHideoutAreas() ([]map[string]interface{}, error) {
+	data, err := tools.ReadParsed(AREAS_FILE_PATH)
+	if err != nil {
+		return nil, fmt.Errorf("error reading areas.json: %w", err)
+	}
+
 	areasMap, ok := data.(map[string]interface{})
 	if !ok {
 		areasArray, ok := data.([]interface{})
 		if !ok {
-			log.Fatalf("invalid data structure in areasMap")
-			return nil
+			return nil, fmt.Errorf("invalid data structure in areasMap")
 		}
-		return tools.TransformInterfaceIntoMappedArray(areasArray)
+		return tools.TransformInterfaceIntoMappedArray(areasArray), nil
 	}
 	areasData, ok := areasMap["data"].([]interface{})
 	if !ok {
-		log.Fatalf("invalid data structure in areasData")
-		return nil
+		return nil, fmt.Errorf("invalid data structure in areasData")
 	}
-	return tools.TransformInterfaceIntoMappedArray(areasData)
+	return tools.TransformInterfaceIntoMappedArray(areasData), nil
 }
 
-func setHideoutScavcase(data interface{}) []map[string]interface{} {
+func setHideoutScavcase() ([]map[string]interface{}, error) {
+	data, err := tools.ReadParsed(SCAVCASE_FILE_PATH)
+	if err != nil {
+		return nil, fmt.Errorf("error reading scavcase.json: %w", err)
+	}
+
 	scavcaseMap, ok := data.(map[string]interface{})
 	if !ok {
 		scavcaseArray, ok := data.([]interface{})
 		if !ok {
-			log.Fatalf("invalid data structure in scavcaseMap")
-			return nil
+			return nil, fmt.Errorf("invalid data structure in scavcaseMap")
 		}
-		return tools.TransformInterfaceIntoMappedArray(scavcaseArray)
+		return tools.TransformInterfaceIntoMappedArray(scavcaseArray), nil
 	}
 	scavcaseData, ok := scavcaseMap["data"].([]interface{})
 	if !ok {
-		log.Fatalf("invalid data structure in scavcaseData")
-		return nil
+		return nil, fmt.Errorf("invalid data structure in scavcaseData")
 	}
-	return tools.TransformInterfaceIntoMappedArray(scavcaseData)
+	return tools.TransformInterfaceIntoMappedArray(scavcaseData), nil
 }
 
-func setHideoutQTE(data interface{}) []map[string]interface{} {
+func setHideoutQTE() ([]map[string]interface{}, error) {
+	data, err := tools.ReadParsed(QTE_FILE_PATH)
+	if err != nil {
+		return nil, fmt.Errorf("error reading qte.json: %w", err)
+	}
+
 	qteMap, ok := data.(map[string]interface{})
 	if !ok {
 		qteArray, ok := data.([]interface{})
 		if !ok {
-			log.Fatalf("invalid data structure in qteMap")
-			return nil
+			return nil, fmt.Errorf("invalid data structure in qteMap")
 		}
-		return tools.TransformInterfaceIntoMappedArray(qteArray)
+		return tools.TransformInterfaceIntoMappedArray(qteArray), nil
 	}
 	qteData, ok := qteMap["data"].([]interface{})
 	if !ok {
-		log.Fatalf("invalid data structure in qteData")
-		return nil
+		return nil, fmt.Errorf("invalid data structure in qteData")
 	}
-	return tools.TransformInterfaceIntoMappedArray(qteData)
+	return tools.TransformInterfaceIntoMappedArray(qteData), nil
 }
 
 func setCustomization() error {
