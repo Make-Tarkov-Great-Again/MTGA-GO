@@ -68,73 +68,73 @@ var Database = DatabaseStruct{}
 
 func initializeDatabase() error {
 	Database.core = CoreStruct{
-		botTemplate:    make(map[string]interface{}),
-		clientSettings: make(map[string]interface{}),
-		serverConfig:   make(map[string]interface{}),
-		globals:        make(map[string]interface{}),
-		locations:      make(map[string]interface{}),
-		matchMetrics:   make(map[string]interface{}),
-		presets:        make(map[string]interface{}),
+		botTemplate:    map[string]interface{}{},
+		clientSettings: map[string]interface{}{},
+		serverConfig:   map[string]interface{}{},
+		globals:        map[string]interface{}{},
+		locations:      map[string]interface{}{},
+		matchMetrics:   map[string]interface{}{},
+		presets:        map[string]interface{}{},
 	}
 	Database.connections = ConnectionStruct{
-		webSocket:      make(map[string]interface{}),
-		webSocketPings: make(map[string]interface{}),
+		webSocket:      map[string]interface{}{},
+		webSocketPings: map[string]interface{}{},
 	}
-	Database.items = make(map[string]interface{})
+	Database.items = map[string]interface{}{}
 	Database.locales = LocaleStruct{
-		locales:   make(map[string]interface{}),
-		extras:    make(map[string]interface{}),
-		languages: make(map[string]interface{}),
+		locales:   map[string]interface{}{},
+		extras:    map[string]interface{}{},
+		languages: map[string]interface{}{},
 	}
 	Database.templates = TemplatesStruct{
 		Handbook: HandbookStruct{
 			Items:      []map[string]interface{}{},
 			Categories: []map[string]interface{}{},
 		},
-		Prices: make(map[string]interface{}),
+		Prices: map[string]interface{}{},
 		TplLookup: TplLookupStruct{
 			Items: ItemsLookupStruct{
-				byId:     make(map[string]interface{}),
-				byParent: make(map[string]interface{}),
+				byId:     map[string]interface{}{},
+				byParent: map[string]interface{}{},
 			},
 			Categories: CategoriesLookupStruct{
-				byId:     make(map[string]interface{}),
-				byParent: make(map[string]interface{}),
+				byId:     map[string]interface{}{},
+				byParent: map[string]interface{}{},
 			},
 		},
 	}
-	Database.editions = make(map[string]interface{})
-	Database.traders = make(map[string]interface{})
-	Database.quests = make(map[string]interface{})
+	Database.editions = map[string]interface{}{}
+	Database.traders = map[string]interface{}{}
+	Database.quests = map[string]interface{}{}
 	Database.flea = FleaStruct{
 		offers:           []map[string]interface{}{},
 		offerscount:      0,
 		selectedCategory: "",
-		categories:       make(map[string]interface{}),
+		categories:       map[string]interface{}{},
 	}
 	Database.hideout = HideoutStruct{
 		areas:       []map[string]interface{}{},
 		productions: []map[string]interface{}{},
 		scavcase:    []map[string]interface{}{},
 		qte:         []map[string]interface{}{},
-		settings:    make(map[string]interface{}),
+		settings:    map[string]interface{}{},
 	}
-	Database.customization = make(map[string]interface{})
+	Database.customization = map[string]interface{}{}
 	Database.profiles = map[string]interface{}{}
-	Database.weather = make(map[string]interface{})
+	Database.weather = map[string]interface{}{}
 	Database.bot = BotStruct{
-		bots:        make(map[string]interface{}),
-		core:        make(map[string]interface{}),
-		names:       make(map[string]interface{}),
-		appearance:  make(map[string]interface{}),
-		playerScav:  make(map[string]interface{}),
-		weaponCache: make(map[string]interface{}),
+		bots:        map[string]interface{}{},
+		core:        map[string]interface{}{},
+		names:       map[string]interface{}{},
+		appearance:  map[string]interface{}{},
+		playerScav:  map[string]interface{}{},
+		weaponCache: map[string]interface{}{},
 	}
 	Database.locations = LocationsStruct{
-		locations: make(map[string]interface{}),
+		locations: map[string]interface{}{},
 		lootGen: LootGenStruct{
-			containers: make(map[string]interface{}),
-			static:     make(map[string]interface{}),
+			containers: map[string]interface{}{},
+			static:     map[string]interface{}{},
 		},
 	}
 
@@ -304,9 +304,26 @@ func setPresetsCore(core *CoreStruct) error {
 		return fmt.Errorf("invalid data structure in ItemPresets")
 	}
 
-	for id, preset := range globalPresets {
+	for id, value := range globalPresets {
+		preset, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid data structure in ItemPresets @ value")
+		}
 
-		tpl, ok := preset.(map[string]interface{})["_items"].([]interface{})[0].(map[string]interface{})["_tpl"].(string)
+		// Accessing the _items array from preset
+		items, ok := preset["_items"].([]interface{})
+		if !ok || len(items) == 0 {
+			return fmt.Errorf("no items found in preset %s", id)
+		}
+
+		// Accessing the first item of the _items array as a map
+		item, ok := items[0].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("invalid item found in preset %s", id)
+		}
+
+		// Accessing the _tpl string from the first item map
+		tpl, ok := item["_tpl"].(string)
 		if !ok {
 			return fmt.Errorf("tpl not found in preset %s", id)
 		}
@@ -315,7 +332,7 @@ func setPresetsCore(core *CoreStruct) error {
 			core.presets[tpl] = map[string]interface{}{}
 		}
 
-		presetId, ok := preset.(map[string]interface{})["_id"].(string)
+		presetId, ok := preset["_id"].(string)
 		if !ok {
 			return fmt.Errorf("presetId not found in preset %s", id)
 		}
@@ -1051,22 +1068,22 @@ func setHideoutQTE() ([]map[string]interface{}, error) {
 }
 
 func setCustomization() error {
-	customization, err := tools.ReadParsed("database/customization.json")
+	data, err := tools.ReadParsed("database/customization.json")
 	if err != nil {
 		return fmt.Errorf("error reading customization.json: %w", err)
 	}
 
-	customizationMap, ok := customization.(map[string]interface{})
+	customization, ok := data.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("customization.json has invalid structure")
 	}
 
-	customizationData, ok := customizationMap["data"].(map[string]interface{})
-	if !ok {
-		Database.customization = customizationMap
-	} else {
-		Database.customization = customizationData
+	customizationData, ok := customization["data"].(map[string]interface{})
+	if ok {
+		customization = customizationData
 	}
+
+	Database.customization = customization
 	return nil
 }
 
@@ -1214,22 +1231,22 @@ func setDialogues(path string, profileID string) map[string]interface{} {
 }
 
 func setWeather() error {
-	weather, err := tools.ReadParsed("database/weather.json")
+	data, err := tools.ReadParsed("database/weather.json")
 	if err != nil {
 		return fmt.Errorf("error reading weather.json: %w", err)
 	}
 
-	weatherMap, ok := weather.(map[string]interface{})
+	weather, ok := data.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("invalid data structure in weather.json")
 	}
 
-	weatherData, ok := weatherMap["data"].(map[string]interface{})
-	if !ok {
-		Database.weather = weatherMap
-	} else {
-		Database.weather = weatherData
+	weatherData, ok := weather["data"].(map[string]interface{})
+	if ok {
+		weather = weatherData
 	}
+
+	Database.weather = weather
 	return nil
 }
 
@@ -1276,12 +1293,12 @@ func setBot() error {
 }
 
 func setBotCore(bot *BotStruct) error {
-	botGlobalSettingsData, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "__BotGlobalSettings.json"))
+	data, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "__BotGlobalSettings.json"))
 	if err != nil {
 		return fmt.Errorf("error reading __BotGlobalSettings.json: %w", err)
 	}
 
-	botGlobals, ok := botGlobalSettingsData.(map[string]interface{})
+	botGlobals, ok := data.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("invalid data structure in __BotGlobalSettings.json")
 	}
@@ -1291,62 +1308,62 @@ func setBotCore(bot *BotStruct) error {
 }
 
 func setBotNames(bot *BotStruct) error {
-	names, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "names.json"))
+	data, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "names.json"))
 	if err != nil {
 		return fmt.Errorf("error reading names.json: %w", err)
 	}
 
-	nameMap, ok := names.(map[string]interface{})
+	names, ok := data.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("invalid data structure in names.json")
 	}
 
-	bot.names = nameMap
+	bot.names = names
 	return nil
 }
 
 func setBotAppearance(bot *BotStruct) error {
-	appearance, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "appearance.json"))
+	data, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "appearance.json"))
 	if err != nil {
 		return fmt.Errorf("error reading appearance.json: %w", err)
 	}
 
-	appearanceMap, ok := appearance.(map[string]interface{})
+	appearance, ok := data.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("invalid data structure in appearance.json")
 	}
 
-	bot.appearance = appearanceMap
+	bot.appearance = appearance
 	return nil
 }
 
 func setBotPlayerScav(bot *BotStruct) error {
-	playerScav, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "playerScav.json"))
+	data, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "playerScav.json"))
 	if err != nil {
 		return fmt.Errorf("error reading playerScav.json: %w", err)
 	}
 
-	playerScavMap, ok := playerScav.(map[string]interface{})
+	playerScav, ok := data.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("invalid data structure in playerScav.json")
 	}
 
-	bot.playerScav = playerScavMap
+	bot.playerScav = playerScav
 	return nil
 }
 
 func setBotWeaponCache(bot *BotStruct) error {
-	weaponCache, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "weaponCache.json"))
+	data, err := tools.ReadParsed(filepath.Join(BOT_FILE_PATH, "weaponCache.json"))
 	if err != nil {
 		return fmt.Errorf("error reading weaponCache.json: %w", err)
 	}
 
-	weaponCacheMap, ok := weaponCache.(map[string]interface{})
+	weaponCache, ok := data.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("invalid data structure in weaponCache.json")
 	}
 
-	bot.weaponCache = weaponCacheMap
+	bot.weaponCache = weaponCache
 	return nil
 }
 
@@ -1402,12 +1419,12 @@ func setBotTypeHealth(path string) map[string]interface{} {
 func setBotTypeLoadout(path string) map[string]interface{} {
 	loadoutFilePath := filepath.Join(path, "loadout.json")
 
-	loadoutData, err := tools.ReadParsed(loadoutFilePath)
-	if err != nil || loadoutData == nil {
+	data, err := tools.ReadParsed(loadoutFilePath)
+	if err != nil || data == nil {
 		return nil
 	}
 
-	if loadout, ok := loadoutData.(map[string]interface{}); ok {
+	if loadout, ok := data.(map[string]interface{}); ok {
 		return loadout
 	}
 
@@ -1458,36 +1475,33 @@ func setLocations() error {
 	for _, location := range locationsDirectory {
 		locationPath := filepath.Join("database/locations", location)
 
-		data, err := tools.ReadParsed(filepath.Join(locationPath, "base.json"))
+		baseData, err := tools.ReadParsed(filepath.Join(locationPath, "base.json"))
 		if err != nil {
 			return fmt.Errorf("error reading base.json for location %s: %w", location, err)
 		}
 
-		base := make(map[string]interface{})
-		baseMap, ok := data.(map[string]interface{})
+		base, ok := baseData.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("invalid data structure in base.json for location %s", location)
 		}
 
-		baseData, ok := baseMap["data"].(map[string]interface{})
-		if !ok {
-			base = baseMap
-		} else {
-			base = baseData
+		baseDataMap, ok := base["data"].(map[string]interface{})
+		if ok {
+			base = baseDataMap
 		}
 
-		dynamicAvailableSpawns, err := tools.ReadParsed(filepath.Join(locationPath, "availableSpawns.json"))
+		dynamicAvailableSpawnsData, err := tools.ReadParsed(filepath.Join(locationPath, "availableSpawns.json"))
 		if err != nil {
 			return fmt.Errorf("error reading availableSpawns.json for location %s: %w", location, err)
 		}
-		dynamicAvailableSpawnsMap, ok := dynamicAvailableSpawns.(map[string]interface{})
+		dynamicAvailableSpawns, ok := dynamicAvailableSpawnsData.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("invalid data structure in availableSpawns.json for location %s", location)
 		}
 
 		locationStruct := LocationStruct{
 			base:                   base,
-			dynamicAvailableSpawns: dynamicAvailableSpawnsMap,
+			dynamicAvailableSpawns: dynamicAvailableSpawns,
 			lootSpawns:             setLootSpawns(locationPath),
 			presets:                setLocationPresets(locationPath),
 		}
@@ -1544,19 +1558,20 @@ func setLocationPresets(path string) map[string]interface{} {
 	for _, preset := range presets {
 		presetName := strings.TrimSuffix(preset, ".json")
 		presetPath := filepath.Join(presetsPath, preset)
-		preset, err := tools.ReadParsed(presetPath)
+
+		presetData, err := tools.ReadParsed(presetPath)
 		if err != nil {
-			log.Panicf("error reading %s: %v", preset, err)
+			log.Panicf("error reading %s: %v", presetData, err)
 			return nil
 		}
 
-		presetMap, ok := preset.(map[string]interface{})
+		preset, ok := presetData.(map[string]interface{})
 		if !ok {
 			log.Panicf("invalid data structure in %s", preset)
 			return nil
 		}
 
-		presetsMap[presetName] = presetMap
+		presetsMap[presetName] = preset
 	}
 
 	return presetsMap
@@ -1571,25 +1586,25 @@ func setLocationsLootGen(locations *LocationsStruct) error {
 	lootGenPath := "database/lootGen"
 	lootGen := &locations.lootGen
 
-	containers, err := tools.ReadParsed(filepath.Join(lootGenPath, "containersSpawnData.json"))
+	containersData, err := tools.ReadParsed(filepath.Join(lootGenPath, "containersSpawnData.json"))
 	if err != nil {
 		return fmt.Errorf("error reading containersSpawnData.json: %w", err)
 	}
-	containersMap, ok := containers.(map[string]interface{})
+	containers, ok := containersData.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("invalid data structure in containersSpawnData.json")
 	}
-	lootGen.containers = containersMap
+	lootGen.containers = containers
 
-	static, err := tools.ReadParsed(filepath.Join(lootGenPath, "staticWeaponsData.json"))
+	staticData, err := tools.ReadParsed(filepath.Join(lootGenPath, "staticWeaponsData.json"))
 	if err != nil {
 		return fmt.Errorf("error reading staticWeaponsData.json: %w", err)
 	}
-	staticMap, ok := static.(map[string]interface{})
+	static, ok := staticData.(map[string]interface{})
 	if !ok {
 		return fmt.Errorf("invalid data structure in staticWeaponsData.json")
 	}
-	lootGen.static = staticMap
+	lootGen.static = static
 
 	return nil
 }
