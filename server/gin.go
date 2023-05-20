@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"compress/zlib"
@@ -9,30 +9,42 @@ import (
 	"strconv"
 	"strings"
 
+	"MT-GO/database"
+	"MT-GO/server/routes"
+
 	"github.com/gin-gonic/gin"
 )
 
-func setGin() error {
-	r := gin.New()
-	setGinRoutes(r)
+var ballsack = gin.New()
 
-	portFloat, ok := Database.core.serverConfig["port"].(float64)
+// SetGin sets the routes for the gin server.
+func SetGin() error {
+
+	serverConfig := database.GetDatabase().Core.ServerConfig
+	setGinRoutes(ballsack)
+
+	portFloat, ok := serverConfig["port"].(float64)
 	if !ok {
 		return fmt.Errorf("invalid port")
 	}
 	port := strconv.FormatFloat(portFloat, 'f', -1, 64)
 
-	ip, ok := Database.core.serverConfig["ip"].(string)
+	ip, ok := serverConfig["ip"].(string)
 	if !ok {
 		return fmt.Errorf("invalid ip address")
 	}
 
 	ipport := net.JoinHostPort(ip, port)
-	return r.Run(ipport)
+	return ballsack.Run(ipport)
 }
 
-func setGinRoutes(r *gin.Engine) {
-	//mtga := r.Group("/")
+func setGinRoutes(ballsack *gin.Engine) error {
+	mtga := ballsack.Group("/")
+
+	if err := routes.SetLauncherRoutes(mtga); err != nil {
+		return fmt.Errorf("error setting launcher routes: %w", err)
+	}
+	return nil
 }
 
 // jsonContentTypeParser parses the body of a request and sets it to the context.

@@ -1,17 +1,19 @@
 package main
 
 import (
+	"MT-GO/database"
+	"MT-GO/server"
 	"log"
 )
 
 func main() {
 
-	dbErr := initializeDatabase()
+	dbErr := database.InitializeDatabase()
 	if dbErr != nil {
 		log.Fatalf("error initializing database: %v", dbErr)
 	}
 
-	ginErr := setGin()
+	ginErr := server.SetGin()
 	if ginErr != nil {
 		log.Fatalf("error setting gin: %v", ginErr)
 	}
