@@ -1,5 +1,8 @@
 package database
 
+const DATABASE_LIB_PATH string = "database/lib"
+
+/*
 import (
 	"MT-GO/tools"
 	"fmt"
@@ -149,7 +152,6 @@ func InitializeDatabase() error {
 	return nil
 }
 
-const DATABASE_LIB_PATH string = "database/lib"
 
 func setDatabase() error {
 	if err := setDatabaseCore(); err != nil {
@@ -248,16 +250,6 @@ func setDatabaseCore() error {
 
 	return nil
 }
-
-const (
-	CORE_FILE_PATH         string = DATABASE_LIB_PATH + "/core"
-	BOT_TEMPLATE_FILE_PATH string = CORE_FILE_PATH + "/botTemplate.json"
-	CLIENT_SETTINGS_PATH   string = CORE_FILE_PATH + "/client.settings.json"
-	GLOBALS_FILE_PATH      string = CORE_FILE_PATH + "/globals.json"
-	LOCATIONS_FILE_PATH    string = CORE_FILE_PATH + "/locations.json"
-	MATCH_METRICS_PATH     string = CORE_FILE_PATH + "/matchMetrics.json"
-	SERVER_CONFIG_PATH     string = CORE_FILE_PATH + "/server.json"
-)
 
 func setServerConfigCore(core *CoreStruct) error {
 	serverConfig, err := tools.ReadParsed(SERVER_CONFIG_PATH)
@@ -1361,6 +1353,7 @@ func setLocationPresets(path string) map[string]map[string]interface{} {
 
 	presetsMap := make(map[string]map[string]interface{}, presetCount)
 	var wg sync.WaitGroup
+	var mu sync.Mutex
 	wg.Add(presetCount)
 
 	for i := 0; i < presetCount; i++ {
@@ -1380,7 +1373,9 @@ func setLocationPresets(path string) map[string]map[string]interface{} {
 				return
 			}
 
+			mu.Lock()
 			presetsMap[presetNames[i]] = preset
+			mu.Unlock()
 		}(i)
 	}
 	wg.Wait()
@@ -1419,3 +1414,4 @@ func setLocationsLootGen(locations *LocationsStruct) error {
 
 	return nil
 }
+*/

@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -23,21 +22,24 @@ const (
 
 // WriteToFile writes the given string of data to the specified file path
 func WriteToFile(filePath string, data string) error {
+	// Get the absolute path of the file
 	path := GetAbsolutePathFrom(filePath)
-	file, err := os.Create(path)
+
+	// Create the directory if it doesn't exist
+	err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
 	if err != nil {
 		return err
 	}
 
+	// Create or truncate the file
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
 	defer file.Close()
 
-	writer := bufio.NewWriter(file)
-	_, err = writer.WriteString(data)
-	if err != nil {
-		return err
-	}
-
-	err = writer.Flush()
+	// Write the contents of data to the file
+	_, err = file.WriteString(data)
 	if err != nil {
 		return err
 	}
@@ -71,8 +73,7 @@ func CreateDirectory(filePath string) error {
 
 // FileExist checks if a file exists at the specified path
 func FileExist(filePath string) bool {
-	path := GetAbsolutePathFrom(filePath)
-	_, err := os.Stat(path)
+	_, err := os.Stat(filePath)
 	return err == nil || !os.IsNotExist(err)
 }
 
@@ -156,23 +157,4 @@ func AuditArrayCapacity(data []map[string]interface{}) []map[string]interface{} 
 		results = append(results, result)
 	}
 	return results
-}
-
-// Checks if the data structure is an object or an object with a data key and returns the proper data structure
-func SetProperObjectDataStructure(path string) map[string]interface{} {
-	data, err := ReadParsed(path)
-	if err != nil {
-		log.Fatalf("error reading %s: %v", path, err)
-	}
-
-	result, ok := data.(map[string]interface{})
-	if !ok {
-		log.Fatalf("invalid data structure in %s", path)
-	}
-
-	if dataData, ok := result["data"].(map[string]interface{}); ok {
-		result = dataData
-	}
-
-	return result
 }
