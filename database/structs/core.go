@@ -1,7 +1,7 @@
 package structs
 
 type CoreStruct struct {
-	BotTemplate    map[string]interface{}
+	BotTemplate    PlayerTemplate
 	ClientSettings ClientSettings
 	ServerConfig   ServerConfig
 	Globals        Globals
@@ -50,7 +50,7 @@ type ClientSettings struct {
 	AFKTimeoutSeconds              int       `json:"AFKTimeoutSeconds"`
 	RequestsMadeThroughLobby       []string  `json:"RequestsMadeThroughLobby"`
 	LobbyKeepAliveInterval         int       `json:"LobbyKeepAliveInterval"`
-	RequestConfirmationTimeouts    []float64 `json:"RequestConfirmationTimeouts"`
+	RequestConfirmationTimeouts    []float32 `json:"RequestConfirmationTimeouts"`
 	ShouldEstablishLobbyConnection bool      `json:"ShouldEstablishLobbyConnection"`
 }
 

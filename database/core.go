@@ -18,13 +18,24 @@ const (
 
 func LoadCore() *structs.CoreStruct {
 	core := &structs.CoreStruct{}
-	//core.BotTemplate = loadBotTemplate()
+	core.BotTemplate = processBotTemplate()
 	core.ClientSettings = processClientSettings()
 	core.ServerConfig = processServerConfig()
 	core.Globals = processGlobals()
 	core.Locations = processLocations()
 	core.MatchMetrics = processMatchMetrics()
 	return core
+}
+
+func processBotTemplate() structs.PlayerTemplate {
+	raw := tools.GetJSONRawMessage(BOT_TEMPLATE_FILE_PATH)
+
+	var botTemplate structs.PlayerTemplate
+	err := json.Unmarshal(raw, &botTemplate)
+	if err != nil {
+		panic(err)
+	}
+	return botTemplate
 }
 
 func processClientSettings() structs.ClientSettings {
@@ -64,7 +75,6 @@ func processGlobals() structs.Globals {
 	raw := tools.GetJSONRawMessage(GLOBALS_FILE_PATH)
 
 	var global = structs.Globals{}
-
 	err := json.Unmarshal(raw, &global)
 	if err != nil {
 		panic(err)
@@ -77,7 +87,6 @@ func processLocations() structs.Locations {
 	raw := tools.GetJSONRawMessage(LOCATIONS_FILE_PATH)
 
 	var locations = structs.Locations{}
-
 	err := json.Unmarshal(raw, &locations)
 	if err != nil {
 		panic(err)

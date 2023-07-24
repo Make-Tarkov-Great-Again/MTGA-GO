@@ -8,31 +8,13 @@ type Globals struct {
 }
 
 type ItemPreset struct {
-	ID           string `json:"_id,omitempty"`
-	Type         string `json:"_type,omitempty"`
-	ChangeWeapon bool   `json:"_changeWeaponName,omitempty"`
-	Name         string `json:"_name,omitempty"`
-	Parent       string `json:"_parent,omitempty"`
-	Items        []Item `json:"_items,omitempty"`
-	Encyclopedia string `json:"_encyclopedia,omitempty"`
-}
-
-type Item struct {
-	ID       string  `json:"_id,omitempty"`
-	Tpl      string  `json:"_tpl,omitempty"`
-	Upd      ItemUpd `json:"upd,omitempty"`
-	ParentID string  `json:"parentId,omitempty"`
-	SlotID   string  `json:"slotId,omitempty"`
-}
-
-type ItemUpd struct {
-	Foldable struct {
-		Folded bool `json:"Folded,omitempty"`
-	} `json:"Foldable,omitempty"`
-	FireMode struct {
-		FireMode string `json:"FireMode,omitempty"`
-	} `json:"FireMode,omitempty"`
-	StackObjectsCount int `json:"StackObjectsCount,omitempty"`
+	ID           string       `json:"_id,omitempty"`
+	Type         string       `json:"_type,omitempty"`
+	ChangeWeapon bool         `json:"_changeWeaponName,omitempty"`
+	Name         string       `json:"_name,omitempty"`
+	Parent       string       `json:"_parent,omitempty"`
+	Items        []PresetItem `json:"_items,omitempty"`
+	Encyclopedia string       `json:"_encyclopedia,omitempty"`
 }
 
 type GlobalsConfig struct {
@@ -404,35 +386,22 @@ type Masteries struct {
 }
 
 type Customization struct {
-	SavageHead         map[string]SavageHead `json:"SavageHead,omitempty"`
-	SavageBody         map[string]SavageBody `json:"SavageBody,omitempty"`
-	SavageFeet         map[string]SavageFeet `json:"SavageFeet,omitempty"`
-	CustomizationVoice []CustomizationVoice  `json:"CustomizationVoice,omitempty"`
-	BodyParts          map[string]string     `json:"BodyParts,omitempty"`
+	SavageHead         map[string]SavageCustomization `json:"SavageHead,omitempty"`
+	SavageBody         map[string]SavageCustomization `json:"SavageBody,omitempty"`
+	SavageFeet         map[string]SavageCustomization `json:"SavageFeet,omitempty"`
+	CustomizationVoice []SavageCustomization          `json:"CustomizationVoice,omitempty"`
+	BodyParts          map[string]string              `json:"BodyParts,omitempty"`
 }
 
-type SavageHead struct {
-	Head        string `json:"head,omitempty"`
-	IsNotRandom bool   `json:"isNotRandom,omitempty"`
-	NotRandom   bool   `json:"NotRandom,omitempty"`
-}
-
-type SavageBody struct {
-	Body        string `json:"body,omitempty"`
-	Hands       string `json:"hands,omitempty"`
-	IsNotRandom bool   `json:"isNotRandom,omitempty"`
-}
-
-type SavageFeet struct {
-	Feet        string `json:"feet,omitempty"`
-	IsNotRandom bool   `json:"isNotRandom,omitempty"`
-	NotRandom   bool   `json:"NotRandom,omitempty"`
-}
-
-type CustomizationVoice struct {
+type SavageCustomization struct {
+	Head        string   `json:"head,omitempty"`
+	Body        string   `json:"body,omitempty"`
+	Hands       string   `json:"hands,omitempty"`
+	Feet        string   `json:"feet,omitempty"`
 	Voice       string   `json:"voice,omitempty"`
 	Side        []string `json:"side,omitempty"`
 	IsNotRandom bool     `json:"isNotRandom,omitempty"`
+	NotRandom   bool     `json:"NotRandom,omitempty"`
 }
 
 type ArmorMaterials struct {
@@ -563,7 +532,8 @@ type BodyHealth struct {
 }
 
 type Value struct {
-	Value float32 `json:"Value,omitempty"`
+	Value         float32 `json:"Value,omitempty"`
+	UnitsConsumed int     `json:"UnitsConsumed,omitempty"`
 }
 
 type Influences struct {
@@ -595,19 +565,19 @@ type ProfileHealthSettings struct {
 }
 
 type BodyPartsSettings struct {
-	Head     BodyPartSettings `json:"Head,omitempty"`
-	Chest    BodyPartSettings `json:"Chest,omitempty"`
-	Stomach  BodyPartSettings `json:"Stomach,omitempty"`
-	LeftArm  BodyPartSettings `json:"LeftArm,omitempty"`
-	RightArm BodyPartSettings `json:"RightArm,omitempty"`
-	LeftLeg  BodyPartSettings `json:"LeftLeg,omitempty"`
-	RightLeg BodyPartSettings `json:"RightLeg,omitempty"`
+	Head     HealthFactorsSettings `json:"Head,omitempty"`
+	Chest    HealthFactorsSettings `json:"Chest,omitempty"`
+	Stomach  HealthFactorsSettings `json:"Stomach,omitempty"`
+	LeftArm  HealthFactorsSettings `json:"LeftArm,omitempty"`
+	RightArm HealthFactorsSettings `json:"RightArm,omitempty"`
+	LeftLeg  HealthFactorsSettings `json:"LeftLeg,omitempty"`
+	RightLeg HealthFactorsSettings `json:"RightLeg,omitempty"`
 }
 
-type BodyPartSettings struct {
+type HealthFactorSettings struct {
 	Minimum                      int     `json:"Minimum,omitempty"`
 	Maximum                      int     `json:"Maximum,omitempty"`
-	Default                      int     `json:"Default,omitempty"`
+	Default                      float32 `json:"Default,omitempty"`
 	OverDamageReceivedMultiplier float32 `json:"OverDamageReceivedMultiplier,omitempty"`
 }
 
@@ -617,12 +587,6 @@ type HealthFactorsSettings struct {
 	Temperature HealthFactorSettings `json:"Temperature,omitempty"`
 	Poisoning   HealthFactorSettings `json:"Poisoning,omitempty"`
 	Radiation   HealthFactorSettings `json:"Radiation,omitempty"`
-}
-
-type HealthFactorSettings struct {
-	Minimum int     `json:"Minimum,omitempty"`
-	Maximum int     `json:"Maximum,omitempty"`
-	Default float32 `json:"Default,omitempty"`
 }
 
 type Rating struct {
@@ -698,14 +662,10 @@ type ActiveOfferCountRange struct {
 }
 
 type RarityMaxSums struct {
-	Common    MaxSumForRarity `json:"Common,omitempty"`
-	Rare      MaxSumForRarity `json:"Rare,omitempty"`
-	Superrare MaxSumForRarity `json:"Superrare,omitempty"`
-	NotExist  MaxSumForRarity `json:"Not_exist,omitempty"`
-}
-
-type MaxSumForRarity struct {
-	Value int `json:"value,omitempty"`
+	Common    Value `json:"Common,omitempty"`
+	Rare      Value `json:"Rare,omitempty"`
+	Superrare Value `json:"Superrare,omitempty"`
+	NotExist  Value `json:"Not_exist,omitempty"`
 }
 
 type Stamina struct {
