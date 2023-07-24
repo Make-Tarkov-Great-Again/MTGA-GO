@@ -1,7 +1,7 @@
 package structs
 
 type CoreStruct struct {
-	BotTemplate    PlayerTemplate
+	PlayerTemplate PlayerTemplate
 	ClientSettings ClientSettings
 	ServerConfig   ServerConfig
 	Globals        Globals

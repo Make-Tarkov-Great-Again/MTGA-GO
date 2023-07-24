@@ -95,15 +95,15 @@ type Loot struct {
 type LootItem struct {
 	Id       string `json:"_id,omitempty"`
 	Tpl      string `json:"_tpl,omitempty"`
-	ParentId string `json:"parentId,omitempty,omitempty"`
-	SlotId   string `json:"slotId,omitempty,omitempty"`
-	Location XYZ    `json:"location,omitempty,omitempty"`
+	ParentId string `json:"parentId,omitempty"`
+	SlotId   string `json:"slotId,omitempty"`
+	Location XYZ    `json:"location,omitempty"`
 	Upd      struct {
 		FireMode struct {
-			FireMode string `json:"FireMode,omitempty,omitempty"`
-		} `json:"FireMode,omitempty,omitempty"`
-		StackObjectsCount int `json:"StackObjectsCount,omitempty,omitempty"`
-	} `json:"upd,omitempty,omitempty"`
+			FireMode string `json:"FireMode,omitempty"`
+		} `json:"FireMode,omitempty"`
+		StackObjectsCount int `json:"StackObjectsCount,omitempty"`
+	} `json:"upd,omitempty"`
 }
 
 type Wave struct {

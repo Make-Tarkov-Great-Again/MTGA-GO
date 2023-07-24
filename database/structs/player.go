@@ -2,7 +2,7 @@ package structs
 
 type PlayerTemplate struct {
 	ID              string                    `json:"_id,omitempty"`
-	AID             int                       `json:"aid,omitempty"`
+	AID             int32                     `json:"aid,omitempty"`
 	Savage          string                    `json:"savage,omitempty"`
 	Info            PlayerInfo                `json:"Info,omitempty"`
 	Customization   PlayerCustomization       `json:"Customization,omitempty"`
@@ -24,21 +24,21 @@ type PlayerTemplate struct {
 type Quest struct {
 	Qid                 string            `json:"qid,omitempty"`
 	StartTime           string            `json:"startTime,omitempty"`
-	Status              int               `json:"status,omitempty"`
+	Status              int8              `json:"status,omitempty"`
 	StatusTimers        map[string]string `json:"statusTimers,omitempty"`
 	CompletedConditions []string          `json:"completedConditions,omitempty"`
-	AvailableAfter      int               `json:"availableAfter,omitempty"`
+	AvailableAfter      int32             `json:"availableAfter,omitempty"`
 }
 
 type Note struct {
-	Time int    `json:"Time,omitempty"`
+	Time int32  `json:"Time,omitempty"`
 	Text string `json:"Text,omitempty"`
 }
 
 type Bonus struct {
 	Type       string `json:"type,omitempty"`
 	TemplateID string `json:"templateId,omitempty"`
-	Value      int    `json:"value,omitempty"`
+	Value      int32  `json:"value,omitempty"`
 	Passive    bool   `json:"passive,omitempty"`
 	Production bool   `json:"production,omitempty"`
 	Visible    bool   `json:"visible,omitempty"`
@@ -51,11 +51,11 @@ type PlayerHideout struct {
 }
 
 type HideoutArea struct {
-	Type                  int               `json:"type,omitempty"`
-	Level                 int               `json:"level,omitempty"`
+	Type                  int8              `json:"type,omitempty"`
+	Level                 int8              `json:"level,omitempty"`
 	Active                bool              `json:"active,omitempty"`
 	PassiveBonusesEnabled bool              `json:"passiveBonusesEnabled,omitempty"`
-	CompleteTime          int               `json:"completeTime,omitempty"`
+	CompleteTime          int32             `json:"completeTime,omitempty"`
 	Constructing          bool              `json:"constructing,omitempty"`
 	Slots                 []HideoutAreaSlot `json:"slots,omitempty"`
 	LastRecipe            string            `json:"lastRecipe,omitempty"`
@@ -72,13 +72,13 @@ type HideoutImprovement struct {
 }
 
 type HideoutProduction struct {
-	Progress       int
+	Progress       int32
 	InProgress     bool
 	RecipeId       string
 	Products       []string
-	SkipTime       int
-	ProductionTime int
-	StartTimestamp int
+	SkipTime       int32
+	ProductionTime int32
+	StartTimestamp int32
 }
 
 type InsuredItem struct {
@@ -99,9 +99,9 @@ type DamageHistory struct {
 }
 
 type DeathCause struct {
-	DamageType int    `json:"DamageType,omitempty"`
-	Side       int    `json:"Side,omitempty"`
-	Role       int    `json:"Role,omitempty"`
+	DamageType int32  `json:"DamageType,omitempty"`
+	Side       int32  `json:"Side,omitempty"`
+	Role       int32  `json:"Role,omitempty"`
 	WeaponId   string `json:"WeaponId,omitempty"`
 }
 
@@ -117,10 +117,10 @@ type PlayerStats struct {
 	OverallCounters struct {
 		Items []OverallCountersItem `json:"Items,omitempty"`
 	} `json:"OverallCounters,omitempty"`
-	SessionExperienceMult  int           `json:"SessionExperienceMult,omitempty"`
-	ExperienceBonusMult    int           `json:"ExperienceBonusMult,omitempty"`
-	TotalSessionExperience int           `json:"TotalSessionExperience,omitempty"`
-	LastSessionDate        int           `json:"LastSessionDate,omitempty"`
+	SessionExperienceMult  int32         `json:"SessionExperienceMult,omitempty"`
+	ExperienceBonusMult    int32         `json:"ExperienceBonusMult,omitempty"`
+	TotalSessionExperience int32         `json:"TotalSessionExperience,omitempty"`
+	LastSessionDate        int32         `json:"LastSessionDate,omitempty"`
 	Aggressor              interface{}   `json:"Aggressor,omitempty"`
 	DroppedItems           []interface{} `json:"DroppedItems,omitempty"`
 	FoundInRaidItems       []interface{} `json:"FoundInRaidItems,omitempty"`
@@ -129,25 +129,25 @@ type PlayerStats struct {
 	DamageHistory          DamageHistory `json:"DamageHistory,omitempty"`
 	DeathCause             DeathCause    `json:"DeathCause,omitempty"`
 	LastPlayerState        interface{}   `json:"LastPlayerState,omitempty"`
-	TotalInGameTime        int           `json:"TotalInGameTime,omitempty"`
+	TotalInGameTime        int32         `json:"TotalInGameTime,omitempty"`
 	SurvivorClass          string        `json:"SurvivorClass,omitempty"`
 }
 
 type PlayerSkill struct {
 	ID                        string `json:"Id,omitempty"`
-	Progress                  int    `json:"Progress,omitempty"`
-	PointsEarnedDuringSession int    `json:"PointsEarnedDuringSession,omitempty"`
-	LastAccess                int    `json:"LastAccess,omitempty"`
+	Progress                  int32  `json:"Progress,omitempty"`
+	PointsEarnedDuringSession int32  `json:"PointsEarnedDuringSession,omitempty"`
+	LastAccess                int32  `json:"LastAccess,omitempty"`
 }
 
 type PlayerSkills struct {
 	Common    []PlayerSkill `json:"Common,omitempty"`
 	Mastering []PlayerSkill `json:"Mastering,omitempty"`
-	Points    int           `json:"Points,omitempty"`
+	Points    int32         `json:"Points,omitempty"`
 }
 
 type PlayerInventory struct {
-	Items           []Item            `json:"items,omitempty"`
+	Items           []InventoryItem   `json:"items,omitempty"`
 	Equipment       string            `json:"equipment,omitempty"`
 	Stash           string            `json:"stash,omitempty"`
 	SortingTable    string            `json:"sortingTable,omitempty"`
@@ -161,22 +161,22 @@ type PlayerInfo struct {
 	LowerNickname           string         `json:"LowerNickname,omitempty"`
 	Side                    string         `json:"Side,omitempty"`
 	Voice                   string         `json:"Voice,omitempty"`
-	Level                   int            `json:"Level,omitempty"`
-	Experience              int            `json:"Experience,omitempty"`
-	RegistrationDate        int64          `json:"RegistrationDate,omitempty"`
+	Level                   int8           `json:"Level,omitempty"`
+	Experience              int32          `json:"Experience,omitempty"`
+	RegistrationDate        int32          `json:"RegistrationDate,omitempty"`
 	GameVersion             string         `json:"GameVersion,omitempty"`
-	AccountType             int            `json:"AccountType,omitempty"`
-	MemberCategory          int            `json:"MemberCategory,omitempty"`
+	AccountType             int8           `json:"AccountType,omitempty"`
+	MemberCategory          int8           `json:"MemberCategory,omitempty"`
 	LockedMoveCommands      bool           `json:"lockedMoveCommands,omitempty"`
-	SavageLockTime          int64          `json:"SavageLockTime,omitempty"`
-	LastTimePlayedAsSavage  int64          `json:"LastTimePlayedAsSavage,omitempty"`
+	SavageLockTime          int32          `json:"SavageLockTime,omitempty"`
+	LastTimePlayedAsSavage  int32          `json:"LastTimePlayedAsSavage,omitempty"`
 	Settings                PlayerSettings `json:"Settings,omitempty"`
-	NicknameChangeDate      int64          `json:"NicknameChangeDate,omitempty"`
+	NicknameChangeDate      int32          `json:"NicknameChangeDate,omitempty"`
 	NeedWipeOptions         []string       `json:"NeedWipeOptions,omitempty"`
 	LastCompletedWipe       Event          `json:"lastCompletedWipe,omitempty"`
 	LastCompletedEvent      Event          `json:"lastCompletedEvent,omitempty"`
 	BannedState             bool           `json:"BannedState,omitempty"`
-	BannedUntil             int64          `json:"BannedUntil,omitempty"`
+	BannedUntil             int32          `json:"BannedUntil,omitempty"`
 	IsStreamerModeAvailable bool           `json:"IsStreamerModeAvailable,omitempty"`
 	Bans                    []string       `json:"Bans,omitempty"`
 }
@@ -184,9 +184,9 @@ type PlayerInfo struct {
 type PlayerSettings struct {
 	Role            string  `json:"Role,omitempty"`
 	BotDifficulty   string  `json:"BotDifficulty,omitempty"`
-	Experience      int     `json:"Experience,omitempty"`
-	StandingForKill float64 `json:"StandingForKill,omitempty"`
-	AggressorBonus  float64 `json:"AggressorBonus,omitempty"`
+	Experience      int32   `json:"Experience,omitempty"`
+	StandingForKill float32 `json:"StandingForKill,omitempty"`
+	AggressorBonus  float32 `json:"AggressorBonus,omitempty"`
 }
 
 type PlayerCustomization struct {
@@ -201,7 +201,7 @@ type PlayerHealth struct {
 	Energy      HealthInfo                `json:"Energy,omitempty"`
 	Temperature HealthInfo                `json:"Temperature,omitempty"`
 	BodyParts   map[string]BodyPartHealth `json:"BodyParts,omitempty"`
-	UpdateTime  int64                     `json:"UpdateTime,omitempty"`
+	UpdateTime  int32                     `json:"UpdateTime,omitempty"`
 }
 
 type BodyPartHealth struct {

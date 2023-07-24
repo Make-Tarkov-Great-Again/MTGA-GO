@@ -6,7 +6,7 @@ import (
 
 func main() {
 
-	database.LoadCore()
+	database.InitializeDatabase()
 	/* 	dbErr := database.InitializeDatabase()
 	   	if dbErr != nil {
 	   		log.Fatalf("error initializing database: %v", dbErr)

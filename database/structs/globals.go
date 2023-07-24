@@ -7,16 +7,6 @@ type Globals struct {
 	ItemPresets          map[string]ItemPreset  `json:"ItemPresets,omitempty"`
 }
 
-type ItemPreset struct {
-	ID           string       `json:"_id,omitempty"`
-	Type         string       `json:"_type,omitempty"`
-	ChangeWeapon bool         `json:"_changeWeaponName,omitempty"`
-	Name         string       `json:"_name,omitempty"`
-	Parent       string       `json:"_parent,omitempty"`
-	Items        []PresetItem `json:"_items,omitempty"`
-	Encyclopedia string       `json:"_encyclopedia,omitempty"`
-}
-
 type GlobalsConfig struct {
 	Content                   Content        `json:"content,omitempty"`
 	AimPunchMagnitude         int            `json:"AimPunchMagnitude,omitempty"`
