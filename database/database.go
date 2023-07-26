@@ -4,8 +4,6 @@ import (
 	"MT-GO/database/structs"
 	"MT-GO/tools"
 	"encoding/json"
-	"reflect"
-	"strings"
 )
 
 type DatabaseStruct struct {
@@ -78,52 +76,53 @@ func setLocales() *structs.Locale {
 	locales := structs.Locale{}
 	localeData := structs.LocaleData{}
 
-	var raw map[string]json.RawMessage
+	structure := make(map[string]structs.LocaleData)
+
+	localeFiles := [2]string{"locale.json", "menu.json"}
 
 	for _, dir := range directories {
+
 		dirPath := LOCALES_PATH + "/" + dir
-		format := make(map[string]string)
 
-		var fileContent []byte
+		for _, file := range localeFiles {
+			var fileContent []byte
 
-		fileContent, err := tools.ReadFile(dirPath + "/" + "locale.json")
-		if err != nil {
-			panic(err)
+			fileContent, err := tools.ReadFile(dirPath + "/" + file)
+			if err != nil {
+				panic(err)
+			}
+
+			raw := make(map[string]json.RawMessage)
+			err = json.Unmarshal(fileContent, &raw)
+			if err != nil {
+				panic(err)
+			}
+
+			format := make(map[string]string)
+			for key, val := range raw {
+				format[key] = string(val)
+			}
+
+			if file == "locale.json" {
+				localeData.Locale = format
+			} else {
+				localeData.Menu = format
+			}
 		}
 
-		err = json.Unmarshal(fileContent, &raw)
-		if err != nil {
-			panic(err)
-		}
-
-		for key, val := range raw {
-			format[key] = string(val)
-		}
-
-		localeData.Locale = format
-		format = make(map[string]string)
-
-		fileContent, err = tools.ReadFile(dirPath + "/" + "menu.json")
-		if err != nil {
-			panic(err)
-		}
-
-		err = json.Unmarshal(fileContent, &raw)
-		if err != nil {
-			panic(err)
-		}
-
-		for key, val := range raw {
-			format[key] = string(val)
-		}
-		localeData.Menu = format
-
-		key := strings.Replace(dir, "-", "", -1)
-		attribute := tools.GetStructField(&locales, strings.ToUpper(key))
-		if attribute.CanSet() {
-			attribute.Set(reflect.ValueOf(localeData))
-		}
+		structure[dir] = localeData
 	}
+
+	jsonData, err := json.Marshal(structure)
+	if err != nil {
+		panic(err)
+	}
+
+	err = json.Unmarshal(jsonData, &locales)
+	if err != nil {
+		panic(err)
+	}
+
 	return &locales
 }
 

@@ -25,10 +25,10 @@ type Base struct {
 	Insurance           struct {
 		Availability     bool     `json:"availability"`
 		ExcludedCategory []string `json:"excluded_category"`
-		MaxReturnHour    int8     `json:"max_return_hour"`
-		MaxStorageTime   int8     `json:"max_storage_time"`
-		MinPayment       int8     `json:"min_payment"`
-		MinReturnHour    int8     `json:"min_return_hour"`
+		MaxReturnHour    int16    `json:"max_return_hour"`
+		MaxStorageTime   int16    `json:"max_storage_time"`
+		MinPayment       int32    `json:"min_payment"`
+		MinReturnHour    int16    `json:"min_return_hour"`
 	} `json:"insurance"`
 	ItemsBuy struct {
 		Category []string `json:"category"`

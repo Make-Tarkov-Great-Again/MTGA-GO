@@ -9,17 +9,14 @@ import (
 
 func setTraders() map[string]*structs.Trader {
 	traders := make(map[string]*structs.Trader)
-	trader := structs.Trader{}
-
-	questAssort := structs.QuestAssort{}
-	suits := []structs.Suit{}
-	dialogue := structs.Dialogue{}
 
 	directory, err := tools.GetDirectoriesFrom(TRADER_PATH)
 	if err != nil {
 		return traders
 	}
 	for _, dir := range directory {
+		trader := structs.Trader{}
+
 		currentTraderPath := TRADER_PATH + dir + "/"
 
 		if tools.FileExist(currentTraderPath + "base.json") {
@@ -36,6 +33,8 @@ func setTraders() map[string]*structs.Trader {
 			if err != nil {
 				panic(err)
 			}
+			questAssort := structs.QuestAssort{}
+
 			err = json.Unmarshal(fileContent, &questAssort)
 			if err != nil {
 				panic(err)
@@ -44,6 +43,8 @@ func setTraders() map[string]*structs.Trader {
 		}
 
 		if tools.FileExist(currentTraderPath + "suits.json") {
+			suits := []structs.Suit{}
+
 			fileContent, err := tools.ReadFile(currentTraderPath + "suits.json")
 			if err != nil {
 				panic(err)
@@ -60,6 +61,8 @@ func setTraders() map[string]*structs.Trader {
 			if err != nil {
 				panic(err)
 			}
+
+			dialogue := structs.Dialogue{}
 			err = json.Unmarshal(fileContent, &dialogue)
 			if err != nil {
 				panic(err)
@@ -127,13 +130,47 @@ func processBase(currentTraderPath string) structs.Base {
 
 func processAssort(currentTraderPath string) structs.Assort {
 	assort := structs.Assort{}
-	//var raw []map[string]json.RawMessage
 
 	fileContent, err := tools.ReadFile(currentTraderPath + "assort.json")
 	if err != nil {
 		panic(err)
 	}
-	err = json.Unmarshal(fileContent, &assort)
+
+	var dynamic map[string]interface{} //here we fucking go
+	err = json.Unmarshal(fileContent, &dynamic)
+	if err != nil {
+		panic(err)
+	}
+
+	items, ok := dynamic["items"].([]interface{})
+	if !ok {
+		panic("not okay!!!!!!!!!!!!!!!!!!!!")
+	}
+
+	for _, item := range items {
+		i := item.(map[string]interface{})
+		upd, ok := i["upd"].(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		buyRestrictionMax, ok := upd["BuyRestrictionMax"].(string)
+		if !ok {
+			continue
+		}
+		upd["BuyRestrictionMax"], err = strconv.Atoi(buyRestrictionMax)
+		if err != nil {
+			panic(err)
+		}
+
+	}
+
+	sanitized, err := json.Marshal(dynamic)
+	if err != nil {
+		panic(err)
+	}
+
+	err = json.Unmarshal(sanitized, &assort)
 	if err != nil {
 		panic(err)
 	}
