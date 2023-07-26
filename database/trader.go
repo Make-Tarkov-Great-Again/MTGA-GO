@@ -29,13 +29,10 @@ func setTraders() map[string]*structs.Trader {
 		}
 
 		if tools.FileExist(currentTraderPath + "questassort.json") {
-			fileContent, err := tools.ReadFile(currentTraderPath + "questassort.json")
-			if err != nil {
-				panic(err)
-			}
+			raw := tools.GetJSONRawMessage(currentTraderPath + "questassort.json")
 			questAssort := structs.QuestAssort{}
 
-			err = json.Unmarshal(fileContent, &questAssort)
+			err = json.Unmarshal(raw, &questAssort)
 			if err != nil {
 				panic(err)
 			}
@@ -45,11 +42,8 @@ func setTraders() map[string]*structs.Trader {
 		if tools.FileExist(currentTraderPath + "suits.json") {
 			suits := []structs.Suit{}
 
-			fileContent, err := tools.ReadFile(currentTraderPath + "suits.json")
-			if err != nil {
-				panic(err)
-			}
-			err = json.Unmarshal(fileContent, &suits)
+			raw := tools.GetJSONRawMessage(currentTraderPath + "suits.json")
+			err = json.Unmarshal(raw, &suits)
 			if err != nil {
 				panic(err)
 			}
@@ -57,13 +51,10 @@ func setTraders() map[string]*structs.Trader {
 		}
 
 		if tools.FileExist(currentTraderPath + "dialogue.json") {
-			fileContent, err := tools.ReadFile(currentTraderPath + "dialogue.json")
-			if err != nil {
-				panic(err)
-			}
-
 			dialogue := structs.Dialogue{}
-			err = json.Unmarshal(fileContent, &dialogue)
+
+			raw := tools.GetJSONRawMessage(currentTraderPath + "dialogue.json")
+			err = json.Unmarshal(raw, &dialogue)
 			if err != nil {
 				panic(err)
 			}
@@ -79,11 +70,8 @@ func processBase(currentTraderPath string) structs.Base {
 
 	var dynamic map[string]interface{} //here we fucking go
 
-	file, err := tools.ReadFile(currentTraderPath + "base.json")
-	if err != nil {
-		panic(err)
-	}
-	err = json.Unmarshal(file, &dynamic)
+	raw := tools.GetJSONRawMessage(currentTraderPath + "base.json")
+	err := json.Unmarshal(raw, &dynamic)
 	if err != nil {
 		panic(err)
 	}
@@ -129,15 +117,10 @@ func processBase(currentTraderPath string) structs.Base {
 }
 
 func processAssort(currentTraderPath string) structs.Assort {
-	assort := structs.Assort{}
+	var dynamic map[string]interface{}
+	raw := tools.GetJSONRawMessage(currentTraderPath + "assort.json")
 
-	fileContent, err := tools.ReadFile(currentTraderPath + "assort.json")
-	if err != nil {
-		panic(err)
-	}
-
-	var dynamic map[string]interface{} //here we fucking go
-	err = json.Unmarshal(fileContent, &dynamic)
+	err := json.Unmarshal(raw, &dynamic)
 	if err != nil {
 		panic(err)
 	}
@@ -170,6 +153,7 @@ func processAssort(currentTraderPath string) structs.Assort {
 		panic(err)
 	}
 
+	assort := structs.Assort{}
 	err = json.Unmarshal(sanitized, &assort)
 	if err != nil {
 		panic(err)

@@ -8,43 +8,43 @@ type Globals struct {
 }
 
 type GlobalsConfig struct {
-	Content                   Content        `json:"content,omitempty"`
-	AimPunchMagnitude         int            `json:"AimPunchMagnitude,omitempty"`
-	WeaponSkillProgressRate   float32        `json:"WeaponSkillProgressRate,omitempty"`
-	SkillAtrophy              bool           `json:"SkillAtrophy,omitempty"`
-	Exp                       Exp            `json:"exp,omitempty"`
-	TBaseLooting              int            `json:"t_base_looting,omitempty"`
-	TBaseLockpicking          int            `json:"t_base_lockpicking,omitempty"`
-	Armor                     Armor          `json:"armor,omitempty"`
-	SessionsToShowHotKeys     int            `json:"SessionsToShowHotKeys,omitempty"`
-	MaxBotsAliveOnMap         int            `json:"MaxBotsAliveOnMap,omitempty"`
-	SavagePlayCooldown        int            `json:"SavagePlayCooldown,omitempty"`
-	SavagePlayCooldownNdaFree int            `json:"SavagePlayCooldownNdaFree,omitempty"`
-	MarksmanAccuracy          float32        `json:"MarksmanAccuracy,omitempty"`
-	SavagePlayCooldownDevelop int            `json:"SavagePlayCooldownDevelop,omitempty"`
-	TODSkyDate                string         `json:"TODSkyDate,omitempty"`
-	Mastering                 [70]Mastering  `json:"Mastering,omitempty"`
-	GlobalItemPriceModifier   int            `json:"GlobalItemPriceModifier,omitempty"`
-	TradingUnlimitedItems     bool           `json:"TradingUnlimitedItems,omitempty"`
-	MaxLoyaltyLevelForAll     bool           `json:"MaxLoyaltyLevelForAll,omitempty"`
-	GlobalLootChanceModifier  float32        `json:"GlobalLootChanceModifier,omitempty"`
-	TimeBeforeDeploy          int            `json:"TimeBeforeDeploy,omitempty"`
-	TimeBeforeDeployLocal     int            `json:"TimeBeforeDeployLocal,omitempty"`
-	LoadTimeSpeedProgress     int            `json:"LoadTimeSpeedProgress,omitempty"`
-	BaseLoadTime              float32        `json:"BaseLoadTime,omitempty"`
-	BaseUnloadTime            float32        `json:"BaseUnloadTime,omitempty"`
-	BaseCheckTime             int            `json:"BaseCheckTime,omitempty"`
-	Customization             Customization  `json:"Customization,omitempty"`
-	UncheckOnShot             bool           `json:"UncheckOnShot,omitempty"`
-	BotsEnabled               bool           `json:"BotsEnabled,omitempty"`
-	ArmorMaterials            ArmorMaterials `json:"ArmorMaterials,omitempty"`
-	LegsOverdamage            int            `json:"LegsOverdamage,omitempty"`
-	HandsOverdamage           float32        `json:"HandsOverdamage,omitempty"`
-	StomachOverdamage         float32        `json:"StomachOverdamage,omitempty"`
-	Health                    Health         `json:"Health,omitempty"`
-	Rating                    Rating         `json:"rating,omitempty"`
-	Tournament                Tournament     `json:"tournament,omitempty"`
-	RagFair                   RagFair        `json:"RagFair,omitempty"`
+	Content                   Content           `json:"content,omitempty"`
+	AimPunchMagnitude         int               `json:"AimPunchMagnitude,omitempty"`
+	WeaponSkillProgressRate   float32           `json:"WeaponSkillProgressRate,omitempty"`
+	SkillAtrophy              bool              `json:"SkillAtrophy,omitempty"`
+	Exp                       Exp               `json:"exp,omitempty"`
+	TBaseLooting              int               `json:"t_base_looting,omitempty"`
+	TBaseLockpicking          int               `json:"t_base_lockpicking,omitempty"`
+	Armor                     Armor             `json:"armor,omitempty"`
+	SessionsToShowHotKeys     int               `json:"SessionsToShowHotKeys,omitempty"`
+	MaxBotsAliveOnMap         int               `json:"MaxBotsAliveOnMap,omitempty"`
+	SavagePlayCooldown        int               `json:"SavagePlayCooldown,omitempty"`
+	SavagePlayCooldownNdaFree int               `json:"SavagePlayCooldownNdaFree,omitempty"`
+	MarksmanAccuracy          float32           `json:"MarksmanAccuracy,omitempty"`
+	SavagePlayCooldownDevelop int               `json:"SavagePlayCooldownDevelop,omitempty"`
+	TODSkyDate                string            `json:"TODSkyDate,omitempty"`
+	Mastering                 [70]Mastering     `json:"Mastering,omitempty"`
+	GlobalItemPriceModifier   int               `json:"GlobalItemPriceModifier,omitempty"`
+	TradingUnlimitedItems     bool              `json:"TradingUnlimitedItems,omitempty"`
+	MaxLoyaltyLevelForAll     bool              `json:"MaxLoyaltyLevelForAll,omitempty"`
+	GlobalLootChanceModifier  float32           `json:"GlobalLootChanceModifier,omitempty"`
+	TimeBeforeDeploy          int               `json:"TimeBeforeDeploy,omitempty"`
+	TimeBeforeDeployLocal     int               `json:"TimeBeforeDeployLocal,omitempty"`
+	LoadTimeSpeedProgress     int               `json:"LoadTimeSpeedProgress,omitempty"`
+	BaseLoadTime              float32           `json:"BaseLoadTime,omitempty"`
+	BaseUnloadTime            float32           `json:"BaseUnloadTime,omitempty"`
+	BaseCheckTime             int               `json:"BaseCheckTime,omitempty"`
+	Customization             ScavCustomization `json:"Customization,omitempty"`
+	UncheckOnShot             bool              `json:"UncheckOnShot,omitempty"`
+	BotsEnabled               bool              `json:"BotsEnabled,omitempty"`
+	ArmorMaterials            ArmorMaterials    `json:"ArmorMaterials,omitempty"`
+	LegsOverdamage            int               `json:"LegsOverdamage,omitempty"`
+	HandsOverdamage           float32           `json:"HandsOverdamage,omitempty"`
+	StomachOverdamage         float32           `json:"StomachOverdamage,omitempty"`
+	Health                    Health            `json:"Health,omitempty"`
+	Rating                    Rating            `json:"rating,omitempty"`
+	Tournament                Tournament        `json:"tournament,omitempty"`
+	RagFair                   RagFair           `json:"RagFair,omitempty"`
 	Handbook                  struct {
 		DefaultCategory string `json:"defaultCategory,omitempty"`
 	} `json:"handbook,omitempty"`
@@ -375,7 +375,7 @@ type Masteries struct {
 	Templates []Mastering `json:"Templates,omitempty"`
 }
 
-type Customization struct {
+type ScavCustomization struct {
 	SavageHead         map[string]SavageCustomization `json:"SavageHead,omitempty"`
 	SavageBody         map[string]SavageCustomization `json:"SavageBody,omitempty"`
 	SavageFeet         map[string]SavageCustomization `json:"SavageFeet,omitempty"`

@@ -5,7 +5,6 @@ type CoreStruct struct {
 	ClientSettings ClientSettings
 	ServerConfig   ServerConfig
 	Globals        Globals
-	Locations      Locations
 	//gameplay        map[string]interface{}
 	//blacklist       []interface{}
 	MatchMetrics MatchMetrics
@@ -57,4 +56,45 @@ type HandbookItem struct {
 	Id       string `json:"Id"`
 	ParentId string `json:"ParentId"`
 	Price    int    `json:"Price"`
+}
+
+type Weather struct {
+	WeatherInfo struct {
+		Timestamp     int64   `json:"timestamp"`
+		Cloud         float64 `json:"cloud"`
+		WindSpeed     int     `json:"wind_speed"`
+		WindDirection int     `json:"wind_direction"`
+		WindGustiness float64 `json:"wind_gustiness"`
+		Rain          int     `json:"rain"`
+		RainIntensity int     `json:"rain_intensity"`
+		Fog           float64 `json:"fog"`
+		Temperature   int     `json:"temp"`
+		Pressure      int     `json:"pressure"`
+		Date          string  `json:"date"`
+		Time          string  `json:"time"`
+	} `json:"weather"`
+	Date         string `json:"date"`
+	Time         string `json:"time"`
+	Acceleration int    `json:"acceleration"`
+}
+
+type Customization struct {
+	ID     string `json:"_id,omitempty"`
+	Name   string `json:"_name,omitempty"`
+	Parent string `json:"_parent,omitempty"`
+	Type   string `json:"_type,omitempty"`
+	Proto  string `json:"_proto,omitempty"`
+	Props  struct {
+		Name                string      `json:"Name,omitempty"`
+		ShortName           string      `json:"ShortName,omitempty"`
+		Description         string      `json:"Description,omitempty"`
+		Side                []string    `json:"Side,omitempty"`
+		BodyPart            string      `json:"BodyPart,omitempty"`
+		Prefab              interface{} `json:"Prefab,omitempty"`
+		WatchPrefab         interface{} `json:"WatchPrefab,omitempty"`
+		IntegratedArmorVest bool        `json:"IntegratedArmorVest,omitempty"`
+		WatchPosition       XYZ         `json:"WatchPosition,omitempty"`
+		WatchRotation       XYZ         `json:"WatchRotation,omitempty"`
+		AvailableAsDefault  bool        `json:"AvailableAsDefault,omitempty"`
+	} `json:"_props,omitempty"`
 }

@@ -16,12 +16,12 @@ type PlayerTemplate struct {
 	Notes           struct {
 		Notes map[string]Note `json:"Notes,omitempty"`
 	} `json:"Notes,omitempty"`
-	Quests        []Quest  `json:"Quests,omitempty"`
-	WishList      []string `json:"WishList,omitempty"`
-	SurvivorClass string   `json:"SurvivorClass,omitempty"`
+	Quests        []PlayerQuest `json:"Quests,omitempty"`
+	WishList      []string      `json:"WishList,omitempty"`
+	SurvivorClass string        `json:"SurvivorClass,omitempty"`
 }
 
-type Quest struct {
+type PlayerQuest struct {
 	Qid                 string            `json:"qid,omitempty"`
 	StartTime           string            `json:"startTime,omitempty"`
 	Status              int8              `json:"status,omitempty"`
@@ -45,23 +45,23 @@ type Bonus struct {
 }
 
 type PlayerHideout struct {
-	Production   map[string]HideoutProduction  `json:"Production,omitempty"`
-	Areas        []HideoutArea                 `json:"Areas,omitempty"`
+	Production   map[string]Production         `json:"Production,omitempty"`
+	Areas        []Areas                       `json:"Areas,omitempty"`
 	Improvements map[string]HideoutImprovement `json:"Improvements,omitempty"`
 }
 
-type HideoutArea struct {
-	Type                  int8              `json:"type,omitempty"`
-	Level                 int8              `json:"level,omitempty"`
-	Active                bool              `json:"active,omitempty"`
-	PassiveBonusesEnabled bool              `json:"passiveBonusesEnabled,omitempty"`
-	CompleteTime          int32             `json:"completeTime,omitempty"`
-	Constructing          bool              `json:"constructing,omitempty"`
-	Slots                 []HideoutAreaSlot `json:"slots,omitempty"`
-	LastRecipe            string            `json:"lastRecipe,omitempty"`
+type Areas struct {
+	Type                  int8       `json:"type,omitempty"`
+	Level                 int8       `json:"level,omitempty"`
+	Active                bool       `json:"active,omitempty"`
+	PassiveBonusesEnabled bool       `json:"passiveBonusesEnabled,omitempty"`
+	CompleteTime          int32      `json:"completeTime,omitempty"`
+	Constructing          bool       `json:"constructing,omitempty"`
+	Slots                 []AreaSlot `json:"slots,omitempty"`
+	LastRecipe            string     `json:"lastRecipe,omitempty"`
 }
 
-type HideoutAreaSlot struct {
+type AreaSlot struct {
 	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
@@ -71,7 +71,7 @@ type HideoutImprovement struct {
 	ImproveCompleteTimestamp string `json:"improveCompleteTimestamp,omitempty"`
 }
 
-type HideoutProduction struct {
+type Production struct {
 	Progress       int32
 	InProgress     bool
 	RecipeId       string

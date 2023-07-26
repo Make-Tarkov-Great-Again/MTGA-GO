@@ -15,11 +15,12 @@ type DatabaseStruct struct {
 	Handbook  *structs.Handbook
 	Traders   map[string]*structs.Trader
 	//Flea          *FleaStruct
-	//Quests        map[string]map[string]interface{}
-	//Hideout       *HideoutStruct
-	//Locations     *LocationsStruct
-	//Weather       map[string]interface{}
-	//Customization map[string]map[string]interface{}
+	Quests  map[string]*structs.Quest
+	Hideout *structs.Hideout
+
+	Locations     *structs.Locations
+	Weather       *structs.Weather
+	Customization map[string]*structs.Customization
 	//Editions      map[string]interface{}
 	//Bot           *BotStruct
 	//Profiles      map[string]ProfileStruct
@@ -39,6 +40,11 @@ func InitializeDatabase() {
 	db.Languages = setLanguages()
 	db.Handbook = setHandbook()
 	db.Traders = setTraders()
+	db.Locations = setLocations()
+	db.Quests = setQuests()
+	db.Hideout = setHideout()
+	db.Weather = setWeather()
+	db.Customization = setCustomization()
 }
 
 const (
@@ -54,7 +60,55 @@ const (
 	LOCALES_PATH           string = DATABASE_LIB_PATH + "/locales"
 	HANDBOOK_PATH          string = DATABASE_LIB_PATH + "/handbook.json"
 	TRADER_PATH            string = DATABASE_LIB_PATH + "/traders/"
+	QUESTS_PATH            string = DATABASE_LIB_PATH + "/quests.json"
+	HIDEOUT_PATH           string = DATABASE_LIB_PATH + "/hideout/"
+	WEATHER_PATH           string = DATABASE_LIB_PATH + "/weather.json"
+	CUSTOMIZATION_PATH     string = DATABASE_LIB_PATH + "/customization.json"
 )
+
+func setCustomization() map[string]*structs.Customization {
+	raw := tools.GetJSONRawMessage(CUSTOMIZATION_PATH)
+
+	customization := make(map[string]*structs.Customization)
+	err := json.Unmarshal(raw, &customization)
+	if err != nil {
+		panic(err)
+	}
+	return customization
+}
+
+func setWeather() *structs.Weather {
+	raw := tools.GetJSONRawMessage(WEATHER_PATH)
+
+	weather := structs.Weather{}
+	err := json.Unmarshal(raw, &weather)
+	if err != nil {
+		panic(err)
+	}
+	return &weather
+}
+
+func setHideout() *structs.Hideout {
+	hideout := structs.Hideout{}
+
+	dynamic := make(map[string]json.RawMessage)
+	files := [5]string{"areas", "productions", "qte", "scavcase", "settings"}
+	for _, file := range files {
+		raw := tools.GetJSONRawMessage(HIDEOUT_PATH + file + ".json")
+		dynamic[file] = raw
+	}
+
+	jsonData, err := json.Marshal(dynamic)
+	if err != nil {
+		panic(err)
+	}
+
+	err = json.Unmarshal(jsonData, &hideout)
+	if err != nil {
+		panic(err)
+	}
+	return &hideout
+}
 
 func setHandbook() *structs.Handbook {
 	handbook := structs.Handbook{}
@@ -154,7 +208,6 @@ func setCore() *structs.CoreStruct {
 	core.ClientSettings = setClientSettings()
 	core.ServerConfig = setServerConfig()
 	core.Globals = setGlobals()
-	core.Locations = setLocations()
 	core.MatchMetrics = setMatchMetrics()
 	return &core
 }
@@ -215,7 +268,7 @@ func setGlobals() structs.Globals {
 	return global
 }
 
-func setLocations() structs.Locations {
+func setLocations() *structs.Locations {
 	raw := tools.GetJSONRawMessage(LOCATIONS_FILE_PATH)
 
 	var locations = structs.Locations{}
@@ -224,5 +277,5 @@ func setLocations() structs.Locations {
 		panic(err)
 	}
 
-	return locations
+	return &locations
 }
