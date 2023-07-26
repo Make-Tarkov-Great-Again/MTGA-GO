@@ -7,8 +7,6 @@ import (
 func main() {
 
 	database.InitializeDatabase()
-	/* 	dbErr := database.InitializeDatabase()
-	   	if dbErr != nil {
-	   		log.Fatalf("error initializing database: %v", dbErr)
-	   	} */
+	//db := database.GetDatabase()
+
 }

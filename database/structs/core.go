@@ -1,16 +1,5 @@
 package structs
 
-type CoreStruct struct {
-	PlayerTemplate PlayerTemplate
-	ClientSettings ClientSettings
-	ServerConfig   ServerConfig
-	Globals        Globals
-	Locations      Locations
-	//gameplay        map[string]interface{}
-	//blacklist       []interface{}
-	MatchMetrics MatchMetrics
-}
-
 type ClientSettings struct {
 	MemoryManagementSettings struct {
 		HeapPreAllocationEnabled               bool `json:"HeapPreAllocationEnabled"`

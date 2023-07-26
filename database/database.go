@@ -4,15 +4,18 @@ import (
 	"MT-GO/database/structs"
 	"MT-GO/tools"
 	"encoding/json"
+	"reflect"
+	"strings"
 )
 
 type DatabaseStruct struct {
 	Core *structs.CoreStruct
 	//Connections *ConnectionStruct
-	Items map[string]*structs.DatabaseItem
-	//Locales       *LocaleStruct
-	//Templates     *TemplatesStruct
-	//Traders       map[string]TraderStruct
+	Items     map[string]*structs.DatabaseItem
+	Locales   *structs.Locale
+	Languages map[string]string
+	Handbook  *structs.Handbook
+	Traders   map[string]*structs.Trader
 	//Flea          *FleaStruct
 	//Quests        map[string]map[string]interface{}
 	//Hideout       *HideoutStruct
@@ -25,16 +28,19 @@ type DatabaseStruct struct {
 	//bundles  []map[string]interface{}
 }
 
-var database = &DatabaseStruct{}
+var db = DatabaseStruct{}
 
 func GetDatabase() *DatabaseStruct {
-	return database
+	return &db
 }
 
-func InitializeDatabase() error {
-	database.Core = setCore()
-	database.Items = setItems()
-	return nil
+func InitializeDatabase() {
+	db.Core = setCore()
+	db.Items = setItems()
+	db.Locales = setLocales()
+	db.Languages = setLanguages()
+	db.Handbook = setHandbook()
+	db.Traders = setTraders()
 }
 
 const (
@@ -47,7 +53,90 @@ const (
 	MATCH_METRICS_PATH     string = CORE_FILE_PATH + "/matchMetrics.json"
 	SERVER_CONFIG_PATH     string = CORE_FILE_PATH + "/server.json"
 	ITEMS_PATH             string = DATABASE_LIB_PATH + "/items.json"
+	LOCALES_PATH           string = DATABASE_LIB_PATH + "/locales"
+	HANDBOOK_PATH          string = DATABASE_LIB_PATH + "/handbook.json"
+	TRADER_PATH            string = DATABASE_LIB_PATH + "/traders/"
 )
+
+func setHandbook() *structs.Handbook {
+	handbook := structs.Handbook{}
+
+	raw := tools.GetJSONRawMessage(HANDBOOK_PATH)
+	err := json.Unmarshal(raw, &handbook)
+	if err != nil {
+		panic(err)
+	}
+	return &handbook
+}
+
+func setLocales() *structs.Locale {
+	directories, err := tools.GetDirectoriesFrom(LOCALES_PATH)
+	if err != nil {
+		panic(err)
+	}
+
+	locales := structs.Locale{}
+	localeData := structs.LocaleData{}
+
+	var raw map[string]json.RawMessage
+
+	for _, dir := range directories {
+		dirPath := LOCALES_PATH + "/" + dir
+		format := make(map[string]string)
+
+		var fileContent []byte
+
+		fileContent, err := tools.ReadFile(dirPath + "/" + "locale.json")
+		if err != nil {
+			panic(err)
+		}
+
+		err = json.Unmarshal(fileContent, &raw)
+		if err != nil {
+			panic(err)
+		}
+
+		for key, val := range raw {
+			format[key] = string(val)
+		}
+
+		localeData.Locale = format
+		format = make(map[string]string)
+
+		fileContent, err = tools.ReadFile(dirPath + "/" + "menu.json")
+		if err != nil {
+			panic(err)
+		}
+
+		err = json.Unmarshal(fileContent, &raw)
+		if err != nil {
+			panic(err)
+		}
+
+		for key, val := range raw {
+			format[key] = string(val)
+		}
+		localeData.Menu = format
+
+		key := strings.Replace(dir, "-", "", -1)
+		attribute := tools.GetStructField(&locales, strings.ToUpper(key))
+		if attribute.CanSet() {
+			attribute.Set(reflect.ValueOf(localeData))
+		}
+	}
+	return &locales
+}
+
+func setLanguages() map[string]string {
+	languages := make(map[string]string)
+
+	raw := tools.GetJSONRawMessage(LOCALES_PATH + "/languages.json")
+	err := json.Unmarshal(raw, &languages)
+	if err != nil {
+		panic(err)
+	}
+	return languages
+}
 
 func setItems() map[string]*structs.DatabaseItem {
 	items := make(map[string]*structs.DatabaseItem)
@@ -61,17 +150,17 @@ func setItems() map[string]*structs.DatabaseItem {
 }
 
 func setCore() *structs.CoreStruct {
-	core := &structs.CoreStruct{}
-	core.PlayerTemplate = processBotTemplate()
-	core.ClientSettings = processClientSettings()
-	core.ServerConfig = processServerConfig()
-	core.Globals = processGlobals()
-	core.Locations = processLocations()
-	core.MatchMetrics = processMatchMetrics()
-	return core
+	core := structs.CoreStruct{}
+	core.PlayerTemplate = setBotTemplate()
+	core.ClientSettings = setClientSettings()
+	core.ServerConfig = setServerConfig()
+	core.Globals = setGlobals()
+	core.Locations = setLocations()
+	core.MatchMetrics = setMatchMetrics()
+	return &core
 }
 
-func processBotTemplate() structs.PlayerTemplate {
+func setBotTemplate() structs.PlayerTemplate {
 	raw := tools.GetJSONRawMessage(BOT_TEMPLATE_FILE_PATH)
 
 	var botTemplate structs.PlayerTemplate
@@ -82,7 +171,7 @@ func processBotTemplate() structs.PlayerTemplate {
 	return botTemplate
 }
 
-func processClientSettings() structs.ClientSettings {
+func setClientSettings() structs.ClientSettings {
 	raw := tools.GetJSONRawMessage(CLIENT_SETTINGS_PATH)
 
 	var data structs.ClientSettings
@@ -93,7 +182,7 @@ func processClientSettings() structs.ClientSettings {
 	return data
 }
 
-func processServerConfig() structs.ServerConfig {
+func setServerConfig() structs.ServerConfig {
 	raw := tools.GetJSONRawMessage(SERVER_CONFIG_PATH)
 
 	var data structs.ServerConfig
@@ -104,7 +193,7 @@ func processServerConfig() structs.ServerConfig {
 	return data
 }
 
-func processMatchMetrics() structs.MatchMetrics {
+func setMatchMetrics() structs.MatchMetrics {
 	raw := tools.GetJSONRawMessage(MATCH_METRICS_PATH)
 
 	var data structs.MatchMetrics
@@ -115,7 +204,7 @@ func processMatchMetrics() structs.MatchMetrics {
 	return data
 }
 
-func processGlobals() structs.Globals {
+func setGlobals() structs.Globals {
 	raw := tools.GetJSONRawMessage(GLOBALS_FILE_PATH)
 
 	var global = structs.Globals{}
@@ -127,7 +216,7 @@ func processGlobals() structs.Globals {
 	return global
 }
 
-func processLocations() structs.Locations {
+func setLocations() structs.Locations {
 	raw := tools.GetJSONRawMessage(LOCATIONS_FILE_PATH)
 
 	var locations = structs.Locations{}

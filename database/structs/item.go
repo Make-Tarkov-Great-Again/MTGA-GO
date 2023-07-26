@@ -249,112 +249,114 @@ type FilterEntry struct {
 }
 
 type ItemPreset struct {
-	ID           string       `json:"_id,omitempty,omitempty"`
-	Type         string       `json:"_type,omitempty,omitempty"`
-	ChangeWeapon bool         `json:"_changeWeaponName,omitempty,omitempty"`
-	Name         string       `json:"_name,omitempty,omitempty"`
-	Parent       string       `json:"_parent,omitempty,omitempty"`
-	Items        []PresetItem `json:"_items,omitempty,omitempty"`
-	Encyclopedia string       `json:"_encyclopedia,omitempty,omitempty"`
+	ID           string       `json:"_id,omitempty"`
+	Type         string       `json:"_type,omitempty"`
+	ChangeWeapon bool         `json:"_changeWeaponName,omitempty"`
+	Name         string       `json:"_name,omitempty"`
+	Parent       string       `json:"_parent,omitempty"`
+	Items        []PresetItem `json:"_items,omitempty"`
+	Encyclopedia string       `json:"_encyclopedia,omitempty"`
 }
 
 type PresetItem struct {
 	ID       string  `json:"_id,omitempty"`
 	Tpl      string  `json:"_tpl,omitempty"`
-	Upd      ItemUpd `json:"upd,omitempty,omitempty"`
-	ParentID string  `json:"parentId,omitempty,omitempty"`
-	SlotID   string  `json:"slotId,omitempty,omitempty"`
+	Upd      ItemUpd `json:"upd,omitempty"`
+	ParentID string  `json:"parentId,omitempty"`
+	SlotID   string  `json:"slotId,omitempty"`
 }
 
 type InventoryItem struct {
 	ID       string                `json:"_id,omitempty"`
 	Tpl      string                `json:"_tpl,omitempty"`
-	Upd      ItemUpd               `json:"upd,omitempty,omitempty"`
-	ParentID string                `json:"parentId,omitempty,omitempty"`
-	SlotID   string                `json:"slotId,omitempty,omitempty"`
-	Location InventoryItemLocation `json:"location,omitempty,omitempty"`
+	Upd      ItemUpd               `json:"upd,omitempty"`
+	ParentID string                `json:"parentId,omitempty"`
+	SlotID   string                `json:"slotId,omitempty"`
+	Location InventoryItemLocation `json:"location,omitempty"`
 }
 
 type InventoryItemLocation struct {
-	X          float32 `json:"x,omitempty,omitempty"`
-	Y          float32 `json:"y,omitempty,omitempty"`
-	Z          float32 `json:"z,omitempty,omitempty"`
-	R          float32 `json:"r,omitempty,omitempty"`
-	IsSearched bool    `json:"isSearched,omitempty,omitempty"`
-	Rotation   string  `json:"rotation,omitempty,omitempty"`
+	X          float32 `json:"x,omitempty"`
+	Y          float32 `json:"y,omitempty"`
+	Z          float32 `json:"z,omitempty"`
+	R          float32 `json:"r,omitempty"`
+	IsSearched bool    `json:"isSearched,omitempty"`
+	Rotation   string  `json:"rotation,omitempty"`
 }
 
 type ItemUpd struct {
-	Foldable struct {
-		Folded bool `json:"Folded,omitempty,omitempty"`
-	} `json:"Foldable,omitempty,omitempty"`
+	BuyRestrictionMax     int `json:"BuyRestrictionMax,omitempty"`
+	BuyRestrictionCurrent int `json:"BuyRestrictionCurrent,omitempty"`
+	Foldable              struct {
+		Folded bool `json:"Folded,omitempty"`
+	} `json:"Foldable,omitempty"`
 	Togglable struct {
-		On bool `json:"On,omitempty,omitempty"`
-	} `json:"Togglable,omitempty,omitempty"`
+		On bool `json:"On,omitempty"`
+	} `json:"Togglable,omitempty"`
 	FireMode struct {
-		FireMode string `json:"FireMode,omitempty,omitempty"`
-	} `json:"FireMode,omitempty,omitempty"`
-	StackObjectsCount int `json:"StackObjectsCount,omitempty,omitempty"`
+		FireMode string `json:"FireMode,omitempty"`
+	} `json:"FireMode,omitempty"`
+	StackObjectsCount int `json:"StackObjectsCount,omitempty"`
 	Repairable        struct {
-		MaxDurability float32 `json:"MaxDurability,omitempty,omitempty"`
-		Durability    float32 `json:"Durability,omitempty,omitempty"`
-	} `json:"Repairable,omitempty,omitempty"`
+		MaxDurability float32 `json:"MaxDurability,omitempty"`
+		Durability    float32 `json:"Durability,omitempty"`
+	} `json:"Repairable,omitempty"`
 	Sight struct {
-		ScopesCurrentCalibPointIndexes []int `json:"ScopesCurrentCalibPointIndexes,omitempty,omitempty"`
-		ScopesSelectedModes            []int `json:"ScopesSelectedModes,omitempty,omitempty"`
-		SelectedScope                  int   `json:"SelectedScope,omitempty,omitempty"`
-	} `json:"Sight,omitempty,omitempty"`
+		ScopesCurrentCalibPointIndexes []int `json:"ScopesCurrentCalibPointIndexes,omitempty"`
+		ScopesSelectedModes            []int `json:"ScopesSelectedModes,omitempty"`
+		SelectedScope                  int   `json:"SelectedScope,omitempty"`
+	} `json:"Sight,omitempty"`
 	FoodDrink struct {
-		HpPercent int `json:"HpPercent,omitempty,omitempty"`
-	} `json:"FoodDrink,omitempty,omitempty"`
-	Resource   Value `json:"Resource,omitempty,omitempty"`
-	SideEffect Value `json:"SideEffect,omitempty,omitempty"`
+		HpPercent int `json:"HpPercent,omitempty"`
+	} `json:"FoodDrink,omitempty"`
+	Resource   Value `json:"Resource,omitempty"`
+	SideEffect Value `json:"SideEffect,omitempty"`
 	MedKit     struct {
-		HpResource int `json:"HpResource,omitempty,omitempty"`
-	} `json:"MedKit,omitempty,omitempty"`
+		HpResource int `json:"HpResource,omitempty"`
+	} `json:"MedKit,omitempty"`
 	RepairKit struct {
-		Resource int `json:"Resource,omitempty,omitempty"`
-	} `json:"RepairKit,omitempty,omitempty"`
+		Resource int `json:"Resource,omitempty"`
+	} `json:"RepairKit,omitempty"`
 	Key struct {
-		NumberOfUsages int `json:"NumberOfUsages,omitempty,omitempty"`
-	} `json:"Key,omitempty,omitempty"`
-	SpawnedInSession bool `json:"SpawnedInSession,omitempty,omitempty"`
+		NumberOfUsages int `json:"NumberOfUsages,omitempty"`
+	} `json:"Key,omitempty"`
+	SpawnedInSession bool `json:"SpawnedInSession,omitempty"`
 	Dogtag           struct {
-		AccountId       string `json:"AccountId,omitempty,omitempty"`
-		ProfileId       string `json:"ProfileId,omitempty,omitempty"`
-		Nickname        string `json:"Nickname,omitempty,omitempty"`
-		Side            string `json:"Side,omitempty,omitempty"`
-		Level           int    `json:"Level,omitempty,omitempty"`
-		Time            string `json:"Time,omitempty,omitempty"`
-		Status          string `json:"Status,omitempty,omitempty"`
-		KillerAccountId string `json:"KillerAccountId,omitempty,omitempty"`
-		KillerProfileId string `json:"KillerProfileId,omitempty,omitempty"`
-		KillerName      string `json:"KillerName,omitempty,omitempty"`
-		WeaponName      string `json:"WeaponName,omitempty,omitempty"`
-	} `json:"Dogtag,omitempty,omitempty"`
+		AccountId       string `json:"AccountId,omitempty"`
+		ProfileId       string `json:"ProfileId,omitempty"`
+		Nickname        string `json:"Nickname,omitempty"`
+		Side            string `json:"Side,omitempty"`
+		Level           int    `json:"Level,omitempty"`
+		Time            string `json:"Time,omitempty"`
+		Status          string `json:"Status,omitempty"`
+		KillerAccountId string `json:"KillerAccountId,omitempty"`
+		KillerProfileId string `json:"KillerProfileId,omitempty"`
+		KillerName      string `json:"KillerName,omitempty"`
+		WeaponName      string `json:"WeaponName,omitempty"`
+	} `json:"Dogtag,omitempty"`
 	Light struct {
-		IsActive     bool `json:"IsActive,omitempty,omitempty"`
-		SelectedMode int  `json:"SelectedMode,omitempty,omitempty"`
-	} `json:"Light,omitempty,omitempty"`
+		IsActive     bool `json:"IsActive,omitempty"`
+		SelectedMode int  `json:"SelectedMode,omitempty"`
+	} `json:"Light,omitempty"`
 	Buff struct {
-		Rarity              string `json:"rarity,omitempty,omitempty"`
-		BuffType            string `json:"buffType,omitempty,omitempty"`
-		Value               int    `json:"value,omitempty,omitempty"`
-		ThresholdDurability int    `json:"thresholdDurability,omitempty,omitempty"`
-	} `json:"Buff,omitempty,omitempty"`
+		Rarity              string `json:"rarity,omitempty"`
+		BuffType            string `json:"buffType,omitempty"`
+		Value               int    `json:"value,omitempty"`
+		ThresholdDurability int    `json:"thresholdDurability,omitempty"`
+	} `json:"Buff,omitempty"`
 	Map struct {
-		Markers []MapMarker `json:"Markers,omitempty,omitempty"`
-	} `json:"Map,omitempty,omitempty"`
+		Markers []MapMarker `json:"Markers,omitempty"`
+	} `json:"Map,omitempty"`
 	FaceShield struct {
-		Hits int `json:"Hits,omitempty,omitempty"`
-	} `json:"FaceShield,omitempty,omitempty"`
+		Hits int `json:"Hits,omitempty"`
+	} `json:"FaceShield,omitempty"`
 	Tag struct {
-		Color float32 `json:"Color,omitempty,omitempty"`
-		Name  string  `json:"Name,omitempty,omitempty"`
-	} `json:"Tag,omitempty,omitempty"`
+		Color float32 `json:"Color,omitempty"`
+		Name  string  `json:"Name,omitempty"`
+	} `json:"Tag,omitempty"`
 }
 
 type MapMarker struct {
-	X float32 `json:"X,omitempty,omitempty"`
-	Y float32 `json:"Y,omitempty,omitempty"`
+	X float32 `json:"X,omitempty"`
+	Y float32 `json:"Y,omitempty"`
 }
