@@ -1,3 +1,4 @@
+// Package database contains all the database related code
 package database
 
 import (
@@ -6,33 +7,14 @@ import (
 	"encoding/json"
 )
 
-type DatabaseStruct struct {
-	Core *structs.CoreStruct
-	//Connections *ConnectionStruct
-	Items     map[string]*structs.DatabaseItem
-	Locales   *structs.Locale
-	Languages map[string]string
-	Handbook  *structs.Handbook
-	Traders   map[string]*structs.Trader
-	//Flea          *FleaStruct
-	Quests  map[string]*structs.Quest
-	Hideout *structs.Hideout
+var db = structs.DatabaseStruct{}
 
-	Locations     *structs.Locations
-	Weather       *structs.Weather
-	Customization map[string]*structs.Customization
-	//Editions      map[string]interface{}
-	//Bot           *BotStruct
-	//Profiles      map[string]ProfileStruct
-	//bundles  []map[string]interface{}
-}
-
-var db = DatabaseStruct{}
-
-func GetDatabase() *DatabaseStruct {
+// GetDatabase returns a pointer to the database
+func GetDatabase() *structs.DatabaseStruct {
 	return &db
 }
 
+// InitializeDatabase initializes the database
 func InitializeDatabase() {
 	db.Core = setCore()
 	db.Items = setItems()
@@ -45,29 +27,33 @@ func InitializeDatabase() {
 	db.Hideout = setHideout()
 	db.Weather = setWeather()
 	db.Customization = setCustomization()
+	db.Bot = setBots()
 }
 
 const (
-	DATABASE_LIB_PATH      string = "database/lib"
-	CORE_FILE_PATH         string = DATABASE_LIB_PATH + "/core"
-	BOT_TEMPLATE_FILE_PATH string = CORE_FILE_PATH + "/botTemplate.json"
-	CLIENT_SETTINGS_PATH   string = CORE_FILE_PATH + "/client.settings.json"
-	GLOBALS_FILE_PATH      string = CORE_FILE_PATH + "/globals.json"
-	LOCATIONS_FILE_PATH    string = CORE_FILE_PATH + "/locations.json"
-	MATCH_METRICS_PATH     string = CORE_FILE_PATH + "/matchMetrics.json"
-	SERVER_CONFIG_PATH     string = CORE_FILE_PATH + "/server.json"
-	ITEMS_PATH             string = DATABASE_LIB_PATH + "/items.json"
-	LOCALES_PATH           string = DATABASE_LIB_PATH + "/locales"
-	HANDBOOK_PATH          string = DATABASE_LIB_PATH + "/handbook.json"
-	TRADER_PATH            string = DATABASE_LIB_PATH + "/traders/"
-	QUESTS_PATH            string = DATABASE_LIB_PATH + "/quests.json"
-	HIDEOUT_PATH           string = DATABASE_LIB_PATH + "/hideout/"
-	WEATHER_PATH           string = DATABASE_LIB_PATH + "/weather.json"
-	CUSTOMIZATION_PATH     string = DATABASE_LIB_PATH + "/customization.json"
+	databaseLibPath       string = "database/lib"
+	coreFilePath          string = databaseLibPath + "/core"
+	botTemplateFilePath   string = coreFilePath + "/botTemplate.json"
+	playerScavPath        string = coreFilePath + "/playerScav.json"
+	clientSettingsPath    string = coreFilePath + "/client.settings.json"
+	globalBotSettingsPath string = coreFilePath + "/__BotGlobalSettings.json"
+	globalsFilePath       string = coreFilePath + "/globals.json"
+	locationsFilePath     string = coreFilePath + "/locations.json"
+	matchMetricsPath      string = coreFilePath + "/matchMetrics.json"
+	serverConfigPath      string = coreFilePath + "/server.json"
+	itemsPath             string = databaseLibPath + "/items.json"
+	localesPath           string = databaseLibPath + "/locales"
+	handbookPath          string = databaseLibPath + "/handbook.json"
+	traderPath            string = databaseLibPath + "/traders/"
+	questsPath            string = databaseLibPath + "/quests.json"
+	hideoutPath           string = databaseLibPath + "/hideout/"
+	weatherPath           string = databaseLibPath + "/weather.json"
+	customizationPath     string = databaseLibPath + "/customization.json"
+	botsPath              string = databaseLibPath + "/bot/"
 )
 
 func setCustomization() map[string]*structs.Customization {
-	raw := tools.GetJSONRawMessage(CUSTOMIZATION_PATH)
+	raw := tools.GetJSONRawMessage(customizationPath)
 
 	customization := make(map[string]*structs.Customization)
 	err := json.Unmarshal(raw, &customization)
@@ -78,7 +64,7 @@ func setCustomization() map[string]*structs.Customization {
 }
 
 func setWeather() *structs.Weather {
-	raw := tools.GetJSONRawMessage(WEATHER_PATH)
+	raw := tools.GetJSONRawMessage(weatherPath)
 
 	weather := structs.Weather{}
 	err := json.Unmarshal(raw, &weather)
@@ -94,7 +80,7 @@ func setHideout() *structs.Hideout {
 	dynamic := make(map[string]json.RawMessage)
 	files := [5]string{"areas", "productions", "qte", "scavcase", "settings"}
 	for _, file := range files {
-		raw := tools.GetJSONRawMessage(HIDEOUT_PATH + file + ".json")
+		raw := tools.GetJSONRawMessage(hideoutPath + file + ".json")
 		dynamic[file] = raw
 	}
 
@@ -113,7 +99,7 @@ func setHideout() *structs.Hideout {
 func setHandbook() *structs.Handbook {
 	handbook := structs.Handbook{}
 
-	raw := tools.GetJSONRawMessage(HANDBOOK_PATH)
+	raw := tools.GetJSONRawMessage(handbookPath)
 	err := json.Unmarshal(raw, &handbook)
 	if err != nil {
 		panic(err)
@@ -122,7 +108,7 @@ func setHandbook() *structs.Handbook {
 }
 
 func setLocales() *structs.Locale {
-	directories, err := tools.GetDirectoriesFrom(LOCALES_PATH)
+	directories, err := tools.GetDirectoriesFrom(localesPath)
 	if err != nil {
 		panic(err)
 	}
@@ -136,7 +122,7 @@ func setLocales() *structs.Locale {
 
 	for _, dir := range directories {
 
-		dirPath := LOCALES_PATH + "/" + dir
+		dirPath := localesPath + "/" + dir
 
 		for _, file := range localeFiles {
 			var fileContent []byte
@@ -183,7 +169,7 @@ func setLocales() *structs.Locale {
 func setLanguages() map[string]string {
 	languages := make(map[string]string)
 
-	raw := tools.GetJSONRawMessage(LOCALES_PATH + "/languages.json")
+	raw := tools.GetJSONRawMessage(localesPath + "/languages.json")
 	err := json.Unmarshal(raw, &languages)
 	if err != nil {
 		panic(err)
@@ -194,7 +180,7 @@ func setLanguages() map[string]string {
 func setItems() map[string]*structs.DatabaseItem {
 	items := make(map[string]*structs.DatabaseItem)
 
-	raw := tools.GetJSONRawMessage(ITEMS_PATH)
+	raw := tools.GetJSONRawMessage(itemsPath)
 	err := json.Unmarshal(raw, &items)
 	if err != nil {
 		panic(err)
@@ -205,15 +191,39 @@ func setItems() map[string]*structs.DatabaseItem {
 func setCore() *structs.CoreStruct {
 	core := structs.CoreStruct{}
 	core.PlayerTemplate = setBotTemplate()
+	core.PlayerScav = setPlayerScav()
 	core.ClientSettings = setClientSettings()
 	core.ServerConfig = setServerConfig()
 	core.Globals = setGlobals()
+	core.GlobalBotSettings = setGlobalBotSettings()
 	core.MatchMetrics = setMatchMetrics()
 	return &core
 }
 
+func setGlobalBotSettings() structs.GlobalBotSettings {
+	raw := tools.GetJSONRawMessage(globalBotSettingsPath)
+
+	globalBotSettings := structs.GlobalBotSettings{}
+	err := json.Unmarshal(raw, &globalBotSettings)
+	if err != nil {
+		panic(err)
+	}
+	return globalBotSettings
+}
+
+func setPlayerScav() structs.PlayerTemplate {
+	raw := tools.GetJSONRawMessage(playerScavPath)
+
+	playerScav := structs.PlayerTemplate{}
+	err := json.Unmarshal(raw, &playerScav)
+	if err != nil {
+		panic(err)
+	}
+	return playerScav
+}
+
 func setBotTemplate() structs.PlayerTemplate {
-	raw := tools.GetJSONRawMessage(BOT_TEMPLATE_FILE_PATH)
+	raw := tools.GetJSONRawMessage(botTemplateFilePath)
 
 	var botTemplate structs.PlayerTemplate
 	err := json.Unmarshal(raw, &botTemplate)
@@ -224,7 +234,7 @@ func setBotTemplate() structs.PlayerTemplate {
 }
 
 func setClientSettings() structs.ClientSettings {
-	raw := tools.GetJSONRawMessage(CLIENT_SETTINGS_PATH)
+	raw := tools.GetJSONRawMessage(clientSettingsPath)
 
 	var data structs.ClientSettings
 	err := json.Unmarshal(raw, &data)
@@ -235,7 +245,7 @@ func setClientSettings() structs.ClientSettings {
 }
 
 func setServerConfig() structs.ServerConfig {
-	raw := tools.GetJSONRawMessage(SERVER_CONFIG_PATH)
+	raw := tools.GetJSONRawMessage(serverConfigPath)
 
 	var data structs.ServerConfig
 	err := json.Unmarshal(raw, &data)
@@ -246,7 +256,7 @@ func setServerConfig() structs.ServerConfig {
 }
 
 func setMatchMetrics() structs.MatchMetrics {
-	raw := tools.GetJSONRawMessage(MATCH_METRICS_PATH)
+	raw := tools.GetJSONRawMessage(matchMetricsPath)
 
 	var data structs.MatchMetrics
 	err := json.Unmarshal(raw, &data)
@@ -257,7 +267,7 @@ func setMatchMetrics() structs.MatchMetrics {
 }
 
 func setGlobals() structs.Globals {
-	raw := tools.GetJSONRawMessage(GLOBALS_FILE_PATH)
+	raw := tools.GetJSONRawMessage(globalsFilePath)
 
 	var global = structs.Globals{}
 	err := json.Unmarshal(raw, &global)
@@ -269,7 +279,7 @@ func setGlobals() structs.Globals {
 }
 
 func setLocations() *structs.Locations {
-	raw := tools.GetJSONRawMessage(LOCATIONS_FILE_PATH)
+	raw := tools.GetJSONRawMessage(locationsFilePath)
 
 	var locations = structs.Locations{}
 	err := json.Unmarshal(raw, &locations)

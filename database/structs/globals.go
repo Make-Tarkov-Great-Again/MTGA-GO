@@ -77,7 +77,7 @@ type GlobalsConfig struct {
 	GameSearchingTimeout               int           `json:"GameSearchingTimeout,omitempty"`
 	WallContusionAbsorption            XYZ           `json:"WallContusionAbsorption,omitempty"`
 	AzimuthPanelShowsPlayerOrientation bool          `json:"AzimuthPanelShowsPlayerOrientation,omitempty"`
-	Aiming                             Aiming        `json:"Aiming,omitempty"`
+	Aiming                             GlobalAiming  `json:"Aiming,omitempty"`
 	Malfunction                        Malfunction   `json:"Malfunction,omitempty"`
 	Overheat                           Overheat      `json:"Overheat,omitempty"`
 	FenceSettings                      FenceSettings `json:"FenceSettings,omitempty"`
@@ -282,7 +282,7 @@ type Malfunction struct {
 	OverheatHardSlideMaxWt       float32 `json:"OverheatHardSlideMaxWt,omitempty"`
 }
 
-type Aiming struct {
+type GlobalAiming struct {
 	ProceduralIntensityByPose XYZ     `json:"ProceduralIntensityByPose,omitempty"`
 	AimProceduralIntensity    float32 `json:"AimProceduralIntensity,omitempty"`
 	HeavyWeight               float32 `json:"HeavyWeight,omitempty"`

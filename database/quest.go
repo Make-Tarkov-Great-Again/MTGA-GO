@@ -10,7 +10,7 @@ import (
 
 func setQuests() map[string]*structs.Quest {
 
-	raw := tools.GetJSONRawMessage(QUESTS_PATH)
+	raw := tools.GetJSONRawMessage(questsPath)
 
 	dynamic := make(map[string]interface{})
 	err := json.Unmarshal(raw, &dynamic)

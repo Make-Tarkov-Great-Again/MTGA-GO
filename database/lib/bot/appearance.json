@@ -1,26 +1,26 @@
 {
 	"random": {
-		"Voice": {
-			"5fc1221a95572123ae7384a2": "Bear_1",
-			"6284d67f8e4092597733b7a4": "Bear_1_Eng",
-			"5fc50bddb4965a7a2f48c5af": "Bear_2",
-			"6284d6948e4092597733b7a5": "Bear_2_Eng",
-			"5fc614da00efd824885865c2": "Bear_3",
-			"5fc615460b735e7b024c76eb": "BossBully",
-			"5fc6155b0b735e7b024c76ec": "BossGluhar",
-			"5fc615710b735e7b024c76ed": "BossSanitar",
-			"5fc613c80b735e7b024c76e2": "Scav_1",
-			"5fc613e10b735e7b024c76e3": "Scav_2",
-			"5fc614130b735e7b024c76e4": "Scav_3",
-			"5fc614290b735e7b024c76e5": "Scav_4",
-			"5fc614390b735e7b024c76e6": "Scav_5",
-			"5fc6144b0b735e7b024c76e7": "Scav_6",
-			"5fc1223595572123ae7384a3": "Usec_1",
-			"5fc614f40b735e7b024c76e9": "Usec_2",
-			"5fc615110b735e7b024c76ea": "Usec_3",
-			"6284d6a28e4092597733b7a6": "Usec_4",
-			"6284d6ab8e4092597733b7a7": "Usec_5"
-		},
+		"Voice": [
+			"Bear_1",
+			"Bear_1_Eng",
+			"Bear_2",
+			"Bear_2_Eng",
+			"Bear_3",
+			"BossBully",
+			"BossGluhar",
+			"BossSanitar",
+			"Scav_1",
+			"Scav_2",
+			"Scav_3",
+			"Scav_4",
+			"Scav_5",
+			"Scav_6",
+			"Usec_1",
+			"Usec_2",
+			"Usec_3",
+			"Usec_4",
+			"Usec_5"
+		],
 		"Body": [
 			"5cc0858d14c02e000c6bea66",
 			"5cde95d97d6c8b647a3769b0",
@@ -212,14 +212,14 @@
 		]
 	},
 	"scav": {
-		"Voice": {
-			"5fc613c80b735e7b024c76e2": "Scav_1",
-			"5fc613e10b735e7b024c76e3": "Scav_2",
-			"5fc614130b735e7b024c76e4": "Scav_3",
-			"5fc614290b735e7b024c76e5": "Scav_4",
-			"5fc614390b735e7b024c76e6": "Scav_5",
-			"5fc6144b0b735e7b024c76e7": "Scav_6"
-		},
+		"Voice": [
+			"Scav_1",
+			"Scav_2",
+			"Scav_3",
+			"Scav_4",
+			"Scav_5",
+			"Scav_6"
+		],
 		"Body": [
 			"5cc2e59214c02e000f16684e",
 			"5df8a10486f77412672a1e3a",
@@ -263,13 +263,13 @@
 		]
 	},
 	"exUsec": {
-		"Voice": {
-			"5fc1223595572123ae7384a3": "Usec_1",
-			"5fc614f40b735e7b024c76e9": "Usec_2",
-			"5fc615110b735e7b024c76ea": "Usec_3",
-			"6284d6a28e4092597733b7a6": "Usec_4",
-			"6284d6ab8e4092597733b7a7": "Usec_5"
-		},
+		"Voice": [
+			"Usec_1",
+			"Usec_2",
+			"Usec_3",
+			"Usec_4",
+			"Usec_5"
+		],
 		"Body": [
 			"618109c96d7ca35d076b3363",
 			"5cde95d97d6c8b647a3769b0",
@@ -292,7 +292,9 @@
 			"60a6aaad42fd2735e4589978",
 			"60a6aa8fd559ae040d0d951f"
 		],
-		"Hands": "5cde95fa7d6c8b04737c2d13",
+		"Hands": [
+			"5cde95fa7d6c8b04737c2d13"
+		],
 		"Feet": [
 			"617c02e24013b06b0b78df80",
 			"5cde95ef7d6c8b04713c4f2d",
@@ -310,42 +312,68 @@
 		]
 	},
 	"bossZryachiy": {
-		"Voice": "SectantPriest",
-		"Body": "63628b825c1b30a79d09ccb9",
-		"Head": "636129784aa74b8fe30ab418",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "6361216278f9ab270a0a48d9"
+		"Voice": [
+			"SectantPriest"
+		],
+		"Body": [
+			"63628b825c1b30a79d09ccb9"
+		],
+		"Head": [
+			"636129784aa74b8fe30ab418"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"6361216278f9ab270a0a48d9"
+		]
 	},
 	"followerZryachiy": {
-		"Voice": "SectantPriest",
-		"Body": "5fb53d0b7b5d1342ee24bd64",
+		"Voice": [
+			"SectantPriest"
+		],
+		"Body": [
+			"5fb53d0b7b5d1342ee24bd64"
+		],
 		"Head": [
 			"5fb5297a0359a84b77066e56",
 			"5fb52a3a1c69e5198e234118",
 			"5fb52a537b5d1342ee24bd57"
 		],
-		"Hands": "5cc2e68f14c02e28b47de290",
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
 		"Feet": [
 			"5fb535bd1c69e5198e234125",
 			"5fb535cf1c69e5198e234126"
 		]
 	},
 	"bossBully": {
-		"Voice": "BossBully",
-		"Body": "5d28adcb86f77429242fc893",
-		"Head": "5d28b01486f77429242fc898",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "5d28b3a186f7747f7e69ab8c"
+		"Voice": [
+			"BossBully"
+		],
+		"Body": [
+			"5d28adcb86f77429242fc893"
+		],
+		"Head": [
+			"5d28b01486f77429242fc898"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"5d28b3a186f7747f7e69ab8c"
+		]
 	},
 	"followerBully": {
-		"Voice": {
-			"5fc613c80b735e7b024c76e2": "Scav_1",
-			"5fc613e10b735e7b024c76e3": "Scav_2",
-			"5fc614130b735e7b024c76e4": "Scav_3",
-			"5fc614290b735e7b024c76e5": "Scav_4",
-			"5fc614390b735e7b024c76e6": "Scav_5",
-			"5fc6144b0b735e7b024c76e7": "Scav_6"
-		},
+		"Voice": [
+			"Scav_1",
+			"Scav_2",
+			"Scav_3",
+			"Scav_4",
+			"Scav_5",
+			"Scav_6"
+		],
 		"Body": [
 			"5d28ae2986f7742926686185",
 			"5d28adfd86f774292364a6e5"
@@ -357,25 +385,39 @@
 			"5f68c4a7c174a17c0f4c8945",
 			"5cde9ff17d6c8b0474535daa"
 		],
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "5d28af5386f774292364a6e8"
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"5d28af5386f774292364a6e8"
+		]
 	},
 	"bossGluhar": {
-		"Voice": "BossGluhar",
-		"Body": "5d5e7dd786f7744a7a274322",
-		"Head": "5d5e805d86f77439eb4c2d0e",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "5d5e7f2a86f77427997cfb80"
+		"Voice": [
+			"BossGluhar"
+		],
+		"Body": [
+			"5d5e7dd786f7744a7a274322"
+		],
+		"Head": [
+			"5d5e805d86f77439eb4c2d0e"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"5d5e7f2a86f77427997cfb80"
+		]
 	},
 	"followerGluhar": {
-		"Voice": {
-			"5fc613c80b735e7b024c76e2": "Scav_1",
-			"5fc613e10b735e7b024c76e3": "Scav_2",
-			"5fc614130b735e7b024c76e4": "Scav_3",
-			"5fc614290b735e7b024c76e5": "Scav_4",
-			"5fc614390b735e7b024c76e6": "Scav_5",
-			"5fc6144b0b735e7b024c76e7": "Scav_6"
-		},
+		"Voice": [
+			"Scav_1",
+			"Scav_2",
+			"Scav_3",
+			"Scav_4",
+			"Scav_5",
+			"Scav_6"
+		],
 		"Body": [
 			"5d5e7e5d86f774279b4f4b01",
 			"5d28ae2986f7742926686185",
@@ -388,7 +430,9 @@
 			"5cde9ff17d6c8b0474535daa",
 			"5d28afe786f774292668618d"
 		],
-		"Hands": "5cc2e68f14c02e28b47de290",
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
 		"Feet": [
 			"5d5e7f8986f7742798716582",
 			"5d28af3486f774292364a6e7",
@@ -396,71 +440,113 @@
 		]
 	},
 	"bossKilla": {
-		"Voice": {
-			"5fc613c80b735e7b024c76e2": "Scav_1",
-			"5fc613e10b735e7b024c76e3": "Scav_2",
-			"5fc614130b735e7b024c76e4": "Scav_3",
-			"5fc614290b735e7b024c76e5": "Scav_4",
-			"5fc614390b735e7b024c76e6": "Scav_5",
-			"5fc6144b0b735e7b024c76e7": "Scav_6"
-		},
-		"Body": "5cdea33e7d6c8b0474535dac",
-		"Head": "5d28b03e86f7747f7e69ab8a",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "5cdea3c47d6c8b0475341734"
+		"Voice": [
+			"Scav_1",
+			"Scav_2",
+			"Scav_3",
+			"Scav_4",
+			"Scav_5",
+			"Scav_6"
+		],
+		"Body": [
+			"5cdea33e7d6c8b0474535dac"
+		],
+		"Head": [
+			"5d28b03e86f7747f7e69ab8a"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"5cdea3c47d6c8b0475341734"
+		]
 	},
 	"bossKnight": {
-		"Voice": {
-			"5fc1223595572123ae7384a3": "Usec_1",
-			"5fc614f40b735e7b024c76e9": "Usec_2",
-			"5fc615110b735e7b024c76ea": "Usec_3"
-		},
-		"Body": "628796f2af0a053a6672c29a",
-		"Head": "62875ad50828252c7a28b95c",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "628771f70828252c7a28b961"
+		"Voice": [
+			"Usec_1",
+			"Usec_2",
+			"Usec_3"
+		],
+		"Body": [
+			"628796f2af0a053a6672c29a"
+		],
+		"Head": [
+			"62875ad50828252c7a28b95c"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"628771f70828252c7a28b961"
+		]
 	},
 	"followerBigPipe": {
-		"Voice": {
-			"5fc1223595572123ae7384a3": "Usec_1",
-			"5fc614f40b735e7b024c76e9": "Usec_2",
-			"5fc615110b735e7b024c76ea": "Usec_3"
-		},
-		"Body": "6287b16b05846043f15a790d",
-		"Head": "6287b0d239d8207cb27d66c7",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "6287b14b66bb7d4a3c32bc94"
+		"Voice": [
+			"Usec_1",
+			"Usec_2",
+			"Usec_3"
+		],
+		"Body": [
+			"6287b16b05846043f15a790d"
+		],
+		"Head": [
+			"6287b0d239d8207cb27d66c7"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"6287b14b66bb7d4a3c32bc94"
+		]
 	},
 	"followerBirdEye": {
-		"Voice": "SectantPriest",
-		"Body": "628a6801805c5b6c100cc200",
-		"Head": "628b57d800f171376e7b2634",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "628a4645c9327c7587388849"
+		"Voice": [
+			"SectantPriest"
+		],
+		"Body": [
+			"628a6801805c5b6c100cc200"
+		],
+		"Head": [
+			"628b57d800f171376e7b2634"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"628a4645c9327c7587388849"
+		]
 	},
 	"bossKojaniy": {
-		"Voice": {
-			"5fc613c80b735e7b024c76e2": "Scav_1",
-			"5fc613e10b735e7b024c76e3": "Scav_2",
-			"5fc614130b735e7b024c76e4": "Scav_3",
-			"5fc614290b735e7b024c76e5": "Scav_4",
-			"5fc614390b735e7b024c76e6": "Scav_5",
-			"5fc6144b0b735e7b024c76e7": "Scav_6"
-		},
-		"Body": "5d5e7c9186f774393602d6f9",
-		"Head": "5d5f8ba486f77431254e7fd2",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "5d5e7f3c86f7742797262063"
+		"Voice": [
+			"Scav_1",
+			"Scav_2",
+			"Scav_3",
+			"Scav_4",
+			"Scav_5",
+			"Scav_6"
+		],
+		"Body": [
+			"5d5e7c9186f774393602d6f9"
+		],
+		"Head": [
+			"5d5f8ba486f77431254e7fd2"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"5d5e7f3c86f7742797262063"
+		]
 	},
 	"followerKojaniy": {
-		"Voice": {
-			"5fc613c80b735e7b024c76e2": "Scav_1",
-			"5fc613e10b735e7b024c76e3": "Scav_2",
-			"5fc614130b735e7b024c76e4": "Scav_3",
-			"5fc614290b735e7b024c76e5": "Scav_4",
-			"5fc614390b735e7b024c76e6": "Scav_5",
-			"5fc6144b0b735e7b024c76e7": "Scav_6"
-		},
+		"Voice": [
+			"Scav_1",
+			"Scav_2",
+			"Scav_3",
+			"Scav_4",
+			"Scav_5",
+			"Scav_6"
+		],
 		"Body": [
 			"5d5e7e8386f774393602d6fa",
 			"5d5e7e7586f77427997cfb7f",
@@ -485,22 +571,34 @@
 		]
 	},
 	"bossSanitar": {
-		"Voice": "BossSanitar",
-		"Body": "5e9975c486f774382b6320cb",
-		"Head": "5e99767c86f7741ac7399393",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "5e99762586f77466320ff9a9"
+		"Voice": [
+			"BossSanitar"
+		],
+		"Body": [
+			"5e9975c486f774382b6320cb"
+		],
+		"Head": [
+			"5e99767c86f7741ac7399393"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"5e99762586f77466320ff9a9"
+		]
 	},
 	"followerSanitar": {
-		"Voice": {
-			"5fc613c80b735e7b024c76e2": "Scav_1",
-			"5fc613e10b735e7b024c76e3": "Scav_2",
-			"5fc614130b735e7b024c76e4": "Scav_3",
-			"5fc614290b735e7b024c76e5": "Scav_4",
-			"5fc614390b735e7b024c76e6": "Scav_5",
-			"5fc6144b0b735e7b024c76e7": "Scav_6"
-		},
-		"Body": "5df8a10486f77412672a1e3a",
+		"Voice": [
+			"Scav_1",
+			"Scav_2",
+			"Scav_3",
+			"Scav_4",
+			"Scav_5",
+			"Scav_6"
+		],
+		"Body": [
+			"5df8a10486f77412672a1e3a"
+		],
 		"Head": [
 			"5d28afe786f774292668618d",
 			"5cc2e4d014c02e000d0115f8",
@@ -508,7 +606,9 @@
 			"5cde9ff17d6c8b0474535daa",
 			"5f68c4a7c174a17c0f4c8945"
 		],
-		"Hands": "5df8eac086f77412640e2ea7",
+		"Hands": [
+			"5df8eac086f77412640e2ea7"
+		],
 		"Feet": [
 			"5df8a15186f77412640e2e6a",
 			"5f5e410c6bdad616ad46d60b",
@@ -522,44 +622,88 @@
 		]
 	},
 	"bossTagilla": {
-		"Voice": "SectantPriest",
-		"Body": "609e86926e8078716f600883",
-		"Head": "5d5f8ba486f77431254e7fd2",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "609e86c09776a947754429b2"
+		"Voice": [
+			"SectantPriest"
+		],
+		"Body": [
+			"609e86926e8078716f600883"
+		],
+		"Head": [
+			"5d5f8ba486f77431254e7fd2"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"609e86c09776a947754429b2"
+		]
 	},
 	"followerTagilla": {
-		"Voice": "SectantPriest",
-		"Body": "609e86926e8078716f600883",
-		"Head": "5d5f8ba486f77431254e7fd2",
-		"Hands": "5cc2e68f14c02e28b47de290",
-		"Feet": "609e86c09776a947754429b2"
+		"Voice": [
+			"SectantPriest"
+		],
+		"Body": [
+			"609e86926e8078716f600883"
+		],
+		"Head": [
+			"5d5f8ba486f77431254e7fd2"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
+		"Feet": [
+			"609e86c09776a947754429b2"
+		]
 	},
 	"gifter": {
-		"Voice": "SectantPriest",
-		"Body": "619238266c614e6d15792bca",
-		"Head": "5f68c4a7c174a17c0f4c8945",
-		"Hands": "618cf9540a5a59657e5f5677",
-		"Feet": "61922589bb2cea6f7a22d964"
+		"Voice": [
+			"SectantPriest"
+		],
+		"Body": [
+			"619238266c614e6d15792bca"
+		],
+		"Head": [
+			"5f68c4a7c174a17c0f4c8945"
+		],
+		"Hands": [
+			"618cf9540a5a59657e5f5677"
+		],
+		"Feet": [
+			"61922589bb2cea6f7a22d964"
+		]
 	},
 	"sectantPriest": {
-		"Voice": "SectantPriest",
-		"Body": "5fb53cc97b5d1342ee24bd63",
-		"Head": "5fb52a3a1c69e5198e234118",
-		"Hands": "5cc2e68f14c02e28b47de290",
+		"Voice": [
+			"SectantPriest"
+		],
+		"Body": [
+			"5fb53cc97b5d1342ee24bd63"
+		],
+		"Head": [
+			"5fb52a3a1c69e5198e234118"
+		],
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
 		"Feet": [
 			"5fb535cf1c69e5198e234126",
 			"5fb535bd1c69e5198e234125"
 		]
 	},
 	"sectantWarrior": {
-		"Voice": "SectantWarrior",
-		"Body": "5fb53d0b7b5d1342ee24bd64",
+		"Voice": [
+			"SectantWarrior"
+		],
+		"Body": [
+			"5fb53d0b7b5d1342ee24bd64"
+		],
 		"Head": [
 			"5fb5297a0359a84b77066e56",
 			"5fb52a537b5d1342ee24bd57"
 		],
-		"Hands": "5cc2e68f14c02e28b47de290",
+		"Hands": [
+			"5cc2e68f14c02e28b47de290"
+		],
 		"Feet": [
 			"5fb535cf1c69e5198e234126",
 			"5fb535bd1c69e5198e234125"

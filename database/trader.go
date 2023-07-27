@@ -10,14 +10,14 @@ import (
 func setTraders() map[string]*structs.Trader {
 	traders := make(map[string]*structs.Trader)
 
-	directory, err := tools.GetDirectoriesFrom(TRADER_PATH)
+	directory, err := tools.GetDirectoriesFrom(traderPath)
 	if err != nil {
 		return traders
 	}
 	for _, dir := range directory {
 		trader := structs.Trader{}
 
-		currentTraderPath := TRADER_PATH + dir + "/"
+		currentTraderPath := traderPath + dir + "/"
 
 		if tools.FileExist(currentTraderPath + "base.json") {
 			trader.Base = processBase(currentTraderPath)
