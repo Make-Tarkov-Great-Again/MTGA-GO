@@ -5,6 +5,7 @@ import (
 	"MT-GO/database/structs"
 	"MT-GO/tools"
 	"encoding/json"
+	"strings"
 )
 
 var db = structs.DatabaseStruct{}
@@ -28,10 +29,12 @@ func InitializeDatabase() {
 	db.Weather = setWeather()
 	db.Customization = setCustomization()
 	db.Bot = setBots()
+	db.Editions = setEditions()
+	db.Flea = setFlea()
 }
 
 const (
-	databaseLibPath       string = "database/lib"
+	databaseLibPath       string = "assets/database"
 	coreFilePath          string = databaseLibPath + "/core"
 	botTemplateFilePath   string = coreFilePath + "/botTemplate.json"
 	playerScavPath        string = coreFilePath + "/playerScav.json"
@@ -50,7 +53,53 @@ const (
 	weatherPath           string = databaseLibPath + "/weather.json"
 	customizationPath     string = databaseLibPath + "/customization.json"
 	botsPath              string = databaseLibPath + "/bot/"
+	editionsDirPath       string = databaseLibPath + "/editions/"
 )
+
+func setFlea() *structs.Flea {
+	return &structs.Flea{}
+}
+
+func setEditions() map[string]*structs.Edition {
+	editions := make(map[string]*structs.Edition)
+
+	directories, err := tools.GetDirectoriesFrom(editionsDirPath)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, directory := range directories {
+		edition := structs.Edition{}
+
+		editionPath := editionsDirPath + directory + "/"
+		files, err := tools.GetFilesFrom(editionPath)
+		if err != nil {
+			panic(err)
+		}
+
+		dynamic := make(map[string]interface{})
+		for _, file := range files {
+			raw := tools.GetJSONRawMessage(editionPath + file)
+			removeJSON := strings.Replace(file, ".json", "", -1)
+			name := strings.Replace(removeJSON, "character_", "", -1)
+
+			dynamic[name] = raw
+		}
+
+		jsonData, err := json.Marshal(dynamic)
+		if err != nil {
+			panic(err)
+		}
+
+		err = json.Unmarshal(jsonData, &edition)
+		if err != nil {
+			panic(err)
+		}
+
+		editions[directory] = &edition
+	}
+	return editions
+}
 
 func setCustomization() map[string]*structs.Customization {
 	raw := tools.GetJSONRawMessage(customizationPath)

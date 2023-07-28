@@ -14,7 +14,7 @@ type PlayerTemplate struct {
 	InsuredItems    []InsuredItem             `json:"InsuredItems,omitempty"`
 	Bonuses         []Bonus                   `json:"Bonuses,omitempty"`
 	Notes           struct {
-		Notes map[string]Note `json:"Notes,omitempty"`
+		Notes []Note `json:"Notes,omitempty"`
 	} `json:"Notes,omitempty"`
 	Quests        []PlayerQuest `json:"Quests,omitempty"`
 	WishList      []string      `json:"WishList,omitempty"`

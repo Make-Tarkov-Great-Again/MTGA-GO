@@ -8,17 +8,26 @@ type DatabaseStruct struct {
 	Languages map[string]string
 	Handbook  *Handbook
 	Traders   map[string]*Trader
-	//Flea          *FleaStruct
-	Quests  map[string]*Quest
-	Hideout *Hideout
+	Flea      *Flea
+	Quests    map[string]*Quest
+	Hideout   *Hideout
 
 	Locations     *Locations
 	Weather       *Weather
 	Customization map[string]*Customization
-	//Editions      map[string]interface{}
-	Bot *Bots
+	Editions      map[string]*Edition
+	Bot           *Bots
 	//Profiles      map[string]ProfileStruct
 	//bundles  []map[string]interface{}
+}
+
+type Edition struct {
+	Bear    *PlayerTemplate `json:"bear"`
+	Usec    *PlayerTemplate `json:"usec"`
+	Storage struct {
+		Bear []string `json:"bear"`
+		Usec []string `json:"usec"`
+	} `json:"storage"`
 }
 
 type CoreStruct struct {
