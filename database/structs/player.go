@@ -166,7 +166,7 @@ type PlayerInfo struct {
 	RegistrationDate        int32          `json:"RegistrationDate,omitempty"`
 	GameVersion             string         `json:"GameVersion,omitempty"`
 	AccountType             int8           `json:"AccountType,omitempty"`
-	MemberCategory          int8           `json:"MemberCategory,omitempty"`
+	MemberCategory          MemberCategory `json:"MemberCategory,omitempty"`
 	LockedMoveCommands      bool           `json:"lockedMoveCommands,omitempty"`
 	SavageLockTime          int32          `json:"SavageLockTime,omitempty"`
 	LastTimePlayedAsSavage  int32          `json:"LastTimePlayedAsSavage,omitempty"`

@@ -55,7 +55,7 @@ type BotDifficulty struct {
 	Aiming     Aiming     `json:"Aiming,omitempty"`
 	Boss       Boss       `json:"Boss,omitempty"`
 	Change     Change     `json:"Change,omitempty"`
-	Core       Core       `json:"Core,omitempty"`
+	Core       BotCore    `json:"Core,omitempty"`
 	Cover      Cover      `json:"Cover,omitempty"`
 	Grenade    Grenade    `json:"Grenade,omitempty"`
 	Hearing    Hearing    `json:"Hearing,omitempty"`
@@ -175,7 +175,7 @@ type Change struct {
 	SmokeVisionDist float32 `json:"SMOKE_VISION_DIST,omitempty"`
 	StunHearing     float32 `json:"STUN_HEARING,omitempty"`
 }
-type Core struct {
+type BotCore struct {
 	AccuratySpeed              float32 `json:"AccuratySpeed,omitempty"`
 	AimingType                 string  `json:"AimingType,omitempty"`
 	CanGrenade                 bool    `json:"CanGrenade,omitempty"`

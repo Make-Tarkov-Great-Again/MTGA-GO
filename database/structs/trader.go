@@ -4,9 +4,9 @@ type Trader struct {
 	Base        Base
 	Assort      Assort
 	BaseAssort  Assort
-	QuestAssort QuestAssort `omitempty:""`
-	Suits       []Suit      `omitempty:""`
-	Dialogue    Dialogue    `omitempty:""`
+	QuestAssort QuestAssort    `omitempty:""`
+	Suits       []Suit         `omitempty:""`
+	Dialogue    TraderDialogue `omitempty:""`
 }
 
 type Base struct {
@@ -115,7 +115,7 @@ type Suit struct {
 	TID          string       `json:"tid"`
 }
 
-type Dialogue struct {
+type TraderDialogue struct {
 	InsuranceStart    []string `json:"insuranceStart"`
 	InsuranceFound    []string `json:"insuranceFound"`
 	InsuranceExpired  []string `json:"insuranceExpired"`

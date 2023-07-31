@@ -51,7 +51,7 @@ func setTraders() map[string]*structs.Trader {
 		}
 
 		if tools.FileExist(currentTraderPath + "dialogue.json") {
-			dialogue := structs.Dialogue{}
+			dialogue := structs.TraderDialogue{}
 
 			raw := tools.GetJSONRawMessage(currentTraderPath + "dialogue.json")
 			err = json.Unmarshal(raw, &dialogue)

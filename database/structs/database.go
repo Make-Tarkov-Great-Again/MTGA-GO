@@ -1,7 +1,7 @@
 package structs
 
-type DatabaseStruct struct {
-	Core *CoreStruct
+type Database struct {
+	Core *Core
 	//Connections *ConnectionStruct
 	Items     map[string]*DatabaseItem
 	Locales   *Locale
@@ -17,7 +17,7 @@ type DatabaseStruct struct {
 	Customization map[string]*Customization
 	Editions      map[string]*Edition
 	Bot           *Bots
-	//Profiles      map[string]ProfileStruct
+	Profiles      map[string]*Profile
 	//bundles  []map[string]interface{}
 }
 
@@ -30,7 +30,7 @@ type Edition struct {
 	} `json:"storage"`
 }
 
-type CoreStruct struct {
+type Core struct {
 	PlayerTemplate    PlayerTemplate
 	PlayerScav        PlayerTemplate
 	ClientSettings    ClientSettings

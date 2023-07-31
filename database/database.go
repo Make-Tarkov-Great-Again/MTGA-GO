@@ -8,10 +8,10 @@ import (
 	"strings"
 )
 
-var db = structs.DatabaseStruct{}
+var db = structs.Database{}
 
 // GetDatabase returns a pointer to the database
-func GetDatabase() *structs.DatabaseStruct {
+func GetDatabase() *structs.Database {
 	return &db
 }
 
@@ -31,6 +31,7 @@ func InitializeDatabase() {
 	db.Bot = setBots()
 	db.Editions = setEditions()
 	db.Flea = setFlea()
+	db.Profiles = setProfiles()
 }
 
 const (
@@ -54,7 +55,45 @@ const (
 	customizationPath     string = databaseLibPath + "/customization.json"
 	botsPath              string = databaseLibPath + "/bot/"
 	editionsDirPath       string = databaseLibPath + "/editions/"
+	profilesPath          string = "user/profiles/"
 )
+
+func setProfiles() map[string]*structs.Profile {
+	users, err := tools.GetDirectoriesFrom(profilesPath)
+	if err != nil {
+		panic(err)
+	}
+	profiles := make(map[string]*structs.Profile)
+	if len(users) == 0 {
+		return profiles
+	}
+	for _, user := range users {
+		profile := &structs.Profile{}
+		userPath := profilesPath + user + "/"
+		files, err := tools.GetFilesFrom(userPath)
+		if err != nil {
+			panic(err)
+		}
+
+		dynamic := make(map[string]json.RawMessage)
+		for _, file := range files {
+			name := strings.Replace(file, ".json", "", -1)
+			data := tools.GetJSONRawMessage(userPath + file)
+			dynamic[name] = data
+		}
+		jsonData, err := json.Marshal(dynamic)
+		if err != nil {
+			panic(err)
+		}
+
+		err = json.Unmarshal(jsonData, profile)
+		if err != nil {
+			panic(err)
+		}
+		profiles[user] = profile
+	}
+	return profiles
+}
 
 func setFlea() *structs.Flea {
 	return &structs.Flea{}
@@ -237,8 +276,8 @@ func setItems() map[string]*structs.DatabaseItem {
 	return items
 }
 
-func setCore() *structs.CoreStruct {
-	core := structs.CoreStruct{}
+func setCore() *structs.Core {
+	core := structs.Core{}
 	core.PlayerTemplate = setBotTemplate()
 	core.PlayerScav = setPlayerScav()
 	core.ClientSettings = setClientSettings()
