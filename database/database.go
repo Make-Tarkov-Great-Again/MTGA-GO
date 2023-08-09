@@ -5,6 +5,7 @@ import (
 	"MT-GO/database/structs"
 	"MT-GO/tools"
 	"encoding/json"
+	"path/filepath"
 	"strings"
 )
 
@@ -59,6 +60,7 @@ const (
 )
 
 func setProfiles() map[string]*structs.Profile {
+
 	users, err := tools.GetDirectoriesFrom(profilesPath)
 	if err != nil {
 		panic(err)
@@ -69,7 +71,7 @@ func setProfiles() map[string]*structs.Profile {
 	}
 	for _, user := range users {
 		profile := &structs.Profile{}
-		userPath := profilesPath + user + "/"
+		userPath := filepath.Join(profilesPath, user)
 		files, err := tools.GetFilesFrom(userPath)
 		if err != nil {
 			panic(err)
@@ -77,11 +79,12 @@ func setProfiles() map[string]*structs.Profile {
 
 		dynamic := make(map[string]json.RawMessage)
 		for _, file := range files {
-			name := strings.Replace(file, ".json", "", -1)
-			data := tools.GetJSONRawMessage(userPath + file)
+			name := strings.TrimSuffix(file, ".json")
+			data := tools.GetJSONRawMessage(filepath.Join(userPath, file))
 			dynamic[name] = data
 		}
-		jsonData, err := json.Marshal(dynamic)
+
+		jsonData, err := json.Marshal(dynamic) //gos syntax is fucking pog.
 		if err != nil {
 			panic(err)
 		}
@@ -110,7 +113,7 @@ func setEditions() map[string]*structs.Edition {
 	for _, directory := range directories {
 		edition := structs.Edition{}
 
-		editionPath := editionsDirPath + directory + "/"
+		editionPath := filepath.Join(editionsDirPath, directory)
 		files, err := tools.GetFilesFrom(editionPath)
 		if err != nil {
 			panic(err)
@@ -118,9 +121,9 @@ func setEditions() map[string]*structs.Edition {
 
 		dynamic := make(map[string]interface{})
 		for _, file := range files {
-			raw := tools.GetJSONRawMessage(editionPath + file)
-			removeJSON := strings.Replace(file, ".json", "", -1)
-			name := strings.Replace(removeJSON, "character_", "", -1)
+			raw := tools.GetJSONRawMessage(filepath.Join(editionPath, file))
+			removeJSON := strings.TrimSuffix(file, ".json")
+			name := strings.TrimPrefix(removeJSON, "character_")
 
 			dynamic[name] = raw
 		}
@@ -166,10 +169,15 @@ func setHideout() *structs.Hideout {
 	hideout := structs.Hideout{}
 
 	dynamic := make(map[string]json.RawMessage)
-	files := [5]string{"areas", "productions", "qte", "scavcase", "settings"}
+	files, err := tools.GetFilesFrom(hideoutPath)
+	if err != nil {
+		panic(err)
+	}
+
 	for _, file := range files {
-		raw := tools.GetJSONRawMessage(hideoutPath + file + ".json")
-		dynamic[file] = raw
+		name := strings.TrimSuffix(file, ".json")
+		raw := tools.GetJSONRawMessage(filepath.Join(hideoutPath, file))
+		dynamic[name] = raw
 	}
 
 	jsonData, err := json.Marshal(dynamic)
@@ -210,12 +218,12 @@ func setLocales() *structs.Locale {
 
 	for _, dir := range directories {
 
-		dirPath := localesPath + "/" + dir
+		dirPath := filepath.Join(localesPath, dir)
 
 		for _, file := range localeFiles {
 			var fileContent []byte
 
-			fileContent, err := tools.ReadFile(dirPath + "/" + file)
+			fileContent, err := tools.ReadFile(filepath.Join(dirPath, file))
 			if err != nil {
 				panic(err)
 			}
@@ -257,7 +265,7 @@ func setLocales() *structs.Locale {
 func setLanguages() map[string]string {
 	languages := make(map[string]string)
 
-	raw := tools.GetJSONRawMessage(localesPath + "/languages.json")
+	raw := tools.GetJSONRawMessage(filepath.Join(localesPath, "/languages.json"))
 	err := json.Unmarshal(raw, &languages)
 	if err != nil {
 		panic(err)

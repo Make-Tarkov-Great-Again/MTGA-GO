@@ -356,7 +356,4 @@ type ItemUpd struct {
 	} `json:"Tag,omitempty"`
 }
 
-type MapMarker struct {
-	X float32 `json:"X,omitempty"`
-	Y float32 `json:"Y,omitempty"`
-}
+type MapMarker XY

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 )
 
@@ -100,13 +101,13 @@ func saveAccount(account *structs.Account) {
 		os.Mkdir(profilesPath, 0755)
 	}
 
-	profileDirPath := profilesPath + account.UID
+	profileDirPath := filepath.Join(profilesPath, account.UID)
 	exist = tools.FileExist(profileDirPath)
 	if !exist {
 		os.Mkdir(profileDirPath, 0755)
 	}
 
-	accountFilePath := profileDirPath + "/account.json"
+	accountFilePath := filepath.Join(profileDirPath, "account.json")
 	data, err := json.Marshal(account)
 	if err != nil {
 		panic(err)
@@ -194,8 +195,6 @@ func loggedIn(account *structs.Account) {
 	}
 }
 
-const tarkovParams string = "-bC5vLmcuaS5u=%s -token:'%s' -config='%s'"
-
 //tarkovPath + ' -bC5vLmcuaS5u={"email":"' + userAccount.email + '","password":"' + userAccount.password + '","toggle":true,"timestamp":0} -token=' + sessionID + ' -config={"BackendUrl":"https://' + serverConfig.ip + ':' + serverConfig.port + '","Version":"live"}'
 
 func launchTarkov(account *structs.Account) {
@@ -206,7 +205,7 @@ func launchTarkov(account *structs.Account) {
 		for {
 			fmt.Printf("> ")
 			fmt.Scanln(&tarkovPath)
-			exePath := tarkovPath + "\\EscapeFromTarkov.exe"
+			exePath := filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
 			if tools.FileExist(exePath) {
 				account.TarkovPath = exePath
 				fmt.Println("Path has been set")

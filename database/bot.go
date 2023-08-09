@@ -4,6 +4,7 @@ import (
 	"MT-GO/database/structs"
 	"MT-GO/tools"
 	"encoding/json"
+	"path/filepath"
 	"strings"
 )
 
@@ -28,9 +29,9 @@ func processBotTypes() map[string]*structs.BotType {
 
 	for _, directory := range directory {
 		botType := structs.BotType{}
-		var dirPath = botsDirectory + directory + "/"
+		var dirPath = filepath.Join(botsDirectory, directory)
 
-		var diffPath = dirPath + "difficulties/"
+		var diffPath = filepath.Join(dirPath, "difficulties")
 		files, err := tools.GetFilesFrom(diffPath)
 		if err != nil {
 			panic(err)
@@ -39,8 +40,9 @@ func processBotTypes() map[string]*structs.BotType {
 		difficulties := make(map[string]json.RawMessage)
 		botDifficulty := structs.BotDifficulties{}
 		for _, difficulty := range files {
-			raw := tools.GetJSONRawMessage(diffPath + difficulty)
-			name := strings.Replace(difficulty, ".json", "", -1)
+			difficultyPath := filepath.Join(diffPath, difficulty)
+			raw := tools.GetJSONRawMessage(difficultyPath)
+			name := strings.TrimSuffix(difficulty, ".json")
 			difficulties[name] = raw
 		}
 
@@ -54,7 +56,7 @@ func processBotTypes() map[string]*structs.BotType {
 		}
 		botType.Difficulties = &botDifficulty
 
-		healthPath := dirPath + "health.json"
+		healthPath := filepath.Join(dirPath, "health.json")
 		if tools.FileExist(healthPath) {
 			health := structs.BotHealth{}
 
@@ -66,7 +68,7 @@ func processBotTypes() map[string]*structs.BotType {
 			botType.Health = &health
 		}
 
-		loadoutPath := dirPath + "loadout.json"
+		loadoutPath := filepath.Join(dirPath, "loadout.json")
 		if tools.FileExist(loadoutPath) {
 			loadout := structs.BotLoadout{}
 			raw := tools.GetJSONRawMessage(loadoutPath)
@@ -85,7 +87,7 @@ func processBotTypes() map[string]*structs.BotType {
 func processBotAppearance() map[string]*structs.BotAppearance {
 	botAppearance := make(map[string]*structs.BotAppearance)
 
-	raw := tools.GetJSONRawMessage(botsPath + "appearance.json")
+	raw := tools.GetJSONRawMessage(filepath.Join(botsPath, "appearance.json"))
 	err := json.Unmarshal(raw, &botAppearance)
 	if err != nil {
 		panic(err)
@@ -96,7 +98,7 @@ func processBotAppearance() map[string]*structs.BotAppearance {
 func processBotNames() *structs.BotNames {
 	names := structs.BotNames{}
 
-	raw := tools.GetJSONRawMessage(botsPath + "names.json")
+	raw := tools.GetJSONRawMessage(filepath.Join(botsPath, "names.json"))
 	err := json.Unmarshal(raw, &names)
 	if err != nil {
 		panic(err)

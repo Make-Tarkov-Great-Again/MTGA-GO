@@ -4,6 +4,7 @@ import (
 	"MT-GO/database/structs"
 	"MT-GO/tools"
 	"encoding/json"
+	"path/filepath"
 	"strconv"
 )
 
@@ -17,19 +18,22 @@ func setTraders() map[string]*structs.Trader {
 	for _, dir := range directory {
 		trader := structs.Trader{}
 
-		currentTraderPath := traderPath + dir + "/"
+		currentTraderPath := filepath.Join(traderPath, dir)
 
-		if tools.FileExist(currentTraderPath + "base.json") {
-			trader.Base = processBase(currentTraderPath)
+		basePath := filepath.Join(currentTraderPath, "base.json")
+		if tools.FileExist(basePath) {
+			trader.Base = processBase(basePath)
 		}
 
-		if tools.FileExist(currentTraderPath + "assort.json") {
-			trader.Assort = processAssort(currentTraderPath)
+		assortPath := filepath.Join(traderPath, "assort.json")
+		if tools.FileExist(assortPath) {
+			trader.Assort = processAssort(assortPath)
 			trader.BaseAssort = trader.Assort
 		}
 
-		if tools.FileExist(currentTraderPath + "questassort.json") {
-			raw := tools.GetJSONRawMessage(currentTraderPath + "questassort.json")
+		questsPath := filepath.Join(currentTraderPath, "questassort.json")
+		if tools.FileExist(questsPath) {
+			raw := tools.GetJSONRawMessage(questsPath)
 			questAssort := structs.QuestAssort{}
 
 			err = json.Unmarshal(raw, &questAssort)
@@ -39,10 +43,11 @@ func setTraders() map[string]*structs.Trader {
 			trader.QuestAssort = questAssort
 		}
 
-		if tools.FileExist(currentTraderPath + "suits.json") {
+		suitsPath := filepath.Join(currentTraderPath, "suits.json")
+		if tools.FileExist(suitsPath) {
 			suits := []structs.Suit{}
 
-			raw := tools.GetJSONRawMessage(currentTraderPath + "suits.json")
+			raw := tools.GetJSONRawMessage(suitsPath)
 			err = json.Unmarshal(raw, &suits)
 			if err != nil {
 				panic(err)
@@ -50,10 +55,11 @@ func setTraders() map[string]*structs.Trader {
 			trader.Suits = suits
 		}
 
-		if tools.FileExist(currentTraderPath + "dialogue.json") {
+		dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
+		if tools.FileExist(dialoguesPath) {
 			dialogue := structs.TraderDialogue{}
 
-			raw := tools.GetJSONRawMessage(currentTraderPath + "dialogue.json")
+			raw := tools.GetJSONRawMessage(dialoguesPath)
 			err = json.Unmarshal(raw, &dialogue)
 			if err != nil {
 				panic(err)
@@ -65,12 +71,12 @@ func setTraders() map[string]*structs.Trader {
 	return traders
 }
 
-func processBase(currentTraderPath string) structs.Base {
+func processBase(basePath string) structs.Base {
 	base := structs.Base{}
 
 	var dynamic map[string]interface{} //here we fucking go
 
-	raw := tools.GetJSONRawMessage(currentTraderPath + "base.json")
+	raw := tools.GetJSONRawMessage(basePath)
 	err := json.Unmarshal(raw, &dynamic)
 	if err != nil {
 		panic(err)
@@ -116,9 +122,9 @@ func processBase(currentTraderPath string) structs.Base {
 	return base
 }
 
-func processAssort(currentTraderPath string) structs.Assort {
+func processAssort(assortPath string) structs.Assort {
 	var dynamic map[string]interface{}
-	raw := tools.GetJSONRawMessage(currentTraderPath + "assort.json")
+	raw := tools.GetJSONRawMessage(assortPath)
 
 	err := json.Unmarshal(raw, &dynamic)
 	if err != nil {
