@@ -1,3 +1,4 @@
+// Package structs contains all structs used throughout the database
 package structs
 
 type Usernames map[string]string
