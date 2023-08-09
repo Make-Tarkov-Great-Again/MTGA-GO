@@ -1,16 +1,11 @@
 package main
 
 import (
-	"MT-GO/tools"
+	certificate "MT-GO/server"
 	"fmt"
 	"net/http"
+	"os"
 )
-
-/* func setServers(address string) {
-
-	//setHTTPSServer(address)
-	//setHTTPServer(address)
-} */
 
 func setHTTPServer(address string) {
 	httpMux := http.NewServeMux()
@@ -26,37 +21,36 @@ func setHTTPServer(address string) {
 	}()
 }
 
-func setHTTPSServer(address string) {
+func setHTTPSServer(ip string, port string, hostname string) {
 	httpsMux := http.NewServeMux()
 	setRoutes(httpsMux)
 
-	cert := "user/cert/cert.pem"
-	ok := tools.FileExist(cert)
-	if !ok {
-		fmt.Println("Certificate not found")
-		return
+	cert := certificate.GetCertificate(ip, hostname)
+	if cert == nil {
+		fmt.Print("fucking faggot cert")
 	}
-
-	key := "user/cert/key.pem"
-	ok = tools.FileExist(key)
-	if !ok {
-		fmt.Println("Key not found")
-		return
-	}
+	address := ip + port
 
 	fmt.Println("Starting HTTPS server on " + address)
-	err := http.ListenAndServeTLS(address, cert, key, httpsMux)
-	if err != nil {
-		panic(err)
-	}
+	go func() {
+		err := http.ListenAndServeTLS(address, cert.CertFile, cert.KeyFile, httpsMux)
+		if err != nil {
+			panic(err)
+		}
+	}()
 }
 
 func setRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/", homeHandler)
+	//mux.HandleFunc("/client/WebSocketAddress", webSocketHandler)
 }
 
-func homeHandler(w http.ResponseWriter, _ *http.Request) {
-	fmt.Fprintf(w, "Hello World!")
+// SESSIONID variable is used to identify the session used
+var SESSIONID = os.Getenv("SESSIONID")
+
+/* func GetServerAddress() string {
+
 }
 
-func generateCertificate() {}
+func webSocketHandler(w http.ResponseWriter, _ *http.Request) {
+
+} */

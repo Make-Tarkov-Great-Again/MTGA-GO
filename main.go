@@ -3,7 +3,7 @@ package main
 
 import (
 	"MT-GO/database"
-	"MT-GO/database/structs"
+	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
 	"fmt"
@@ -19,17 +19,19 @@ var port string
 func main() {
 
 	database.InitializeDatabase()
-	db := database.GetDatabase()
 
-	ip = db.Core.ServerConfig.IP
-	port = ":" + strconv.Itoa(db.Core.ServerConfig.Port)
-	address := ip + port
+	core := database.GetCore()
 
-	setHTTPServer(address)
-	startHome(db.Profiles)
+	ip = core.ServerConfig.IP
+	port = ":" + strconv.Itoa(core.ServerConfig.Port)
+	hostname := core.ServerConfig.Hostname
+
+	startHome()
+
+	setHTTPSServer(ip, port, hostname)
 }
 
-func startHome(profiles map[string]*structs.Profile) {
+func startHome() {
 
 	fmt.Println("Alright nigga, what now?")
 	fmt.Println("1. Register an Account")
@@ -43,10 +45,10 @@ func startHome(profiles map[string]*structs.Profile) {
 
 		switch input {
 		case "1":
-			registerAccount(profiles)
+			registerAccount()
 			break
 		case "2":
-			login(profiles)
+			login()
 			break
 		case "69":
 			fmt.Println("Adios faggot")
@@ -57,8 +59,9 @@ func startHome(profiles map[string]*structs.Profile) {
 	}
 }
 
-func registerAccount(profiles map[string]*structs.Profile) {
+func registerAccount() {
 	account := structs.Account{}
+	profiles := database.GetProfiles()
 	var input string
 
 	fmt.Println("What is your username?")
@@ -129,10 +132,11 @@ func validateUsername(profiles map[string]*structs.Profile, username string) boo
 	return true
 }
 
-func login(profiles map[string]*structs.Profile) {
+func login() {
 	fmt.Println()
 	var input string
 	var account *structs.Account
+	profiles := database.GetProfiles()
 
 	for {
 		fmt.Println("What is your username?")
@@ -161,6 +165,9 @@ func login(profiles map[string]*structs.Profile) {
 
 		fmt.Println("Logging in...")
 		fmt.Println()
+
+		os.Setenv("SESSIONID", account.UID)
+
 		loggedIn(profiles[account.UID].Account)
 		break
 	}

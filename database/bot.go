@@ -1,23 +1,24 @@
 package database
 
 import (
-	"MT-GO/database/structs"
+	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
 	"path/filepath"
 	"strings"
 )
 
-func setBots() *structs.Bots {
-	bots := structs.Bots{}
+var bots = structs.Bots{}
 
-	bots.BotTypes = processBotTypes()
-	bots.BotAppearance = processBotAppearance()
-	bots.BotNames = processBotNames()
+func GetBots() *structs.Bots {
 	return &bots
 }
 
-const botsDirectory string = botsPath + "bots/"
+func setBots() {
+	bots.BotTypes = processBotTypes()
+	bots.BotAppearance = processBotAppearance()
+	bots.BotNames = processBotNames()
+}
 
 func processBotTypes() map[string]*structs.BotType {
 	botTypes := make(map[string]*structs.BotType)

@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Go Long-Running Program",
+            "name": "Debug Go In Terminal",
             "type": "go",
             "request": "launch",
             "mode": "auto",

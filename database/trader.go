@@ -1,20 +1,26 @@
 package database
 
 import (
-	"MT-GO/database/structs"
+	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
 	"path/filepath"
 	"strconv"
 )
 
-func setTraders() map[string]*structs.Trader {
-	traders := make(map[string]*structs.Trader)
+var traders = make(map[string]*structs.Trader)
+
+func GetTraders() map[string]*structs.Trader {
+	return traders
+}
+
+func setTraders() {
 
 	directory, err := tools.GetDirectoriesFrom(traderPath)
 	if err != nil {
-		return traders
+		panic(err)
 	}
+
 	for _, dir := range directory {
 		trader := structs.Trader{}
 
@@ -68,7 +74,6 @@ func setTraders() map[string]*structs.Trader {
 		}
 		traders[dir] = &trader
 	}
-	return traders
 }
 
 func processBase(basePath string) structs.Base {

@@ -1,14 +1,20 @@
 package database
 
 import (
-	"MT-GO/database/structs"
+	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
 	"strconv"
 	"strings"
 )
 
-func setQuests() map[string]*structs.Quest {
+var quests = make(map[string]*structs.Quest)
+
+func GetQuests() map[string]*structs.Quest {
+	return quests
+}
+
+func setQuests() {
 
 	raw := tools.GetJSONRawMessage(questsPath)
 
@@ -103,11 +109,8 @@ func setQuests() map[string]*structs.Quest {
 		panic(err)
 	}
 
-	quests := make(map[string]*structs.Quest)
-
 	err = json.Unmarshal(jsonData, &quests)
 	if err != nil {
 		panic(err)
 	}
-	return quests
 }
