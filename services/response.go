@@ -5,10 +5,29 @@ import (
 	"compress/zlib"
 	"encoding/json"
 	"net/http"
+	"strings"
 )
 
+type ResponseBody struct {
+	Err    int
+	Errmsg string
+	Data   interface{}
+}
+
+func GetSessionID(r *http.Request) string {
+	coogie := strings.Join(r.Header["Cookie"], ", ")
+	sessionID := strings.TrimPrefix(coogie, "PHPSESSID=")
+	return sessionID
+}
+
+// ApplyResponseBody applies the response body necessary to parse the response
+func ApplyResponseBody(data interface{}) *ResponseBody {
+	body := &ResponseBody{}
+	body.Data = data
+	return body
+}
+
 func ZlibReply(w http.ResponseWriter, data interface{}) {
-	w.WriteHeader(http.StatusOK)
 	bytes := convertDataToByte(w, data)
 	zlibDeflate(w, bytes)
 }
@@ -40,7 +59,7 @@ func zlibDeflate(w http.ResponseWriter, data []byte) {
 	err = writer.Flush()
 	if err != nil {
 		writer.Close()
-		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		http.Error(w, "Failed to flush remaining buffer", http.StatusInternalServerError)
 		panic(err)
 	}
 

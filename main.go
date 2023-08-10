@@ -3,6 +3,7 @@ package main
 
 import (
 	"MT-GO/database"
+	"MT-GO/server"
 	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
@@ -10,10 +11,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 )
 
-var ip, port, hostname string
+var ip, mainPort, hostname string
 
 func main() {
 
@@ -22,7 +22,7 @@ func main() {
 	core := database.GetCore()
 
 	ip = core.ServerConfig.IP
-	port = ":" + strconv.Itoa(core.ServerConfig.Port)
+	mainPort = ":" + core.ServerConfig.Ports.Main
 	hostname = core.ServerConfig.Hostname
 
 	startHome()
@@ -160,10 +160,11 @@ func login() {
 			continue
 		}
 
+		server.SetHTTPSServer(ip, mainPort, hostname)
 		fmt.Println("Logging in...")
 		fmt.Println()
 
-		os.Setenv("SESSIONID", account.UID)
+		//os.Setenv("SESSIONID", account.UID)
 
 		loggedIn(profiles[account.UID].Account)
 		break
@@ -172,7 +173,6 @@ func login() {
 }
 
 func loggedIn(account *structs.Account) {
-	setHTTPSServer(ip, port, hostname)
 
 	fmt.Println("Alright nigga, we're logged in, what now?")
 	fmt.Println()
@@ -201,7 +201,7 @@ func loggedIn(account *structs.Account) {
 	}
 }
 
-//tarkovPath + ' -bC5vLmcuaS5u={"email":"' + userAccount.email + '","password":"' + userAccount.password + '","toggle":true,"timestamp":0} -token=' + sessionID + ' -config={"BackendUrl":"https://' + serverConfig.ip + ':' + serverConfig.port + '","Version":"live"}'
+//tarkovPath + ' -bC5vLmcuaS5u={"email":"' + userAccount.email + '","password":"' + userAccount.password + '","toggle":true,"timestamp":0} -token=' + sessionID + ' -config={"BackendUrl":"https://' + serverConfig.ip + ':' + serverConfig.mainPort + '","Version":"live"}'
 
 func launchTarkov(account *structs.Account) {
 	var tarkovPath string
@@ -229,7 +229,7 @@ func launchTarkov(account *structs.Account) {
 	cmdArgs := []string{
 		"-bC5vLmcuaS5u={'email':'" + account.Username + "','password':'" + account.Password + "','toggle':true,'timestamp':0}",
 		"-token=" + account.UID,
-		"-config={'BackendUrl':'https://" + ip + port + "','Version':'live'}",
+		"-config={'BackendUrl':'https://" + ip + mainPort + "','Version':'live'}",
 	}
 
 	cmd := exec.Command(tarkovPath, cmdArgs...)

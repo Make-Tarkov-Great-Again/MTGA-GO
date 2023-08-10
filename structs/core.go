@@ -44,13 +44,21 @@ type ClientSettings struct {
 }
 
 type ServerConfig struct {
-	IP       string `json:"ip"`
-	Hostname string `json:"hostname"`
-	Port     int    `json:"port"`
-	Name     string `json:"name"`
-	Discord  string `json:"discord"`
-	Website  string `json:"website"`
-	Version  string `json:"version"`
+	IP       string      `json:"ip"`
+	Hostname string      `json:"hostname"`
+	Name     string      `json:"name"`
+	Discord  string      `json:"discord"`
+	Website  string      `json:"website"`
+	Version  string      `json:"version"`
+	Ports    ServerPorts `json:"ports"`
+}
+
+type ServerPorts struct {
+	Main      string `json:"Main"`
+	Messaging string `json:"Messaging"`
+	Trading   string `json:"Trading"`
+	Flea      string `json:"Flea"`
+	Lobby     string `json:"Lobby"`
 }
 
 type MatchMetrics struct {

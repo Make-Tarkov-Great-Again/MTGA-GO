@@ -204,12 +204,16 @@ type Locale struct {
 
 type LocaleData struct {
 	Locale map[string]string
-	Menu   map[string]string
+	Menu   LocaleMenu
+}
+
+type LocaleMenu struct {
+	Menu map[string]string `json:"menu"`
 }
 
 type Handbook struct {
-	Categories [87]HandbookCategory `json:"Categories"`
-	Items      [2819]HandbookItem   `json:"Items"`
+	Categories []HandbookCategory `json:"Categories"`
+	Items      []HandbookItem     `json:"Items"`
 }
 
 type HandbookCategory struct {
