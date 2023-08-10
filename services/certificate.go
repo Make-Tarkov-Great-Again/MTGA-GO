@@ -1,5 +1,5 @@
 // Package certificate acquires a self-signed certificate
-package certificate
+package services
 
 import (
 	"MT-GO/tools"

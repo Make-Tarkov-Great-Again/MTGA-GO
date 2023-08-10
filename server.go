@@ -1,39 +1,58 @@
 package main
 
 import (
-	certificate "MT-GO/server"
+	"MT-GO/services"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"os"
 )
 
-func setHTTPServer(address string) {
-	httpMux := http.NewServeMux()
-	setRoutes(httpMux)
+var address, sessionID string
+var backendURL = "https://%s"
+var websocketURL = "wss://%s/socket/%s"
 
-	fmt.Println("Starting HTTP server on " + address)
-	fmt.Println()
-	go func() {
-		err := http.ListenAndServe(address, nil)
-		if err != nil {
-			panic(err)
-		}
-	}()
+func setHTTPSVariables() {
+	sessionID = os.Getenv("SESSIONID")
+	address = ip + port
+	backendURL = fmt.Sprintf(backendURL, address)
+	websocketURL = fmt.Sprintf(websocketURL, address, sessionID)
+}
+
+func logRequestHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Log the incoming request URL
+		fmt.Printf("Incoming %s Request URL: %s", r.Method, r.URL)
+
+		// Call the next handler in the chain
+		next.ServeHTTP(w, r)
+	})
 }
 
 func setHTTPSServer(ip string, port string, hostname string) {
+	setHTTPSVariables()
+
 	httpsMux := http.NewServeMux()
+	httpsHandler := logRequestHandler(httpsMux)
+
 	setRoutes(httpsMux)
 
-	cert := certificate.GetCertificate(ip, hostname)
-	if cert == nil {
-		fmt.Print("fucking faggot cert")
+	cert := services.GetCertificate(ip, hostname)
+	certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
+	if err != nil {
+		panic(err)
 	}
-	address := ip + port
 
 	fmt.Println("Starting HTTPS server on " + address)
 	go func() {
-		err := http.ListenAndServeTLS(address, cert.CertFile, cert.KeyFile, httpsMux)
+
+		httpsServer := &http.Server{
+			Addr:      address,
+			TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}},
+			Handler:   httpsHandler,
+		}
+
+		err := httpsServer.ListenAndServeTLS("", "")
 		if err != nil {
 			panic(err)
 		}
@@ -41,16 +60,14 @@ func setHTTPSServer(ip string, port string, hostname string) {
 }
 
 func setRoutes(mux *http.ServeMux) {
-	//mux.HandleFunc("/client/WebSocketAddress", webSocketHandler)
+	mux.HandleFunc("/client/WebSocketAddress", webSocketHandler)
+	mux.HandleFunc("/getBundleList", getBundleList)
 }
 
-// SESSIONID variable is used to identify the session used
-var SESSIONID = os.Getenv("SESSIONID")
-
-/* func GetServerAddress() string {
-
+func webSocketHandler(w http.ResponseWriter, r *http.Request) {
+	services.ZlibReply(w, websocketURL)
 }
 
-func webSocketHandler(w http.ResponseWriter, _ *http.Request) {
-
-} */
+func getBundleList(w http.ResponseWriter, r *http.Request) {
+	services.ZlibJSONReply(w, []string{})
+}

@@ -13,8 +13,7 @@ import (
 	"strconv"
 )
 
-var ip string
-var port string
+var ip, port, hostname string
 
 func main() {
 
@@ -24,11 +23,9 @@ func main() {
 
 	ip = core.ServerConfig.IP
 	port = ":" + strconv.Itoa(core.ServerConfig.Port)
-	hostname := core.ServerConfig.Hostname
+	hostname = core.ServerConfig.Hostname
 
 	startHome()
-
-	setHTTPSServer(ip, port, hostname)
 }
 
 func startHome() {
@@ -175,6 +172,8 @@ func login() {
 }
 
 func loggedIn(account *structs.Account) {
+	setHTTPSServer(ip, port, hostname)
+
 	fmt.Println("Alright nigga, we're logged in, what now?")
 	fmt.Println()
 
