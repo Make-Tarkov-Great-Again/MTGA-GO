@@ -10,7 +10,7 @@ import (
 
 type ResponseBody struct {
 	Err    int
-	Errmsg string
+	Errmsg interface{}
 	Data   interface{}
 }
 

@@ -37,7 +37,7 @@ func ClientMenuLocale(w http.ResponseWriter, r *http.Request) {
 	body := struct {
 		Data   *structs.LocaleMenu
 		Err    int
-		Errmsg string
+		Errmsg interface{}
 	}{
 		Data: database.GetLocalesMenuByName(locale),
 	}
@@ -49,7 +49,7 @@ func ClientGameVersionValidate(w http.ResponseWriter, _ *http.Request) {
 	body := struct {
 		Data   interface{}
 		Err    int
-		Errmsg string
+		Errmsg interface{}
 	}{
 		Err: 0,
 	}
@@ -61,7 +61,7 @@ func ClientLanguages(w http.ResponseWriter, r *http.Request) {
 	body := struct {
 		Data   map[string]string
 		Err    int
-		Errmsg string
+		Errmsg interface{}
 	}{
 		Data: database.GetLanguages(),
 	}
