@@ -642,7 +642,7 @@ type RagFair struct {
 	YouSellOfferMaxStorageTimeInHour        int                     `json:"youSellOfferMaxStorageTimeInHour,omitempty"`
 	YourOfferDidNotSellMaxStorageTimeInHour int                     `json:"yourOfferDidNotSellMaxStorageTimeInHour,omitempty"`
 	IsOnlyFoundInRaidAllowed                bool                    `json:"isOnlyFoundInRaidAllowed,omitempty"`
-	SellInOnePiece                          int                     `json:"sellInOnePiece,omitempty"`
+	SellInOnePiece                          int                     `json:"SellInOnePiece,omitempty"`
 }
 
 type ActiveOfferCountRange struct {

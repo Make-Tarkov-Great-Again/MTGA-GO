@@ -50,7 +50,7 @@ type ConditionProps struct {
 	DoNotResetIfCounterCompleted bool                  `json:"doNotResetIfCounterCompleted,omitempty"`
 	DynamicLocale                bool                  `json:"dynamicLocale,omitempty"`
 	ID                           string                `json:"id,omitempty"`
-	Index                        int8                  `json:"index,omitempty"`
+	Index                        int16                 `json:"index,omitempty"`
 	OneSessionOnly               bool                  `json:"oneSessionOnly,omitempty"`
 	ParentID                     string                `json:"parentId,omitempty"`
 	Type                         string                `json:"type,omitempty"`

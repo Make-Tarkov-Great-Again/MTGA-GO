@@ -2,7 +2,7 @@ package structs
 
 type Hideout struct {
 	Areas       []HideoutArea       `json:"areas"`
-	Productions []HideoutProduction `json:"productions"`
+	Productions []HideoutProduction `json:"production"`
 	QTE         []QTE               `json:"qte"`
 	ScavCase    []ScavCase          `json:"scavcase"`
 	Settings    HideoutSettings     `json:"settings"`
