@@ -8,8 +8,8 @@ import (
 
 var items = make(map[string]*structs.DatabaseItem)
 
-func GetItems() map[string]*structs.DatabaseItem {
-	return items
+func GetItems() *map[string]*structs.DatabaseItem {
+	return &items
 }
 
 func setItems() {

@@ -24,4 +24,8 @@ func setMainRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/client/game/version/validate", handlers.ClientGameVersionValidate)
 
 	mux.HandleFunc("/client/languages", handlers.ClientLanguages)
+
+	mux.HandleFunc("/client/game/config", handlers.ClientGameConfig)
+
+	mux.HandleFunc("/client/items", handlers.ClientItems)
 }

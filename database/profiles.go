@@ -4,6 +4,7 @@ import (
 	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strings"
 )
@@ -14,6 +15,23 @@ var profiles = make(map[string]*structs.Profile)
 
 func GetProfiles() map[string]*structs.Profile {
 	return profiles
+}
+
+func GetProfileByUID(uid string) *structs.Profile {
+	if profile, ok := profiles[uid]; ok {
+		return profile
+	}
+	fmt.Println("No profile with UID ", uid, ", you stupid motherfucker")
+	return nil
+}
+
+func GetAccountByUID(uid string) *structs.Account {
+	profile := GetProfileByUID(uid)
+	if profile.Account != nil {
+		return profile.Account
+	}
+	fmt.Println("Profile with UID ", uid, " does not have an account, how the fuck did you get here????!?!?!?!?!?")
+	return nil
 }
 
 func setProfiles() map[string]*structs.Profile {
