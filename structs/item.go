@@ -1,12 +1,12 @@
 package structs
 
 type DatabaseItem struct {
-	ID         string             `json:"_id"`
-	Name       string             `json:"_name`
-	Parent     string             `json:"_parent`
-	Type       string             `json:"_type`
-	Properties DatabaseProperties `json:"_props`
-	Proto      string             `json:"_proto`
+	ID         string             `json:"_id,omitempty"`
+	Name       string             `json:"_name,omitempty"`
+	Parent     string             `json:"_parent,omitempty"`
+	Type       string             `json:"_type,omitempty"`
+	Properties DatabaseProperties `json:"_props,omitempty"`
+	Proto      string             `json:"_proto,omitempty"`
 }
 
 type DatabaseProperties struct {
@@ -209,8 +209,8 @@ type DatabaseProperties struct {
 	MaxHpResource                          int           `json:"MaxHpResource,omitempty"`
 	MedEffectType                          string        `json:"medEffectType,omitempty"`
 	MedUseTime                             int           `json:"medUseTime,omitempty"`
-	ScaleMax                               int           `json:"scaleMax,omitempty"`
-	ScaleMin                               int           `json:"scaleMin,omitempty"`
+	ScaleMax                               float32       `json:"scaleMax,omitempty"`
+	ScaleMin                               float32       `json:"scaleMin,omitempty"`
 	MaxMarkersCount                        int           `json:"MaxMarkersCount,omitempty"`
 	ConfigPathStr                          string        `json:"ConfigPathStr,omitempty"`
 	MaximumNumberOfUsage                   int           `json:"MaximumNumberOfUsage,omitempty"`
@@ -279,7 +279,7 @@ type DatabaseProperties struct {
 	ReloadMode                             string        `json:"ReloadMode,omitempty"`
 	CameraSnap                             float32       `json:"CameraSnap,omitempty"`
 	CameraRecoil                           float32       `json:"CameraRecoil,omitempty"`
-	ShotgunDispersion                      int           `json:"shotgunDispersion,omitempty"`
+	ShotgunDispersion                      float32       `json:"shotgunDispersion,omitempty"`
 	AdjustCollimatorsToTrajectory          bool          `json:"AdjustCollimatorsToTrajectory,omitempty"`
 	DefAmmo                                string        `json:"defAmmo,omitempty"`
 	DefMagType                             string        `json:"defMagType,omitempty"`
@@ -328,7 +328,7 @@ type DatabaseProperties struct {
 	SpeedPenaltyPercent                    int           `json:"speedPenaltyPercent,omitempty"`
 	BlocksArmorVest                        bool          `json:"BlocksArmorVest,omitempty"`
 	SearchSound                            string        `json:"SearchSound,omitempty"`
-	DeviationMax                           int           `json:"DeviationMax,omitempty"`
+	DeviationMax                           float32       `json:"DeviationMax,omitempty"`
 	DeviationCurve                         float32       `json:"DeviationCurve,omitempty"`
 	IsSilencer                             bool          `json:"IsSilencer,omitempty"`
 	CenterOfImpact                         float32       `json:"CenterOfImpact,omitempty"`
@@ -365,8 +365,8 @@ type DatabaseProperties struct {
 	MaskSize             float32     `json:"MaskSize,omitempty"`
 	Mask                 string      `json:"Mask,omitempty"`
 	Intensity            float32     `json:"Intensity,omitempty"`
-	CalibrationDistances []int       `json:"CalibrationDistances,omitempty"`
-	Zooms                []int       `json:"Zooms,omitempty"`
+	CalibrationDistances [][]int     `json:"CalibrationDistances,omitempty"`
+	Zooms                [][]float32 `json:"Zooms,omitempty"`
 	AimSensitivity       interface{} `json:"AimSensitivity,omitempty"`
 	ScopesCount          int         `json:"ScopesCount,omitempty"`
 	SightModType         string      `json:"sightModType,omitempty"`
@@ -376,6 +376,13 @@ type DatabaseProperties struct {
 	KeyIds               []string    `json:"KeyIds,omitempty"`
 	Resource             float32     `json:"Resource,omitempty"`
 	IsStationaryWeapon   bool        `json:"IsStationaryWeapon,omitempty"`
+	Rate                 int         `json:"rate,omitempty"`
+	ThrowType            string      `json:"ThrowType,omitempty"`
+	ExplDelay            float32     `json:"ExplDelay,omitempty"`
+	Strength             int         `json:"Strength,omitempty"`
+	ContusionDistance    int         `json:"ContusionDistance,omitempty"`
+	ThrowDamMax          int         `json:"throwDamMax,omitempty"`
+	EmitTime             int         `json:"EmitTime,omitempty"`
 }
 
 type Prefab struct {
