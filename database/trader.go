@@ -109,13 +109,32 @@ func processBase(basePath string) map[string]interface{} {
 
 type Assort struct {
 	BarterScheme    map[string][][]*Scheme
-	Items           []map[string]interface{}
+	Items           []*AssortItem
 	LoyalLevelItems map[string]int
 }
 
+type AssortItem struct {
+	ID       string `json:"_id"`
+	Tpl      string `json:"_tpl"`
+	ParentID string `json:"parentId"`
+	SlotID   string `json:"slotId"`
+	Upd      struct {
+		BuyRestrictionCurrent interface{} `json:"BuyRestrictionCurrent,omitempty"`
+		BuyRestrictionMax     interface{} `json:"BuyRestrictionMax,omitempty"`
+		StackObjectsCount     int         `json:"StackObjectsCount,omitempty"`
+		UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
+		FireMode              struct {
+			FireMode string `json:"FireMode"`
+		} `json:"FireMode,omitempty"`
+		Foldable struct {
+			Folded bool `json:"Folded,omitempty"`
+		} `json:"Foldable,omitempty"`
+	} `json:"upd,omitempty"`
+}
+
 type Scheme struct {
-	Tpl   string `json:"_tpl"`
-	Count int    `json:"count"`
+	Tpl   string  `json:"_tpl"`
+	Count float32 `json:"count"`
 }
 
 func processAssort(assortPath string) *Assort {
@@ -131,56 +150,16 @@ func processAssort(assortPath string) *Assort {
 
 	items, ok := dynamic["items"].([]interface{})
 	if ok {
-		assort.Items = make([]map[string]interface{}, 0, len(items))
-
-		for _, item := range items {
-			i := item.(map[string]interface{})
-			upd, ok := i["upd"].(map[string]interface{})
-			if !ok {
-				assort.Items = append(assort.Items, i)
-				continue
-			}
-
-			fireMode, ok := upd["FireMode"].(map[string]interface{})
-			if ok {
-				fireModeValue, ok := fireMode["FireMode"].(string)
-
-				if ok {
-					upd["FireMode"] = map[string]string{
-						"FireMode": fireModeValue,
-					}
-				}
-			}
-
-			foldable, ok := upd["Foldable"].(map[string]interface{})
-			if ok {
-				folded, ok := foldable["Folded"].(bool)
-				if ok {
-					upd["Foldable"] = map[string]bool{
-						"Folded": folded,
-					}
-				}
-			}
-
-			stackCount, ok := upd["StackObjectsCount"].(interface{})
-			if ok {
-				stackCountValue, ok := stackCount.(float64)
-				if ok {
-					upd["StackObjectsCount"] = int(stackCountValue)
-				}
-			}
-
-			buyCurrent, ok := upd["BuyRestrictionCurrent"].(float64)
-			if ok {
-				upd["BuyRestrictionCurrent"] = int(buyCurrent)
-			}
-
-			buyRestrictionMax, ok := upd["BuyRestrictionMax"].(float64)
-			if ok {
-				upd["BuyRestrictionMax"] = int(buyRestrictionMax)
-			}
-			assort.Items = append(assort.Items, i)
+		assort.Items = make([]*AssortItem, 0, len(items))
+		data, err := json.Marshal(items)
+		if err != nil {
+			panic(err)
 		}
+		err = json.Unmarshal(data, &assort.Items)
+		if err != nil {
+			panic(err)
+		}
+
 	} else {
 		panic("Items not found")
 	}
@@ -188,28 +167,13 @@ func processAssort(assortPath string) *Assort {
 	barterSchemes, ok := dynamic["barter_scheme"].(map[string]interface{})
 	if ok {
 		assort.BarterScheme = make(map[string][][]*Scheme)
-
-		for id, scheme := range barterSchemes {
-			scheme, ok := scheme.([]interface{})
-			if ok {
-				trueScheme := make([][]*Scheme, 0, len(scheme))
-				for _, value := range scheme {
-					value := value.([]interface{})
-					template := make([]*Scheme, 0, len(value))
-
-					for _, v := range value {
-						if v, ok := v.(map[string]interface{}); ok {
-							input := &Scheme{
-								Tpl:   v["_tpl"].(string),
-								Count: int(v["count"].(float64)),
-							}
-							template = append(template, input)
-						}
-					}
-					trueScheme = append(trueScheme, template)
-				}
-				assort.BarterScheme[id] = trueScheme
-			}
+		data, err := json.Marshal(barterSchemes)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal(data, &assort.BarterScheme)
+		if err != nil {
+			panic(err)
 		}
 	} else {
 		panic("Barter scheme not found")
@@ -218,9 +182,18 @@ func processAssort(assortPath string) *Assort {
 	loyalLevelItems, ok := dynamic["loyal_level_items"].(map[string]interface{})
 	if ok {
 		assort.LoyalLevelItems = map[string]int{}
-		for id, item := range loyalLevelItems {
-			assort.LoyalLevelItems[id] = int(item.(float64))
+		for _, item := range loyalLevelItems {
+			item = int(item.(float64))
 		}
+	}
+
+	data, err := json.Marshal(loyalLevelItems)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(data, &assort.LoyalLevelItems)
+	if err != nil {
+		panic(err)
 	}
 
 	return assort
