@@ -55,8 +55,8 @@ type Locale struct {
 }
 
 type LocaleData struct {
-	Locale map[string]string
-	Menu   LocaleMenu
+	Locale map[string]interface{}
+	Menu   *LocaleMenu
 }
 
 type LocaleMenu struct {

@@ -50,4 +50,6 @@ func setMainRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/client/game/profile/nickname/reserved", handlers.NicknameReserved)
 
 	mux.HandleFunc("/client/game/profile/nickname/validate", handlers.NicknameValidate)
+
+	mux.HandleFunc("/client/game/profile/create", handlers.ProfileCreate)
 }

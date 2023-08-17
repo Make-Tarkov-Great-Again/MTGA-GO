@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/klauspost/compress/zlib"
@@ -28,10 +27,6 @@ type CRCResponseBody struct {
 
 func GetSessionID(r *http.Request) string {
 	coogie := strings.Join(r.Header["Cookie"], ", ")
-	if coogie == "" {
-		return os.Getenv("SESSIONID")
-	}
-	os.Unsetenv("SESSIONID")
 	sessionID := strings.TrimPrefix(coogie, "PHPSESSID=")
 	return sessionID
 }
@@ -87,6 +82,7 @@ func zlibDeflate(w http.ResponseWriter, data []byte) {
 
 	writer.Close()
 
+	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(buffer.Bytes())
 	if err != nil {
 		panic(err)
@@ -136,8 +132,7 @@ type contextKey string
 const ParsedBodyKey contextKey = "ParsedBody"
 
 func DecompressInZLIBRFC1950(next http.Handler, w http.ResponseWriter, r *http.Request) {
-	contentType := r.Header.Get("Content-Type")
-	if contentType != "application/json" {
+	if r.Header.Get("Content-Type") != "application/json" {
 		next.ServeHTTP(w, r)
 		return
 	}

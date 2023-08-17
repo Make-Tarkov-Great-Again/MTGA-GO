@@ -62,7 +62,7 @@ func SetHTTPSServer(ip string, port string, hostname string) {
 }
 
 func startHTTPServer(handler http.Handler, certs tls.Certificate) {
-	address := database.GetBackendAddress()
+	address := database.GetIPandPort()
 	fmt.Println("Starting HTTPS server on " + address)
 
 	httpsServer := &http.Server{

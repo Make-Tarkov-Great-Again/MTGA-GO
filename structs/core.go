@@ -40,6 +40,10 @@ type ClientSettings struct {
 		RequestConfirmationTimeouts    []float64                `json:"RequestConfirmationTimeouts"`
 		ShouldEstablishLobbyConnection bool                     `json:"ShouldEstablishLobbyConnection"`
 	} `json:"config"`
+	NetworkStateView struct {
+		LossThreshold int `json:"LossThreshold"`
+		RttThreshold  int `json:"RttThreshold"`
+	} `json:"NetworkStateView"`
 }
 
 type MemoryManagementSettings struct {
@@ -85,4 +89,5 @@ type MatchMetrics struct {
 	RenderBins            []int `json:"RenderBins"`
 	GameUpdateBins        []int `json:"GameUpdateBins"`
 	MemoryMeasureInterval int   `json:"MemoryMeasureInterval"`
+	PauseReasons          []int `json:"PauseReasons"`
 }

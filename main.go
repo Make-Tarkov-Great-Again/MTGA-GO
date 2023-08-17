@@ -30,7 +30,7 @@ func main() {
 
 func startHome() {
 
-	fmt.Println("Alright nigga, what now?")
+	fmt.Println("Alright fella, what now?")
 	fmt.Println("1. Register an Account")
 	fmt.Println("2. Login")
 	fmt.Println()
@@ -172,8 +172,7 @@ func login() {
 
 func loggedIn(account *structs.Account) {
 
-	fmt.Println("Alright nigga, we're logged in, what now?")
-	os.Setenv("SESSIONID", account.UID)
+	fmt.Println("Alright fella, we're logged in, what now?")
 
 	fmt.Println()
 

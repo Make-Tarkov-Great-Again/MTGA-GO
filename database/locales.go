@@ -9,7 +9,7 @@ import (
 )
 
 // Locales contains various locale information for all readable text in-game
-var Locales = structs.Locale{}
+var Locales = &structs.Locale{}
 
 var localeMap = map[string]*structs.LocaleData{
 	"en":    &Locales.EN,
@@ -31,7 +31,7 @@ var localeMap = map[string]*structs.LocaleData{
 }
 
 func GetLocales() *structs.Locale {
-	return &Locales
+	return Locales
 }
 
 func GetLocaleByName(name string) *structs.LocaleData {
@@ -44,13 +44,13 @@ func GetLocaleByName(name string) *structs.LocaleData {
 
 func GetLocalesMenuByName(name string) *structs.LocaleMenu {
 	if locale, ok := localeMap[name]; ok {
-		return &locale.Menu
+		return locale.Menu
 	}
 	fmt.Println("No such locale menu, returning EN")
-	return &Locales.EN.Menu
+	return Locales.EN.Menu
 }
 
-func GetLocalesLocaleByName(name string) map[string]string {
+func GetLocalesLocaleByName(name string) map[string]interface{} {
 	if locale, ok := localeMap[name]; ok {
 		return locale.Locale
 	}
@@ -64,44 +64,31 @@ func setLocales() {
 		panic(err)
 	}
 
-	localeData := structs.LocaleData{}
-	structure := make(map[string]structs.LocaleData)
-
+	structure := make(map[string]*structs.LocaleData)
 	localeFiles := [2]string{"locale.json", "menu.json"}
 
 	for _, dir := range directories {
-
+		localeData := &structs.LocaleData{}
 		dirPath := filepath.Join(localesPath, dir)
 
 		for _, file := range localeFiles {
-			var fileContent []byte
 
-			fileContent, err := tools.ReadFile(filepath.Join(dirPath, file))
+			fileContent := tools.GetJSONRawMessage(filepath.Join(dirPath, file))
 			if err != nil {
 				panic(err)
 			}
 
-			raw := make(map[string]json.RawMessage)
-			err = json.Unmarshal(fileContent, &raw)
-			if err != nil {
-				panic(err)
-			}
+			raw := make(map[string]interface{})
 
 			if file == "locale.json" {
-				format := make(map[string]string)
-				for key, val := range raw {
-					format[key] = string(val)
-				}
-
-				localeData.Locale = format
-			} else {
-				bytes, err := json.Marshal(raw)
+				err = json.Unmarshal(fileContent, &raw)
 				if err != nil {
 					panic(err)
 				}
-
-				localeMenu := structs.LocaleMenu{}
-				err = json.Unmarshal(bytes, &localeMenu)
+				localeData.Locale = raw
+			} else {
+				localeMenu := &structs.LocaleMenu{}
+				err = json.Unmarshal(fileContent, &localeMenu)
 				if err != nil {
 					panic(err)
 				}
@@ -113,13 +100,14 @@ func setLocales() {
 		structure[dir] = localeData
 	}
 
-	jsonData, err := json.Marshal(structure)
+	bytes, err := json.Marshal(structure)
 	if err != nil {
 		panic(err)
 	}
 
-	err = json.Unmarshal(jsonData, &Locales)
+	err = json.Unmarshal(bytes, &Locales)
 	if err != nil {
 		panic(err)
 	}
+
 }

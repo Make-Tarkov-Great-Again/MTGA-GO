@@ -6,7 +6,6 @@ import (
 	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
-	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,8 +21,8 @@ func GetBundleList(w http.ResponseWriter, _ *http.Request) {
 
 func GetWebSocketAddress(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	websocketURL := database.GetWebsocketURL()
-	websocketURL = fmt.Sprintf(websocketURL, database.GetBackendAddress(), sessionID)
+	database.SetWebSocketAddress(sessionID)
+	websocketURL := database.GetWebSocketAddress()
 	services.ZlibReply(w, websocketURL)
 }
 
@@ -55,58 +54,56 @@ func ClientLanguages(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, languages)
 }
 
+type Backend struct {
+	Lobby     string `json:"Lobby"`
+	Trading   string `json:"Trading"`
+	Messaging string `json:"Messaging"`
+	Main      string `json:"Main"`
+	RagFair   string `json:"RagFair"`
+}
+
+type GameConfig struct {
+	Aid               string            `json:"aid"`
+	Lang              string            `json:"lang"`
+	Languages         map[string]string `json:"languages"`
+	NdaFree           bool              `json:"ndaFree"`
+	Taxonomy          int               `json:"taxonomy"`
+	ActiveProfileID   string            `json:"activeProfileId"`
+	Backend           Backend           `json:"backend"`
+	UseProtobuf       bool              `json:"useProtobuf"`
+	UtcTime           float64           `json:"utc_time"`
+	TotalInGame       int               `json:"totalInGame"`
+	ReportAvailable   bool              `json:"reportAvailable"`
+	TwitchEventMember bool              `json:"twitchEventMember"`
+}
+
 func ClientGameConfig(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	account := database.GetAccountByUID(sessionID)
-
-	serverConfig := database.GetCore().ServerConfig
-	//Main := database.GetCore().ServerConfig.Ports.Main
-	IP := serverConfig.IP
-
-	mainAddress := net.JoinHostPort(IP, serverConfig.Ports.Main)
-	//messageAddress := net.JoinHostPort(IP, serverConfig.Ports.Messaging)
-	//tradingAddress := net.JoinHostPort(IP, serverConfig.Ports.Trading)
-	//ragFairAddress := net.JoinHostPort(IP, serverConfig.Ports.Flea)
-	//lobbyAddress := net.JoinHostPort(IP, serverConfig.Ports.Lobby)
-
-	type Backend struct {
-		Lobby     string `json:"Lobby"`
-		Trading   string `json:"Trading"`
-		Messaging string `json:"Messaging"`
-		Main      string `json:"Main"`
-		RagFair   string `json:"RagFair"`
+	lang := database.GetAccountByUID(sessionID).Lang
+	if lang == "" {
+		lang = "en"
 	}
 
-	type GameConfig struct {
-		Aid               string            `json:"aid"`
-		Lang              string            `json:"lang"`
-		Languages         map[string]string `json:"languages"`
-		NdaFree           bool              `json:"ndaFree"`
-		Taxonomy          int               `json:"taxonomy"`
-		ActiveProfileID   string            `json:"activeProfileId"`
-		Backend           Backend           `json:"backend"`
-		UtcTime           string            `json:"utc_time"`
-		TotalInGame       int               `json:"totalInGame"`
-		ReportAvailable   bool              `json:"reportAvailable"`
-		TwitchEventMember bool              `json:"twitchEventMember"`
-	}
+	timeAsFloat, _ := strconv.ParseFloat(tools.GetCurrentTimeInSeconds(), 64)
+	mainAddress := database.GetMainAddress()
 
 	gameConfig := services.ApplyResponseBody(&GameConfig{
-		Aid:             account.UID,
-		Lang:            account.Lang,
+		Aid:             sessionID,
+		Lang:            lang,
 		Languages:       database.GetLanguages(),
 		NdaFree:         false,
 		Taxonomy:        6,
-		ActiveProfileID: account.UID,
+		ActiveProfileID: sessionID,
 		Backend: Backend{
-			Lobby:     mainAddress, //lobbyAddress,
-			Trading:   mainAddress, //tradingAddress,
-			Messaging: mainAddress, //messageAddress,
-			Main:      mainAddress,
-			RagFair:   mainAddress, //ragFairAddress,
+			Lobby:     mainAddress, //database.GetLobbyAddress(),
+			Trading:   mainAddress, //database.GetTradingAddress(),
+			Messaging: mainAddress, //database.GetMessageAddress(),
+			Main:      mainAddress, //database.GetMainAddress()
+			RagFair:   mainAddress, //database.GetRagFairAddress(),
 		},
-		UtcTime:           tools.GetCurrentTimeInSeconds(),
-		TotalInGame:       1,
+		UseProtobuf:       false,
+		UtcTime:           timeAsFloat,
+		TotalInGame:       0, //account.GetTotalInGame
 		ReportAvailable:   true,
 		TwitchEventMember: false,
 	})
@@ -232,19 +229,23 @@ func ClientProfileList(w http.ResponseWriter, r *http.Request) {
 
 func ClientAccountCustomization(w http.ResponseWriter, r *http.Request) {
 	customization := database.GetCustomization()
-	output := []interface{}{}
-	for _, c := range customization {
+	output := []string{}
+	for id, c := range customization {
 		custom, ok := c.(map[string]interface{})
-		if ok {
-			props, ok := custom["_props"].(map[string]interface{})
-			if ok {
-				side, ok := props["Side"].([]interface{})
-				if ok {
-					if side != nil && len(side) > 0 {
-						output = append(output, custom)
-					}
-				}
-			}
+		if !ok {
+			panic("customization is not a map[string]interface{}")
+		}
+		props, ok := custom["_props"].(map[string]interface{})
+		if !ok {
+			panic("customization properties are not map[string]interface{}")
+		}
+		side, ok := props["Side"].([]interface{})
+		if !ok {
+			continue
+		}
+
+		if side != nil && len(side) > 0 {
+			output = append(output, id)
 		}
 	}
 
@@ -272,12 +273,14 @@ func ClientLocale(w http.ResponseWriter, r *http.Request) {
 }
 
 func KeepAlive(w http.ResponseWriter, r *http.Request) {
+	timeToFloat, _ := strconv.ParseFloat(tools.GetCurrentTimeInSeconds(), 32)
+
 	data := struct {
-		Msg     string `json:"msg"`
-		UtcTime string `json:"utc_time"`
+		Msg     string  `json:"msg"`
+		UtcTime float32 `json:"utc_time"`
 	}{
 		Msg:     "OK",
-		UtcTime: tools.GetCurrentTimeInSeconds(),
+		UtcTime: float32(timeToFloat),
 	}
 
 	body := services.ApplyResponseBody(data)
@@ -297,14 +300,42 @@ func NicknameValidate(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("For whatever reason, the nickname does not exist.")
 	}
 
-	available := services.IsNicknameAvailable(nickname.(string))
-	if !available {
-		body := services.ApplyResponseBody("The nickname is already in use")
-		body.Err = 255
+	if len(nickname.(string)) == 0 {
+		body := services.ApplyResponseBody(nil)
+		body.Err = 226
+		body.Errmsg = "226 - "
 
 		services.ZlibJSONReply(w, body)
 	} else {
-		body := services.ApplyResponseBody(map[string]string{"status": "ok"})
-		services.ZlibJSONReply(w, body)
+		available := services.IsNicknameAvailable(nickname.(string))
+		if !available {
+			body := services.ApplyResponseBody(nil)
+			body.Err = 225
+			body.Errmsg = "225 - "
+
+			services.ZlibJSONReply(w, body)
+		} else {
+			status := struct {
+				Status interface{} `json:"status"`
+			}{
+				Status: "ok",
+			}
+			body := services.ApplyResponseBody(status)
+			services.ZlibJSONReply(w, body)
+		}
 	}
+}
+
+func ProfileCreate(w http.ResponseWriter, r *http.Request) {
+	body := services.GetParsedBody(r).(map[string]string)
+	/* 	data, err := json.Marshal(services.GetParsedBody(r))
+	   	if err != nil {
+	   		panic(err)
+	   	}
+	   	err = json.Unmarshal(data, &body)
+	   	if err != nil {
+	   		panic(err)
+	   	} */
+
+	fmt.Println(body)
 }
