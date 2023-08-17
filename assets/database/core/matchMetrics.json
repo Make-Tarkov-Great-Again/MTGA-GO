@@ -80,5 +80,11 @@
         750,
         1000
     ],
-    "MemoryMeasureInterval": 180
+    "MemoryMeasureInterval": 180,
+    "PauseReasons": [
+        1,
+        2,
+        4,
+        7
+    ]
 }
