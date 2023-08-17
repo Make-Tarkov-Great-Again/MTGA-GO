@@ -1,16 +1,15 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
 	"strconv"
 	"strings"
 )
 
-var quests = make(map[string]*structs.Quest)
+var quests map[string]interface{}
 
-func GetQuests() map[string]*structs.Quest {
+func GetQuests() map[string]interface{} {
 	return quests
 }
 

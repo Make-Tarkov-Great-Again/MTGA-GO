@@ -39,7 +39,7 @@ func processBotTypes() map[string]*structs.BotType {
 		}
 
 		difficulties := make(map[string]json.RawMessage)
-		botDifficulty := structs.BotDifficulties{}
+		botDifficulty := map[string]interface{}{}
 		for _, difficulty := range files {
 			difficultyPath := filepath.Join(diffPath, difficulty)
 			raw := tools.GetJSONRawMessage(difficultyPath)
@@ -55,18 +55,18 @@ func processBotTypes() map[string]*structs.BotType {
 		if err != nil {
 			panic(err)
 		}
-		botType.Difficulties = &botDifficulty
+		botType.Difficulties = botDifficulty
 
 		healthPath := filepath.Join(dirPath, "health.json")
 		if tools.FileExist(healthPath) {
-			health := structs.BotHealth{}
+			health := map[string]interface{}{}
 
 			raw := tools.GetJSONRawMessage(healthPath)
 			err = json.Unmarshal(raw, &health)
 			if err != nil {
 				panic(err)
 			}
-			botType.Health = &health
+			botType.Health = health
 		}
 
 		loadoutPath := filepath.Join(dirPath, "loadout.json")

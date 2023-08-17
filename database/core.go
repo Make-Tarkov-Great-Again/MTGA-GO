@@ -4,12 +4,53 @@ import (
 	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
+	"fmt"
 )
 
 var core = structs.Core{}
 
 func GetCore() *structs.Core {
 	return &core
+}
+
+func GetGlobals() *structs.Globals {
+	return core.Globals
+}
+
+func GetClientSettings() *structs.ClientSettings {
+	return core.ClientSettings
+}
+
+func GetMatchMetrics() *structs.MatchMetrics {
+	return core.MatchMetrics
+}
+
+var address string
+var backendURL = "https://%s"
+var websocketURL = "wss://%s/socket/%s"
+
+func GetServerConfig() *structs.ServerConfig {
+	return core.ServerConfig
+}
+
+func GetBackendAddress() string {
+	return address
+}
+
+func GetWebsocketURL() string {
+	return websocketURL
+}
+
+func GetGlobalBotSettings() *map[string]interface{} {
+	return core.GlobalBotSettings
+}
+
+func GetPlayerScav() *structs.PlayerTemplate {
+	return core.PlayerScav
+}
+
+func GetBotTemplate() *structs.PlayerTemplate {
+	return core.PlayerTemplate
 }
 
 func setCore() {
@@ -22,18 +63,18 @@ func setCore() {
 	core.MatchMetrics = setMatchMetrics()
 }
 
-func setGlobalBotSettings() structs.GlobalBotSettings {
+func setGlobalBotSettings() *map[string]interface{} {
 	raw := tools.GetJSONRawMessage(globalBotSettingsPath)
 
-	globalBotSettings := structs.GlobalBotSettings{}
+	globalBotSettings := map[string]interface{}{}
 	err := json.Unmarshal(raw, &globalBotSettings)
 	if err != nil {
 		panic(err)
 	}
-	return globalBotSettings
+	return &globalBotSettings
 }
 
-func setPlayerScav() structs.PlayerTemplate {
+func setPlayerScav() *structs.PlayerTemplate {
 	raw := tools.GetJSONRawMessage(playerScavPath)
 
 	playerScav := structs.PlayerTemplate{}
@@ -41,10 +82,10 @@ func setPlayerScav() structs.PlayerTemplate {
 	if err != nil {
 		panic(err)
 	}
-	return playerScav
+	return &playerScav
 }
 
-func setBotTemplate() structs.PlayerTemplate {
+func setBotTemplate() *structs.PlayerTemplate {
 	raw := tools.GetJSONRawMessage(botTemplateFilePath)
 
 	var botTemplate structs.PlayerTemplate
@@ -52,10 +93,10 @@ func setBotTemplate() structs.PlayerTemplate {
 	if err != nil {
 		panic(err)
 	}
-	return botTemplate
+	return &botTemplate
 }
 
-func setClientSettings() structs.ClientSettings {
+func setClientSettings() *structs.ClientSettings {
 	raw := tools.GetJSONRawMessage(clientSettingsPath)
 
 	var data structs.ClientSettings
@@ -63,10 +104,10 @@ func setClientSettings() structs.ClientSettings {
 	if err != nil {
 		panic(err)
 	}
-	return data
+	return &data
 }
 
-func setServerConfig() structs.ServerConfig {
+func setServerConfig() *structs.ServerConfig {
 	raw := tools.GetJSONRawMessage(serverConfigPath)
 
 	var data structs.ServerConfig
@@ -74,10 +115,14 @@ func setServerConfig() structs.ServerConfig {
 	if err != nil {
 		panic(err)
 	}
-	return data
+
+	address = data.IP + ":" + data.Ports.Main
+	backendURL = fmt.Sprintf(backendURL, address)
+
+	return &data
 }
 
-func setMatchMetrics() structs.MatchMetrics {
+func setMatchMetrics() *structs.MatchMetrics {
 	raw := tools.GetJSONRawMessage(matchMetricsPath)
 
 	var data structs.MatchMetrics
@@ -85,10 +130,10 @@ func setMatchMetrics() structs.MatchMetrics {
 	if err != nil {
 		panic(err)
 	}
-	return data
+	return &data
 }
 
-func setGlobals() structs.Globals {
+func setGlobals() *structs.Globals {
 	raw := tools.GetJSONRawMessage(globalsFilePath)
 
 	var global = structs.Globals{}
@@ -97,5 +142,5 @@ func setGlobals() structs.Globals {
 		panic(err)
 	}
 
-	return global
+	return &global
 }

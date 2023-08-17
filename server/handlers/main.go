@@ -8,15 +8,23 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
-const ROUTE_NOT_IMPLEMENTED = "Route is not implemented yet, using empty values instead"
+const route_not_implemented = "Route is not implemented yet, using empty values instead"
 
 // GetBundleList returns a list of custom bundles to the client
 func GetBundleList(w http.ResponseWriter, _ *http.Request) {
-	fmt.Println(ROUTE_NOT_IMPLEMENTED)
+	fmt.Println(route_not_implemented)
 	services.ZlibJSONReply(w, []string{})
+}
+
+func GetWebSocketAddress(w http.ResponseWriter, r *http.Request) {
+	sessionID := services.GetSessionID(r)
+	websocketURL := database.GetWebsocketURL()
+	websocketURL = fmt.Sprintf(websocketURL, database.GetBackendAddress(), sessionID)
+	services.ZlibReply(w, websocketURL)
 }
 
 func ShowPersonKilledMessage(w http.ResponseWriter, _ *http.Request) {
@@ -33,40 +41,17 @@ func ClientGameStart(w http.ResponseWriter, _ *http.Request) {
 }
 
 func ClientMenuLocale(w http.ResponseWriter, r *http.Request) {
-	locale := strings.TrimPrefix(r.URL.Path, "/client/menu/locale/")
-
-	menu := struct {
-		Data   *structs.LocaleMenu
-		Err    int
-		Errmsg interface{}
-	}{
-		Data: database.GetLocalesMenuByName(locale),
-	}
-
+	lang := strings.TrimPrefix(r.URL.Path, "/client/menu/locale/")
+	menu := services.ApplyResponseBody(database.GetLocalesMenuByName(lang))
 	services.ZlibJSONReply(w, menu)
 }
 
-func ClientGameVersionValidate(w http.ResponseWriter, _ *http.Request) {
-	verValidate := struct {
-		Data   interface{}
-		Err    int
-		Errmsg interface{}
-	}{
-		Err: 0,
-	}
-
-	services.ZlibJSONReply(w, verValidate)
+func ClientVersionValidate(w http.ResponseWriter, _ *http.Request) {
+	services.ZlibJSONReply(w, services.ApplyResponseBody(nil))
 }
 
 func ClientLanguages(w http.ResponseWriter, r *http.Request) {
-	languages := struct {
-		Data   map[string]string
-		Err    int
-		Errmsg interface{}
-	}{
-		Data: database.GetLanguages(),
-	}
-
+	languages := services.ApplyResponseBody(database.GetLanguages())
 	services.ZlibJSONReply(w, languages)
 }
 
@@ -106,7 +91,7 @@ func ClientGameConfig(w http.ResponseWriter, r *http.Request) {
 		TwitchEventMember bool              `json:"twitchEventMember"`
 	}
 
-	config := &GameConfig{
+	gameConfig := services.ApplyResponseBody(&GameConfig{
 		Aid:             account.UID,
 		Lang:            account.Lang,
 		Languages:       database.GetLanguages(),
@@ -124,30 +109,202 @@ func ClientGameConfig(w http.ResponseWriter, r *http.Request) {
 		TotalInGame:       1,
 		ReportAvailable:   true,
 		TwitchEventMember: false,
-	}
-
-	gameConfig := struct {
-		Err    int
-		Errmsg interface{}
-		Data   *GameConfig
-	}{
-		Data: config,
-	}
+	})
 
 	fmt.Println("Don't forget to create multiple servers later on you dumbshit!!!!!!!!!!!!")
 	services.ZlibJSONReply(w, gameConfig)
 }
 
+const itemsRoute string = "/client/items"
+
 func ClientItems(w http.ResponseWriter, r *http.Request) {
-	type clientItems struct {
-		Err    int
-		Errmsg interface{}
-		Data   *map[string]*structs.DatabaseItem
+	ok := services.CheckIfResponseCanBeCached(itemsRoute)
+	if ok {
+
+		ok = services.CheckIfResponseIsCached(itemsRoute)
+		if ok {
+			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(itemsRoute))
+			services.ZlibJSONReply(w, body)
+		} else {
+			body := services.ApplyCRCResponseBody(database.GetItems(), services.GetCachedCRC(itemsRoute))
+			services.ZlibJSONReply(w, body)
+		}
 	}
 
-	items := &clientItems{
-		Data: database.GetItems(),
+	fmt.Println("You know you're going to have to go back and try creating structs in your database, you lazy twit!")
+}
+
+const customizationRoute string = "/client/customization"
+
+func ClientCustomization(w http.ResponseWriter, r *http.Request) {
+	ok := services.CheckIfResponseCanBeCached(customizationRoute)
+	if ok {
+
+		ok = services.CheckIfResponseIsCached(customizationRoute)
+		if ok {
+			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(customizationRoute))
+			services.ZlibJSONReply(w, body)
+		} else {
+			body := services.ApplyCRCResponseBody(database.GetCustomization(), services.GetCachedCRC(customizationRoute))
+			services.ZlibJSONReply(w, body)
+		}
+	}
+}
+
+const globalsRoute string = "/client/globals"
+
+func ClientGlobals(w http.ResponseWriter, r *http.Request) {
+	ok := services.CheckIfResponseCanBeCached(globalsRoute)
+	if ok {
+
+		ok = services.CheckIfResponseIsCached(globalsRoute)
+		if ok {
+			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(globalsRoute))
+			services.ZlibJSONReply(w, body)
+		} else {
+			body := services.ApplyCRCResponseBody(database.GetGlobals(), services.GetCachedCRC(globalsRoute))
+			services.ZlibJSONReply(w, body)
+		}
+	}
+}
+
+const traderSettingsRoute string = "/client/trading/api/traderSettings"
+
+func ClientTraderSettings(w http.ResponseWriter, r *http.Request) {
+	traders := database.GetTraders()
+	data := make([]map[string]interface{}, 0, len(traders))
+
+	for _, trader := range traders {
+		base, ok := trader["Base"].(map[string]interface{})
+		if ok {
+			data = append(data, base)
+		}
 	}
 
-	services.ZlibJSONReply(w, items)
+	traders = nil
+
+	body := services.ApplyResponseBody(&data)
+	services.ZlibJSONReply(w, body)
+}
+
+const clientSettingsRoute string = "/client/settings"
+
+func ClientSettings(w http.ResponseWriter, r *http.Request) {
+	ok := services.CheckIfResponseCanBeCached(clientSettingsRoute)
+	if ok {
+
+		ok = services.CheckIfResponseIsCached(clientSettingsRoute)
+		if ok {
+			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(clientSettingsRoute))
+			services.ZlibJSONReply(w, body)
+		} else {
+			body := services.ApplyCRCResponseBody(database.GetClientSettings(), services.GetCachedCRC(clientSettingsRoute))
+			services.ZlibJSONReply(w, body)
+		}
+	}
+}
+
+func ClientProfileList(w http.ResponseWriter, r *http.Request) {
+
+	sessionID := services.GetSessionID(r)
+	character := database.GetCharacterByUID(sessionID)
+
+	if character == nil {
+		profiles := services.ApplyResponseBody([]interface{}{})
+		services.ZlibJSONReply(w, profiles)
+		fmt.Println("Character doesn't exist, begin creation")
+	} else {
+
+		playerScav := database.GetPlayerScav()
+		playerScav.Info["RegistrationDate"] = tools.GetCurrentTimeInSeconds()
+
+		aid, err := strconv.Atoi(sessionID)
+		if err != nil {
+			panic(err)
+		}
+		playerScav.AID = aid
+		playerScav.ID = character.Savage
+
+		body := services.ApplyResponseBody([]*structs.PlayerTemplate{playerScav, character})
+		services.ZlibJSONReply(w, body)
+	}
+}
+
+func ClientAccountCustomization(w http.ResponseWriter, r *http.Request) {
+	customization := database.GetCustomization()
+	output := []interface{}{}
+	for _, c := range customization {
+		custom, ok := c.(map[string]interface{})
+		if ok {
+			props, ok := custom["_props"].(map[string]interface{})
+			if ok {
+				side, ok := props["Side"].([]interface{})
+				if ok {
+					if side != nil && len(side) > 0 {
+						output = append(output, custom)
+					}
+				}
+			}
+		}
+	}
+
+	custom := services.ApplyResponseBody(output)
+	services.ZlibJSONReply(w, custom)
+}
+
+const clientLocaleRoute string = "/client/locale/"
+
+func ClientLocale(w http.ResponseWriter, r *http.Request) {
+	lang := strings.TrimPrefix(r.URL.Path, clientLocaleRoute)
+
+	ok := services.CheckIfResponseCanBeCached(clientLocaleRoute)
+	if ok {
+
+		ok = services.CheckIfResponseIsCached(r.URL.Path)
+		if ok {
+			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(clientLocaleRoute))
+			services.ZlibJSONReply(w, body)
+		} else {
+			body := services.ApplyCRCResponseBody(database.GetLocalesLocaleByName(lang), services.GetCachedCRC(clientLocaleRoute))
+			services.ZlibJSONReply(w, body)
+		}
+	}
+}
+
+func KeepAlive(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		Msg     string `json:"msg"`
+		UtcTime string `json:"utc_time"`
+	}{
+		Msg:     "OK",
+		UtcTime: tools.GetCurrentTimeInSeconds(),
+	}
+
+	body := services.ApplyResponseBody(data)
+	services.ZlibJSONReply(w, body)
+}
+
+func NicknameReserved(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody("")
+	services.ZlibJSONReply(w, body)
+}
+
+func NicknameValidate(w http.ResponseWriter, r *http.Request) {
+	context := services.GetParsedBody(r).(map[string]interface{})
+
+	nickname, ok := context["nickname"]
+	if !ok {
+		fmt.Println("For whatever reason, the nickname does not exist.")
+	}
+
+	available := services.IsNicknameAvailable(nickname.(string))
+	if !available {
+		body := services.ApplyResponseBody("The nickname is already in use")
+		body.Err = 255
+
+		services.ZlibJSONReply(w, body)
+	} else {
+		body := services.ApplyResponseBody(map[string]string{"status": "ok"})
+		services.ZlibJSONReply(w, body)
+	}
 }

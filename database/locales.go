@@ -50,12 +50,12 @@ func GetLocalesMenuByName(name string) *structs.LocaleMenu {
 	return &Locales.EN.Menu
 }
 
-func GetLocalesLocaleByName(name string) *map[string]string {
+func GetLocalesLocaleByName(name string) map[string]string {
 	if locale, ok := localeMap[name]; ok {
-		return &locale.Locale
+		return locale.Locale
 	}
 	fmt.Println("No such locale ...locale, returning EN")
-	return &Locales.EN.Locale
+	return Locales.EN.Locale
 }
 
 func setLocales() {

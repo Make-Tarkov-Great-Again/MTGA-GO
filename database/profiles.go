@@ -11,7 +11,7 @@ import (
 
 const profilesPath string = "user/profiles/"
 
-var profiles = make(map[string]*structs.Profile)
+var profiles = map[string]*structs.Profile{}
 
 func GetProfiles() map[string]*structs.Profile {
 	return profiles
@@ -31,6 +31,16 @@ func GetAccountByUID(uid string) *structs.Account {
 		return profile.Account
 	}
 	fmt.Println("Profile with UID ", uid, " does not have an account, how the fuck did you get here????!?!?!?!?!?")
+	return nil
+}
+
+func GetCharacterByUID(uid string) *structs.PlayerTemplate {
+	if profile, ok := profiles[uid]; ok {
+		return profile.Character
+	}
+
+	fmt.Println("Profile with UID ", uid, " does not have a character")
+
 	return nil
 }
 

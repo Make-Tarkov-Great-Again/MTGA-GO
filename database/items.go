@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 )
 
-var items = make(map[string]*structs.DatabaseItem)
+var items map[string]*structs.DatabaseItem
 
-func GetItems() *map[string]*structs.DatabaseItem {
-	return &items
+func GetItems() map[string]*structs.DatabaseItem {
+	return items
 }
 
 func setItems() {

@@ -1,43 +1,53 @@
 package server
 
 import (
+	"MT-GO/database"
 	"MT-GO/services"
+	"bytes"
 	"crypto/tls"
 	"fmt"
+	"io"
 	"net/http"
 )
 
-var address, sessionID string
-var backendURL = "https://%s"
-var websocketURL = "wss://%s/socket/%s"
-
-func setHTTPSVariables(ip string, port string) {
-	address = ip + port
-	backendURL = fmt.Sprintf(backendURL, address)
-}
-
-func GetWebsocketURL() string {
-	//SESSIONID := GetSessionID()
-	return fmt.Sprintf(websocketURL, address, sessionID)
-}
-
-func GetSessionID() string {
-	return ""
-}
-
-func logRequestHandler(next http.Handler) http.Handler {
+func decompressAndParseJSONHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the incoming request URL
 		fmt.Println("Incoming [", r.Method, "] Request URL: [", r.URL.Path, "]")
+		services.DecompressInZLIBRFC1950(next, w, r)
+	})
+}
 
-		// Call the next handler in the chain
+func addContentTypeParser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		method := r.Method
+		if containsMethod(method) {
+			var body []byte
+			buffer := bytes.NewBuffer(body)
+			_, err := io.Copy(buffer, r.Body)
+			if err != nil {
+				http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+				return
+			}
+			r.Body = io.NopCloser(buffer)
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
 
-func SetHTTPSServer(ip string, port string, hostname string) {
-	setHTTPSVariables(ip, port)
+var methods = []string{"POST", "PUT", "PATCH", "DELETE"}
 
+func containsMethod(method string) bool {
+	for _, m := range methods {
+		if m == method {
+			return true
+		}
+	}
+	return false
+}
+
+func SetHTTPSServer(ip string, port string, hostname string) {
 	main := http.NewServeMux()
 
 	setRoutes(main)
@@ -48,15 +58,17 @@ func SetHTTPSServer(ip string, port string, hostname string) {
 		panic(err)
 	}
 
-	fmt.Println("Starting HTTPS server on " + address)
-	go startHTTPServer(address, main, certs)
+	go startHTTPServer(main, certs)
 }
 
-func startHTTPServer(address string, handler http.Handler, certs tls.Certificate) {
+func startHTTPServer(handler http.Handler, certs tls.Certificate) {
+	address := database.GetBackendAddress()
+	fmt.Println("Starting HTTPS server on " + address)
+
 	httpsServer := &http.Server{
 		Addr:      address,
 		TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}},
-		Handler:   logRequestHandler(handler),
+		Handler:   addContentTypeParser(decompressAndParseJSONHandler(handler)),
 	}
 
 	err := httpsServer.ListenAndServeTLS("", "")

@@ -1,16 +1,15 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
 	"path/filepath"
 	"strconv"
 )
 
-var traders = make(map[string]*structs.Trader)
+var traders = map[string]map[string]interface{}{}
 
-func GetTraders() map[string]*structs.Trader {
+func GetTraders() map[string]map[string]interface{} {
 	return traders
 }
 
@@ -22,62 +21,43 @@ func setTraders() {
 	}
 
 	for _, dir := range directory {
-		trader := structs.Trader{}
+		trader := map[string]interface{}{}
 
 		currentTraderPath := filepath.Join(traderPath, dir)
 
 		basePath := filepath.Join(currentTraderPath, "base.json")
 		if tools.FileExist(basePath) {
-			trader.Base = processBase(basePath)
+			trader["Base"] = processBase(basePath)
 		}
 
-		assortPath := filepath.Join(traderPath, "assort.json")
+		assortPath := filepath.Join(currentTraderPath, "assort.json")
 		if tools.FileExist(assortPath) {
-			trader.Assort = processAssort(assortPath)
-			trader.BaseAssort = trader.Assort
+			trader["Assort"] = processAssort(assortPath)
+			trader["BaseAssort"] = trader["Assort"]
 		}
 
 		questsPath := filepath.Join(currentTraderPath, "questassort.json")
 		if tools.FileExist(questsPath) {
-			raw := tools.GetJSONRawMessage(questsPath)
-			questAssort := structs.QuestAssort{}
-
-			err = json.Unmarshal(raw, &questAssort)
-			if err != nil {
-				panic(err)
-			}
-			trader.QuestAssort = questAssort
+			trader["QuestAssort"] = processQuestAssort(questsPath)
 		}
 
 		suitsPath := filepath.Join(currentTraderPath, "suits.json")
 		if tools.FileExist(suitsPath) {
-			suits := []structs.Suit{}
-
-			raw := tools.GetJSONRawMessage(suitsPath)
-			err = json.Unmarshal(raw, &suits)
-			if err != nil {
-				panic(err)
-			}
-			trader.Suits = suits
+			trader["Suits"] = processSuits(suitsPath)
 		}
 
 		dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
 		if tools.FileExist(dialoguesPath) {
-			dialogue := structs.TraderDialogue{}
-
-			raw := tools.GetJSONRawMessage(dialoguesPath)
-			err = json.Unmarshal(raw, &dialogue)
-			if err != nil {
-				panic(err)
-			}
-			trader.Dialogue = dialogue
+			trader["Dialogue"] = processDialogues(dialoguesPath)
 		}
-		traders[dir] = &trader
+
+		//traders[dir] = map[string]interface{}{}
+		traders[dir] = trader
 	}
 }
 
-func processBase(basePath string) structs.Base {
-	base := structs.Base{}
+func processBase(basePath string) map[string]interface{} {
+	base := map[string]interface{}{}
 
 	var dynamic map[string]interface{} //here we fucking go
 
@@ -127,7 +107,18 @@ func processBase(basePath string) structs.Base {
 	return base
 }
 
-func processAssort(assortPath string) structs.Assort {
+type Assort struct {
+	BarterScheme    map[string][][]*Scheme
+	Items           []map[string]interface{}
+	LoyalLevelItems map[string]int
+}
+
+type Scheme struct {
+	Tpl   string `json:"_tpl"`
+	Count int    `json:"count"`
+}
+
+func processAssort(assortPath string) *Assort {
 	var dynamic map[string]interface{}
 	raw := tools.GetJSONRawMessage(assortPath)
 
@@ -136,38 +127,170 @@ func processAssort(assortPath string) structs.Assort {
 		panic(err)
 	}
 
+	assort := &Assort{}
+
 	items, ok := dynamic["items"].([]interface{})
-	if !ok {
-		panic("not okay!!!!!!!!!!!!!!!!!!!!")
-	}
+	if ok {
+		assort.Items = make([]map[string]interface{}, 0, len(items))
 
-	for _, item := range items {
-		i := item.(map[string]interface{})
-		upd, ok := i["upd"].(map[string]interface{})
-		if !ok {
-			continue
+		for _, item := range items {
+			i := item.(map[string]interface{})
+			upd, ok := i["upd"].(map[string]interface{})
+			if !ok {
+				assort.Items = append(assort.Items, i)
+				continue
+			}
+
+			fireMode, ok := upd["FireMode"].(map[string]interface{})
+			if ok {
+				fireModeValue, ok := fireMode["FireMode"].(string)
+
+				if ok {
+					upd["FireMode"] = map[string]string{
+						"FireMode": fireModeValue,
+					}
+				}
+			}
+
+			foldable, ok := upd["Foldable"].(map[string]interface{})
+			if ok {
+				folded, ok := foldable["Folded"].(bool)
+				if ok {
+					upd["Foldable"] = map[string]bool{
+						"Folded": folded,
+					}
+				}
+			}
+
+			stackCount, ok := upd["StackObjectsCount"].(interface{})
+			if ok {
+				stackCountValue, ok := stackCount.(float64)
+				if ok {
+					upd["StackObjectsCount"] = int(stackCountValue)
+				}
+			}
+
+			buyCurrent, ok := upd["BuyRestrictionCurrent"].(float64)
+			if ok {
+				upd["BuyRestrictionCurrent"] = int(buyCurrent)
+			}
+
+			buyRestrictionMax, ok := upd["BuyRestrictionMax"].(float64)
+			if ok {
+				upd["BuyRestrictionMax"] = int(buyRestrictionMax)
+			}
+			assort.Items = append(assort.Items, i)
 		}
+	} else {
+		panic("Items not found")
+	}
 
-		buyRestrictionMax, ok := upd["BuyRestrictionMax"].(string)
-		if !ok {
-			continue
+	barterSchemes, ok := dynamic["barter_scheme"].(map[string]interface{})
+	if ok {
+		assort.BarterScheme = make(map[string][][]*Scheme)
+
+		for id, scheme := range barterSchemes {
+			scheme, ok := scheme.([]interface{})
+			if ok {
+				trueScheme := make([][]*Scheme, 0, len(scheme))
+				for _, value := range scheme {
+					value := value.([]interface{})
+					template := make([]*Scheme, 0, len(value))
+
+					for _, v := range value {
+						if v, ok := v.(map[string]interface{}); ok {
+							input := &Scheme{
+								Tpl:   v["_tpl"].(string),
+								Count: int(v["count"].(float64)),
+							}
+							template = append(template, input)
+						}
+					}
+					trueScheme = append(trueScheme, template)
+				}
+				assort.BarterScheme[id] = trueScheme
+			}
 		}
-		upd["BuyRestrictionMax"], err = strconv.Atoi(buyRestrictionMax)
-		if err != nil {
-			panic(err)
+	} else {
+		panic("Barter scheme not found")
+	}
+
+	loyalLevelItems, ok := dynamic["loyal_level_items"].(map[string]interface{})
+	if ok {
+		assort.LoyalLevelItems = map[string]int{}
+		for id, item := range loyalLevelItems {
+			assort.LoyalLevelItems[id] = int(item.(float64))
 		}
-
 	}
 
-	sanitized, err := json.Marshal(dynamic)
-	if err != nil {
-		panic(err)
-	}
-
-	assort := structs.Assort{}
-	err = json.Unmarshal(sanitized, &assort)
-	if err != nil {
-		panic(err)
-	}
 	return assort
+}
+
+func processQuestAssort(questsPath string) map[string][]string {
+	var dynamic map[string]interface{}
+	raw := tools.GetJSONRawMessage(questsPath)
+
+	err := json.Unmarshal(raw, &dynamic)
+	if err != nil {
+		panic(err)
+	}
+	raw = nil
+
+	quests := map[string][]string{}
+	for k, v := range dynamic {
+		v := v.(map[string]interface{})
+
+		length := len(v)
+		quests[k] = make([]string, 0, len(v))
+		if length == 0 {
+			continue
+		}
+
+		for _, quest := range v {
+			quests[k] = append(quests[k], quest.(string))
+		}
+	}
+
+	return quests
+}
+
+func processDialogues(dialoguesPath string) map[string][]string {
+	var dynamic map[string]interface{}
+	raw := tools.GetJSONRawMessage(dialoguesPath)
+
+	err := json.Unmarshal(raw, &dynamic)
+	if err != nil {
+		panic(err)
+	}
+	raw = nil
+
+	dialogues := map[string][]string{}
+	for k, v := range dynamic {
+		v := v.([]interface{})
+
+		length := len(v)
+		dialogues[k] = make([]string, 0, len(v))
+		if length == 0 {
+			continue
+		}
+
+		for _, dialogue := range v {
+			dialogues[k] = append(dialogues[k], dialogue.(string))
+		}
+	}
+
+	return dialogues
+}
+
+func processSuits(dialoguesPath string) []map[string]interface{} {
+	var dynamic []map[string]interface{}
+	raw := tools.GetJSONRawMessage(dialoguesPath)
+
+	err := json.Unmarshal(raw, &dynamic)
+	if err != nil {
+		panic(err)
+	}
+	raw = nil
+
+	return dynamic
 }

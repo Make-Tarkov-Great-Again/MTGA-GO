@@ -1,46 +1,64 @@
 package structs
 
+type Core struct {
+	PlayerTemplate    *PlayerTemplate
+	PlayerScav        *PlayerTemplate
+	ClientSettings    *ClientSettings
+	ServerConfig      *ServerConfig
+	Globals           *Globals
+	GlobalBotSettings *map[string]interface{}
+	//gameplay        map[string]interface{}
+	//blacklist       []interface{}
+	MatchMetrics *MatchMetrics
+}
+
 type ClientSettings struct {
-	MemoryManagementSettings struct {
-		HeapPreAllocationEnabled               bool `json:"HeapPreAllocationEnabled"`
-		HeapPreAllocationMB                    int  `json:"HeapPreAllocationMB"`
-		OverrideRamCleanerSettings             bool `json:"OverrideRamCleanerSettings"`
-		RamCleanerEnabled                      bool `json:"RamCleanerEnabled"`
-		GigabytesRequiredToDisableGCDuringRaid int  `json:"GigabytesRequiredToDisableGCDuringRaid"`
-		AggressiveGC                           bool `json:"AggressiveGC"`
-	} `json:"MemoryManagementSettings"`
-	ReleaseProfiler struct {
-		Enabled            bool `json:"Enabled"`
-		RecordTriggerValue int  `json:"RecordTriggerValue"`
-		MaxRecords         int  `json:"MaxRecords"`
-	} `json:"ReleaseProfiler"`
-	FramerateLimit struct {
-		MinFramerateLimit      int `json:"MinFramerateLimit"`
-		MaxFramerateLobbyLimit int `json:"MaxFramerateLobbyLimit"`
-		MaxFramerateGameLimit  int `json:"MaxFramerateGameLimit"`
-	} `json:"FramerateLimit"`
-	ClientSendRateLimit            int       `json:"ClientSendRateLimit"`
-	TurnOffLogging                 bool      `json:"TurnOffLogging"`
-	NVidiaHighlights               bool      `json:"NVidiaHighlights"`
-	WebDiagnosticsEnabled          bool      `json:"WebDiagnosticsEnabled"`
-	KeepAliveInterval              int       `json:"KeepAliveInterval"`
-	GroupStatusInterval            int       `json:"GroupStatusInterval"`
-	GroupStatusButtonInterval      int       `json:"GroupStatusButtonInterval"`
-	PingServersInterval            int       `json:"PingServersInterval"`
-	PingServerResultSendInterval   int       `json:"PingServerResultSendInterval"`
-	WeaponOverlapDistanceCulling   int       `json:"WeaponOverlapDistanceCulling"`
-	FirstCycleDelaySeconds         int       `json:"FirstCycleDelaySeconds"`
-	SecondCycleDelaySeconds        int       `json:"SecondCycleDelaySeconds"`
-	NextCycleDelaySeconds          int       `json:"NextCycleDelaySeconds"`
-	AdditionalRandomDelaySeconds   int       `json:"AdditionalRandomDelaySeconds"`
-	Mark502and504AsNonImportant    bool      `json:"Mark502and504AsNonImportant"`
-	DefaultRetriesCount            int       `json:"DefaultRetriesCount"`
-	CriticalRetriesCount           int       `json:"CriticalRetriesCount"`
-	AFKTimeoutSeconds              int       `json:"AFKTimeoutSeconds"`
-	RequestsMadeThroughLobby       []string  `json:"RequestsMadeThroughLobby"`
-	LobbyKeepAliveInterval         int       `json:"LobbyKeepAliveInterval"`
-	RequestConfirmationTimeouts    []float32 `json:"RequestConfirmationTimeouts"`
-	ShouldEstablishLobbyConnection bool      `json:"ShouldEstablishLobbyConnection"`
+	Config struct {
+		MemoryManagementSettings       MemoryManagementSettings `json:"MemoryManagementSettings"`
+		ReleaseProfiler                ReleaseProfiler          `json:"ReleaseProfiler"`
+		FramerateLimit                 FramerateLimit           `json:"FramerateLimit"`
+		ClientSendRateLimit            int                      `json:"ClientSendRateLimit"`
+		TurnOffLogging                 bool                     `json:"TurnOffLogging"`
+		NVidiaHighlights               bool                     `json:"NVidiaHighlights"`
+		WebDiagnosticsEnabled          bool                     `json:"WebDiagnosticsEnabled"`
+		KeepAliveInterval              int                      `json:"KeepAliveInterval"`
+		GroupStatusInterval            int                      `json:"GroupStatusInterval"`
+		GroupStatusButtonInterval      int                      `json:"GroupStatusButtonInterval"`
+		PingServersInterval            int                      `json:"PingServersInterval"`
+		PingServerResultSendInterval   int                      `json:"PingServerResultSendInterval"`
+		WeaponOverlapDistanceCulling   int                      `json:"WeaponOverlapDistanceCulling"`
+		FirstCycleDelaySeconds         int                      `json:"FirstCycleDelaySeconds"`
+		SecondCycleDelaySeconds        int                      `json:"SecondCycleDelaySeconds"`
+		NextCycleDelaySeconds          int                      `json:"NextCycleDelaySeconds"`
+		AdditionalRandomDelaySeconds   int                      `json:"AdditionalRandomDelaySeconds"`
+		Mark502And504AsNonImportant    bool                     `json:"Mark502and504AsNonImportant"`
+		DefaultRetriesCount            int                      `json:"DefaultRetriesCount"`
+		CriticalRetriesCount           int                      `json:"CriticalRetriesCount"`
+		AFKTimeoutSeconds              int                      `json:"AFKTimeoutSeconds"`
+		RequestsMadeThroughLobby       []string                 `json:"RequestsMadeThroughLobby"`
+		LobbyKeepAliveInterval         int                      `json:"LobbyKeepAliveInterval"`
+		RequestConfirmationTimeouts    []float64                `json:"RequestConfirmationTimeouts"`
+		ShouldEstablishLobbyConnection bool                     `json:"ShouldEstablishLobbyConnection"`
+	} `json:"config"`
+}
+
+type MemoryManagementSettings struct {
+	HeapPreAllocationEnabled               bool `json:"HeapPreAllocationEnabled"`
+	HeapPreAllocationMB                    int  `json:"HeapPreAllocationMB"`
+	OverrideRAMCleanerSettings             bool `json:"OverrideRamCleanerSettings"`
+	RAMCleanerEnabled                      bool `json:"RamCleanerEnabled"`
+	GigabytesRequiredToDisableGCDuringRaid int  `json:"GigabytesRequiredToDisableGCDuringRaid"`
+	AggressiveGC                           bool `json:"AggressiveGC"`
+}
+type ReleaseProfiler struct {
+	Enabled            bool `json:"Enabled"`
+	RecordTriggerValue int  `json:"RecordTriggerValue"`
+	MaxRecords         int  `json:"MaxRecords"`
+}
+type FramerateLimit struct {
+	MinFramerateLimit      int `json:"MinFramerateLimit"`
+	MaxFramerateLobbyLimit int `json:"MaxFramerateLobbyLimit"`
+	MaxFramerateGameLimit  int `json:"MaxFramerateGameLimit"`
 }
 
 type ServerConfig struct {

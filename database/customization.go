@@ -1,14 +1,13 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
 )
 
-var customization = make(map[string]*structs.Customization)
+var customization map[string]interface{}
 
-func GetCustomization() map[string]*structs.Customization {
+func GetCustomization() map[string]interface{} {
 	return customization
 }
 

@@ -164,8 +164,6 @@ func login() {
 		fmt.Println("Logging in...")
 		fmt.Println()
 
-		//os.Setenv("SESSIONID", account.UID)
-
 		loggedIn(profiles[account.UID].Account)
 		break
 	}
@@ -175,6 +173,8 @@ func login() {
 func loggedIn(account *structs.Account) {
 
 	fmt.Println("Alright nigga, we're logged in, what now?")
+	os.Setenv("SESSIONID", account.UID)
+
 	fmt.Println()
 
 	fmt.Println("1. Launch Tarkov")
