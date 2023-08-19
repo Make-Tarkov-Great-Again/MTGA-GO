@@ -8,8 +8,10 @@ import (
 
 // SetRoutes sets all existing routes
 func setRoutes(main *http.ServeMux /* , main *http.ServeMux */) {
-
 	setMainRoutes(main)
+	//setTradingRoutes(trading)
+	//setRagfairRoutes(ragfair)
+	//setMessagingRoutes(messaging)
 }
 
 func setMainRoutes(mux *http.ServeMux) {
@@ -52,4 +54,56 @@ func setMainRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/client/game/profile/nickname/validate", handlers.NicknameValidate)
 
 	mux.HandleFunc("/client/game/profile/create", handlers.ProfileCreate)
+}
+
+func setTradingRoutes(mux *http.ServeMux) {
+	// "/client/trading/customization/storage"
+	// "/client/trading/api/getTraderAssort/" + traderId
+	// "/client/trading/customization/" + traderId + "/offers"
+	// "/client/trading/api/traderSettings"
+}
+
+func setRagfairRoutes(mux *http.ServeMux) {
+	// "/client/ragfair/offer/findbyid"
+	// "/client/ragfair/itemMarketPrice"
+	// "/client/ragfair/find"
+}
+
+func setMessagingRoutes(mux *http.ServeMux) {
+	// "/client/friend/list"
+
+	// "/client/friend/request/list/inbox"
+	// "/client/friend/request/list/outbox"
+
+	// "/client/friend/delete"
+
+	// "/client/friend/request/accept-all"
+	// "/client/friend/request/decline"
+	// "/client/friend/request/accept"
+	// "/client/friend/request/cancel"
+	// "/client/friend/request/send"
+	// "/client/friend/request/decline"
+
+	// "/client/friend/ignore/remove"
+
+	// "/client/mail/dialog/getAllAttachments"
+	// "/client/mail/dialog/clear"
+	// "/client/mail/dialog/remove"
+	// "/client/mail/dialog/list"
+	// "/client/mail/dialog/view"
+	// "/client/mail/dialog/pin"
+	// "/client/mail/dialog/unpin"
+	// "/client/mail/dialog/info"
+	// "/client/mail/dialog/read"
+
+	// "/client/mail/dialog/group/create"
+	// "/client/mail/dialog/group/leave"
+
+	// "/client/mail/dialog/group/owner/change"
+
+	// "/client/mail/dialog/group/users/add"
+	// "/client/mail/dialog/group/users/remove"
+
+	// "/client/mail/msg/send"
+
 }

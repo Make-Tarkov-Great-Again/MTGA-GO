@@ -5,15 +5,23 @@ import (
 	"encoding/json"
 )
 
-var customization map[string]interface{}
+var customizations map[string]interface{}
 
-func GetCustomization() map[string]interface{} {
-	return customization
+func GetCustomizations() map[string]interface{} {
+	return customizations
+}
+
+func GetCustomization(id string) map[string]interface{} {
+	customization, ok := customizations[id]
+	if !ok {
+		return nil
+	}
+	return customization.(map[string]interface{})
 }
 
 func setCustomization() {
 	raw := tools.GetJSONRawMessage(customizationPath)
-	err := json.Unmarshal(raw, &customization)
+	err := json.Unmarshal(raw, &customizations)
 	if err != nil {
 		panic(err)
 	}

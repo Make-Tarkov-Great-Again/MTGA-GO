@@ -7,7 +7,7 @@ type Database struct {
 	Locales   *Locale
 	Languages map[string]interface{}
 	Handbook  *Handbook
-	Traders   map[string]interface{}
+	Traders   map[string]*Trader
 	Flea      *Flea
 	Quests    map[string]interface{}
 	Hideout   *Hideout
@@ -22,8 +22,8 @@ type Database struct {
 }
 
 type Edition struct {
-	Bear    map[string]interface{} `json:"bear"`
-	Usec    map[string]interface{} `json:"usec"`
+	Bear    *PlayerTemplate `json:"bear"`
+	Usec    *PlayerTemplate `json:"usec"`
 	Storage struct {
 		Bear []string `json:"bear"`
 		Usec []string `json:"usec"`

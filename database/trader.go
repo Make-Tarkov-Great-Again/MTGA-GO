@@ -1,15 +1,16 @@
 package database
 
 import (
+	"MT-GO/structs"
 	"MT-GO/tools"
 	"encoding/json"
 	"path/filepath"
 	"strconv"
 )
 
-var traders = map[string]map[string]interface{}{}
+var traders = map[string]*structs.Trader{}
 
-func GetTraders() map[string]map[string]interface{} {
+func GetTraders() map[string]*structs.Trader {
 	return traders
 }
 
@@ -21,34 +22,34 @@ func setTraders() {
 	}
 
 	for _, dir := range directory {
-		trader := map[string]interface{}{}
+		trader := &structs.Trader{}
 
 		currentTraderPath := filepath.Join(traderPath, dir)
 
 		basePath := filepath.Join(currentTraderPath, "base.json")
 		if tools.FileExist(basePath) {
-			trader["Base"] = processBase(basePath)
+			trader.Base = processBase(basePath)
 		}
 
 		assortPath := filepath.Join(currentTraderPath, "assort.json")
 		if tools.FileExist(assortPath) {
-			trader["Assort"] = processAssort(assortPath)
-			trader["BaseAssort"] = trader["Assort"]
+			trader.Assort = processAssort(assortPath)
+			trader.BaseAssort = trader.Assort
 		}
 
 		questsPath := filepath.Join(currentTraderPath, "questassort.json")
 		if tools.FileExist(questsPath) {
-			trader["QuestAssort"] = processQuestAssort(questsPath)
+			trader.QuestAssort = processQuestAssort(questsPath)
 		}
 
 		suitsPath := filepath.Join(currentTraderPath, "suits.json")
 		if tools.FileExist(suitsPath) {
-			trader["Suits"] = processSuits(suitsPath)
+			trader.Suits = processSuits(suitsPath)
 		}
 
 		dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
 		if tools.FileExist(dialoguesPath) {
-			trader["Dialogue"] = processDialogues(dialoguesPath)
+			trader.Dialogue = processDialogues(dialoguesPath)
 		}
 
 		//traders[dir] = map[string]interface{}{}
@@ -107,37 +108,7 @@ func processBase(basePath string) map[string]interface{} {
 	return base
 }
 
-type Assort struct {
-	BarterScheme    map[string][][]*Scheme
-	Items           []*AssortItem
-	LoyalLevelItems map[string]int
-}
-
-type AssortItem struct {
-	ID       string `json:"_id"`
-	Tpl      string `json:"_tpl"`
-	ParentID string `json:"parentId"`
-	SlotID   string `json:"slotId"`
-	Upd      struct {
-		BuyRestrictionCurrent interface{} `json:"BuyRestrictionCurrent,omitempty"`
-		BuyRestrictionMax     interface{} `json:"BuyRestrictionMax,omitempty"`
-		StackObjectsCount     int         `json:"StackObjectsCount,omitempty"`
-		UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
-		FireMode              struct {
-			FireMode string `json:"FireMode"`
-		} `json:"FireMode,omitempty"`
-		Foldable struct {
-			Folded bool `json:"Folded,omitempty"`
-		} `json:"Foldable,omitempty"`
-	} `json:"upd,omitempty"`
-}
-
-type Scheme struct {
-	Tpl   string  `json:"_tpl"`
-	Count float32 `json:"count"`
-}
-
-func processAssort(assortPath string) *Assort {
+func processAssort(assortPath string) *structs.Assort {
 	var dynamic map[string]interface{}
 	raw := tools.GetJSONRawMessage(assortPath)
 
@@ -146,11 +117,11 @@ func processAssort(assortPath string) *Assort {
 		panic(err)
 	}
 
-	assort := &Assort{}
+	assort := &structs.Assort{}
 
 	items, ok := dynamic["items"].([]interface{})
 	if ok {
-		assort.Items = make([]*AssortItem, 0, len(items))
+		assort.Items = make([]*structs.AssortItem, 0, len(items))
 		data, err := json.Marshal(items)
 		if err != nil {
 			panic(err)
@@ -166,7 +137,7 @@ func processAssort(assortPath string) *Assort {
 
 	barterSchemes, ok := dynamic["barter_scheme"].(map[string]interface{})
 	if ok {
-		assort.BarterScheme = make(map[string][][]*Scheme)
+		assort.BarterScheme = make(map[string][][]*structs.Scheme)
 		data, err := json.Marshal(barterSchemes)
 		if err != nil {
 			panic(err)

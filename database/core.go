@@ -89,7 +89,7 @@ func setGlobalBotSettings() *map[string]interface{} {
 func setPlayerScav() *structs.PlayerTemplate {
 	raw := tools.GetJSONRawMessage(playerScavPath)
 
-	playerScav := structs.PlayerTemplate{}
+	var playerScav structs.PlayerTemplate
 	err := json.Unmarshal(raw, &playerScav)
 	if err != nil {
 		panic(err)

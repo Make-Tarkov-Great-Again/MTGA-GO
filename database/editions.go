@@ -14,6 +14,14 @@ func GetEditions() map[string]*structs.Edition {
 	return editions
 }
 
+func GetEdition(version string) *structs.Edition {
+	edition, ok := editions[version]
+	if !ok {
+		return nil
+	}
+	return edition
+}
+
 func setEditions() {
 	directories, err := tools.GetDirectoriesFrom(editionsDirPath)
 	if err != nil {
@@ -21,33 +29,40 @@ func setEditions() {
 	}
 
 	for _, directory := range directories {
-		edition := structs.Edition{}
 
 		editionPath := filepath.Join(editionsDirPath, directory)
 		files, err := tools.GetFilesFrom(editionPath)
 		if err != nil {
 			panic(err)
 		}
+		edition := &structs.Edition{}
 
-		dynamic := make(map[string]interface{})
 		for _, file := range files {
+
 			raw := tools.GetJSONRawMessage(filepath.Join(editionPath, file))
 			removeJSON := strings.TrimSuffix(file, ".json")
-			name := strings.TrimPrefix(removeJSON, "character_")
+			if strings.Contains(removeJSON, "character_") {
+				template := &structs.PlayerTemplate{}
+				err := json.Unmarshal(raw, template)
+				if err != nil {
+					panic(err)
+				}
 
-			dynamic[name] = raw
+				name := strings.TrimPrefix(removeJSON, "character_")
+				if name == "bear" {
+					edition.Bear = template
+				} else {
+					edition.Usec = template
+				}
+				continue
+			}
+
+			storage := &structs.Storage{}
+			err := json.Unmarshal(raw, storage)
+			if err != nil {
+				panic(err)
+			}
 		}
-
-		jsonData, err := json.Marshal(dynamic)
-		if err != nil {
-			panic(err)
-		}
-
-		err = json.Unmarshal(jsonData, &edition)
-		if err != nil {
-			panic(err)
-		}
-
-		editions[directory] = &edition
+		editions[directory] = edition
 	}
 }

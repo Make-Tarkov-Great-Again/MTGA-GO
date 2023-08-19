@@ -4,9 +4,9 @@ package main
 import (
 	"MT-GO/database"
 	"MT-GO/server"
+	"MT-GO/services"
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -83,41 +83,24 @@ func registerAccount() {
 		panic(err)
 	}
 	account.UID = UID
+	account.AID = len(profiles)
 
 	profiles[UID] = &structs.Profile{}
 	profiles[UID].Account = &account
+	profiles[UID].Character = &structs.PlayerTemplate{}
+	profiles[UID].Storage = &structs.Storage{}
+	profiles[UID].Dialogue = map[string]interface{}{}
+
 	//save account
-	saveAccount(&account)
+	fmt.Println()
+	services.SaveProfile(profiles[UID])
+	fmt.Println()
+
 	//login
 	fmt.Println("Account created, logging in...")
+	fmt.Println()
+
 	loggedIn(&account)
-}
-
-const profilesPath string = "user/profiles/"
-
-func saveAccount(account *structs.Account) {
-	exist := tools.FileExist(profilesPath)
-	if !exist {
-		os.Mkdir(profilesPath, 0755)
-	}
-
-	profileDirPath := filepath.Join(profilesPath, account.UID)
-	exist = tools.FileExist(profileDirPath)
-	if !exist {
-		os.Mkdir(profileDirPath, 0755)
-	}
-
-	accountFilePath := filepath.Join(profileDirPath, "account.json")
-	data, err := json.Marshal(account)
-	if err != nil {
-		panic(err)
-	}
-
-	err = tools.WriteToFile(accountFilePath, string(data))
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Account saved")
 }
 
 func validateUsername(profiles map[string]*structs.Profile, username string) bool {
@@ -215,7 +198,7 @@ func launchTarkov(account *structs.Account) {
 				account.TarkovPath = exePath
 				fmt.Println("Path has been set")
 
-				saveAccount(account)
+				services.SaveAccount(*account)
 				break
 			}
 

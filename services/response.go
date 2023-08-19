@@ -1,15 +1,9 @@
 package services
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
-
-	"github.com/klauspost/compress/zlib"
 )
 
 type ResponseBody struct {
@@ -42,51 +36,6 @@ func ApplyResponseBody(data interface{}) *ResponseBody {
 	body := &ResponseBody{}
 	body.Data = data
 	return body
-}
-
-func ZlibReply(w http.ResponseWriter, data interface{}) {
-	bytes := convertDataToByte(w, data)
-	zlibDeflate(w, bytes)
-}
-
-func ZlibJSONReply(w http.ResponseWriter, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	bytes := convertDataToByte(w, data)
-	zlibDeflate(w, bytes)
-}
-
-func convertDataToByte(w http.ResponseWriter, data interface{}) []byte {
-	bytes, err := json.Marshal(data)
-	if err != nil {
-		http.Error(w, "Failed to marshal data", http.StatusInternalServerError)
-		panic(err)
-	}
-	return bytes
-}
-func zlibDeflate(w http.ResponseWriter, data []byte) {
-	var buffer bytes.Buffer
-	writer := zlib.NewWriter(&buffer)
-	_, err := writer.Write(data)
-	if err != nil {
-		writer.Close()
-		http.Error(w, "Failed to write compressed data", http.StatusInternalServerError)
-		panic(err)
-	}
-
-	err = writer.Flush()
-	if err != nil {
-		writer.Close()
-		http.Error(w, "Failed to flush remaining buffer", http.StatusInternalServerError)
-		panic(err)
-	}
-
-	writer.Close()
-
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(buffer.Bytes())
-	if err != nil {
-		panic(err)
-	}
 }
 
 var cachedCRC = map[string]*uint32{}
@@ -130,50 +79,6 @@ func GetCachedCRC(key string) *uint32 {
 type contextKey string
 
 const ParsedBodyKey contextKey = "ParsedBody"
-
-func DecompressInZLIBRFC1950(next http.Handler, w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Content-Type") != "application/json" {
-		next.ServeHTTP(w, r)
-		return
-	}
-
-	// Check if the request header includes "Unity"
-	if strings.Contains(r.Header.Get("User-Agent"), "Unity") {
-		// Inflate r.Body with zlib
-		reader, err := zlib.NewReader(r.Body)
-		if err != nil {
-			panic(err)
-		}
-		defer reader.Close()
-
-		// Read the decompressed data
-		var buffer bytes.Buffer
-		_, err = io.Copy(&buffer, reader)
-		if err != nil {
-			panic(err)
-		}
-
-		// Check if r.Body has any data
-		if buffer.Len() == 0 {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		// Parse the JSON data
-		var parsedData interface{}
-		err = json.Unmarshal(buffer.Bytes(), &parsedData)
-		if err != nil {
-			panic(err)
-		}
-
-		/// Store the parsed data in the request's context
-		ctx := context.WithValue(r.Context(), ParsedBodyKey, parsedData)
-		r = r.WithContext(ctx)
-	}
-
-	// Continue with the next handler using the original request
-	next.ServeHTTP(w, r)
-}
 
 func GetParsedBody(r *http.Request) interface{} {
 	return r.Context().Value(ParsedBodyKey)

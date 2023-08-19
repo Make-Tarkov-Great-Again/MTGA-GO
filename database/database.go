@@ -1,8 +1,15 @@
 // Package database contains all the database related code
 package database
 
+import (
+	"MT-GO/tools"
+	"os"
+	"path/filepath"
+)
+
 // InitializeDatabase initializes the database
 func InitializeDatabase() {
+	setRequiredFolders()
 	setCore()
 	setItems()
 	setLocales()
@@ -43,3 +50,16 @@ const (
 	botsPath              string = databaseLibPath + "/bot/"
 	botsDirectory         string = botsPath + "bots/"
 )
+
+func setRequiredFolders() {
+	var users string = "user"
+
+	if !tools.FileExist(users) {
+		os.Mkdir(users, 0755)
+	}
+
+	profilesPath := filepath.Join(users, "profiles")
+	if !tools.FileExist(profilesPath) {
+		os.Mkdir(profilesPath, 0755)
+	}
+}

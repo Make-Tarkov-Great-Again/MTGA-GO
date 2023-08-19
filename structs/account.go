@@ -4,6 +4,7 @@ package structs
 type Usernames map[string]string
 
 type Account struct {
+	AID                 int           `json:"aid"`
 	UID                 string        `json:"uid"`
 	Username            string        `json:"username"`
 	Password            string        `json:"password"`

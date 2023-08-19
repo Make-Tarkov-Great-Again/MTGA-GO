@@ -4,47 +4,45 @@ import (
 	"MT-GO/database"
 	"MT-GO/services"
 	"bytes"
+	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
+	"sync"
 )
 
-func decompressAndParseJSONHandler(next http.Handler) http.Handler {
+var buffer *bytes.Buffer
+
+func logAndDecompress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the incoming request URL
 		fmt.Println("Incoming [", r.Method, "] Request URL: [", r.URL.Path, "]")
-		services.DecompressInZLIBRFC1950(next, w, r)
-	})
-}
 
-func addContentTypeParser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		method := r.Method
-		if containsMethod(method) {
-			var body []byte
-			buffer := bytes.NewBuffer(body)
-			_, err := io.Copy(buffer, r.Body)
-			if err != nil {
-				http.Error(w, "Failed to read request body", http.StatusInternalServerError)
-				return
-			}
-			r.Body = io.NopCloser(buffer)
+		if r.Header.Get("Content-Type") != "application/json" {
+			next.ServeHTTP(w, r)
+			return
 		}
+
+		buffer = services.ZlibInflate(r)
+		if buffer == nil || buffer.Len() == 0 {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		var parsedData map[string]interface{}
+		err := json.Unmarshal(buffer.Bytes(), &parsedData)
+		if err != nil {
+			panic(err)
+		}
+		buffer.Reset()
+
+		/// Store the parsed data in the request's context
+		ctx := context.WithValue(r.Context(), services.ParsedBodyKey, parsedData)
+		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
 	})
-}
-
-var methods = []string{"POST", "PUT", "PATCH", "DELETE"}
-
-func containsMethod(method string) bool {
-	for _, m := range methods {
-		if m == method {
-			return true
-		}
-	}
-	return false
 }
 
 func SetHTTPSServer(ip string, port string, hostname string) {
@@ -58,19 +56,23 @@ func SetHTTPSServer(ip string, port string, hostname string) {
 		panic(err)
 	}
 
-	go startHTTPServer(main, certs)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go startHTTPServer(&wg, main, certs)
+	wg.Wait()
 }
 
-func startHTTPServer(handler http.Handler, certs tls.Certificate) {
+func startHTTPServer(wg *sync.WaitGroup, handler http.Handler, certs tls.Certificate) {
+
 	address := database.GetIPandPort()
-	fmt.Println("Starting HTTPS server on " + address)
 
 	httpsServer := &http.Server{
 		Addr:      address,
 		TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}},
-		Handler:   addContentTypeParser(decompressAndParseJSONHandler(handler)),
+		Handler:   logAndDecompress(handler),
 	}
-
+	fmt.Println("Started HTTPS server on " + address)
+	wg.Done()
 	err := httpsServer.ListenAndServeTLS("", "")
 	if err != nil {
 		panic(err)

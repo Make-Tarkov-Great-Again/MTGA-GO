@@ -5,9 +5,9 @@ import (
 	"MT-GO/services"
 	"MT-GO/structs"
 	"MT-GO/tools"
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -84,7 +84,6 @@ func ClientGameConfig(w http.ResponseWriter, r *http.Request) {
 		lang = "en"
 	}
 
-	timeAsFloat, _ := strconv.ParseFloat(tools.GetCurrentTimeInSeconds(), 64)
 	mainAddress := database.GetMainAddress()
 
 	gameConfig := services.ApplyResponseBody(&GameConfig{
@@ -102,7 +101,7 @@ func ClientGameConfig(w http.ResponseWriter, r *http.Request) {
 			RagFair:   mainAddress, //database.GetRagFairAddress(),
 		},
 		UseProtobuf:       false,
-		UtcTime:           timeAsFloat,
+		UtcTime:           float64(tools.GetCurrentTimeInSeconds()),
 		TotalInGame:       0, //account.GetTotalInGame
 		ReportAvailable:   true,
 		TwitchEventMember: false,
@@ -142,7 +141,7 @@ func ClientCustomization(w http.ResponseWriter, r *http.Request) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(customizationRoute))
 			services.ZlibJSONReply(w, body)
 		} else {
-			body := services.ApplyCRCResponseBody(database.GetCustomization(), services.GetCachedCRC(customizationRoute))
+			body := services.ApplyCRCResponseBody(database.GetCustomizations(), services.GetCachedCRC(customizationRoute))
 			services.ZlibJSONReply(w, body)
 		}
 	}
@@ -172,13 +171,12 @@ func ClientTraderSettings(w http.ResponseWriter, r *http.Request) {
 	data := make([]map[string]interface{}, 0, len(traders))
 
 	for _, trader := range traders {
-		base, ok := trader["Base"].(map[string]interface{})
-		if ok {
-			data = append(data, base)
+		if trader.Base == nil {
+			fmt.Println()
 		}
-	}
 
-	traders = nil
+		data = append(data, trader.Base)
+	}
 
 	body := services.ApplyResponseBody(&data)
 	services.ZlibJSONReply(w, body)
@@ -206,29 +204,39 @@ func ClientProfileList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	character := database.GetCharacterByUID(sessionID)
 
-	if character == nil {
+	if character.ID == "" {
 		profiles := services.ApplyResponseBody([]interface{}{})
 		services.ZlibJSONReply(w, profiles)
 		fmt.Println("Character doesn't exist, begin creation")
 	} else {
 
+		/* 		var data []interface{}
+		   		file := tools.GetJSONRawMessage("dummyData.json")
+		   		err := json.Unmarshal(file, &data)
+		   		if err != nil {
+		   			panic(err)
+		   		} */
+
 		playerScav := database.GetPlayerScav()
-		playerScav.Info["RegistrationDate"] = tools.GetCurrentTimeInSeconds()
+		playerScav.Info.RegistrationDate = int(tools.GetCurrentTimeInSeconds())
+		playerScav.AID = character.AID
+		playerScav.ID = character.Savage.(string)
 
-		aid, err := strconv.Atoi(sessionID)
-		if err != nil {
-			panic(err)
+		slice := []structs.PlayerTemplate{*playerScav, *character}
+		body := struct {
+			Err    int                      `json:"err"`
+			Errmsg interface{}              `json:"errmsg"`
+			Data   []structs.PlayerTemplate `json:"data"`
+		}{
+			Data: slice,
 		}
-		playerScav.AID = aid
-		playerScav.ID = character.Savage
-
-		body := services.ApplyResponseBody([]*structs.PlayerTemplate{playerScav, character})
+		//body := services.ApplyResponseBody(data)
 		services.ZlibJSONReply(w, body)
 	}
 }
 
 func ClientAccountCustomization(w http.ResponseWriter, r *http.Request) {
-	customization := database.GetCustomization()
+	customization := database.GetCustomizations()
 	output := []string{}
 	for id, c := range customization {
 		custom, ok := c.(map[string]interface{})
@@ -273,14 +281,13 @@ func ClientLocale(w http.ResponseWriter, r *http.Request) {
 }
 
 func KeepAlive(w http.ResponseWriter, r *http.Request) {
-	timeToFloat, _ := strconv.ParseFloat(tools.GetCurrentTimeInSeconds(), 32)
 
 	data := struct {
-		Msg     string  `json:"msg"`
-		UtcTime float32 `json:"utc_time"`
+		Msg     string `json:"msg"`
+		UtcTime int    `json:"utc_time"`
 	}{
 		Msg:     "OK",
-		UtcTime: float32(timeToFloat),
+		UtcTime: int(tools.GetCurrentTimeInSeconds()),
 	}
 
 	body := services.ApplyResponseBody(data)
@@ -326,16 +333,93 @@ func NicknameValidate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ProfileCreate(w http.ResponseWriter, r *http.Request) {
-	body := services.GetParsedBody(r).(map[string]string)
-	/* 	data, err := json.Marshal(services.GetParsedBody(r))
-	   	if err != nil {
-	   		panic(err)
-	   	}
-	   	err = json.Unmarshal(data, &body)
-	   	if err != nil {
-	   		panic(err)
-	   	} */
+type ProfileCreateRequest struct {
+	Side     string `json:"side"`
+	Nickname string `json:"nickname"`
+	HeadID   string `json:"headId"`
+	VoiceID  string `json:"voiceId"`
+}
 
-	fmt.Println(body)
+func ProfileCreate(w http.ResponseWriter, r *http.Request) {
+	request := &ProfileCreateRequest{}
+	body, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		panic(err)
+	}
+
+	err = json.Unmarshal(body, request)
+	if err != nil {
+		panic(err)
+	}
+
+	sessionID := services.GetSessionID(r)
+
+	profile := database.GetProfileByUID(sessionID)
+	if profile.Storage == nil {
+		profile.Storage = &structs.Storage{}
+	}
+
+	editions := database.GetEdition("Edge Of Darkness")
+	var pmc structs.PlayerTemplate
+
+	if request.Side == "Bear" {
+		pmc = *editions.Bear
+		profile.Storage.Suites = editions.Storage.Bear
+	} else {
+		pmc = *editions.Usec
+		profile.Storage.Suites = editions.Storage.Usec
+	}
+
+	pmc.ID = sessionID
+	pmc.AID = profile.Account.AID
+	sid, _ := tools.GenerateMongoID()
+	pmc.Savage = sid
+
+	pmc.Info.Side = request.Side
+	pmc.Info.Nickname = request.Nickname
+
+	pmc.Info.LowerNickname = strings.ToLower(request.Nickname)
+	pmc.Info.Voice = database.GetCustomization(request.VoiceID)["_name"].(string)
+
+	time := int(tools.GetCurrentTimeInSeconds())
+	pmc.Info.RegistrationDate = time
+
+	pmc.Health.UpdateTime = time
+
+	pmc.Customization.Head = request.HeadID
+
+	stats := &pmc.Stats.Eft
+	stats.SessionCounters = nil
+	stats.OverallCounters = map[string]interface{}{"Items": []interface{}{}}
+	stats.Aggressor = nil
+	stats.DroppedItems = make([]interface{}, 0, 0)
+	stats.FoundInRaidItems = make([]interface{}, 0, 0)
+	stats.Victims = make([]interface{}, 0, 0)
+	stats.CarriedQuestItems = make([]interface{}, 0, 0)
+	stats.DamageHistory = map[string]interface{}{
+		"BodyParts":        []interface{}{},
+		"LethalDamage":     nil,
+		"LethalDamagePart": "Head",
+	}
+	stats.SurvivorClass = "Unknown"
+
+	commonSkills := make([]structs.SkillsCommon, 0, len(pmc.Skills.Common))
+	for _, skill := range pmc.Skills.Common {
+		commonSkills = append(commonSkills, skill)
+	}
+	pmc.Skills.Common = commonSkills
+
+	hideout := &pmc.Hideout
+	resizedAreas := make([]structs.PlayerHideoutArea, 0, len(hideout.Areas))
+	for _, area := range hideout.Areas {
+		resizedAreas = append(resizedAreas, area)
+	}
+
+	hideout.Areas = resizedAreas
+	hideout.Improvement = make(map[string]interface{})
+
+	services.SaveCharacter(sessionID, pmc)
+	profile.Character = &pmc
+
+	fmt.Println()
 }

@@ -8,7 +8,7 @@ type Profile struct {
 }
 
 type Storage struct {
-	ID        string                 `json:"_id"`
+	//ID        string                 `json:"_id"`
 	Suites    []string               `json:"suites"`
 	Builds    map[string]interface{} `json:"builds"`
 	Insurance []interface{}          `json:"insurance"`
