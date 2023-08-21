@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -30,7 +31,7 @@ func ShowPersonKilledMessage(w http.ResponseWriter, _ *http.Request) {
 	services.ZlibJSONReply(w, "true")
 }
 
-func ClientGameStart(w http.ResponseWriter, _ *http.Request) {
+func MainGameStart(w http.ResponseWriter, _ *http.Request) {
 	data := map[string]interface{}{
 		"utc_time": tools.GetCurrentTimeInSeconds(),
 	}
@@ -39,17 +40,17 @@ func ClientGameStart(w http.ResponseWriter, _ *http.Request) {
 	services.ZlibJSONReply(w, start)
 }
 
-func ClientMenuLocale(w http.ResponseWriter, r *http.Request) {
+func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
 	lang := strings.TrimPrefix(r.URL.Path, "/client/menu/locale/")
 	menu := services.ApplyResponseBody(database.GetLocalesMenuByName(lang))
 	services.ZlibJSONReply(w, menu)
 }
 
-func ClientVersionValidate(w http.ResponseWriter, _ *http.Request) {
+func MainVersionValidate(w http.ResponseWriter, _ *http.Request) {
 	services.ZlibJSONReply(w, services.ApplyResponseBody(nil))
 }
 
-func ClientLanguages(w http.ResponseWriter, r *http.Request) {
+func MainLanguages(w http.ResponseWriter, r *http.Request) {
 	languages := services.ApplyResponseBody(database.GetLanguages())
 	services.ZlibJSONReply(w, languages)
 }
@@ -77,14 +78,12 @@ type GameConfig struct {
 	TwitchEventMember bool              `json:"twitchEventMember"`
 }
 
-func ClientGameConfig(w http.ResponseWriter, r *http.Request) {
+func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	lang := database.GetAccountByUID(sessionID).Lang
 	if lang == "" {
 		lang = "en"
 	}
-
-	mainAddress := database.GetMainAddress()
 
 	gameConfig := services.ApplyResponseBody(&GameConfig{
 		Aid:             sessionID,
@@ -94,11 +93,11 @@ func ClientGameConfig(w http.ResponseWriter, r *http.Request) {
 		Taxonomy:        6,
 		ActiveProfileID: sessionID,
 		Backend: Backend{
-			Lobby:     mainAddress, //database.GetLobbyAddress(),
-			Trading:   mainAddress, //database.GetTradingAddress(),
-			Messaging: mainAddress, //database.GetMessageAddress(),
-			Main:      mainAddress, //database.GetMainAddress()
-			RagFair:   mainAddress, //database.GetRagFairAddress(),
+			Lobby:     database.GetMainAddress(),
+			Trading:   database.GetTradingAddress(),
+			Messaging: database.GetMessageAddress(),
+			Main:      database.GetMainAddress(),
+			RagFair:   database.GetRagFairAddress(),
 		},
 		UseProtobuf:       false,
 		UtcTime:           float64(tools.GetCurrentTimeInSeconds()),
@@ -113,7 +112,7 @@ func ClientGameConfig(w http.ResponseWriter, r *http.Request) {
 
 const itemsRoute string = "/client/items"
 
-func ClientItems(w http.ResponseWriter, r *http.Request) {
+func MainItems(w http.ResponseWriter, r *http.Request) {
 	ok := services.CheckIfResponseCanBeCached(itemsRoute)
 	if ok {
 
@@ -132,7 +131,7 @@ func ClientItems(w http.ResponseWriter, r *http.Request) {
 
 const customizationRoute string = "/client/customization"
 
-func ClientCustomization(w http.ResponseWriter, r *http.Request) {
+func MainCustomization(w http.ResponseWriter, r *http.Request) {
 	ok := services.CheckIfResponseCanBeCached(customizationRoute)
 	if ok {
 
@@ -149,7 +148,7 @@ func ClientCustomization(w http.ResponseWriter, r *http.Request) {
 
 const globalsRoute string = "/client/globals"
 
-func ClientGlobals(w http.ResponseWriter, r *http.Request) {
+func MainGlobals(w http.ResponseWriter, r *http.Request) {
 	ok := services.CheckIfResponseCanBeCached(globalsRoute)
 	if ok {
 
@@ -164,42 +163,24 @@ func ClientGlobals(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-const traderSettingsRoute string = "/client/trading/api/traderSettings"
+const MainSettingsRoute string = "/client/settings"
 
-func ClientTraderSettings(w http.ResponseWriter, r *http.Request) {
-	traders := database.GetTraders()
-	data := make([]map[string]interface{}, 0, len(traders))
-
-	for _, trader := range traders {
-		if trader.Base == nil {
-			fmt.Println()
-		}
-
-		data = append(data, trader.Base)
-	}
-
-	body := services.ApplyResponseBody(&data)
-	services.ZlibJSONReply(w, body)
-}
-
-const clientSettingsRoute string = "/client/settings"
-
-func ClientSettings(w http.ResponseWriter, r *http.Request) {
-	ok := services.CheckIfResponseCanBeCached(clientSettingsRoute)
+func MainSettings(w http.ResponseWriter, r *http.Request) {
+	ok := services.CheckIfResponseCanBeCached(MainSettingsRoute)
 	if ok {
 
-		ok = services.CheckIfResponseIsCached(clientSettingsRoute)
+		ok = services.CheckIfResponseIsCached(MainSettingsRoute)
 		if ok {
-			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(clientSettingsRoute))
+			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainSettingsRoute))
 			services.ZlibJSONReply(w, body)
 		} else {
-			body := services.ApplyCRCResponseBody(database.GetClientSettings(), services.GetCachedCRC(clientSettingsRoute))
+			body := services.ApplyCRCResponseBody(database.GetMainSettings(), services.GetCachedCRC(MainSettingsRoute))
 			services.ZlibJSONReply(w, body)
 		}
 	}
 }
 
-func ClientProfileList(w http.ResponseWriter, r *http.Request) {
+func MainProfileList(w http.ResponseWriter, r *http.Request) {
 
 	sessionID := services.GetSessionID(r)
 	character := database.GetCharacterByUID(sessionID)
@@ -210,32 +191,18 @@ func ClientProfileList(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Character doesn't exist, begin creation")
 	} else {
 
-		/* 		var data []interface{}
-		   		file := tools.GetJSONRawMessage("dummyData.json")
-		   		err := json.Unmarshal(file, &data)
-		   		if err != nil {
-		   			panic(err)
-		   		} */
-
 		playerScav := database.GetPlayerScav()
 		playerScav.Info.RegistrationDate = int(tools.GetCurrentTimeInSeconds())
 		playerScav.AID = character.AID
 		playerScav.ID = *character.Savage
 
-		slice := []structs.PlayerTemplate{*playerScav, *character}
-		body := struct {
-			Err    int                      `json:"err"`
-			Errmsg interface{}              `json:"errmsg"`
-			Data   []structs.PlayerTemplate `json:"data"`
-		}{
-			Data: slice,
-		}
-		//body := services.ApplyResponseBody(data)
+		slice := []interface{}{*playerScav, *character}
+		body := services.ApplyResponseBody(slice)
 		services.ZlibJSONReply(w, body)
 	}
 }
 
-func ClientAccountCustomization(w http.ResponseWriter, r *http.Request) {
+func MainAccountCustomization(w http.ResponseWriter, r *http.Request) {
 	customization := database.GetCustomizations()
 	output := []string{}
 	for id, c := range customization {
@@ -261,26 +228,26 @@ func ClientAccountCustomization(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, custom)
 }
 
-const clientLocaleRoute string = "/client/locale/"
+const MainLocaleRoute string = "/client/locale/"
 
-func ClientLocale(w http.ResponseWriter, r *http.Request) {
-	lang := strings.TrimPrefix(r.URL.Path, clientLocaleRoute)
+func MainLocale(w http.ResponseWriter, r *http.Request) {
+	lang := strings.TrimPrefix(r.URL.Path, MainLocaleRoute)
 
-	ok := services.CheckIfResponseCanBeCached(clientLocaleRoute)
+	ok := services.CheckIfResponseCanBeCached(MainLocaleRoute)
 	if ok {
 
 		ok = services.CheckIfResponseIsCached(r.URL.Path)
 		if ok {
-			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(clientLocaleRoute))
+			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainLocaleRoute))
 			services.ZlibJSONReply(w, body)
 		} else {
-			body := services.ApplyCRCResponseBody(database.GetLocalesLocaleByName(lang), services.GetCachedCRC(clientLocaleRoute))
+			body := services.ApplyCRCResponseBody(database.GetLocalesLocaleByName(lang), services.GetCachedCRC(MainLocaleRoute))
 			services.ZlibJSONReply(w, body)
 		}
 	}
 }
 
-func KeepAlive(w http.ResponseWriter, r *http.Request) {
+func MainKeepAlive(w http.ResponseWriter, r *http.Request) {
 
 	data := struct {
 		Msg     string `json:"msg"`
@@ -294,12 +261,12 @@ func KeepAlive(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-func NicknameReserved(w http.ResponseWriter, r *http.Request) {
+func MainNicknameReserved(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody("")
 	services.ZlibJSONReply(w, body)
 }
 
-func NicknameValidate(w http.ResponseWriter, r *http.Request) {
+func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 	context := services.GetParsedBody(r).(map[string]interface{})
 
 	nickname, ok := context["nickname"]
@@ -341,7 +308,7 @@ type ProfileCreateRequest struct {
 	VoiceID  string `json:"voiceId"`
 }
 
-func ProfileCreate(w http.ResponseWriter, r *http.Request) {
+func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	request := &ProfileCreateRequest{}
 	body, err := json.Marshal(services.GetParsedBody(r))
 	if err != nil {
@@ -419,9 +386,203 @@ func ProfileCreate(w http.ResponseWriter, r *http.Request) {
 	hideout.Areas = resizedAreas
 	hideout.Improvement = make(map[string]interface{})
 
-	services.SaveCharacter(sessionID, pmc)
 	profile.Character = &pmc
+	services.SaveProfile(profile)
 
 	data := services.ApplyResponseBody(map[string]interface{}{"uid": sessionID})
 	services.ZlibJSONReply(w, data)
+}
+
+type Notifier struct {
+	Server         string `json:"server"`
+	ChannelID      string `json:"channel_id"`
+	URL            string `json:"url"`
+	NotifierServer string `json:"notifierServer"`
+	WS             string `json:"ws"`
+}
+
+type Channel struct {
+	Status         string   `json:"status"`
+	Notifier       Notifier `json:"notifier"`
+	NotifierServer string   `json:"notifierServer"`
+}
+
+var channel = &Channel{}
+
+func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(channel.Notifier)
+	services.ZlibJSONReply(w, body)
+}
+func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
+
+	sessionID := services.GetSessionID(r)
+
+	notiServer := fmt.Sprintf("%s/notifierServer/get/%s", database.GetMainAddress(), sessionID)
+	wssServer := fmt.Sprintf("%s/notifierServer/getwebsocket/%s", database.GetWebsocketURL(), sessionID)
+
+	channel.Status = "ok"
+	Notifier := &channel.Notifier
+
+	Notifier.Server = database.GetMainIPandPort()
+	Notifier.ChannelID = sessionID
+	Notifier.URL = ""
+	Notifier.NotifierServer = notiServer
+	Notifier.WS = wssServer
+
+	channel.NotifierServer = ""
+
+	body := services.ApplyResponseBody(channel)
+	services.ZlibJSONReply(w, body)
+}
+
+type ProfileStatuses struct {
+	MaxPVECountExceeded bool            `json:"maxPveCountExceeded"`
+	Profiles            []ProfileStatus `json:"profiles"`
+}
+
+type ProfileStatus struct {
+	ProfileID    string      `json:"profileid"`
+	ProfileToken interface{} `json:"profileToken"`
+	Status       string      `json:"status"`
+	SID          string      `json:"sid"`
+	IP           string      `json:"ip"`
+	Port         int         `json:"port"`
+}
+
+func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
+
+	character := database.GetCharacterByUID(services.GetSessionID(r))
+
+	scavProfile := &ProfileStatus{
+		ProfileID: *character.Savage,
+		Status:    "Free",
+	}
+
+	pmcProfile := &ProfileStatus{
+		ProfileID: character.ID,
+		Status:    "Free",
+	}
+
+	statuses := &ProfileStatuses{
+		Profiles: []ProfileStatus{*scavProfile, *pmcProfile},
+	}
+
+	body := services.ApplyResponseBody(statuses)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainWeather(w http.ResponseWriter, r *http.Request) {
+	weather := database.GetWeather()
+	body := services.ApplyResponseBody(weather)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainLocations(w http.ResponseWriter, r *http.Request) {
+	locations := database.GetLocations()
+	body := services.ApplyResponseBody(locations)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainTemplates(w http.ResponseWriter, r *http.Request) {
+	templates := database.GetHandbook()
+	body := services.ApplyResponseBody(templates)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainHideoutAreas(w http.ResponseWriter, r *http.Request) {
+	areas := database.GetHideout().Areas
+	body := services.ApplyResponseBody(areas)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainHideoutQTE(w http.ResponseWriter, r *http.Request) {
+	qte := database.GetHideout().QTE
+	body := services.ApplyResponseBody(qte)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
+	settings := database.GetHideout().Settings
+	body := services.ApplyResponseBody(settings)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
+	recipes := database.GetHideout().Productions
+	body := services.ApplyResponseBody(recipes)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
+	scavCaseRecipies := database.GetHideout().ScavCase
+	body := services.ApplyResponseBody(scavCaseRecipies)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainBuildsList(w http.ResponseWriter, r *http.Request) {
+	builds := database.GetProfileByUID(services.GetSessionID(r)).Storage.Builds
+	body := services.ApplyResponseBody(builds)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainQuestList(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Sending empty array for right now because I don't feel like filtering quests rn")
+	body := services.ApplyResponseBody([]interface{}{})
+	services.ZlibJSONReply(w, body)
+}
+
+type CurrentGroup struct {
+	Squad []interface{} `json:"squad"`
+}
+
+func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
+	group := &CurrentGroup{
+		Squad: []interface{}{},
+	}
+	body := services.ApplyResponseBody(group)
+	services.ZlibJSONReply(w, body)
+}
+func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Sending empty array for right now because I don't feel like doing repeatables rn")
+	body := services.ApplyResponseBody([]interface{}{})
+	services.ZlibJSONReply(w, body)
+}
+
+type ServerListing struct {
+	IP   string `json:"ip"`
+	Port int    `json:"port"`
+}
+
+func MainServerList(w http.ResponseWriter, r *http.Request) {
+	serverListings := []ServerListing{}
+	port, _ := strconv.Atoi(database.GetServerConfig().Ports.Main)
+
+	serverListings = append(serverListings, ServerListing{
+		IP:   database.GetServerConfig().IP,
+		Port: port,
+	})
+
+	body := services.ApplyResponseBody(serverListings)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
+	check := strings.TrimPrefix(r.Header["App-Version"][0], "EFT Client ")
+	version := struct {
+		IsValid       bool   `json:"isValid"`
+		LatestVersion string `json:"latestVersion"`
+	}{
+		IsValid:       true,
+		LatestVersion: check,
+	}
+	body := services.ApplyResponseBody(version)
+	services.ZlibJSONReply(w, body)
+}
+
+func MainLogoout(w http.ResponseWriter, r *http.Request) {
+	sessionID := services.GetSessionID(r)
+	services.SaveProfile(database.GetProfileByUID(sessionID))
+
+	body := services.ApplyResponseBody(map[string]interface{}{"status": "ok"})
+	services.ZlibJSONReply(w, body)
 }

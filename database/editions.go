@@ -57,11 +57,12 @@ func setEditions() {
 				continue
 			}
 
-			storage := &structs.Storage{}
+			storage := &structs.EditionStorage{}
 			err := json.Unmarshal(raw, storage)
 			if err != nil {
 				panic(err)
 			}
+			edition.Storage = storage
 		}
 		editions[directory] = edition
 	}

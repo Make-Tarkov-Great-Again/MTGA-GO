@@ -1,5 +1,33 @@
 package structs
 
+type PlayerScavTemplate struct {
+	ID                string                 `json:"_id"`
+	AID               int                    `json:"aid"`
+	Savage            *string                `json:"savage"`
+	Info              PlayerInfo             `json:"Info"`
+	Customization     PlayerCustomization    `json:"Customization"`
+	Health            HealthInfo             `json:"Health"`
+	Inventory         InventoryInfo          `json:"Inventory"`
+	Skills            PlayerSkills           `json:"Skills"`
+	Stats             PlayerStats            `json:"Stats"`
+	Encyclopedia      map[string]bool        `json:"Encyclopedia"`
+	ConditionCounters ConditionCounters      `json:"ConditionCounters"`
+	BackendCounters   map[string]interface{} `json:"BackendCounters"`
+	InsuredItems      []interface{}          `json:"InsuredItems"`
+	Hideout           interface{}            `json:"Hideout"`
+	Bonuses           []interface{}          `json:"Bonuses"`
+	Notes             struct {
+		Notes [][]interface{} `json:"Notes"`
+	} `json:"Notes"`
+	Quests       []interface{}     `json:"Quests"`
+	RagfairInfo  PlayerRagfairInfo `json:"RagfairInfo"`
+	WishList     []interface{}     `json:"WishList"`
+	TradersInfo  []interface{}     `json:"TradersInfo"`
+	UnlockedInfo struct {
+		UnlockedProductionRecipe []interface{} `json:"unlockedProductionRecipe"`
+	} `json:"UnlockedInfo"`
+}
+
 type PlayerTemplate struct {
 	ID                string                 `json:"_id"`
 	AID               int                    `json:"aid"`
@@ -122,12 +150,12 @@ type PlayerInfo struct {
 	Settings               map[string]interface{} `json:"Settings"`
 	NicknameChangeDate     int                    `json:"NicknameChangeDate"`
 	NeedWipeOptions        []interface{}          `json:"NeedWipeOptions"`
-	/* 	LastCompletedWipe      struct {
-	   		Oid string `json:"$oid"`
-	   	} `json:"lastCompletedWipe"`
-	   	LastCompletedEvent struct {
-	   		Oid string `json:"$oid"`
-	   	} `json:"lastCompletedEvent"` */
+	LastCompletedWipe      struct {
+		Oid string `json:"$oid"`
+	} `json:"lastCompletedWipe"`
+	LastCompletedEvent struct {
+		Oid string `json:"$oid"`
+	} `json:"lastCompletedEvent"`
 	BannedState             bool          `json:"BannedState"`
 	BannedUntil             int           `json:"BannedUntil"`
 	IsStreamerModeAvailable bool          `json:"IsStreamerModeAvailable"`

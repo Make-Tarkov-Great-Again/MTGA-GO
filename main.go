@@ -75,10 +75,27 @@ func registerAccount() {
 	account.UID = UID
 	account.AID = len(profiles)
 
+	account.Friends = structs.Friends{
+		Friends:      []structs.FriendRequest{},
+		Ignore:       []string{},
+		InIgnoreList: []string{},
+	}
+
+	account.FriendRequestInbox = []interface{}{}
+	account.FriendRequestOutbox = []interface{}{}
+
 	profiles[UID] = &structs.Profile{}
 	profiles[UID].Account = &account
 	profiles[UID].Character = &structs.PlayerTemplate{}
-	profiles[UID].Storage = &structs.Storage{}
+	profiles[UID].Storage = &structs.Storage{
+		Suites: []string{},
+		Builds: structs.Builds{
+			EquipmentBuilds: []structs.EquipmentBuild{},
+			WeaponBuilds:    []interface{}{},
+		},
+		Insurance: []interface{}{},
+		Mailbox:   []interface{}{},
+	}
 	profiles[UID].Dialogue = map[string]interface{}{}
 
 	//save account

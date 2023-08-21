@@ -21,42 +21,80 @@ func setMainRoutes(mux *http.ServeMux) {
 
 	mux.HandleFunc("/client/raid/person/killed/showMessage", handlers.ShowPersonKilledMessage)
 
-	mux.HandleFunc("/client/game/start", handlers.ClientGameStart)
+	mux.HandleFunc("/client/game/start", handlers.MainGameStart)
 
-	mux.HandleFunc("/client/menu/locale/", handlers.ClientMenuLocale)
+	mux.HandleFunc("/client/menu/locale/", handlers.MainMenuLocale)
 
-	mux.HandleFunc("/client/game/version/validate", handlers.ClientVersionValidate)
+	mux.HandleFunc("/client/game/version/validate", handlers.MainVersionValidate)
 
-	mux.HandleFunc("/client/languages", handlers.ClientLanguages)
+	mux.HandleFunc("/client/languages", handlers.MainLanguages)
 
-	mux.HandleFunc("/client/game/config", handlers.ClientGameConfig)
+	mux.HandleFunc("/client/game/config", handlers.MainGameConfig)
 
-	mux.HandleFunc("/client/items", handlers.ClientItems)
+	mux.HandleFunc("/client/items", handlers.MainItems)
 
-	mux.HandleFunc("/client/customization", handlers.ClientCustomization)
+	mux.HandleFunc("/client/customization", handlers.MainCustomization)
 
-	mux.HandleFunc("/client/globals", handlers.ClientGlobals)
+	mux.HandleFunc("/client/globals", handlers.MainGlobals)
 
-	mux.HandleFunc("/client/trading/api/traderSettings", handlers.ClientTraderSettings)
+	mux.HandleFunc("/client/settings", handlers.MainSettings)
 
-	mux.HandleFunc("/client/settings", handlers.ClientSettings)
+	mux.HandleFunc("/client/game/profile/list", handlers.MainProfileList)
 
-	mux.HandleFunc("/client/game/profile/list", handlers.ClientProfileList)
+	mux.HandleFunc("/client/account/customization", handlers.MainAccountCustomization)
 
-	mux.HandleFunc("/client/account/customization", handlers.ClientAccountCustomization)
+	mux.HandleFunc("/client/locale/", handlers.MainLocale)
 
-	mux.HandleFunc("/client/locale/", handlers.ClientLocale)
+	mux.HandleFunc("/client/game/keepalive", handlers.MainKeepAlive)
 
-	mux.HandleFunc("/client/game/keepalive", handlers.KeepAlive)
+	mux.HandleFunc("/client/game/profile/nickname/reserved", handlers.MainNicknameReserved)
 
-	mux.HandleFunc("/client/game/profile/nickname/reserved", handlers.NicknameReserved)
+	mux.HandleFunc("/client/game/profile/nickname/validate", handlers.MainNicknameValidate)
 
-	mux.HandleFunc("/client/game/profile/nickname/validate", handlers.NicknameValidate)
+	mux.HandleFunc("/client/game/profile/create", handlers.MainProfileCreate)
 
-	mux.HandleFunc("/client/game/profile/create", handlers.ProfileCreate)
+	mux.HandleFunc("/client/game/profile/select", handlers.MainProfileSelect)
+
+	mux.HandleFunc("/client/profile/status", handlers.MainProfileStatus)
+
+	mux.HandleFunc("/client/weather", handlers.MainWeather)
+
+	mux.HandleFunc("/client/locations", handlers.MainLocations)
+
+	mux.HandleFunc("/client/handbook/templates", handlers.MainTemplates)
+
+	mux.HandleFunc("/client/hideout/areas", handlers.MainHideoutAreas)
+	mux.HandleFunc("/client/hideout/qte/list", handlers.MainHideoutQTE)
+	mux.HandleFunc("/client/hideout/settings", handlers.MainHideoutSettings)
+	mux.HandleFunc("/client/hideout/production/recipes", handlers.MainHideoutRecipes)
+	mux.HandleFunc("/client/hideout/production/scavcase/recipes", handlers.MainHideoutScavRecipes)
+
+	mux.HandleFunc("/client/handbook/builds/my/list", handlers.MainBuildsList)
+
+	mux.HandleFunc("/client/notifier/channel/create", handlers.MainChannelCreate)
+
+	mux.HandleFunc("/client/quest/list", handlers.MainQuestList)
+
+	mux.HandleFunc("/client/match/group/current", handlers.MainCurrentGroup)
+
+	mux.HandleFunc("/client/repeatalbeQuests/activityPeriods", handlers.MainRepeatableQuests)
+
+	mux.HandleFunc("/client/server/list", handlers.MainServerList)
+
+	mux.HandleFunc("/client/checkVersion", handlers.MainCheckVersion)
+
+	mux.HandleFunc("/client/game/logout", handlers.MainLogoout)
 }
 
+// /client/match/group/current
+
+// /client/server/list
+
+// /client/repeatalbeQuests/activityPeriods
+
 func setTradingRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/client/trading/api/traderSettings", handlers.TradingTraderSettings)
+	mux.HandleFunc("/client/trading/customization/storage", handlers.TradingCustomizationStorage)
 	// "/client/trading/customization/storage"
 	// "/client/trading/api/getTraderAssort/" + traderId
 	// "/client/trading/customization/" + traderId + "/offers"
@@ -69,10 +107,21 @@ func setRagfairRoutes(mux *http.ServeMux) {
 	// "/client/ragfair/find"
 }
 
+/*
+Incoming [ POST ] Request URL: [ /client/trading/customization/storage  */
+
 func setMessagingRoutes(mux *http.ServeMux) {
+
+	mux.HandleFunc("/client/friend/list", handlers.MessagingFriendList)
 	// "/client/friend/list"
 
+	mux.HandleFunc("/client/mail/dialog/list", handlers.MessagingDialogList)
+	// "/client/mail/dialog/list"
+
+	mux.HandleFunc("/client/friend/request/list/inbox", handlers.MessagingFriendRequestInbox)
 	// "/client/friend/request/list/inbox"
+
+	mux.HandleFunc("/client/friend/request/list/outbox", handlers.MessagingFriendRequestOutbox)
 	// "/client/friend/request/list/outbox"
 
 	// "/client/friend/delete"
@@ -89,7 +138,6 @@ func setMessagingRoutes(mux *http.ServeMux) {
 	// "/client/mail/dialog/getAllAttachments"
 	// "/client/mail/dialog/clear"
 	// "/client/mail/dialog/remove"
-	// "/client/mail/dialog/list"
 	// "/client/mail/dialog/view"
 	// "/client/mail/dialog/pin"
 	// "/client/mail/dialog/unpin"

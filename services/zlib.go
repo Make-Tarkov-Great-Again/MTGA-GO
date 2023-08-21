@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-var buffer bytes.Buffer
-var writer = zlib.NewWriter(&buffer)
+var buffer = &bytes.Buffer{}
+var writer = zlib.NewWriter(buffer)
 
 func ZlibReply(w http.ResponseWriter, data interface{}) {
 	zlibDeflate(w, data)
@@ -25,6 +25,8 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 
 	// Check if the request header includes "Unity"
 	if strings.Contains(r.Header.Get("User-Agent"), "Unity") {
+		buffer.Reset()
+
 		// Inflate r.Body with zlib
 		reader, err := zlib.NewReader(r.Body)
 		if err != nil {
@@ -33,19 +35,19 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 		defer reader.Close()
 
 		// Read the decompressed data
-		_, err = io.Copy(&buffer, reader)
+		_, err = io.Copy(buffer, reader)
 		if err != nil {
 			panic(err)
 		}
 
-		toSend := buffer
-		buffer.Reset()
-		return &toSend
+		return buffer
 	}
 	return nil
 }
 
 func zlibDeflate(w http.ResponseWriter, data interface{}) {
+	buffer.Reset()
+
 	// Convert data to JSON bytes
 	bytes, err := json.Marshal(data)
 	if err != nil {
@@ -65,27 +67,23 @@ func zlibDeflate(w http.ResponseWriter, data interface{}) {
 		http.Error(w, "Failed to write compressed data", http.StatusInternalServerError)
 		return
 	}
-	buffer.Reset()
 }
 
 func compressZlib(data []byte) []byte {
+	buffer.Reset()
+	writer.Reset(buffer)
+
+	defer writer.Close()
+
 	_, err := writer.Write(data)
 	if err != nil {
-		writer.Close()
 		panic(err)
 	}
 
 	err = writer.Flush()
 	if err != nil {
-		writer.Close()
 		panic(err)
 	}
-
-	err = writer.Close()
-	if err != nil {
-		panic(err)
-	}
-	writer.Reset(&buffer)
 
 	return buffer.Bytes()
 }

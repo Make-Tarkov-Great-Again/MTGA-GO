@@ -32,7 +32,7 @@ const (
 	coreFilePath          string = databaseLibPath + "/core"
 	botTemplateFilePath   string = coreFilePath + "/botTemplate.json"
 	playerScavPath        string = coreFilePath + "/playerScav.json"
-	clientSettingsPath    string = coreFilePath + "/client.settings.json"
+	MainSettingsPath      string = coreFilePath + "/client.settings.json"
 	globalBotSettingsPath string = coreFilePath + "/__BotGlobalSettings.json"
 	globalsFilePath       string = coreFilePath + "/globals.json"
 	locationsFilePath     string = coreFilePath + "/locations.json"

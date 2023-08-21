@@ -17,12 +17,20 @@
 		"SavageLockTime": 0,
 		"LastTimePlayedAsSavage": 0,
 		"Settings": {
+			"Role": "assault",
 			"BotDifficulty": "easy",
 			"Experience": -1,
-			"Role": "assault"
+			"StandingForKill": 0,
+			"AggressorBonus": 0
 		},
 		"NicknameChangeDate": 0,
 		"NeedWipeOptions": [],
+		"lastCompletedWipe": {
+			"$oid": "64d49b293480436f1100e6b5"
+		},
+		"lastCompletedEvent": {
+			"$oid": "646a2b33023772b2770c26ba"
+		},
 		"BannedState": false,
 		"BannedUntil": 0,
 		"IsStreamerModeAvailable": false,
@@ -3980,27 +3988,31 @@
 		"Points": 0
 	},
 	"Stats": {
-		"SessionCounters": null,
-		"OverallCounters": {
-			"Items": []
-		},
-		"SessionExperienceMult": 0,
-		"ExperienceBonusMult": 0,
-		"TotalSessionExperience": 0,
-		"LastSessionDate": 0,
-		"Aggressor": null,
-		"DroppedItems": [],
-		"FoundInRaidItems": [],
-		"Victims": [],
-		"CarriedQuestItems": [],
-		"DamageHistory": {
-			"LethalDamagePart": "Head",
-			"LethalDamage": null,
-			"BodyParts": []
-		},
-		"LastPlayerState": null,
-		"TotalInGameTime": 0,
-		"SurvivorClass": "Unknown"
+		"Eft": {
+			"SessionCounters": {
+				"Items": []
+			},
+			"OverallCounters": {
+				"Items": []
+			},
+			"SessionExperienceMult": 0,
+			"ExperienceBonusMult": 0,
+			"TotalSessionExperience": 0,
+			"LastSessionDate": 0,
+			"Aggressor": null,
+			"DroppedItems": [],
+			"FoundInRaidItems": [],
+			"Victims": [],
+			"CarriedQuestItems": [],
+			"DamageHistory": {
+				"LethalDamagePart": "Head",
+				"LethalDamage": null,
+				"BodyParts": []
+			},
+			"LastPlayerState": null,
+			"TotalInGameTime": 0,
+			"SurvivorClass": "Unknown"
+		}
 	},
 	"Encyclopedia": {
 		"5447a9cd4bdc2dbd208b4567": false,
@@ -4348,16 +4360,6 @@
 				"lastRecipe": ""
 			},
 			{
-				"type": 16,
-				"level": 0,
-				"active": true,
-				"passiveBonusesEnabled": true,
-				"completeTime": 0,
-				"constructing": false,
-				"slots": [],
-				"lastRecipe": ""
-			},
-			{
 				"type": 17,
 				"level": 0,
 				"active": true,
@@ -4409,7 +4411,7 @@
 			},
 			{
 				"type": 22,
-				"level": 1,
+				"level": 0,
 				"active": true,
 				"passiveBonusesEnabled": true,
 				"completeTime": 0,
@@ -4426,10 +4428,30 @@
 				"constructing": false,
 				"slots": [],
 				"lastRecipe": ""
+			},
+			{
+				"type": 24,
+				"level": 0,
+				"active": true,
+				"passiveBonusesEnabled": true,
+				"completeTime": 0,
+				"constructing": false,
+				"slots": [],
+				"lastRecipe": ""
+			},
+			{
+				"type": 25,
+				"level": 0,
+				"active": true,
+				"passiveBonusesEnabled": true,
+				"completeTime": 0,
+				"constructing": false,
+				"slots": [],
+				"lastRecipe": ""
 			}
 		],
-		"Improvements": {},
-		"Seed": 0
+		"Improvement": {},
+		"Seed": 1934565945
 	},
 	"Bonuses": [
 		{

@@ -2,8 +2,8 @@ package structs
 
 type Core struct {
 	PlayerTemplate    *PlayerTemplate
-	PlayerScav        *PlayerTemplate
-	ClientSettings    *ClientSettings
+	PlayerScav        *PlayerScavTemplate
+	MainSettings      *MainSettings
 	ServerConfig      *ServerConfig
 	Globals           *Globals
 	GlobalBotSettings *map[string]interface{}
@@ -12,7 +12,7 @@ type Core struct {
 	MatchMetrics *MatchMetrics
 }
 
-type ClientSettings struct {
+type MainSettings struct {
 	Config struct {
 		MemoryManagementSettings       MemoryManagementSettings `json:"MemoryManagementSettings"`
 		ReleaseProfiler                ReleaseProfiler          `json:"ReleaseProfiler"`

@@ -24,10 +24,12 @@ type Database struct {
 type Edition struct {
 	Bear    *PlayerTemplate `json:"bear"`
 	Usec    *PlayerTemplate `json:"usec"`
-	Storage struct {
-		Bear []string `json:"bear"`
-		Usec []string `json:"usec"`
-	} `json:"storage"`
+	Storage *EditionStorage `json:"storage"`
+}
+
+type EditionStorage struct {
+	Bear []string `json:"bear"`
+	Usec []string `json:"usec"`
 }
 
 type Locales struct {

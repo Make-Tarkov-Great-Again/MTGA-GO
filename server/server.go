@@ -12,12 +12,16 @@ import (
 	"sync"
 )
 
-var buffer *bytes.Buffer
+var buffer = &bytes.Buffer{}
 
 func logAndDecompress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the incoming request URL
-		fmt.Println("Incoming [", r.Method, "] Request URL: [", r.URL.Path, "]")
+		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + r.Host + "]")
+
+		if buffer != nil {
+			buffer.Reset()
+		}
 
 		if r.Header.Get("Content-Type") != "application/json" {
 			next.ServeHTTP(w, r)
@@ -30,12 +34,11 @@ func logAndDecompress(next http.Handler) http.Handler {
 			return
 		}
 
-		var parsedData map[string]interface{}
+		var parsedData interface{}
 		err := json.Unmarshal(buffer.Bytes(), &parsedData)
 		if err != nil {
 			panic(err)
 		}
-		buffer.Reset()
 
 		/// Store the parsed data in the request's context
 		ctx := context.WithValue(r.Context(), services.ParsedBodyKey, parsedData)
@@ -47,8 +50,16 @@ func logAndDecompress(next http.Handler) http.Handler {
 
 func SetHTTPSServer() {
 	main := http.NewServeMux()
-
 	setRoutes(main)
+
+	trading := http.NewServeMux()
+	setTradingRoutes(trading)
+
+	messaging := http.NewServeMux()
+	setMessagingRoutes(messaging)
+
+	ragfair := http.NewServeMux()
+	setRagfairRoutes(ragfair)
 
 	cert := services.GetCertificate(database.GetServerConfig().IP, database.GetServerConfig().Hostname)
 	certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
@@ -57,20 +68,71 @@ func SetHTTPSServer() {
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go startHTTPServer(&wg, main, certs)
+	wg.Add(4)
+	go startMainHTTPSServer(&wg, main, certs)
+	go startMessagingHTTPSServer(&wg, messaging, certs)
+	go startRagFairHTTPSServer(&wg, ragfair, certs)
+	go startTradingHTTPSServer(&wg, trading, certs)
 	wg.Wait()
 }
 
-func startHTTPServer(wg *sync.WaitGroup, handler http.Handler, certs tls.Certificate) {
-	address := database.GetIPandPort()
+func startMainHTTPSServer(wg *sync.WaitGroup, handler http.Handler, certs tls.Certificate) {
+	address := database.GetMainIPandPort()
 
 	httpsServer := &http.Server{
 		Addr:      address,
 		TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}},
 		Handler:   logAndDecompress(handler),
 	}
-	fmt.Println("Started HTTPS server on " + address)
+	fmt.Println("Started Main HTTPS server on " + address)
+	wg.Done()
+	err := httpsServer.ListenAndServeTLS("", "")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func startTradingHTTPSServer(wg *sync.WaitGroup, handler http.Handler, certs tls.Certificate) {
+	address := database.GetTradingIPandPort()
+
+	httpsServer := &http.Server{
+		Addr:      address,
+		TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}},
+		Handler:   logAndDecompress(handler),
+	}
+	fmt.Println("Started Trading HTTPS server on " + address)
+	wg.Done()
+	err := httpsServer.ListenAndServeTLS("", "")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func startMessagingHTTPSServer(wg *sync.WaitGroup, handler http.Handler, certs tls.Certificate) {
+	address := database.GetMessagingIPandPort()
+
+	httpsServer := &http.Server{
+		Addr:      address,
+		TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}},
+		Handler:   logAndDecompress(handler),
+	}
+	fmt.Println("Started Messaging HTTPS server on " + address)
+	wg.Done()
+	err := httpsServer.ListenAndServeTLS("", "")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func startRagFairHTTPSServer(wg *sync.WaitGroup, handler http.Handler, certs tls.Certificate) {
+	address := database.GetRagFairIPandPort()
+
+	httpsServer := &http.Server{
+		Addr:      address,
+		TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}},
+		Handler:   logAndDecompress(handler),
+	}
+	fmt.Println("Started RagFair HTTPS server on " + address)
 	wg.Done()
 	err := httpsServer.ListenAndServeTLS("", "")
 	if err != nil {

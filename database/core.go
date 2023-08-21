@@ -18,8 +18,8 @@ func GetGlobals() *structs.Globals {
 	return core.Globals
 }
 
-func GetClientSettings() *structs.ClientSettings {
-	return core.ClientSettings
+func GetMainSettings() *structs.MainSettings {
+	return core.MainSettings
 }
 
 func GetMatchMetrics() *structs.MatchMetrics {
@@ -57,7 +57,7 @@ func GetGlobalBotSettings() *map[string]interface{} {
 	return core.GlobalBotSettings
 }
 
-func GetPlayerScav() *structs.PlayerTemplate {
+func GetPlayerScav() *structs.PlayerScavTemplate {
 	return core.PlayerScav
 }
 
@@ -68,7 +68,7 @@ func GetBotTemplate() *structs.PlayerTemplate {
 func setCore() {
 	core.PlayerTemplate = setBotTemplate()
 	core.PlayerScav = setPlayerScav()
-	core.ClientSettings = setClientSettings()
+	core.MainSettings = setMainSettings()
 	core.ServerConfig = setServerConfig()
 	core.Globals = setGlobals()
 	core.GlobalBotSettings = setGlobalBotSettings()
@@ -86,10 +86,10 @@ func setGlobalBotSettings() *map[string]interface{} {
 	return &globalBotSettings
 }
 
-func setPlayerScav() *structs.PlayerTemplate {
+func setPlayerScav() *structs.PlayerScavTemplate {
 	raw := tools.GetJSONRawMessage(playerScavPath)
 
-	var playerScav structs.PlayerTemplate
+	var playerScav structs.PlayerScavTemplate
 	err := json.Unmarshal(raw, &playerScav)
 	if err != nil {
 		panic(err)
@@ -108,10 +108,10 @@ func setBotTemplate() *structs.PlayerTemplate {
 	return &botTemplate
 }
 
-func setClientSettings() *structs.ClientSettings {
-	raw := tools.GetJSONRawMessage(clientSettingsPath)
+func setMainSettings() *structs.MainSettings {
+	raw := tools.GetJSONRawMessage(MainSettingsPath)
 
-	var data structs.ClientSettings
+	var data structs.MainSettings
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
 		panic(err)
@@ -120,14 +120,23 @@ func setClientSettings() *structs.ClientSettings {
 }
 
 type serverData struct {
-	HTTPSTemplate  string
-	WSSTemplate    string
-	WSSAddress     string
-	IPandPort      string
-	MainAddress    string
-	MessageAddress string
-	TradingAddress string
-	RagFairAddress string
+	HTTPSTemplate string
+	WSSTemplate   string
+	WSSAddress    string
+
+	MainIPandPort string
+	MainAddress   string
+
+	MessagingIPandPort string
+	MessageAddress     string
+
+	TradingIPandPort string
+	TradingAddress   string
+
+	RagFairIPandPort string
+	RagFairAddress   string
+
+	LobbyIPandPort string
 	LobbyAddress   string
 }
 
@@ -141,8 +150,24 @@ func GetWebSocketAddress() string {
 	return coreServerData.WSSAddress
 }
 
-func GetIPandPort() string {
-	return coreServerData.IPandPort
+func GetMainIPandPort() string {
+	return coreServerData.MainIPandPort
+}
+
+func GetTradingIPandPort() string {
+	return coreServerData.TradingIPandPort
+}
+
+func GetMessagingIPandPort() string {
+	return coreServerData.MessagingIPandPort
+}
+
+func GetLobbyIPandPort() string {
+	return coreServerData.LobbyIPandPort
+}
+
+func GetRagFairIPandPort() string {
+	return coreServerData.RagFairIPandPort
 }
 
 func setServerConfig() *structs.ServerConfig {
@@ -155,14 +180,23 @@ func setServerConfig() *structs.ServerConfig {
 	}
 
 	coreServerData.HTTPSTemplate = "https://%s"
-	coreServerData.IPandPort = net.JoinHostPort(data.IP, data.Ports.Main)
-	coreServerData.WSSTemplate = "wss://%s/socket/%s"
+	coreServerData.WSSTemplate = "wss://%s"
+	coreServerData.WSSAddress = fmt.Sprintf(coreServerData.WSSTemplate, coreServerData.MainIPandPort)
 
-	coreServerData.MainAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.IPandPort)
-	coreServerData.MessageAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, net.JoinHostPort(data.IP, data.Ports.Messaging))
-	coreServerData.TradingAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, net.JoinHostPort(data.IP, data.Ports.Trading))
-	coreServerData.RagFairAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, net.JoinHostPort(data.IP, data.Ports.Flea))
-	coreServerData.LobbyAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, net.JoinHostPort(data.IP, data.Ports.Lobby))
+	coreServerData.MainIPandPort = net.JoinHostPort(data.IP, data.Ports.Main)
+	coreServerData.MainAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.MainIPandPort)
+
+	coreServerData.MessagingIPandPort = net.JoinHostPort(data.IP, data.Ports.Messaging)
+	coreServerData.MessageAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.MessagingIPandPort)
+
+	coreServerData.TradingIPandPort = net.JoinHostPort(data.IP, data.Ports.Trading)
+	coreServerData.TradingAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.TradingIPandPort)
+
+	coreServerData.RagFairIPandPort = net.JoinHostPort(data.IP, data.Ports.Flea)
+	coreServerData.RagFairAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.RagFairIPandPort)
+
+	coreServerData.LobbyIPandPort = net.JoinHostPort(data.IP, data.Ports.Lobby)
+	coreServerData.LobbyAddress = fmt.Sprintf("wss://%s/sws", coreServerData.LobbyIPandPort)
 
 	return &data
 }
