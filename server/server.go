@@ -45,12 +45,12 @@ func logAndDecompress(next http.Handler) http.Handler {
 	})
 }
 
-func SetHTTPSServer(ip string, port string, hostname string) {
+func SetHTTPSServer() {
 	main := http.NewServeMux()
 
 	setRoutes(main)
 
-	cert := services.GetCertificate(ip, hostname)
+	cert := services.GetCertificate(database.GetServerConfig().IP, database.GetServerConfig().Hostname)
 	certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
 	if err != nil {
 		panic(err)
@@ -63,7 +63,6 @@ func SetHTTPSServer(ip string, port string, hostname string) {
 }
 
 func startHTTPServer(wg *sync.WaitGroup, handler http.Handler, certs tls.Certificate) {
-
 	address := database.GetIPandPort()
 
 	httpsServer := &http.Server{

@@ -220,7 +220,7 @@ func ClientProfileList(w http.ResponseWriter, r *http.Request) {
 		playerScav := database.GetPlayerScav()
 		playerScav.Info.RegistrationDate = int(tools.GetCurrentTimeInSeconds())
 		playerScav.AID = character.AID
-		playerScav.ID = character.Savage.(string)
+		playerScav.ID = *character.Savage
 
 		slice := []structs.PlayerTemplate{*playerScav, *character}
 		body := struct {
@@ -313,24 +313,25 @@ func NicknameValidate(w http.ResponseWriter, r *http.Request) {
 		body.Errmsg = "226 - "
 
 		services.ZlibJSONReply(w, body)
-	} else {
-		available := services.IsNicknameAvailable(nickname.(string))
-		if !available {
-			body := services.ApplyResponseBody(nil)
-			body.Err = 225
-			body.Errmsg = "225 - "
-
-			services.ZlibJSONReply(w, body)
-		} else {
-			status := struct {
-				Status interface{} `json:"status"`
-			}{
-				Status: "ok",
-			}
-			body := services.ApplyResponseBody(status)
-			services.ZlibJSONReply(w, body)
-		}
+		return
 	}
+
+	if !services.IsNicknameAvailable(nickname.(string)) {
+		body := services.ApplyResponseBody(nil)
+		body.Err = 225
+		body.Errmsg = "225 - "
+
+		services.ZlibJSONReply(w, body)
+		return
+	}
+
+	status := struct {
+		Status interface{} `json:"status"`
+	}{
+		Status: "ok",
+	}
+	body := services.ApplyResponseBody(status)
+	services.ZlibJSONReply(w, body)
 }
 
 type ProfileCreateRequest struct {
@@ -373,7 +374,7 @@ func ProfileCreate(w http.ResponseWriter, r *http.Request) {
 	pmc.ID = sessionID
 	pmc.AID = profile.Account.AID
 	sid, _ := tools.GenerateMongoID()
-	pmc.Savage = sid
+	pmc.Savage = &sid
 
 	pmc.Info.Side = request.Side
 	pmc.Info.Nickname = request.Nickname
@@ -421,5 +422,6 @@ func ProfileCreate(w http.ResponseWriter, r *http.Request) {
 	services.SaveCharacter(sessionID, pmc)
 	profile.Character = &pmc
 
-	fmt.Println()
+	data := services.ApplyResponseBody(map[string]interface{}{"uid": sessionID})
+	services.ZlibJSONReply(w, data)
 }

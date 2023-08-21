@@ -13,18 +13,8 @@ import (
 	"path/filepath"
 )
 
-var ip, mainPort, hostname string
-
 func main() {
-
 	database.InitializeDatabase()
-
-	core := database.GetCore()
-
-	ip = core.ServerConfig.IP
-	mainPort = ":" + core.ServerConfig.Ports.Main
-	hostname = core.ServerConfig.Hostname
-
 	startHome()
 }
 
@@ -143,7 +133,7 @@ func login() {
 			continue
 		}
 
-		server.SetHTTPSServer(ip, mainPort, hostname)
+		server.SetHTTPSServer()
 		fmt.Println("Logging in...")
 		fmt.Println()
 
@@ -155,8 +145,7 @@ func login() {
 
 func loggedIn(account *structs.Account) {
 
-	fmt.Println("Alright fella, we're logged in, what now?")
-
+	fmt.Println("Alright fella, we're at the Login Menu, what now?")
 	fmt.Println()
 
 	fmt.Println("1. Launch Tarkov")
@@ -164,15 +153,20 @@ func loggedIn(account *structs.Account) {
 	fmt.Println()
 	fmt.Println("69. Exit")
 
-	var input string
 	for {
+		var input string
+
 		fmt.Printf("> ")
 		fmt.Scanln(&input)
 		switch input {
 		case "1":
 			launchTarkov(account)
+			fmt.Println()
 			break
 		case "2":
+			fmt.Println()
+			editAccountInfo(account)
+			break
 		case "69":
 			fmt.Println("Adios faggot")
 			return
@@ -183,38 +177,86 @@ func loggedIn(account *structs.Account) {
 	}
 }
 
+func editAccountInfo(account *structs.Account) {
+	fmt.Println("Alright fella, what do you want to edit?")
+	fmt.Println()
+	fmt.Println("1. Change Escape From Tarkov executable path")
+	fmt.Println()
+	fmt.Println("69. Go back to Login Menu")
+
+	for {
+		var input string
+
+		fmt.Printf("> ")
+		fmt.Scanln(&input)
+
+		switch input {
+		case "1":
+			for {
+				var tarkovPath string
+
+				fmt.Println()
+				fmt.Println("Set new Path to Tarkov executable")
+				fmt.Printf("> ")
+				fmt.Scanln(&tarkovPath)
+				exePath := filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
+				if tools.FileExist(exePath) && exePath != account.TarkovPath {
+					account.TarkovPath = exePath
+					fmt.Println("Path has been set")
+
+					services.SaveAccount(*account)
+					break
+				}
+				fmt.Println("Invalid path, try again")
+			}
+			editAccountInfo(account)
+			break
+		case "69":
+			fmt.Println()
+			loggedIn(account)
+			break
+		default:
+			fmt.Println("Invalid input, retard")
+			break
+		}
+	}
+}
+
 //tarkovPath + ' -bC5vLmcuaS5u={"email":"' + userAccount.email + '","password":"' + userAccount.password + '","toggle":true,"timestamp":0} -token=' + sessionID + ' -config={"BackendUrl":"https://' + serverConfig.ip + ':' + serverConfig.mainPort + '","Version":"live"}'
 
 func launchTarkov(account *structs.Account) {
-	var tarkovPath string
-	if account.TarkovPath == "" {
+	if account.TarkovPath == "" || !tools.FileExist(account.TarkovPath) {
 		fmt.Println("EscapeFromTarkov not found")
 		fmt.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
 		for {
+			var tarkovPath string
+
 			fmt.Printf("> ")
 			fmt.Scanln(&tarkovPath)
-			exePath := filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
-			if tools.FileExist(exePath) {
-				account.TarkovPath = exePath
-				fmt.Println("Path has been set")
-
-				services.SaveAccount(*account)
-				break
+			if !tools.FileExist(filepath.Join(tarkovPath, "BepInEx")) {
+				fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
+				continue
 			}
 
-			fmt.Println("Invalid path, try again")
+			account.TarkovPath = filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
+			if !tools.FileExist(account.TarkovPath) {
+				fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
+				continue
+			}
+
+			fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
+			services.SaveAccount(*account)
+			break
 		}
 	}
-
-	tarkovPath = account.TarkovPath
 
 	cmdArgs := []string{
 		"-bC5vLmcuaS5u={'email':'" + account.Username + "','password':'" + account.Password + "','toggle':true,'timestamp':0}",
 		"-token=" + account.UID,
-		"-config={'BackendUrl':'https://" + ip + mainPort + "','Version':'live'}",
+		"-config={'BackendUrl':'" + database.GetMainAddress() + "','Version':'live'}",
 	}
 
-	cmd := exec.Command(tarkovPath, cmdArgs...)
+	cmd := exec.Command(account.TarkovPath, cmdArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

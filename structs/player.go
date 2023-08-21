@@ -3,7 +3,7 @@ package structs
 type PlayerTemplate struct {
 	ID                string                 `json:"_id"`
 	AID               int                    `json:"aid"`
-	Savage            interface{}            `json:"savage"`
+	Savage            *string                `json:"savage"`
 	Info              PlayerInfo             `json:"Info"`
 	Customization     PlayerCustomization    `json:"Customization"`
 	Health            HealthInfo             `json:"Health"`
@@ -55,7 +55,7 @@ type PlayerHideout struct {
 	Production  map[string]interface{} `json:"Production"`
 	Areas       []PlayerHideoutArea    `json:"Areas"`
 	Improvement map[string]interface{} `json:"Improvement"`
-	Seed        int                    `json:"Seed"`
+	//Seed        int                    `json:"Seed"`
 }
 
 type ConditionCounters struct {
@@ -83,7 +83,7 @@ type EftStats struct {
 	Victims                []interface{}          `json:"Victims"`
 	CarriedQuestItems      []interface{}          `json:"CarriedQuestItems"`
 	DamageHistory          map[string]interface{} `json:"DamageHistory"`
-	LastPlayerState        interface{}            `json:"LastPlayerState"`
+	LastPlayerState        *float32               `json:"LastPlayerState"`
 	TotalInGameTime        int                    `json:"TotalInGameTime"`
 	SurvivorClass          string                 `json:"SurvivorClass"`
 }
