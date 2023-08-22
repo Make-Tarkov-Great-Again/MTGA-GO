@@ -6,14 +6,6 @@ import (
 	"net/http"
 )
 
-// SetRoutes sets all existing routes
-func setRoutes(main *http.ServeMux /* , main *http.ServeMux */) {
-	setMainRoutes(main)
-	//setTradingRoutes(trading)
-	//setRagfairRoutes(ragfair)
-	//setMessagingRoutes(messaging)
-}
-
 func setMainRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/client/WebSocketAddress", handlers.GetWebSocketAddress)
 
@@ -86,29 +78,20 @@ func setMainRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/client/game/logout", handlers.MainLogoout)
 }
 
-// /client/match/group/current
-
-// /client/server/list
-
-// /client/repeatalbeQuests/activityPeriods
-
 func setTradingRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/client/trading/api/traderSettings", handlers.TradingTraderSettings)
 	mux.HandleFunc("/client/trading/customization/storage", handlers.TradingCustomizationStorage)
-	// "/client/trading/customization/storage"
-	// "/client/trading/api/getTraderAssort/" + traderId
-	// "/client/trading/customization/" + traderId + "/offers"
-	// "/client/trading/api/traderSettings"
+	/* 	 "/client/trading/customization/storage"
+	   	 "/client/trading/api/getTraderAssort/" + traderId
+	   	 "/client/trading/customization/" + traderId + "/offers"
+	   	 "/client/trading/api/traderSettings" */
 }
 
 func setRagfairRoutes(mux *http.ServeMux) {
-	// "/client/ragfair/offer/findbyid"
-	// "/client/ragfair/itemMarketPrice"
-	// "/client/ragfair/find"
+	/* 	 "/client/ragfair/offer/findbyid"
+	   	 "/client/ragfair/itemMarketPrice"
+	   	 "/client/ragfair/find" */
 }
-
-/*
-Incoming [ POST ] Request URL: [ /client/trading/customization/storage  */
 
 func setMessagingRoutes(mux *http.ServeMux) {
 

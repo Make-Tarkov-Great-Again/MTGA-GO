@@ -417,19 +417,17 @@ func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 
 	sessionID := services.GetSessionID(r)
 
-	notiServer := fmt.Sprintf("%s/notifierServer/get/%s", database.GetMainAddress(), sessionID)
-	wssServer := fmt.Sprintf("%s/notifierServer/getwebsocket/%s", database.GetWebsocketURL(), sessionID)
+	notiServer := fmt.Sprintf("%s/push/notifier/get/%s", database.GetMainAddress(), sessionID)
+	wssServer := fmt.Sprintf("%s/push/notifier/getwebsocket/%s", database.GetWebsocketURL(), sessionID)
 
 	channel.Status = "ok"
 	Notifier := &channel.Notifier
 
-	Notifier.Server = database.GetMainIPandPort()
+	Notifier.Server = database.GetMainIPandPort() //probably will be lobby server
+	fmt.Println("Probably need to set this to Lobby Server in the future")
 	Notifier.ChannelID = sessionID
-	Notifier.URL = ""
 	Notifier.NotifierServer = notiServer
 	Notifier.WS = wssServer
-
-	channel.NotifierServer = ""
 
 	body := services.ApplyResponseBody(channel)
 	services.ZlibJSONReply(w, body)
