@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 )
 
 func logAndDecompress(next http.Handler) http.Handler {
@@ -45,18 +44,27 @@ func logAndDecompress(next http.Handler) http.Handler {
 	})
 }
 
-func startHTTPSServer(wg *sync.WaitGroup, certs tls.Certificate, mux *http.ServeMux, address string, serverName string) {
+func startHTTPSServer(serverReady chan<- struct{}, certs tls.Certificate, mux *muxt) {
+	mux.initRoutes(mux.mux)
+
 	httpsServer := &http.Server{
-		Addr:      address,
+		Addr:      mux.address,
 		TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}},
-		Handler:   logAndDecompress(mux),
+		Handler:   logAndDecompress(mux.mux),
 	}
-	fmt.Println("Started " + serverName + " HTTPS server on " + address)
-	wg.Done()
+	fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
+	serverReady <- struct{}{}
 	err := httpsServer.ListenAndServeTLS("", "")
 	if err != nil {
 		panic(err)
 	}
+}
+
+type muxt struct {
+	mux        *http.ServeMux
+	address    string
+	serverName string
+	initRoutes func(mux *http.ServeMux)
 }
 
 func SetHTTPSServer() {
@@ -67,36 +75,36 @@ func SetHTTPSServer() {
 	}
 
 	fmt.Println()
-	wg := sync.WaitGroup{}
 
-	muxes := []struct {
-		mux        *http.ServeMux
-		address    string
-		serverName string
-	}{
-		{http.NewServeMux(), database.GetMainIPandPort(), "Main"},
-		{http.NewServeMux(), database.GetTradingIPandPort(), "Trading"},
-		{http.NewServeMux(), database.GetMessagingIPandPort(), "Messaging"},
-		{http.NewServeMux(), database.GetRagFairIPandPort(), "RagFair"},
+	muxes := []*muxt{
+		{
+			mux: http.NewServeMux(), address: database.GetMainIPandPort(),
+			serverName: "Main", initRoutes: setMainRoutes, // Embed the route initialization function
+		},
+		{
+			mux: http.NewServeMux(), address: database.GetTradingIPandPort(),
+			serverName: "Trading", initRoutes: setTradingRoutes, // Embed the route initialization function
+		},
+		{
+			mux: http.NewServeMux(), address: database.GetMessagingIPandPort(),
+			serverName: "Messaging", initRoutes: setMessagingRoutes, // Embed the route initialization function
+		},
+		{
+			mux: http.NewServeMux(), address: database.GetRagFairIPandPort(),
+			serverName: "RagFair", initRoutes: setRagfairRoutes, // Embed the route initialization function
+		},
 	}
+
+	serverReady := make(chan struct{})
 
 	for _, muxData := range muxes {
-		wg.Add(1)
-
-		switch muxData.serverName {
-		case "Main":
-			setMainRoutes(muxData.mux)
-		case "Trading":
-			setTradingRoutes(muxData.mux)
-		case "Messaging":
-			setMessagingRoutes(muxData.mux)
-		case "RagFair":
-			setRagfairRoutes(muxData.mux)
-		}
-
-		go startHTTPSServer(&wg, certs, muxData.mux, muxData.address, muxData.serverName)
+		go startHTTPSServer(serverReady, certs, muxData)
 	}
 
-	wg.Wait()
+	for range muxes {
+		<-serverReady
+	}
+
+	close(serverReady)
 	fmt.Println()
 }
