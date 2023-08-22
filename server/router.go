@@ -3,88 +3,87 @@ package server
 
 import (
 	"MT-GO/server/handlers"
+	"fmt"
 	"net/http"
 )
 
+var mainRouteHandlers = map[string]http.HandlerFunc{
+	"/getBundleList":                              handlers.GetBundleList,
+	"/client/raid/person/killed/showMessage":      handlers.ShowPersonKilledMessage,
+	"/client/game/start":                          handlers.MainGameStart,
+	"/client/menu/locale/":                        handlers.MainMenuLocale,
+	"/client/game/version/validate":               handlers.MainVersionValidate,
+	"/client/languages":                           handlers.MainLanguages,
+	"/client/game/config":                         handlers.MainGameConfig,
+	"/client/items":                               handlers.MainItems,
+	"/client/customization":                       handlers.MainCustomization,
+	"/client/globals":                             handlers.MainGlobals,
+	"/client/settings":                            handlers.MainSettings,
+	"/client/game/profile/list":                   handlers.MainProfileList,
+	"/client/account/customization":               handlers.MainAccountCustomization,
+	"/client/locale/":                             handlers.MainLocale,
+	"/client/game/keepalive":                      handlers.MainKeepAlive,
+	"/client/game/profile/nickname/reserved":      handlers.MainNicknameReserved,
+	"/client/game/profile/nickname/validate":      handlers.MainNicknameValidate,
+	"/client/game/profile/create":                 handlers.MainProfileCreate,
+	"/client/game/profile/select":                 handlers.MainProfileSelect,
+	"/client/profile/status":                      handlers.MainProfileStatus,
+	"/client/weather":                             handlers.MainWeather,
+	"/client/locations":                           handlers.MainLocations,
+	"/client/handbook/templates":                  handlers.MainTemplates,
+	"/client/hideout/areas":                       handlers.MainHideoutAreas,
+	"/client/hideout/qte/list":                    handlers.MainHideoutQTE,
+	"/client/hideout/settings":                    handlers.MainHideoutSettings,
+	"/client/hideout/production/recipes":          handlers.MainHideoutRecipes,
+	"/client/hideout/production/scavcase/recipes": handlers.MainHideoutScavRecipes,
+	"/client/handbook/builds/my/list":             handlers.MainBuildsList,
+	"/client/notifier/channel/create":             handlers.MainChannelCreate,
+	"/client/quest/list":                          handlers.MainQuestList,
+	"/client/match/group/current":                 handlers.MainCurrentGroup,
+	"/client/repeatalbeQuests/activityPeriods":    handlers.MainRepeatableQuests,
+	"/client/server/list":                         handlers.MainServerList,
+	"/client/checkVersion":                        handlers.MainCheckVersion,
+	"/client/game/logout":                         handlers.MainLogoout,
+}
+
+func AddMainRoute(route string, handler http.HandlerFunc) {
+	_, ok := mainRouteHandlers[route]
+	if ok {
+		fmt.Println("URL already registered")
+		return
+	}
+
+	mainRouteHandlers[route] = handler
+}
+
 func setMainRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/client/WebSocketAddress", handlers.GetWebSocketAddress)
+	for route, handler := range mainRouteHandlers {
+		mux.HandleFunc(route, handler)
+	}
+}
 
-	mux.HandleFunc("/getBundleList", handlers.GetBundleList)
+var tradingRouteHandlers = map[string]http.HandlerFunc{
+	"/client/trading/api/traderSettings":    handlers.TradingTraderSettings,
+	"/client/trading/customization/storage": handlers.TradingCustomizationStorage,
+	"/files/":                               handlers.TradingFiles,
+	"/client/trading/customization/":        handlers.TradingClothingOffers,
+	"/client/trading/api/getTraderAssort/":  handlers.TradingTraderAssort,
+}
 
-	mux.HandleFunc("/client/raid/person/killed/showMessage", handlers.ShowPersonKilledMessage)
+func AddTradingRoute(route string, handler http.HandlerFunc) {
+	_, ok := tradingRouteHandlers[route]
+	if ok {
+		fmt.Println("URL already registered")
+		return
+	}
 
-	mux.HandleFunc("/client/game/start", handlers.MainGameStart)
-
-	mux.HandleFunc("/client/menu/locale/", handlers.MainMenuLocale)
-
-	mux.HandleFunc("/client/game/version/validate", handlers.MainVersionValidate)
-
-	mux.HandleFunc("/client/languages", handlers.MainLanguages)
-
-	mux.HandleFunc("/client/game/config", handlers.MainGameConfig)
-
-	mux.HandleFunc("/client/items", handlers.MainItems)
-
-	mux.HandleFunc("/client/customization", handlers.MainCustomization)
-
-	mux.HandleFunc("/client/globals", handlers.MainGlobals)
-
-	mux.HandleFunc("/client/settings", handlers.MainSettings)
-
-	mux.HandleFunc("/client/game/profile/list", handlers.MainProfileList)
-
-	mux.HandleFunc("/client/account/customization", handlers.MainAccountCustomization)
-
-	mux.HandleFunc("/client/locale/", handlers.MainLocale)
-
-	mux.HandleFunc("/client/game/keepalive", handlers.MainKeepAlive)
-
-	mux.HandleFunc("/client/game/profile/nickname/reserved", handlers.MainNicknameReserved)
-
-	mux.HandleFunc("/client/game/profile/nickname/validate", handlers.MainNicknameValidate)
-
-	mux.HandleFunc("/client/game/profile/create", handlers.MainProfileCreate)
-
-	mux.HandleFunc("/client/game/profile/select", handlers.MainProfileSelect)
-
-	mux.HandleFunc("/client/profile/status", handlers.MainProfileStatus)
-
-	mux.HandleFunc("/client/weather", handlers.MainWeather)
-
-	mux.HandleFunc("/client/locations", handlers.MainLocations)
-
-	mux.HandleFunc("/client/handbook/templates", handlers.MainTemplates)
-
-	mux.HandleFunc("/client/hideout/areas", handlers.MainHideoutAreas)
-	mux.HandleFunc("/client/hideout/qte/list", handlers.MainHideoutQTE)
-	mux.HandleFunc("/client/hideout/settings", handlers.MainHideoutSettings)
-	mux.HandleFunc("/client/hideout/production/recipes", handlers.MainHideoutRecipes)
-	mux.HandleFunc("/client/hideout/production/scavcase/recipes", handlers.MainHideoutScavRecipes)
-
-	mux.HandleFunc("/client/handbook/builds/my/list", handlers.MainBuildsList)
-
-	mux.HandleFunc("/client/notifier/channel/create", handlers.MainChannelCreate)
-
-	mux.HandleFunc("/client/quest/list", handlers.MainQuestList)
-
-	mux.HandleFunc("/client/match/group/current", handlers.MainCurrentGroup)
-
-	mux.HandleFunc("/client/repeatalbeQuests/activityPeriods", handlers.MainRepeatableQuests)
-
-	mux.HandleFunc("/client/server/list", handlers.MainServerList)
-
-	mux.HandleFunc("/client/checkVersion", handlers.MainCheckVersion)
-
-	mux.HandleFunc("/client/game/logout", handlers.MainLogoout)
+	tradingRouteHandlers[route] = handler
 }
 
 func setTradingRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/client/trading/api/traderSettings", handlers.TradingTraderSettings)
-	mux.HandleFunc("/client/trading/customization/storage", handlers.TradingCustomizationStorage)
-	/* 	 "/client/trading/customization/storage"
-	   	 "/client/trading/api/getTraderAssort/" + traderId
-	   	 "/client/trading/customization/" + traderId + "/offers"
-	   	 "/client/trading/api/traderSettings" */
+	for route, handler := range tradingRouteHandlers {
+		mux.HandleFunc(route, handler)
+	}
 }
 
 func setRagfairRoutes(mux *http.ServeMux) {
@@ -93,19 +92,17 @@ func setRagfairRoutes(mux *http.ServeMux) {
 	   	 "/client/ragfair/find" */
 }
 
+var messagingRouteHandlers = map[string]http.HandlerFunc{
+	"/client/friend/list":                handlers.MessagingFriendList,
+	"/client/mail/dialog/list":           handlers.MessagingDialogList,
+	"/client/friend/request/list/inbox":  handlers.MessagingFriendRequestInbox,
+	"/client/friend/request/list/outbox": handlers.MessagingFriendRequestOutbox,
+}
+
 func setMessagingRoutes(mux *http.ServeMux) {
-
-	mux.HandleFunc("/client/friend/list", handlers.MessagingFriendList)
-	// "/client/friend/list"
-
-	mux.HandleFunc("/client/mail/dialog/list", handlers.MessagingDialogList)
-	// "/client/mail/dialog/list"
-
-	mux.HandleFunc("/client/friend/request/list/inbox", handlers.MessagingFriendRequestInbox)
-	// "/client/friend/request/list/inbox"
-
-	mux.HandleFunc("/client/friend/request/list/outbox", handlers.MessagingFriendRequestOutbox)
-	// "/client/friend/request/list/outbox"
+	for route, handler := range messagingRouteHandlers {
+		mux.HandleFunc(route, handler)
+	}
 
 	// "/client/friend/delete"
 

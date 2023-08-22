@@ -9,9 +9,6 @@ import (
 	"strings"
 )
 
-var buffer = &bytes.Buffer{}
-var writer = zlib.NewWriter(buffer)
-
 func ZlibReply(w http.ResponseWriter, data interface{}) {
 	zlibDeflate(w, data)
 }
@@ -25,7 +22,7 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 
 	// Check if the request header includes "Unity"
 	if strings.Contains(r.Header.Get("User-Agent"), "Unity") {
-		buffer.Reset()
+		buffer := &bytes.Buffer{}
 
 		// Inflate r.Body with zlib
 		reader, err := zlib.NewReader(r.Body)
@@ -46,7 +43,6 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 }
 
 func zlibDeflate(w http.ResponseWriter, data interface{}) {
-	buffer.Reset()
 
 	// Convert data to JSON bytes
 	bytes, err := json.Marshal(data)
@@ -70,8 +66,8 @@ func zlibDeflate(w http.ResponseWriter, data interface{}) {
 }
 
 func compressZlib(data []byte) []byte {
-	buffer.Reset()
-	writer.Reset(buffer)
+	buffer := &bytes.Buffer{}
+	writer := zlib.NewWriter(buffer)
 
 	defer writer.Close()
 

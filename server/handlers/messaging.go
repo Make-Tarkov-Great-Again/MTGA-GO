@@ -7,7 +7,7 @@ import (
 )
 
 func MessagingFriendList(w http.ResponseWriter, r *http.Request) {
-	friends := database.GetAccountByUID(services.GetSessionID(r)).Friends.Friends
+	friends := database.GetAccountByUID(services.GetSessionID(r)).Friends
 	body := services.ApplyResponseBody(friends)
 	services.ZlibJSONReply(w, body)
 }
@@ -25,20 +25,23 @@ func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+type FriendRequestMailbox struct {
+	Err  int           `json:"err"`
+	Data []interface{} `json:"data"`
+}
+
 func MessagingFriendRequestInbox(w http.ResponseWriter, r *http.Request) {
 	friends := database.GetAccountByUID(services.GetSessionID(r)).FriendRequestInbox
-	body := map[string]interface{}{
-		"err":  0,
-		"data": friends,
+	body := &FriendRequestMailbox{
+		Data: friends,
 	}
 	services.ZlibJSONReply(w, body)
 }
 
 func MessagingFriendRequestOutbox(w http.ResponseWriter, r *http.Request) {
 	friends := database.GetAccountByUID(services.GetSessionID(r)).FriendRequestOutbox
-	body := map[string]interface{}{
-		"err":  0,
-		"data": friends,
+	body := &FriendRequestMailbox{
+		Data: friends,
 	}
 	services.ZlibJSONReply(w, body)
 }

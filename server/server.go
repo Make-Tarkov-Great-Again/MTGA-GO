@@ -9,19 +9,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 )
-
-var buffer = &bytes.Buffer{}
 
 func logAndDecompress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the incoming request URL
-		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + r.Host + "]")
+		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + strings.TrimPrefix(r.Host, "127.0.0.1") + "]")
 
-		if buffer != nil {
-			buffer.Reset()
-		}
+		buffer := &bytes.Buffer{}
 
 		if r.Header.Get("Content-Type") != "application/json" {
 			next.ServeHTTP(w, r)

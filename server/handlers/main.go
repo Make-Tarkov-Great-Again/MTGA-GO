@@ -20,12 +20,12 @@ func GetBundleList(w http.ResponseWriter, _ *http.Request) {
 	services.ZlibJSONReply(w, []string{})
 }
 
-func GetWebSocketAddress(w http.ResponseWriter, r *http.Request) {
+/* func GetWebSocketAddress(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	database.SetWebSocketAddress(sessionID)
 	websocketURL := database.GetWebSocketAddress()
 	services.ZlibReply(w, websocketURL)
-}
+} */
 
 func ShowPersonKilledMessage(w http.ResponseWriter, _ *http.Request) {
 	services.ZlibJSONReply(w, "true")
@@ -106,7 +106,6 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 		TwitchEventMember: false,
 	})
 
-	fmt.Println("Don't forget to create multiple servers later on you dumbshit!!!!!!!!!!!!")
 	services.ZlibJSONReply(w, gameConfig)
 }
 
@@ -418,7 +417,7 @@ func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 
 	notiServer := fmt.Sprintf("%s/push/notifier/get/%s", database.GetMainAddress(), sessionID)
-	wssServer := fmt.Sprintf("%s/push/notifier/getwebsocket/%s", database.GetWebsocketURL(), sessionID)
+	wssServer := fmt.Sprintf("%s/push/notifier/getwebsocket/%s", database.GetWebSocketAddress(), sessionID)
 
 	channel.Status = "ok"
 	Notifier := &channel.Notifier
