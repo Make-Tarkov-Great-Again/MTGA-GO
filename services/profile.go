@@ -4,7 +4,6 @@ import (
 	"MT-GO/database"
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -46,12 +45,8 @@ func SaveProfile(profile *structs.Profile) {
 
 func SaveAccount(account structs.Account) {
 	accountFilePath := filepath.Join(profilesPath, account.UID, "account.json")
-	data, err := json.MarshalIndent(account, "", "    ")
-	if err != nil {
-		panic(err)
-	}
 
-	err = tools.WriteToFile(accountFilePath, string(data))
+	err := tools.WriteToFile(accountFilePath, account)
 	if err != nil {
 		panic(err)
 	}
@@ -60,11 +55,8 @@ func SaveAccount(account structs.Account) {
 
 func SaveCharacter(sessionID string, character structs.PlayerTemplate) {
 	characterFilePath := filepath.Join(profilesPath, sessionID, "character.json")
-	data, err := json.MarshalIndent(character, "", "    ")
-	if err != nil {
-		panic(err)
-	}
-	err = tools.WriteToFile(characterFilePath, string(data))
+
+	err := tools.WriteToFile(characterFilePath, character)
 	if err != nil {
 		panic(err)
 	}
@@ -73,12 +65,8 @@ func SaveCharacter(sessionID string, character structs.PlayerTemplate) {
 
 func SaveStorage(sessionID string, storage structs.Storage) {
 	storageFilePath := filepath.Join(profilesPath, sessionID, "storage.json")
-	data, err := json.MarshalIndent(storage, "", "    ")
-	if err != nil {
-		panic(err)
-	}
 
-	err = tools.WriteToFile(storageFilePath, string(data))
+	err := tools.WriteToFile(storageFilePath, storage)
 	if err != nil {
 		panic(err)
 	}
@@ -87,12 +75,8 @@ func SaveStorage(sessionID string, storage structs.Storage) {
 
 func SaveDialogue(sessionID string, dialogue map[string]interface{}) {
 	dialogueFilePath := filepath.Join(profilesPath, sessionID, "dialogue.json")
-	data, err := json.MarshalIndent(dialogue, "", "    ")
-	if err != nil {
-		panic(err)
-	}
 
-	err = tools.WriteToFile(dialogueFilePath, string(data))
+	err := tools.WriteToFile(dialogueFilePath, dialogue)
 	if err != nil {
 		panic(err)
 	}

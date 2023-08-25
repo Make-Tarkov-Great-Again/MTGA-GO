@@ -21,3 +21,4 @@
 go.work
 user/profiles/
 user/cert/
+questsDatabase.json

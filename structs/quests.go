@@ -1,78 +1,82 @@
 package structs
 
-type Quests struct {
-	Quests map[string]Quest
-}
-
 type Quest struct {
-	Dialogue   map[string]string
-	Conditions QuestConditions
-	Rewards    QuestRewardsConditions
+	Dialogue   QuestDialogues                    `json:",omitempty"`
+	Conditions *QuestAvailabilityConditions      `json:",omitempty"`
+	Rewards    QuestRewardAvailabilityConditions `json:",omitempty"`
 }
 
-type QuestRewardsConditions struct {
-	Start   []map[string]interface{}
-	Success []map[string]interface{}
-	Fail    []map[string]interface{}
-}
-
-type QuestRewards struct {
-	Experience       QuestRewardExperience
-	Item             map[string]QuestRewardItem
-	AssortmentUnlock map[string]QuestRewardAssortUnlock
-}
-
-type QuestRewardItem struct {
-	FindInRaid bool
-	Items      []map[string]interface{}
-	Target     string
-	Value      string
-}
-
-type QuestRewardAssortUnlock struct {
-	Items        []map[string]interface{}
-	LoyaltyLevel int
-	Target       string
-	TraderID     string
-}
-
-type QuestRewardTraderStanding struct {
-	Target string
-	Value  string
-}
-
-type QuestRewardExperience struct {
-	Value string
+type QuestDialogues struct {
+	Description string
+	Accepted    string
+	Started     string
+	Complete    string
+	Success     string
+	Fail        string
 }
 
 type QuestAvailabilityConditions struct {
-	Start  map[string]QuestConditions
-	Finish map[string]QuestConditions
-	Fail   map[string]QuestConditions
+	AvailableForStart  *QuestConditionTypes `json:"AvailableForStart,omitempty"`
+	AvailableForFinish *QuestConditionTypes `json:"AvailableForFinish,omitempty"`
+	Fail               *QuestConditionTypes `json:"Fail,omitempty"`
 }
 
-type QuestConditions struct {
-	Level         LevelCondition
-	Quest         map[string]QuestCondition
-	TraderLoyalty map[string]LevelCondition
-	HandoverItem  map[string]HandoverCondition
+type QuestConditionTypes struct {
+	Level          *LevelCondition               `json:"Level,omitempty"`
+	Quest          map[string]*QuestCondition    `json:"Quest,omitempty"`
+	TraderLoyalty  map[string]*LevelCondition    `json:"TraderLoyalty,omitempty"`
+	TraderStanding map[string]*LevelCondition    `json:"TraderStanding,omitempty"`
+	HandoverItem   map[string]*HandoverCondition `json:"HandoverItem,omitempty"`
+	WeaponAssembly map[string]*HandoverCondition `json:"WeaponAssembly,omitempty"`
+	FindItem       map[string]*HandoverCondition `json:"FindItem,omitempty"`
+	Skills         map[string]*LevelCondition    `json:"Skill,omitempty"`
 }
 
 type HandoverCondition struct {
-	FindItemInRaid      bool
-	ItemToHandover      string
-	Amount              int
-	MaxDurabilityOfItem float32
-	MinDurabilityOfItem float32
+	ItemToHandover string
+	Amount         int
 }
 
 type QuestCondition struct {
-	QuestID         string
 	Status          int
 	PreviousQuestID string
 }
 
 type LevelCondition struct {
 	CompareMethod string
-	Level         string
+	Level         float64
+}
+
+type QuestRewardAvailabilityConditions struct {
+	Start   *QuestRewards `json:"Started,omitempty"`
+	Success *QuestRewards `json:"Success,omitempty"`
+	Fail    *QuestRewards `json:"Fail,omitempty"`
+}
+
+type QuestRewards struct {
+	Experience            int                                     `json:"Experience,omitempty"`
+	Items                 map[string]*QuestRewardItem             `json:"Item,omitempty"`
+	AssortmentUnlock      string                                  `json:"AssortmentUnlock,omitempty"`
+	TraderStanding        map[string]*float64                     `json:"TraderStanding,omitempty"`
+	TraderStandingRestore map[string]*float64                     `json:"TraderStandingRestore,omitempty"`
+	TraderUnlock          string                                  `json:"TraderUnlock,omitempty"`
+	Skills                map[string]*int                         `json:"Skills,omitempty"`
+	ProductionScheme      map[string]*QuestRewardProductionScheme `json:"ProductionScheme,omitempty"`
+}
+
+type QuestRewardProductionScheme struct {
+	Item         string
+	LoyaltyLevel int
+	AreaID       int
+}
+
+type QuestRewardItem struct {
+	FindInRaid bool
+	Items      []map[string]interface{}
+	Value      int
+}
+
+type QuestRewardAssortUnlock struct {
+	Items        []map[string]interface{}
+	LoyaltyLevel int
 }
