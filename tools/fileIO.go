@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -21,7 +22,7 @@ const (
 )
 
 // WriteToFile writes the given string of data to the specified file path
-func WriteToFile(filePath string, data string) error {
+func WriteToFile(filePath string, data interface{}) error {
 	// Get the absolute path of the file
 	path := GetAbsolutePathFrom(filePath)
 
@@ -38,8 +39,12 @@ func WriteToFile(filePath string, data string) error {
 	}
 	defer file.Close()
 
-	// Write the contents of data to the file
-	_, err = file.WriteString(data)
+	// Create a custom JSON encoder that doesn't escape Unicode
+	encoder := json.NewEncoder(file)
+	encoder.SetEscapeHTML(false)
+
+	// Encode and write the data to the file
+	err = encoder.Encode(data)
 	if err != nil {
 		return err
 	}
