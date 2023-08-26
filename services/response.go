@@ -2,7 +2,9 @@ package services
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -51,6 +53,20 @@ var cachableRoutes = map[string]struct{}{
 	"/client/languages":     {},
 	"/client/menu/locale/":  {},
 	//"/client/location/getLocalloot": {}, don't fully understand why this would be cached
+}
+
+func ServeFile(w http.ResponseWriter, imagePath, mime string) {
+	file, err := os.Open(imagePath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	w.Header().Set("Content-Type", mime)
+	_, err = io.Copy(w, file)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func CheckIfResponseCanBeCached(string string) bool {
