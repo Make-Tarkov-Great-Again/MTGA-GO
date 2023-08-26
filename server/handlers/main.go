@@ -523,8 +523,11 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
+	sessionID := services.GetSessionID(r)
+	quests := services.GetQuestsAvailableToPlayer(sessionID)
+
 	fmt.Println("Sending empty array for right now because I don't feel like filtering quests rn")
-	body := services.ApplyResponseBody([]interface{}{})
+	body := services.ApplyResponseBody(quests)
 	services.ZlibJSONReply(w, body)
 }
 

@@ -10,9 +10,14 @@ import (
 )
 
 // var quests map[string]interface{}
-var quests = map[string]*structs.Quest{}
+var questsQuery = map[string]*structs.Quest{}
+var quests = map[string]interface{}{}
 
-func GetQuests() map[string]*structs.Quest {
+func GetQuestsQuery() map[string]*structs.Quest {
+	return questsQuery
+}
+
+func GetQuests() map[string]interface{} {
 	return quests
 }
 
@@ -27,9 +32,13 @@ const (
 func setQuests() {
 
 	raw := tools.GetJSONRawMessage(questsPath)
+	err := json.Unmarshal(raw, &quests)
+	if err != nil {
+		panic(err)
+	}
 
 	dynamic := make(map[string]map[string]interface{})
-	err := json.Unmarshal(raw, &dynamic)
+	err = json.Unmarshal(raw, &dynamic)
 	if err != nil {
 		panic(err)
 	}
@@ -83,10 +92,9 @@ func setQuests() {
 
 		}
 
-		quests[k] = quest
+		questsQuery[k] = quest
 	}
-
-	_ = tools.WriteToFile("questsDatabase.json", quests)
+	//_ = tools.WriteToFile("questsDatabase.json", quests)
 }
 
 func processDialogue(quest map[string]interface{}) structs.QuestDialogues {
