@@ -22,3 +22,5 @@ go.work
 user/profiles/
 user/cert/
 questsDatabase.json
+*.png
+*.jpg

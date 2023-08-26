@@ -76,8 +76,6 @@ func completedPreviousQuestCheck(quests map[string]*structs.QuestCondition, char
 }
 
 func comparisonCheck(questLevel float64, characterLevel float64, compareMethod string) bool {
-	fmt.Println("Compare method of " + compareMethod)
-
 	switch compareMethod {
 	case ">=":
 		return characterLevel >= questLevel
