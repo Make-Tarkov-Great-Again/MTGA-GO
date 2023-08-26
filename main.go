@@ -41,7 +41,7 @@ func startHome() {
 			fmt.Println("Adios faggot")
 			return
 		default:
-			fmt.Println("Invalid input, retard")
+			fmt.Println("Invalid input, intellectually less able fella")
 		}
 	}
 }
