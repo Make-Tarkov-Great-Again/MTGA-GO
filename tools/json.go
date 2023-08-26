@@ -2,7 +2,6 @@ package tools
 
 import (
 	"encoding/json"
-	"errors"
 	"strings"
 )
 
@@ -25,36 +24,24 @@ func Stringify(data interface{}, oneline bool) string {
 	return buf.String()
 }
 
-// ParseJSON parses the given byte slice as JSON and returns an array or object representation of the parsed data.
-func ParseJSON(data *[]byte) (interface{}, error) {
-	var result interface{}
-	err := json.Unmarshal(*data, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	if arr, ok := result.([]interface{}); ok {
-		return arr, nil
-	}
-
-	if obj, ok := result.(map[string]interface{}); ok {
-		return obj, nil
-	}
-
-	return nil, errors.New("unexpected JSON structure")
+type Data struct {
+	Data json.RawMessage `json:"data"`
 }
 
-// ReadParsed reads a file path and parses it into an interface.
-func ReadParsed(filePath string) (interface{}, error) {
-	data, err := ReadFile(filePath)
+func GetJSONRawMessage(path string) json.RawMessage {
+	byte, err := ReadFile(path)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	result, err := ParseJSON(&data)
-	if err != nil {
-		return nil, err
+	rawJson := json.RawMessage(byte)
+	var data Data
+	if strings.Contains(string(rawJson), "\"data\"") {
+		err := json.Unmarshal(rawJson, &data)
+		if err != nil {
+			panic(err)
+		}
+		return data.Data
 	}
-
-	return result, nil
+	return rawJson
 }

@@ -19,3 +19,8 @@
 
 # Go workspace file
 go.work
+user/profiles/
+user/cert/
+questsDatabase.json
+*.png
+*.jpg

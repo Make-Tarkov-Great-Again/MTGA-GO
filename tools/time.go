@@ -1,15 +1,14 @@
 package tools
 
 import (
-	"strconv"
 	"time"
 )
 
 var now = time.Now()
 
 // GetCurrentTimeInSeconds returns the current time in seconds
-func GetCurrentTimeInSeconds() string {
-	return strconv.FormatInt(now.Unix(), 10)
+func GetCurrentTimeInSeconds() int64 {
+	return now.Unix()
 }
 
 // TimeInHMSFormat returns the current time in the format HH-MM-SS
