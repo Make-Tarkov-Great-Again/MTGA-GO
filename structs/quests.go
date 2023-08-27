@@ -1,6 +1,7 @@
 package structs
 
 type Quest struct {
+	Name       string
 	Dialogue   QuestDialogues                    `json:",omitempty"`
 	Conditions *QuestAvailabilityConditions      `json:",omitempty"`
 	Rewards    QuestRewardAvailabilityConditions `json:",omitempty"`

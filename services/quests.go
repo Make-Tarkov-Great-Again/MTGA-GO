@@ -4,7 +4,32 @@ import (
 	"MT-GO/database"
 	"MT-GO/structs"
 	"fmt"
+	"strings"
 )
+
+var bearOnlyQuests = map[string]struct{}{
+	"6179b5eabca27a099552e052": {},
+	"5e383a6386f77465910ce1f3": {},
+	"5e4d515e86f77438b2195244": {},
+	"639282134ed9512be67647ed": {},
+}
+
+var usecOnlyQuests = map[string]struct{}{
+	"6179b5eabca27a099552e052": {},
+	"5e383a6386f77465910ce1f3": {},
+	"5e4d515e86f77438b2195244": {},
+	"639282134ed9512be67647ed": {},
+}
+
+func checkIfQuestForOtherFaction(side string, qid string) bool {
+	if side == "Bear" {
+		_, ok := usecOnlyQuests[qid]
+		return ok
+	} else {
+		_, ok := bearOnlyQuests[qid]
+		return ok
+	}
+}
 
 func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 	output := []interface{}{}
@@ -13,10 +38,20 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 	quests := database.GetQuests()     //raw quests
 	query := database.GetQuestsQuery() //quest query
 
-	characterQuests := character.Quests
-	characterHasQuests := len(characterQuests) != 0
+	characterHasQuests := len(character.Quests) != 0
+
+	traderStandings := make(map[string]*int) //temporary
 
 	for key, value := range query {
+
+		if checkIfQuestForOtherFaction(character.Info.Side, key) {
+			continue
+		}
+
+		if strings.Contains(value.Name, "-Event") {
+			fmt.Println("Filter event quests ", value.Name, " properly")
+			continue
+		}
 
 		if value.Conditions == nil || value.Conditions.AvailableForStart == nil {
 			output = append(output, quests[key])
@@ -26,7 +61,7 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 		forStart := value.Conditions.AvailableForStart
 
 		if forStart.Level != nil {
-			if !comparisonCheck(
+			if !levelComparisonCheck(
 				value.Conditions.AvailableForStart.Level.Level,
 				float64(character.Info.Level),
 				value.Conditions.AvailableForStart.Level.CompareMethod) {
@@ -47,19 +82,25 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 		loyaltyCheck := false
 		if forStart.TraderLoyalty != nil {
 			for trader, loyalty := range forStart.TraderLoyalty {
-				loyaltyCheck = comparisonCheck(
-					loyalty.Level,
-					float64(character.TradersInfo[trader].Standing),
-					loyalty.CompareMethod)
-			}
 
-			if !loyaltyCheck {
-				continue
+				if traderStandings[trader] == nil {
+					loyaltyLevel := GetTraderLoyaltyLevel(trader, character)
+					traderStandings[trader] = &loyaltyLevel
+				}
+
+				loyaltyCheck = levelComparisonCheck(
+					loyalty.Level,
+					float64(*traderStandings[trader]),
+					loyalty.CompareMethod)
 			}
 		}
 
+		if !loyaltyCheck {
+			continue
+		}
+
 		if forStart.Quest != nil {
-			if completedPreviousQuestCheck(forStart.Quest, characterQuests) && loyaltyCheck {
+			if completedPreviousQuestCheck(forStart.Quest, character) {
 				output = append(output, quests[key])
 				continue
 			}
@@ -70,23 +111,49 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 	return output
 }
 
-func completedPreviousQuestCheck(quests map[string]*structs.QuestCondition, characterQuests []interface{}) bool {
-	fmt.Println("Adjust completedPreviousQuestCheck to account for PreviousQuestID")
-	return false
+type QuestStatus int
+
+const (
+	Locked             QuestStatus = 0
+	AvailableForStart  QuestStatus = 1
+	Started            QuestStatus = 2
+	AvailableForFinish QuestStatus = 3
+	Success            QuestStatus = 4
+	Fail               QuestStatus = 5
+	FailRestartable    QuestStatus = 6
+	MarkedAsFailed     QuestStatus = 7
+	Expired            QuestStatus = 8
+	AvailableAfter     QuestStatus = 9
+)
+
+func completedPreviousQuestCheck(quests map[string]*structs.QuestCondition, character *structs.PlayerTemplate) bool {
+	previousQuestCompleted := false
+
+	for _, v := range quests {
+		for _, quest := range character.Quests {
+			qid, ok := quest["qid"].(string)
+			if !ok || qid != v.PreviousQuestID {
+				continue
+			}
+
+			previousQuestCompleted = v.Status == quest["status"].(int)
+		}
+	}
+	return previousQuestCompleted
 }
 
-func comparisonCheck(questLevel float64, characterLevel float64, compareMethod string) bool {
+func levelComparisonCheck(requiredLevel float64, currentLevel float64, compareMethod string) bool {
 	switch compareMethod {
 	case ">=":
-		return characterLevel >= questLevel
+		return currentLevel >= requiredLevel
 	case ">":
-		return characterLevel > questLevel
+		return currentLevel > requiredLevel
 	case "<":
-		return characterLevel < questLevel
+		return currentLevel < requiredLevel
 	case "<=":
-		return characterLevel <= questLevel
+		return currentLevel <= requiredLevel
 	case "=":
-		return characterLevel == questLevel
+		return currentLevel == requiredLevel
 	default:
 		fmt.Println("Unknown comparison method of " + compareMethod)
 		return false
