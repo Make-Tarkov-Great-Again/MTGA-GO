@@ -5,6 +5,7 @@ import (
 	"MT-GO/structs"
 )
 
+// GetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
 func GetTraderLoyaltyLevel(traderID string, character *structs.PlayerTemplate) int {
 	loyaltyLevels := database.GetTraderByID(traderID).Base["loyaltyLevels"].([]interface{})
 
@@ -33,7 +34,6 @@ func GetTraderLoyaltyLevel(traderID string, character *structs.PlayerTemplate) i
 		}
 	}
 
-	// Check if index 1 exists and is not nil
 	if length > 1 && loyaltyLevels[2] != nil {
 		two := loyaltyLevels[2].(map[string]interface{})
 		if character.Info.Level < int(two["minLevel"].(float64)) ||
@@ -43,7 +43,6 @@ func GetTraderLoyaltyLevel(traderID string, character *structs.PlayerTemplate) i
 		}
 	}
 
-	// Check if index 2 exists and is not nil
 	if length > 2 && loyaltyLevels[3] != nil {
 		three := loyaltyLevels[3].(map[string]interface{})
 		if character.Info.Level < int(three["minLevel"].(float64)) ||
