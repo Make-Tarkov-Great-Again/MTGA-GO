@@ -11,7 +11,11 @@ import (
 var traders = map[string]*structs.Trader{}
 
 func GetTraderByID(id string) *structs.Trader {
-	return traders[id]
+	trader, ok := traders[id]
+	if ok {
+		return trader
+	}
+	return nil
 }
 
 func GetTraders() map[string]*structs.Trader {

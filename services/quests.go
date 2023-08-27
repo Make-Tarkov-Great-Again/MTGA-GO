@@ -62,20 +62,16 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 
 		if forStart.Level != nil {
 			if !levelComparisonCheck(
-				value.Conditions.AvailableForStart.Level.Level,
+				forStart.Level.Level,
 				float64(character.Info.Level),
-				value.Conditions.AvailableForStart.Level.CompareMethod) {
+				forStart.Level.CompareMethod) {
 
 				continue
 			}
 		}
 
-		if forStart.Quest == nil && forStart.TraderLoyalty == nil {
+		if forStart.Quest == nil && forStart.TraderLoyalty == nil && forStart.TraderStanding == nil {
 			output = append(output, quests[key])
-			continue
-		}
-
-		if !characterHasQuests {
 			continue
 		}
 
@@ -93,19 +89,38 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 					float64(*traderStandings[trader]),
 					loyalty.CompareMethod)
 			}
+
+			if !loyaltyCheck {
+				continue
+			}
 		}
 
-		if !loyaltyCheck {
-			continue
+		standingCheck := false
+		if forStart.TraderStanding != nil {
+			for trader, loyalty := range forStart.TraderStanding {
+
+				if traderStandings[trader] == nil {
+					loyaltyLevel := GetTraderLoyaltyLevel(trader, character)
+					traderStandings[trader] = &loyaltyLevel
+				}
+
+				standingCheck = levelComparisonCheck(
+					loyalty.Level,
+					float64(*traderStandings[trader]),
+					loyalty.CompareMethod)
+			}
+
+			if !standingCheck {
+				continue
+			}
 		}
 
-		if forStart.Quest != nil {
+		if forStart.Quest != nil && characterHasQuests {
 			if completedPreviousQuestCheck(forStart.Quest, character) {
 				output = append(output, quests[key])
 				continue
 			}
 		}
-
 	}
 
 	return output
