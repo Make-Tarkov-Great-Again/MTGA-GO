@@ -10,6 +10,10 @@ import (
 
 var traders = map[string]*structs.Trader{}
 
+func GetTraderByID(id string) *structs.Trader {
+	return traders[id]
+}
+
 func GetTraders() map[string]*structs.Trader {
 	return traders
 }
