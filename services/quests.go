@@ -7,27 +7,25 @@ import (
 	"strings"
 )
 
-var bearOnlyQuests = map[string]struct{}{
-	"6179b5eabca27a099552e052": {},
-	"5e383a6386f77465910ce1f3": {},
-	"5e4d515e86f77438b2195244": {},
-	"639282134ed9512be67647ed": {},
+var bearOnlyQuests = map[string]bool{
+	"6179b5eabca27a099552e052": true,
+	"5e383a6386f77465910ce1f3": true,
+	"5e4d515e86f77438b2195244": true,
+	"639282134ed9512be67647ed": true,
 }
 
-var usecOnlyQuests = map[string]struct{}{
-	"6179b5eabca27a099552e052": {},
-	"5e383a6386f77465910ce1f3": {},
-	"5e4d515e86f77438b2195244": {},
-	"639282134ed9512be67647ed": {},
+var usecOnlyQuests = map[string]bool{
+	"6179b5eabca27a099552e052": true,
+	"5e383a6386f77465910ce1f3": true,
+	"5e4d515e86f77438b2195244": true,
+	"639282134ed9512be67647ed": true,
 }
 
 func checkIfQuestForOtherFaction(side string, qid string) bool {
 	if side == "Bear" {
-		_, ok := usecOnlyQuests[qid]
-		return ok
+		return usecOnlyQuests[qid]
 	} else {
-		_, ok := bearOnlyQuests[qid]
-		return ok
+		return bearOnlyQuests[qid]
 	}
 }
 
@@ -35,12 +33,12 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 	output := []interface{}{}
 
 	character := database.GetCharacterByUID(sessionID)
-	quests := database.GetQuests()     //raw quests
+	//quests := database.GetQuests()     //raw quests
 	query := database.GetQuestsQuery() //quest query
 
 	characterHasQuests := len(character.Quests) != 0
 
-	traderStandings := make(map[string]*int) //temporary
+	traderStandings := make(map[string]*float64) //temporary
 
 	for key, value := range query {
 
@@ -54,7 +52,7 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 		}
 
 		if value.Conditions == nil || value.Conditions.AvailableForStart == nil {
-			output = append(output, quests[key])
+			output = append(output, database.GetQuestByQID(key))
 			continue
 		}
 
@@ -71,7 +69,7 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 		}
 
 		if forStart.Quest == nil && forStart.TraderLoyalty == nil && forStart.TraderStanding == nil {
-			output = append(output, quests[key])
+			output = append(output, database.GetQuestByQID(key))
 			continue
 		}
 
@@ -80,13 +78,13 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 			for trader, loyalty := range forStart.TraderLoyalty {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := GetTraderLoyaltyLevel(trader, character)
+					loyaltyLevel := float64(GetTraderLoyaltyLevel(trader, character))
 					traderStandings[trader] = &loyaltyLevel
 				}
 
 				loyaltyCheck = levelComparisonCheck(
 					loyalty.Level,
-					float64(*traderStandings[trader]),
+					*traderStandings[trader],
 					loyalty.CompareMethod)
 			}
 
@@ -100,13 +98,13 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 			for trader, loyalty := range forStart.TraderStanding {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := GetTraderLoyaltyLevel(trader, character)
+					loyaltyLevel := float64(GetTraderLoyaltyLevel(trader, character))
 					traderStandings[trader] = &loyaltyLevel
 				}
 
 				standingCheck = levelComparisonCheck(
 					loyalty.Level,
-					float64(*traderStandings[trader]),
+					*traderStandings[trader],
 					loyalty.CompareMethod)
 			}
 
@@ -117,7 +115,7 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 
 		if forStart.Quest != nil && characterHasQuests {
 			if completedPreviousQuestCheck(forStart.Quest, character) {
-				output = append(output, quests[key])
+				output = append(output, database.GetQuestByQID(key))
 				continue
 			}
 		}
@@ -126,7 +124,7 @@ func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
 	return output
 }
 
-type QuestStatus int
+/* type QuestStatus int
 
 const (
 	Locked             QuestStatus = 0
@@ -139,7 +137,7 @@ const (
 	MarkedAsFailed     QuestStatus = 7
 	Expired            QuestStatus = 8
 	AvailableAfter     QuestStatus = 9
-)
+) */
 
 func completedPreviousQuestCheck(quests map[string]*structs.QuestCondition, character *structs.PlayerTemplate) bool {
 	previousQuestCompleted := false

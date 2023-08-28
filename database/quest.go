@@ -17,6 +17,10 @@ func GetQuestsQuery() map[string]*structs.Quest {
 	return questsQuery
 }
 
+func GetQuestByQID(qid string) interface{} {
+	return quests[qid]
+}
+
 func GetQuests() map[string]interface{} {
 	return quests
 }
