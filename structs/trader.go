@@ -3,7 +3,6 @@ package structs
 type Trader struct {
 	Base        map[string]interface{}
 	Assort      *Assort
-	BaseAssort  *Assort
 	QuestAssort map[string][]string
 	Suits       []map[string]interface{}
 	Dialogue    map[string][]string

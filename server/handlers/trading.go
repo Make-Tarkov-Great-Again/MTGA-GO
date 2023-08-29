@@ -21,8 +21,6 @@ func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-const traderSettingsRoute string = "/client/trading/api/traderSettings"
-
 func TradingTraderSettings(w http.ResponseWriter, r *http.Request) {
 	traders := database.GetTraders()
 	data := make([]map[string]interface{}, 0, len(traders))

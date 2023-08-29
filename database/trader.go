@@ -42,7 +42,6 @@ func setTraders() {
 		assortPath := filepath.Join(currentTraderPath, "assort.json")
 		if tools.FileExist(assortPath) {
 			trader.Assort = processAssort(assortPath)
-			trader.BaseAssort = trader.Assort
 		}
 
 		questsPath := filepath.Join(currentTraderPath, "questassort.json")
