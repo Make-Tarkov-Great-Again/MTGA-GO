@@ -65,6 +65,8 @@ type LocaleMenu struct {
 	Menu map[string]string `json:"menu"`
 }
 
+type Prices map[string]int
+
 type Handbook struct {
 	Categories []HandbookCategory `json:"Categories"`
 	Items      []HandbookItem     `json:"Items"`

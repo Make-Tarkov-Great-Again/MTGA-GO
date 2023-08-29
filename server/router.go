@@ -3,6 +3,7 @@ package server
 
 import (
 	"MT-GO/server/handlers"
+	"MT-GO/services"
 	"fmt"
 	"net/http"
 )
@@ -44,6 +45,9 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/server/list":                         handlers.MainServerList,
 	"/client/checkVersion":                        handlers.MainCheckVersion,
 	"/client/game/logout":                         handlers.MainLogoout,
+	"/client/items/prices/":                       handlers.MainPrices,
+	"/files/":                                     services.ServeFiles,
+	//Incoming [GET] Request URL: [/files/quest/icon/59689e1c86f7740d14064725.jpg] on [:8080]
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {
@@ -65,7 +69,7 @@ func setMainRoutes(mux *http.ServeMux) {
 var tradingRouteHandlers = map[string]http.HandlerFunc{
 	"/client/trading/api/traderSettings":    handlers.TradingTraderSettings,
 	"/client/trading/customization/storage": handlers.TradingCustomizationStorage,
-	"/files/":                               handlers.TradingFiles,
+	"/files/":                               services.ServeFiles,
 	"/client/trading/customization/":        handlers.TradingClothingOffers,
 	"/client/trading/api/getTraderAssort/":  handlers.TradingTraderAssort,
 }

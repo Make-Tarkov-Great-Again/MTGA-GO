@@ -10,9 +10,10 @@ type Trader struct {
 }
 
 type Assort struct {
-	BarterScheme    map[string][][]*Scheme
-	Items           []*AssortItem
-	LoyalLevelItems map[string]int
+	NextResupply    int                    `json:"nextResupply"`
+	BarterScheme    map[string][][]*Scheme `json:"barter_scheme"`
+	Items           []*AssortItem          `json:"items"`
+	LoyalLevelItems map[string]int         `json:"loyal_level_items"`
 }
 
 type AssortItem struct {

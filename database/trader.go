@@ -127,6 +127,8 @@ func processAssort(assortPath string) *structs.Assort {
 
 	assort := &structs.Assort{}
 
+	assort.NextResupply = 1672236024
+
 	items, ok := dynamic["items"].([]interface{})
 	if ok {
 		assort.Items = make([]*structs.AssortItem, 0, len(items))

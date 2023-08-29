@@ -525,8 +525,6 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	quests := services.GetQuestsAvailableToPlayer(sessionID)
-
-	fmt.Println("Sending empty array for right now because I don't feel like filtering quests rn")
 	body := services.ApplyResponseBody(quests)
 	services.ZlibJSONReply(w, body)
 }
@@ -584,5 +582,41 @@ func MainLogoout(w http.ResponseWriter, r *http.Request) {
 	services.SaveProfile(database.GetProfileByUID(sessionID))
 
 	body := services.ApplyResponseBody(map[string]interface{}{"status": "ok"})
+	services.ZlibJSONReply(w, body)
+}
+
+type SupplyData struct {
+	SupplyNextTime  int            `json:"supplyNextTime"`
+	Prices          map[string]int `json:"prices"`
+	CurrencyCourses struct {
+		RUB int `json:"5449016a4bdc2d6f028b456f"`
+		EUR int `json:"569668774bdc2da2298b4568"`
+		DOL int `json:"5696686a4bdc2da3298b456a"`
+	} `json:"currencyCourses"`
+}
+
+const pricesRoute string = "/client/items/prices/"
+
+func MainPrices(w http.ResponseWriter, r *http.Request) {
+	traderID := strings.TrimPrefix(r.RequestURI, pricesRoute)
+	fmt.Println("Get Trader ", traderID, " Resupply to provide proper information to client")
+
+	prices := *database.GetPrices()
+
+	supplyData := &SupplyData{
+		SupplyNextTime: 1672236024,
+		Prices:         prices,
+		CurrencyCourses: struct {
+			RUB int `json:"5449016a4bdc2d6f028b456f"`
+			EUR int `json:"569668774bdc2da2298b4568"`
+			DOL int `json:"5696686a4bdc2da3298b456a"`
+		}{
+			RUB: prices["5449016a4bdc2d6f028b456f"],
+			EUR: prices["569668774bdc2da2298b4568"],
+			DOL: prices["5696686a4bdc2da3298b456a"],
+		},
+	}
+
+	body := services.ApplyResponseBody(supplyData)
 	services.ZlibJSONReply(w, body)
 }
