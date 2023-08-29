@@ -16,22 +16,18 @@ import (
 func GetTraderLoyaltyLevel(traderID string, character *structs.PlayerTemplate) int {
 	loyaltyLevels := database.GetTraderByID(traderID).Base["loyaltyLevels"].([]interface{})
 
-	_, ok := character.TradersInfo["638f541a29ffd1183d187f57"]
+	_, ok := character.TradersInfo[traderID]
 	if !ok {
 		return -1
 	}
 
 	length := len(loyaltyLevels)
-	for level := 0; level < length; level++ {
-		if loyaltyLevels[level] == nil {
-			continue
-		}
-
-		loyalty := loyaltyLevels[level].(map[string]interface{})
+	for index := 0; index < length; index++ {
+		loyalty := loyaltyLevels[index].(map[string]interface{})
 		if character.Info.Level < int(loyalty["minLevel"].(float64)) ||
 			character.TradersInfo[traderID].SalesSum < float32(loyalty["minSalesSum"].(float64)) ||
 			character.TradersInfo[traderID].Standing < float32(loyalty["minStanding"].(float64)) {
-			return level
+			return index + 1
 		}
 	}
 
