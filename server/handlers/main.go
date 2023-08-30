@@ -505,7 +505,7 @@ func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
-	recipes := database.GetHideout().Productions
+	recipes := database.GetHideout().Recipes
 	body := services.ApplyResponseBody(recipes)
 	services.ZlibJSONReply(w, body)
 }
