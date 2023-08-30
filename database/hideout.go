@@ -143,14 +143,14 @@ func setHideoutAreas(areas []map[string]interface{}) {
 	}
 }
 
-// GetHideoutProductionByID retrieves a hideout production by its ID.
-func GetHideoutProductionByID(pid string) *map[string]interface{} {
-	index, ok := hideout.Index.Recipes[pid]
+// GetHideoutRecipeByID retrieves a hideout production by its ID.
+func GetHideoutRecipeByID(rid string) *map[string]interface{} {
+	index, ok := hideout.Index.Recipes[rid]
 	if ok {
-		production := hideout.Recipes[index]
-		return &production
+		recipe := hideout.Recipes[index]
+		return &recipe
 	}
-	fmt.Println("Hideout Production ", pid, " does not exist")
+	fmt.Println("Recipe ", rid, " does not exist")
 	return nil
 }
 
@@ -165,6 +165,17 @@ func setHideoutRecipes(recipies []map[string]interface{}) {
 		hideout.Index.Recipes[pid] = int16(index)
 		hideout.Recipes = append(hideout.Recipes, recipe)
 	}
+}
+
+// GetHideoutRecipeByID retrieves a scavcase production by its ID.
+func GetScavCaseRecipeByID(rid string) *map[string]interface{} {
+	index, ok := hideout.Index.ScavCase[rid]
+	if ok {
+		recipe := hideout.ScavCase[index]
+		return &recipe
+	}
+	fmt.Println("ScavCase recipe ", rid, " does not exist")
+	return nil
 }
 
 // setHideoutScavcase sets the hideout scavcase items and their indexes.
