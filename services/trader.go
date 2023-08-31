@@ -3,14 +3,32 @@ package services
 import (
 	"MT-GO/database"
 	"MT-GO/structs"
+	"fmt"
 )
 
-/*
-	type TradingService struct {
-		Loyalty map[string]int
-		Assort map[string]
+type Trader struct {
+	*structs.Trader
+}
+
+func (t *Trader) getAssortItemByID(id string) []*structs.AssortItem {
+	item, ok := t.Index.Assort.Items[id]
+	if ok {
+		return []*structs.AssortItem{t.Assort.Items[item]}
 	}
-*/
+
+	parentItems, parentOK := t.Index.Assort.ParentItems[id]
+	if !parentOK {
+		fmt.Println("Assort Item", id, "does not exist for", t.Base["nickname"])
+		return nil
+	}
+
+	items := make([]*structs.AssortItem, 0, len(parentItems))
+	for _, index := range parentItems {
+		items = append(items, t.Assort.Items[index])
+	}
+
+	return items
+}
 
 // GetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
 func GetTraderLoyaltyLevel(traderID string, character *structs.PlayerTemplate) int {

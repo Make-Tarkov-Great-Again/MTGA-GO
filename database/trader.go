@@ -3,20 +3,15 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"fmt"
 	"path/filepath"
 	"strconv"
 
 	"github.com/goccy/go-json"
 )
 
-var traders = map[string]*Trader{}
+var traders = map[string]*structs.Trader{}
 
-type Trader struct {
-	*structs.Trader
-}
-
-func GetTraderByID(id string) *Trader {
+func GetTraderByID(id string) *structs.Trader {
 	trader, ok := traders[id]
 	if ok {
 		return trader
@@ -24,34 +19,8 @@ func GetTraderByID(id string) *Trader {
 	return nil
 }
 
-func GetTraders() map[string]*Trader {
+func GetTraders() map[string]*structs.Trader {
 	return traders
-}
-
-func (t *Trader) setTraderAssortForProfile(sid string) *structs.Assort {
-	return nil
-}
-
-func (t *Trader) getAssortItemByID(id string) []*structs.AssortItem {
-	i, ok := t.Index.Assort.Items[id]
-	if ok {
-		items := make([]*structs.AssortItem, 0, 1)
-		items = append(items, t.Assort.Items[i])
-		return items
-	}
-
-	ci, ok := t.Index.Assort.ParentItems[id]
-	if !ok {
-		fmt.Println("Assort Item ", id, " does not exist for ", t.Base["nickname"])
-		return nil
-	}
-
-	items := make([]*structs.AssortItem, 0, len(ci))
-	for _, index := range ci {
-		items = append(items, t.Assort.Items[index])
-	}
-
-	return items
 }
 
 func setTraders() {
@@ -61,7 +30,7 @@ func setTraders() {
 	}
 
 	for _, dir := range directory {
-		trader := &Trader{&structs.Trader{}}
+		trader := &structs.Trader{}
 
 		currentTraderPath := filepath.Join(traderPath, dir)
 
