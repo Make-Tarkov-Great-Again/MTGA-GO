@@ -2,8 +2,9 @@ package database
 
 import (
 	"MT-GO/tools"
-	"encoding/json"
 	"path/filepath"
+
+	"github.com/goccy/go-json"
 )
 
 var languages = make(map[string]string)

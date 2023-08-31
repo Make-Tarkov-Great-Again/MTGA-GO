@@ -29,13 +29,10 @@ func checkIfQuestForOtherFaction(side string, qid string) bool {
 	}
 }
 
-func GetQuestsAvailableToPlayer(sessionID string) []interface{} {
+func GetQuestsAvailableToPlayer(character *structs.PlayerTemplate) []interface{} {
 	output := []interface{}{}
 
-	character := database.GetCharacterByUID(sessionID)
-	//quests := database.GetQuests()     //raw quests
-	query := database.GetQuestsQuery() //quest query
-
+	query := database.GetQuestsQuery()
 	characterHasQuests := len(character.Quests) != 0
 
 	traderStandings := make(map[string]*float64) //temporary

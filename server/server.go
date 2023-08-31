@@ -6,10 +6,11 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 func logAndDecompress(next http.Handler) http.Handler {

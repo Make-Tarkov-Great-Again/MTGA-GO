@@ -3,9 +3,10 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
 	"fmt"
 	"path/filepath"
+
+	"github.com/goccy/go-json"
 )
 
 // Locales contains various locale information for all readable text in-game

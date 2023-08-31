@@ -3,10 +3,11 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 // var quests map[string]interface{}

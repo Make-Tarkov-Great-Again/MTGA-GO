@@ -1,11 +1,12 @@
 package tools
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/goccy/go-json"
 )
 
 const (

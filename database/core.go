@@ -3,9 +3,10 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
 	"fmt"
 	"net"
+
+	"github.com/goccy/go-json"
 )
 
 var core = structs.Core{}

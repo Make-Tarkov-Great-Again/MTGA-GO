@@ -3,14 +3,20 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strconv"
+
+	"github.com/goccy/go-json"
 )
 
-var traders = map[string]*structs.Trader{}
+var traders = map[string]*Trader{}
 
-func GetTraderByID(id string) *structs.Trader {
+type Trader struct {
+	*structs.Trader
+}
+
+func GetTraderByID(id string) *Trader {
 	trader, ok := traders[id]
 	if ok {
 		return trader
@@ -18,19 +24,44 @@ func GetTraderByID(id string) *structs.Trader {
 	return nil
 }
 
-func GetTraders() map[string]*structs.Trader {
+func GetTraders() map[string]*Trader {
 	return traders
 }
 
-func setTraders() {
+func (t *Trader) setTraderAssortForProfile(sid string) *structs.Assort {
+	return nil
+}
 
+func (t *Trader) getAssortItemByID(id string) []*structs.AssortItem {
+	i, ok := t.Index.Assort.Items[id]
+	if ok {
+		items := make([]*structs.AssortItem, 0, 1)
+		items = append(items, t.Assort.Items[i])
+		return items
+	}
+
+	ci, ok := t.Index.Assort.ParentItems[id]
+	if !ok {
+		fmt.Println("Assort Item ", id, " does not exist for ", t.Base["nickname"])
+		return nil
+	}
+
+	items := make([]*structs.AssortItem, 0, len(ci))
+	for _, index := range ci {
+		items = append(items, t.Assort.Items[index])
+	}
+
+	return items
+}
+
+func setTraders() {
 	directory, err := tools.GetDirectoriesFrom(traderPath)
 	if err != nil {
 		panic(err)
 	}
 
 	for _, dir := range directory {
-		trader := &structs.Trader{}
+		trader := &Trader{&structs.Trader{}}
 
 		currentTraderPath := filepath.Join(traderPath, dir)
 
@@ -41,7 +72,7 @@ func setTraders() {
 
 		assortPath := filepath.Join(currentTraderPath, "assort.json")
 		if tools.FileExist(assortPath) {
-			trader.Assort = processAssort(assortPath)
+			trader.Assort, trader.Index.Assort = processAssort(assortPath)
 		}
 
 		questsPath := filepath.Join(currentTraderPath, "questassort.json")
@@ -51,7 +82,7 @@ func setTraders() {
 
 		suitsPath := filepath.Join(currentTraderPath, "suits.json")
 		if tools.FileExist(suitsPath) {
-			trader.Suits = processSuits(suitsPath)
+			trader.Suits, trader.Index.Suits = processSuits(suitsPath)
 		}
 
 		dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
@@ -59,7 +90,6 @@ func setTraders() {
 			trader.Dialogue = processDialogues(dialoguesPath)
 		}
 
-		//traders[dir] = map[string]interface{}{}
 		traders[dir] = trader
 	}
 }
@@ -115,7 +145,7 @@ func processBase(basePath string) map[string]interface{} {
 	return base
 }
 
-func processAssort(assortPath string) *structs.Assort {
+func processAssort(assortPath string) (*structs.Assort, *structs.AssortIndex) {
 	var dynamic map[string]interface{}
 	raw := tools.GetJSONRawMessage(assortPath)
 
@@ -143,6 +173,46 @@ func processAssort(assortPath string) *structs.Assort {
 	} else {
 		panic("Items not found")
 	}
+
+	index := &structs.AssortIndex{}
+
+	parentItems := make(map[string]map[string]int16)
+	childlessItems := make(map[string]int16)
+
+	for index, item := range assort.Items {
+		_, ok := childlessItems[item.ID]
+		if ok {
+			continue
+		}
+
+		_, ok = parentItems[item.ID]
+		if ok {
+			continue
+		}
+
+		itemChildren := tools.GetItemFamilyTree(items, item.ID)
+		if len(itemChildren) == 1 {
+			childlessItems[item.ID] = int16(index)
+			continue
+		}
+
+		family := make(map[string]int16)
+		for _, child := range itemChildren {
+			for k, v := range assort.Items {
+				if child != v.ID {
+					continue
+				}
+
+				family[child] = int16(k)
+				break
+			}
+		}
+		parentItems[item.ID] = family
+	}
+
+	items = nil
+	index.ParentItems = parentItems
+	index.Items = childlessItems
 
 	barterSchemes, ok := dynamic["barter_scheme"].(map[string]interface{})
 	if ok {
@@ -176,32 +246,16 @@ func processAssort(assortPath string) *structs.Assort {
 		panic(err)
 	}
 
-	return assort
+	return assort, index
 }
 
-func processQuestAssort(questsPath string) map[string][]string {
-	var dynamic map[string]interface{}
+func processQuestAssort(questsPath string) map[string]map[string]string {
+	quests := make(map[string]map[string]string)
 	raw := tools.GetJSONRawMessage(questsPath)
 
-	err := json.Unmarshal(raw, &dynamic)
+	err := json.Unmarshal(raw, &quests)
 	if err != nil {
 		panic(err)
-	}
-	raw = nil
-
-	quests := map[string][]string{}
-	for k, v := range dynamic {
-		v := v.(map[string]interface{})
-
-		length := len(v)
-		quests[k] = make([]string, 0, len(v))
-		if length == 0 {
-			continue
-		}
-
-		for _, quest := range v {
-			quests[k] = append(quests[k], quest.(string))
-		}
 	}
 
 	return quests
@@ -235,15 +289,19 @@ func processDialogues(dialoguesPath string) map[string][]string {
 	return dialogues
 }
 
-func processSuits(dialoguesPath string) []map[string]interface{} {
-	var dynamic []map[string]interface{}
+func processSuits(dialoguesPath string) ([]structs.TraderSuits, map[string]int8) {
+	var suits []structs.TraderSuits
 	raw := tools.GetJSONRawMessage(dialoguesPath)
 
-	err := json.Unmarshal(raw, &dynamic)
+	err := json.Unmarshal(raw, &suits)
 	if err != nil {
 		panic(err)
 	}
-	raw = nil
 
-	return dynamic
+	suitsIndex := make(map[string]int8)
+	for index, suit := range suits {
+		suitsIndex[suit.SuiteID] = int8(index)
+	}
+
+	return suits, suitsIndex
 }

@@ -3,10 +3,11 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 const profilesPath string = "user/profiles/"

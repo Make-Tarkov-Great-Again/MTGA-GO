@@ -5,11 +5,12 @@ import (
 	"MT-GO/services"
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 const route_not_implemented = "Route is not implemented yet, using empty values instead"
@@ -282,7 +283,7 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !services.IsNicknameAvailable(nickname.(string)) {
+	if !services.IsNicknameAvailable(nickname.(string), database.GetProfiles()) {
 		body := services.ApplyResponseBody(nil)
 		body.Err = 225
 		body.Errmsg = "225 - "
@@ -524,7 +525,7 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	quests := services.GetQuestsAvailableToPlayer(sessionID)
+	quests := services.GetQuestsAvailableToPlayer(database.GetCharacterByUID(sessionID))
 	body := services.ApplyResponseBody(quests)
 	services.ZlibJSONReply(w, body)
 }
