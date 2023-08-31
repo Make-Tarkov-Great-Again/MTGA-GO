@@ -124,6 +124,10 @@ func login() {
 	var input string
 	var account *structs.Account
 	profiles := database.GetProfiles()
+	if len(profiles) == 0 {
+		fmt.Println("No profiles, redirecting to Account Register...")
+		registerAccount()
+	}
 
 	for {
 		fmt.Println("What is your username?")
@@ -179,17 +183,14 @@ func loggedIn(account *structs.Account) {
 		case "1":
 			launchTarkov(account)
 			fmt.Println()
-			break
 		case "2":
 			fmt.Println()
 			editAccountInfo(account)
-			break
 		case "69":
 			fmt.Println("Adios faggot")
 			return
 		default:
 			fmt.Println("Invalid input, retard")
-			break
 		}
 	}
 }
@@ -227,14 +228,11 @@ func editAccountInfo(account *structs.Account) {
 				fmt.Println("Invalid path, try again")
 			}
 			editAccountInfo(account)
-			break
 		case "69":
 			fmt.Println()
 			loggedIn(account)
-			break
 		default:
 			fmt.Println("Invalid input, retard")
-			break
 		}
 	}
 }

@@ -47,7 +47,7 @@ type PlayerTemplate struct {
 	Notes             struct {
 		Notes [][]interface{} `json:"Notes"`
 	} `json:"Notes"`
-	Quests       []interface{}                `json:"Quests"`
+	Quests       []map[string]interface{}     `json:"Quests"`
 	RagfairInfo  PlayerRagfairInfo            `json:"RagfairInfo"`
 	WishList     []string                     `json:"WishList"`
 	TradersInfo  map[string]PlayerTradersInfo `json:"TradersInfo"`

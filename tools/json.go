@@ -1,8 +1,9 @@
 package tools
 
 import (
-	"encoding/json"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 // Stringify returns a string representation of the given data.

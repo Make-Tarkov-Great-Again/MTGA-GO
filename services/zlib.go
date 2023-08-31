@@ -3,10 +3,11 @@ package services
 import (
 	"bytes"
 	"compress/zlib"
-	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 func ZlibReply(w http.ResponseWriter, data interface{}) {

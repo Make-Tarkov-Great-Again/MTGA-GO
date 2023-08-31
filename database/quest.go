@@ -3,10 +3,11 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 // var quests map[string]interface{}
@@ -15,6 +16,10 @@ var quests = map[string]interface{}{}
 
 func GetQuestsQuery() map[string]*structs.Quest {
 	return questsQuery
+}
+
+func GetQuestByQID(qid string) interface{} {
+	return quests[qid]
 }
 
 func GetQuests() map[string]interface{} {
@@ -46,6 +51,7 @@ func setQuests() {
 	for k, v := range dynamic {
 		var quest = &structs.Quest{}
 
+		quest.Name = v["QuestName"].(string)
 		quest.Dialogue = processDialogue(v)
 
 		questConditions, ok := v["conditions"].(map[string]interface{})
@@ -94,7 +100,7 @@ func setQuests() {
 
 		questsQuery[k] = quest
 	}
-	//_ = tools.WriteToFile("questsDatabase.json", quests)
+	//_ = tools.WriteToFile("questsDatabase.json", questsQuery)
 }
 
 func processDialogue(quest map[string]interface{}) structs.QuestDialogues {

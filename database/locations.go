@@ -3,7 +3,8 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
+
+	"github.com/goccy/go-json"
 )
 
 var locations = structs.Locations{}

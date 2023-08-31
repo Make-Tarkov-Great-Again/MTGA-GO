@@ -1,11 +1,18 @@
 package structs
 
 type Hideout struct {
-	Areas       []interface{}   `json:"areas"`
-	Productions []interface{}   `json:"production"`
-	QTE         []interface{}   `json:"qte"`
-	ScavCase    []interface{}   `json:"scavcase"`
-	Settings    HideoutSettings `json:"settings"`
+	Index    HideoutIndex
+	Areas    []map[string]interface{}
+	Recipes  []map[string]interface{}
+	QTE      []map[string]interface{}
+	ScavCase []map[string]interface{}
+	Settings HideoutSettings
+}
+
+type HideoutIndex struct {
+	Areas    map[int8]int8
+	ScavCase map[string]int8
+	Recipes  map[string]int16
 }
 
 type HideoutSettings struct {

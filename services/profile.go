@@ -1,7 +1,6 @@
 package services
 
 import (
-	"MT-GO/database"
 	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
@@ -9,9 +8,7 @@ import (
 	"path/filepath"
 )
 
-func IsNicknameAvailable(nickname string) bool {
-	profiles := database.GetProfiles()
-
+func IsNicknameAvailable(nickname string, profiles map[string]*structs.Profile) bool {
 	for _, profile := range profiles {
 		if profile.Character == nil || profile.Character.Info.Nickname == "" {
 			continue

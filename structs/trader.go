@@ -1,18 +1,50 @@
 package structs
 
 type Trader struct {
-	Base        map[string]interface{}
-	Assort      *Assort
-	BaseAssort  *Assort
-	QuestAssort map[string][]string
-	Suits       []map[string]interface{}
-	Dialogue    map[string][]string
+	Index       TraderIndex                  `json:",omitempty"`
+	Base        map[string]interface{}       `json:",omitempty"`
+	Assort      *Assort                      `json:",omitempty"`
+	QuestAssort map[string]map[string]string `json:",omitempty"`
+	Suits       []TraderSuits                `json:",omitempty"`
+	Dialogue    map[string][]string          `json:",omitempty"`
+}
+
+type TraderIndex struct {
+	Assort *AssortIndex    `json:",omitempty"`
+	Suits  map[string]int8 `json:",omitempty"`
+}
+
+type AssortIndex struct {
+	Items       map[string]int16
+	ParentItems map[string]map[string]int16 `json:",omitempty"`
+}
+
+type TraderSuits struct {
+	ID           string           `json:"_id"`
+	Tid          string           `json:"tid"`
+	SuiteID      string           `json:"suiteId"`
+	IsActive     bool             `json:"isActive"`
+	Requirements SuitRequirements `json:"requirements"`
+}
+type SuitItemRequirements struct {
+	Count          int    `json:"count"`
+	Tpl            string `json:"_tpl"`
+	OnlyFunctional bool   `json:"onlyFunctional"`
+}
+type SuitRequirements struct {
+	LoyaltyLevel         int8                   `json:"loyaltyLevel"`
+	ProfileLevel         int8                   `json:"profileLevel"`
+	Standing             int8                   `json:"standing"`
+	SkillRequirements    []interface{}          `json:"skillRequirements"`
+	QuestRequirements    []string               `json:"questRequirements"`
+	SuitItemRequirements []SuitItemRequirements `json:"itemRequirements"`
 }
 
 type Assort struct {
-	BarterScheme    map[string][][]*Scheme
-	Items           []*AssortItem
-	LoyalLevelItems map[string]int
+	NextResupply    int                    `json:"nextResupply"`
+	BarterScheme    map[string][][]*Scheme `json:"barter_scheme"`
+	Items           []*AssortItem          `json:"items"`
+	LoyalLevelItems map[string]int         `json:"loyal_level_items"`
 }
 
 type AssortItem struct {

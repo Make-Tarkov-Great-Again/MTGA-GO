@@ -3,10 +3,11 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
-	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 const profilesPath string = "user/profiles/"
@@ -21,6 +22,7 @@ func GetProfileByUID(uid string) *structs.Profile {
 	if profile, ok := profiles[uid]; ok {
 		return profile
 	}
+
 	fmt.Println("No profile with UID ", uid, ", you stupid motherfucker")
 	return nil
 }
@@ -30,6 +32,7 @@ func GetAccountByUID(uid string) *structs.Account {
 	if profile.Account != nil {
 		return profile.Account
 	}
+
 	fmt.Println("Profile with UID ", uid, " does not have an account, how the fuck did you get here????!?!?!?!?!?")
 	return nil
 }
@@ -40,7 +43,24 @@ func GetCharacterByUID(uid string) *structs.PlayerTemplate {
 	}
 
 	fmt.Println("Profile with UID ", uid, " does not have a character")
+	return nil
+}
 
+func GetStorageByUID(uid string) *structs.Storage {
+	if profile, ok := profiles[uid]; ok {
+		return profile.Storage
+	}
+
+	fmt.Println("Profile with UID ", uid, " does not have a storage")
+	return nil
+}
+
+func GetDialogueByUID(uid string) *map[string]interface{} {
+	if profile, ok := profiles[uid]; ok {
+		return &profile.Dialogue
+	}
+
+	fmt.Println("Profile with UID ", uid, " does not have dialogue")
 	return nil
 }
 
@@ -68,7 +88,7 @@ func setProfiles() map[string]*structs.Profile {
 			dynamic[name] = data
 		}
 
-		jsonData, err := json.Marshal(dynamic) //gos syntax is fucking pog.
+		jsonData, err := json.Marshal(dynamic)
 		if err != nil {
 			panic(err)
 		}

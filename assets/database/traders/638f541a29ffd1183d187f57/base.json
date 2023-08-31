@@ -24,9 +24,7 @@
     "id_list": []
   },
   "items_buy_prohibited": {
-    "category": [
-      null
-    ],
+    "category": [],
     "id_list": []
   },
   "location": "Смотритель",

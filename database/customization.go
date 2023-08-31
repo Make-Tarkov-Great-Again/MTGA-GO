@@ -2,7 +2,8 @@ package database
 
 import (
 	"MT-GO/tools"
-	"encoding/json"
+
+	"github.com/goccy/go-json"
 )
 
 var customizations map[string]interface{}
