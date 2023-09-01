@@ -97,7 +97,19 @@ func setProfiles() map[string]*structs.Profile {
 		if err != nil {
 			panic(err)
 		}
+
+		if profile.Character.ID != "" {
+			traders := GetTraders()
+			for _, trader := range traders {
+				if trader.Assort == nil {
+					continue
+				}
+				trader.GetStrippedAssort(profile.Character)
+			}
+		}
+
 		profiles[user] = profile
 	}
+
 	return profiles
 }

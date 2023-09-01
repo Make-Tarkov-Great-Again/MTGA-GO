@@ -44,7 +44,7 @@ type Assort struct {
 	NextResupply    int                    `json:"nextResupply"`
 	BarterScheme    map[string][][]*Scheme `json:"barter_scheme"`
 	Items           []*AssortItem          `json:"items"`
-	LoyalLevelItems map[string]int         `json:"loyal_level_items"`
+	LoyalLevelItems map[string]int8        `json:"loyal_level_items"`
 }
 
 type AssortItem struct {

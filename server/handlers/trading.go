@@ -49,9 +49,10 @@ func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
 const assort string = "/client/trading/api/getTraderAssort/"
 
 func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
-	traderId := strings.TrimPrefix(r.URL.Path, assort)
+	trader := database.GetTraderByID(strings.TrimPrefix(r.URL.Path, assort))
+	character := database.GetCharacterByUID(services.GetSessionID(r))
 
-	assort := database.GetTraders()[traderId].Assort
+	var assort = trader.GetStrippedAssort(character)
 	body := services.ApplyResponseBody(assort)
 	services.ZlibJSONReply(w, body)
 }

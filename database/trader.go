@@ -3,15 +3,20 @@ package database
 import (
 	"MT-GO/structs"
 	"MT-GO/tools"
+	"fmt"
 	"path/filepath"
 	"strconv"
 
 	"github.com/goccy/go-json"
 )
 
-var traders = map[string]*structs.Trader{}
+type Trader struct {
+	*structs.Trader
+}
 
-func GetTraderByID(id string) *structs.Trader {
+var traders = map[string]*Trader{}
+
+func GetTraderByID(id string) *Trader {
 	trader, ok := traders[id]
 	if ok {
 		return trader
@@ -19,7 +24,7 @@ func GetTraderByID(id string) *structs.Trader {
 	return nil
 }
 
-func GetTraders() map[string]*structs.Trader {
+func GetTraders() map[string]*Trader {
 	return traders
 }
 
@@ -30,7 +35,7 @@ func setTraders() {
 	}
 
 	for _, dir := range directory {
-		trader := &structs.Trader{}
+		trader := &Trader{&structs.Trader{}}
 
 		currentTraderPath := filepath.Join(traderPath, dir)
 
@@ -200,9 +205,9 @@ func processAssort(assortPath string) (*structs.Assort, *structs.AssortIndex) {
 
 	loyalLevelItems, ok := dynamic["loyal_level_items"].(map[string]interface{})
 	if ok {
-		assort.LoyalLevelItems = map[string]int{}
-		for _, item := range loyalLevelItems {
-			item = int(item.(float64))
+		assort.LoyalLevelItems = map[string]int8{}
+		for key, item := range loyalLevelItems {
+			assort.LoyalLevelItems[key] = int8(item.(float64))
 		}
 	}
 
@@ -273,4 +278,133 @@ func processSuits(dialoguesPath string) ([]structs.TraderSuits, map[string]int8)
 	}
 
 	return suits, suitsIndex
+}
+
+func (t *Trader) GetAssortItemByID(id string) []*structs.AssortItem {
+	item, ok := t.Index.Assort.Items[id]
+	if ok {
+		return []*structs.AssortItem{t.Assort.Items[item]}
+	}
+
+	parentItems, parentOK := t.Index.Assort.ParentItems[id]
+	if !parentOK {
+		fmt.Println("Assort Item", id, "does not exist for", t.Base["nickname"])
+		return nil
+	}
+
+	items := make([]*structs.AssortItem, 0, len(parentItems))
+	for _, index := range parentItems {
+		items = append(items, t.Assort.Items[index])
+	}
+
+	return items
+}
+
+var index = map[string]*structs.AssortIndex{}
+var assorts = map[string]*structs.Assort{}
+var loyaltyLevels = map[string]int8{}
+
+func (t *Trader) GetStrippedAssort(character *structs.PlayerTemplate) *structs.Assort {
+	traderID := t.Base["_id"].(string)
+
+	cachedAssort, ok := assorts[traderID]
+	if ok {
+		return cachedAssort
+	}
+
+	_, ok = loyaltyLevels[traderID]
+	if !ok {
+		loyaltyLevels[traderID] = t.GetTraderLoyaltyLevel(character) // check loyalty level
+	}
+	loyaltyLevel := loyaltyLevels[traderID]
+
+	assortIndex := structs.AssortIndex{
+		Items:       map[string]int16{},
+		ParentItems: map[string]map[string]int16{},
+	}
+
+	assort := structs.Assort{}
+
+	// iterate through  loyal
+	loyalLevelItems := make(map[string]int8)
+	fmt.Println("Don't forget to adjust for Quests")
+	for loyalID, loyalLevel := range t.Assort.LoyalLevelItems {
+
+		if loyaltyLevel >= loyalLevel {
+			loyalLevelItems[loyalID] = loyalLevel
+			continue
+
+			/* if t.QuestAssort == nil {
+				loyalLevelItems[loyalID] = loyalLevel
+				continue
+			}
+
+			for _, condition := range t.QuestAssort {
+				if len(condition) == 0 {
+					continue
+				}
+
+				for aid, qid := range condition {
+
+
+				}
+			} */
+		}
+	}
+
+	assort.Items = make([]*structs.AssortItem, 0, len(t.Assort.Items))
+	assort.BarterScheme = make(map[string][][]*structs.Scheme)
+
+	var counter int16 = 0
+	for itemID := range loyalLevelItems {
+		index, ok := t.Index.Assort.Items[itemID]
+		if ok {
+			assort.BarterScheme[itemID] = t.Assort.BarterScheme[itemID]
+
+			assortIndex.Items[itemID] = counter
+			counter++
+			assort.Items = append(assort.Items, t.Assort.Items[index])
+		} else {
+			family, ok := t.Index.Assort.ParentItems[itemID]
+			if ok {
+				assort.BarterScheme[itemID] = t.Assort.BarterScheme[itemID]
+
+				assortIndex.ParentItems[itemID] = make(map[string]int16)
+				for k, v := range family {
+					assortIndex.ParentItems[itemID][k] = counter
+					counter++
+					assort.Items = append(assort.Items, t.Assort.Items[v])
+				}
+			}
+		}
+	}
+
+	assort.NextResupply = int(tools.GetCurrentTimeInSeconds() + 3600)
+	index[traderID] = &assortIndex
+	assorts[traderID] = &assort
+
+	return assorts[traderID]
+}
+
+func (t *Trader) GetTraderLoyaltyLevel(character *structs.PlayerTemplate) int8 {
+	loyaltyLevels := t.Base["loyaltyLevels"].([]interface{})
+	traderID := t.Base["_id"].(string)
+
+	_, ok := character.TradersInfo[traderID]
+	if !ok {
+		return -1
+	}
+
+	length := len(loyaltyLevels)
+	for index := 0; index < length; index++ {
+		loyalty := loyaltyLevels[index].(map[string]interface{})
+		if character.Info.Level < int(loyalty["minLevel"].(float64)) ||
+			character.TradersInfo[traderID].SalesSum < float32(loyalty["minSalesSum"].(float64)) ||
+			character.TradersInfo[traderID].Standing < float32(loyalty["minStanding"].(float64)) {
+
+			return int8(index)
+		}
+	}
+
+	return int8(length)
 }
