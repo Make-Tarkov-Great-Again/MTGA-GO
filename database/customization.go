@@ -27,3 +27,12 @@ func setCustomization() {
 		panic(err)
 	}
 }
+
+type Customization struct {
+	ID     string                 `json:"_id"`
+	Name   string                 `json:"_name"`
+	Parent string                 `json:"_parent"`
+	Type   string                 `json:"_type"`
+	Proto  string                 `json:"_proto"`
+	Props  map[string]interface{} `json:"_props"`
+}

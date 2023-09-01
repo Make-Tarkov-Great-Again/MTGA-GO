@@ -1,15 +1,14 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
 
-var weather = structs.Weather{}
+var weather = Weather{}
 
-func GetWeather() *structs.Weather {
+func GetWeather() *Weather {
 	return &weather
 }
 func setWeather() {
@@ -19,3 +18,26 @@ func setWeather() {
 		panic(err)
 	}
 }
+
+// #region Weather structs
+type Weather struct {
+	WeatherInfo struct {
+		Timestamp     int     `json:"timestamp"`
+		Cloud         float32 `json:"cloud"`
+		WindSpeed     int     `json:"wind_speed"`
+		WindDirection int     `json:"wind_direction"`
+		WindGustiness float32 `json:"wind_gustiness"`
+		Rain          int     `json:"rain"`
+		RainIntensity int     `json:"rain_intensity"`
+		Fog           float32 `json:"fog"`
+		Temperature   int     `json:"temp"`
+		Pressure      int     `json:"pressure"`
+		Date          string  `json:"date"`
+		Time          string  `json:"time"`
+	} `json:"weather"`
+	Date         string `json:"date"`
+	Time         string `json:"time"`
+	Acceleration int    `json:"acceleration"`
+}
+
+// #endregion

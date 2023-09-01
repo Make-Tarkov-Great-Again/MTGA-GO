@@ -4,8 +4,6 @@ package main
 import (
 	"MT-GO/database"
 	"MT-GO/server"
-	"MT-GO/services"
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
 	"os"
@@ -47,7 +45,7 @@ func startHome() {
 }
 
 func registerAccount() {
-	account := structs.Account{}
+	account := database.Account{}
 	profiles := database.GetProfiles()
 	var input string
 
@@ -68,15 +66,12 @@ func registerAccount() {
 	fmt.Printf("> ")
 	account.Password = input
 
-	UID, err := tools.GenerateMongoID()
-	if err != nil {
-		panic(err)
-	}
+	UID := tools.GenerateMongoID()
 	account.UID = UID
 	account.AID = len(profiles)
 
-	account.Friends = structs.Friends{
-		Friends:      []structs.FriendRequest{},
+	account.Friends = database.Friends{
+		Friends:      []database.FriendRequest{},
 		Ignore:       []string{},
 		InIgnoreList: []string{},
 	}
@@ -84,13 +79,13 @@ func registerAccount() {
 	account.FriendRequestInbox = []interface{}{}
 	account.FriendRequestOutbox = []interface{}{}
 
-	profiles[UID] = &structs.Profile{}
+	profiles[UID] = &database.Profile{}
 	profiles[UID].Account = &account
-	profiles[UID].Character = &structs.PlayerTemplate{}
-	profiles[UID].Storage = &structs.Storage{
+	profiles[UID].Character = &database.Character{}
+	profiles[UID].Storage = &database.Storage{
 		Suites: []string{},
-		Builds: structs.Builds{
-			EquipmentBuilds: []structs.EquipmentBuild{},
+		Builds: database.Builds{
+			EquipmentBuilds: []database.EquipmentBuild{},
 			WeaponBuilds:    []interface{}{},
 		},
 		Insurance: []interface{}{},
@@ -100,7 +95,7 @@ func registerAccount() {
 
 	//save account
 	fmt.Println()
-	services.SaveProfile(profiles[UID])
+	profiles[UID].SaveProfile()
 	fmt.Println()
 
 	//login
@@ -110,7 +105,7 @@ func registerAccount() {
 	loggedIn(&account)
 }
 
-func validateUsername(profiles map[string]*structs.Profile, username string) bool {
+func validateUsername(profiles map[string]*database.Profile, username string) bool {
 	for _, profile := range profiles {
 		if profile.Account.Username == username {
 			return false
@@ -122,7 +117,7 @@ func validateUsername(profiles map[string]*structs.Profile, username string) boo
 func login() {
 	fmt.Println()
 	var input string
-	var account *structs.Account
+	var account *database.Account
 	profiles := database.GetProfiles()
 	if len(profiles) == 0 {
 		fmt.Println("No profiles, redirecting to Account Register...")
@@ -164,7 +159,7 @@ func login() {
 
 }
 
-func loggedIn(account *structs.Account) {
+func loggedIn(account *database.Account) {
 
 	fmt.Println("Alright fella, we're at the Login Menu, what now?")
 	fmt.Println()
@@ -195,7 +190,7 @@ func loggedIn(account *structs.Account) {
 	}
 }
 
-func editAccountInfo(account *structs.Account) {
+func editAccountInfo(account *database.Account) {
 	fmt.Println("Alright fella, what do you want to edit?")
 	fmt.Println()
 	fmt.Println("1. Change Escape From Tarkov executable path")
@@ -222,7 +217,7 @@ func editAccountInfo(account *structs.Account) {
 					account.TarkovPath = exePath
 					fmt.Println("Path has been set")
 
-					services.SaveAccount(*account)
+					account.SaveAccount()
 					break
 				}
 				fmt.Println("Invalid path, try again")
@@ -239,7 +234,7 @@ func editAccountInfo(account *structs.Account) {
 
 //tarkovPath + ' -bC5vLmcuaS5u={"email":"' + userAccount.email + '","password":"' + userAccount.password + '","toggle":true,"timestamp":0} -token=' + sessionID + ' -config={"BackendUrl":"https://' + serverConfig.ip + ':' + serverConfig.mainPort + '","Version":"live"}'
 
-func launchTarkov(account *structs.Account) {
+func launchTarkov(account *database.Account) {
 	if account.TarkovPath == "" || !tools.FileExist(account.TarkovPath) {
 		fmt.Println("EscapeFromTarkov not found")
 		fmt.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
@@ -260,7 +255,7 @@ func launchTarkov(account *structs.Account) {
 			}
 
 			fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
-			services.SaveAccount(*account)
+			account.SaveAccount()
 			break
 		}
 	}

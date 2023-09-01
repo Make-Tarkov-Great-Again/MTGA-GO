@@ -1,17 +1,16 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
 
 	"github.com/goccy/go-json"
 )
 
-var hideout = structs.Hideout{}
+var hideout = Hideout{}
 
 // GetHideout retrieves the current hideout configuration.
-func GetHideout() *structs.Hideout {
+func GetHideout() *Hideout {
 	return &hideout
 }
 
@@ -190,4 +189,26 @@ func setHideoutScavcase(scavcase []map[string]interface{}) {
 		hideout.ScavCase = append(hideout.ScavCase, item)
 		hideout.Index.ScavCase[pid] = int8(index)
 	}
+}
+
+type Hideout struct {
+	Index    HideoutIndex
+	Areas    []map[string]interface{}
+	Recipes  []map[string]interface{}
+	QTE      []map[string]interface{}
+	ScavCase []map[string]interface{}
+	Settings HideoutSettings
+}
+
+type HideoutIndex struct {
+	Areas    map[int8]int8
+	ScavCase map[string]int8
+	Recipes  map[string]int16
+}
+
+type HideoutSettings struct {
+	GeneratorSpeedWithoutFuel float64 `json:"generatorSpeedWithoutFuel"`
+	GeneratorFuelFlowRate     float64 `json:"generatorFuelFlowRate"`
+	AirFilterUnitFlowRate     float64 `json:"airFilterUnitFlowRate"`
+	GPUBoostRate              float64 `json:"gpuBoostRate"`
 }

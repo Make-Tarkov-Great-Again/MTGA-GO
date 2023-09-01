@@ -1,7 +1,6 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
 	"path/filepath"
@@ -9,46 +8,61 @@ import (
 	"github.com/goccy/go-json"
 )
 
+var languages = make(map[string]string)
+
+func GetLanguages() map[string]string {
+	return languages
+}
+
+func setLanguages() map[string]string {
+	raw := tools.GetJSONRawMessage(filepath.Join(localesPath, "/languages.json"))
+	err := json.Unmarshal(raw, &languages)
+	if err != nil {
+		panic(err)
+	}
+	return languages
+}
+
 // Locales contains various locale information for all readable text in-game
-var Locales = &structs.Locale{}
+var locales = &Locale{}
 
-var localeMap = map[string]*structs.LocaleData{
-	"en":    &Locales.EN,
-	"fr":    &Locales.FR,
-	"ru":    &Locales.RU,
-	"es":    &Locales.ES,
-	"es-mx": &Locales.ESMX,
-	"ch":    &Locales.CH,
-	"cz":    &Locales.CZ,
-	"ge":    &Locales.GE,
-	"hu":    &Locales.HU,
-	"it":    &Locales.IT,
-	"jp":    &Locales.JP,
-	"kr":    &Locales.KR,
-	"pl":    &Locales.PL,
-	"po":    &Locales.PO,
-	"sk":    &Locales.SK,
-	"tu":    &Locales.TU,
+var localeMap = map[string]*LocaleData{
+	"en":    &locales.EN,
+	"fr":    &locales.FR,
+	"ru":    &locales.RU,
+	"es":    &locales.ES,
+	"es-mx": &locales.ESMX,
+	"ch":    &locales.CH,
+	"cz":    &locales.CZ,
+	"ge":    &locales.GE,
+	"hu":    &locales.HU,
+	"it":    &locales.IT,
+	"jp":    &locales.JP,
+	"kr":    &locales.KR,
+	"pl":    &locales.PL,
+	"po":    &locales.PO,
+	"sk":    &locales.SK,
+	"tu":    &locales.TU,
 }
 
-func GetLocales() *structs.Locale {
-	return Locales
+func GetLocales() *Locale {
+	return locales
 }
 
-func GetLocaleByName(name string) *structs.LocaleData {
+func GetLocaleByName(name string) *LocaleData {
 	if locale, ok := localeMap[name]; ok {
 		return locale
 	}
 	fmt.Println("No such locale, returning EN")
-	return &Locales.EN
+	return &locales.EN
 }
 
-func GetLocalesMenuByName(name string) *structs.LocaleMenu {
+func GetLocalesMenuByName(name string) *LocaleMenu {
 	if locale, ok := localeMap[name]; ok {
 		return locale.Menu
 	}
 	fmt.Println("No such locale menu, returning EN")
-	return Locales.EN.Menu
+	return locales.EN.Menu
 }
 
 func GetLocalesLocaleByName(name string) map[string]interface{} {
@@ -56,7 +70,7 @@ func GetLocalesLocaleByName(name string) map[string]interface{} {
 		return locale.Locale
 	}
 	fmt.Println("No such locale ...locale, returning EN")
-	return Locales.EN.Locale
+	return locales.EN.Locale
 }
 
 func setLocales() {
@@ -65,11 +79,11 @@ func setLocales() {
 		panic(err)
 	}
 
-	structure := make(map[string]*structs.LocaleData)
+	structure := make(map[string]*LocaleData)
 	localeFiles := [2]string{"locale.json", "menu.json"}
 
 	for _, dir := range directories {
-		localeData := &structs.LocaleData{}
+		localeData := &LocaleData{}
 		dirPath := filepath.Join(localesPath, dir)
 
 		for _, file := range localeFiles {
@@ -88,7 +102,7 @@ func setLocales() {
 				}
 				localeData.Locale = raw
 			} else {
-				localeMenu := &structs.LocaleMenu{}
+				localeMenu := &LocaleMenu{}
 				err = json.Unmarshal(fileContent, &localeMenu)
 				if err != nil {
 					panic(err)
@@ -106,9 +120,42 @@ func setLocales() {
 		panic(err)
 	}
 
-	err = json.Unmarshal(bytes, &Locales)
+	err = json.Unmarshal(bytes, &locales)
 	if err != nil {
 		panic(err)
 	}
 
+}
+
+type Locales struct {
+	Locales   Locale
+	Languages map[string]string
+}
+
+type Locale struct {
+	CH   LocaleData `json:"ch"`
+	CZ   LocaleData `json:"cz"`
+	EN   LocaleData `json:"en"`
+	FR   LocaleData `json:"fr"`
+	GE   LocaleData `json:"ge"`
+	HU   LocaleData `json:"hu"`
+	IT   LocaleData `json:"it"`
+	JP   LocaleData `json:"jp"`
+	KR   LocaleData `json:"kr"`
+	PL   LocaleData `json:"pl"`
+	PO   LocaleData `json:"po"`
+	SK   LocaleData `json:"sk"`
+	ES   LocaleData `json:"es"`
+	ESMX LocaleData `json:"es-mx"`
+	TU   LocaleData `json:"tu"`
+	RU   LocaleData `json:"ru"`
+}
+
+type LocaleData struct {
+	Locale map[string]interface{}
+	Menu   *LocaleMenu
+}
+
+type LocaleMenu struct {
+	Menu map[string]string `json:"menu"`
 }

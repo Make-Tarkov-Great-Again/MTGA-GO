@@ -22,7 +22,6 @@ func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
 
 	body := services.ApplyResponseBody(data)
 	services.ZlibJSONReply(w, body)
-	return
 }
 
 type FriendRequestMailbox struct {

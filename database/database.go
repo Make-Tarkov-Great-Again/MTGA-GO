@@ -55,11 +55,38 @@ func setRequiredFolders() {
 	var users string = "user"
 
 	if !tools.FileExist(users) {
-		os.Mkdir(users, 0755)
+		err := os.Mkdir(users, 0755)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	profilesPath := filepath.Join(users, "profiles")
 	if !tools.FileExist(profilesPath) {
-		os.Mkdir(profilesPath, 0755)
+		err := os.Mkdir(profilesPath, 0755)
+		if err != nil {
+			panic(err)
+		}
 	}
+}
+
+type Database struct {
+	Core *Core
+	//Connections *ConnectionStruct
+	Items     map[string]interface{}
+	Locales   *Locale
+	Languages map[string]interface{}
+	Handbook  *Handbook
+	Traders   map[string]*Trader
+	Flea      *Flea
+	Quests    map[string]interface{}
+	Hideout   *Hideout
+
+	Locations     *Locations
+	Weather       *Weather
+	Customization map[string]interface{}
+	Editions      map[string]interface{}
+	Bot           *Bots
+	Profiles      map[string]*Profile
+	//bundles  []map[string]interface{}
 }

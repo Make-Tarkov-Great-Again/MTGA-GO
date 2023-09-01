@@ -2,11 +2,10 @@ package services
 
 import (
 	"MT-GO/database"
-	"MT-GO/structs"
 )
 
 // GetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
-func GetTraderLoyaltyLevel(traderID string, character *structs.PlayerTemplate) int {
+func GetTraderLoyaltyLevel(traderID string, character *database.Character) int {
 	loyaltyLevels := database.GetTraderByID(traderID).Base["loyaltyLevels"].([]interface{})
 
 	_, ok := character.TradersInfo[traderID]

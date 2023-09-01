@@ -1,7 +1,6 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
 	"net"
@@ -9,25 +8,25 @@ import (
 	"github.com/goccy/go-json"
 )
 
-var core = structs.Core{}
+var core = Core{}
 
-func GetCore() *structs.Core {
+func GetCore() *Core {
 	return &core
 }
 
-func GetGlobals() *structs.Globals {
+func GetGlobals() *Globals {
 	return core.Globals
 }
 
-func GetMainSettings() *structs.MainSettings {
+func GetMainSettings() *MainSettings {
 	return core.MainSettings
 }
 
-func GetMatchMetrics() *structs.MatchMetrics {
+func GetMatchMetrics() *MatchMetrics {
 	return core.MatchMetrics
 }
 
-func GetServerConfig() *structs.ServerConfig {
+func GetServerConfig() *ServerConfig {
 	return core.ServerConfig
 }
 
@@ -35,17 +34,17 @@ func GetGlobalBotSettings() *map[string]interface{} {
 	return core.GlobalBotSettings
 }
 
-func GetPlayerScav() *structs.PlayerScavTemplate {
-	return core.PlayerScav
+func GetPlayerScav() *Scav {
+	return core.Scav
 }
 
-func GetBotTemplate() *structs.PlayerTemplate {
-	return core.PlayerTemplate
+func GetBotTemplate() *Character {
+	return core.Character
 }
 
 func setCore() {
-	core.PlayerTemplate = setBotTemplate()
-	core.PlayerScav = setPlayerScav()
+	core.Character = setBotTemplate()
+	core.Scav = setPlayerScav()
 	core.MainSettings = setMainSettings()
 	core.ServerConfig = setServerConfig()
 	core.Globals = setGlobals()
@@ -64,10 +63,10 @@ func setGlobalBotSettings() *map[string]interface{} {
 	return &globalBotSettings
 }
 
-func setPlayerScav() *structs.PlayerScavTemplate {
+func setPlayerScav() *Scav {
 	raw := tools.GetJSONRawMessage(playerScavPath)
 
-	var playerScav structs.PlayerScavTemplate
+	var playerScav Scav
 	err := json.Unmarshal(raw, &playerScav)
 	if err != nil {
 		panic(err)
@@ -75,10 +74,10 @@ func setPlayerScav() *structs.PlayerScavTemplate {
 	return &playerScav
 }
 
-func setBotTemplate() *structs.PlayerTemplate {
+func setBotTemplate() *Character {
 	raw := tools.GetJSONRawMessage(botTemplateFilePath)
 
-	var botTemplate structs.PlayerTemplate
+	var botTemplate Character
 	err := json.Unmarshal(raw, &botTemplate)
 	if err != nil {
 		panic(err)
@@ -86,10 +85,10 @@ func setBotTemplate() *structs.PlayerTemplate {
 	return &botTemplate
 }
 
-func setMainSettings() *structs.MainSettings {
+func setMainSettings() *MainSettings {
 	raw := tools.GetJSONRawMessage(MainSettingsPath)
 
-	var data structs.MainSettings
+	var data MainSettings
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
 		panic(err)
@@ -163,10 +162,10 @@ func GetRagFairIPandPort() string {
 	return coreServerData.RagFairIPandPort
 }
 
-func setServerConfig() *structs.ServerConfig {
+func setServerConfig() *ServerConfig {
 	raw := tools.GetJSONRawMessage(serverConfigPath)
 
-	var data structs.ServerConfig
+	var data ServerConfig
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
 		panic(err)
@@ -196,10 +195,10 @@ func setServerConfig() *structs.ServerConfig {
 	return &data
 }
 
-func setMatchMetrics() *structs.MatchMetrics {
+func setMatchMetrics() *MatchMetrics {
 	raw := tools.GetJSONRawMessage(matchMetricsPath)
 
-	var data structs.MatchMetrics
+	var data MatchMetrics
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
 		panic(err)
@@ -207,14 +206,141 @@ func setMatchMetrics() *structs.MatchMetrics {
 	return &data
 }
 
-func setGlobals() *structs.Globals {
+func setGlobals() *Globals {
 	raw := tools.GetJSONRawMessage(globalsFilePath)
 
-	var global = structs.Globals{}
+	var global = Globals{}
 	err := json.Unmarshal(raw, &global)
 	if err != nil {
 		panic(err)
 	}
 
 	return &global
+}
+
+type Core struct {
+	Character         *Character
+	Scav              *Scav
+	MainSettings      *MainSettings
+	ServerConfig      *ServerConfig
+	Globals           *Globals
+	GlobalBotSettings *map[string]interface{}
+	//gameplay        map[string]interface{}
+	//blacklist       []interface{}
+	MatchMetrics *MatchMetrics
+}
+
+type Scav struct {
+	ID                string                 `json:"_id"`
+	AID               int                    `json:"aid"`
+	Savage            *string                `json:"savage"`
+	Info              PlayerInfo             `json:"Info"`
+	Customization     PlayerCustomization    `json:"Customization"`
+	Health            HealthInfo             `json:"Health"`
+	Inventory         InventoryInfo          `json:"Inventory"`
+	Skills            PlayerSkills           `json:"Skills"`
+	Stats             PlayerStats            `json:"Stats"`
+	Encyclopedia      map[string]bool        `json:"Encyclopedia"`
+	ConditionCounters ConditionCounters      `json:"ConditionCounters"`
+	BackendCounters   map[string]interface{} `json:"BackendCounters"`
+	InsuredItems      []interface{}          `json:"InsuredItems"`
+	Hideout           interface{}            `json:"Hideout"`
+	Bonuses           []interface{}          `json:"Bonuses"`
+	Notes             struct {
+		Notes [][]interface{} `json:"Notes"`
+	} `json:"Notes"`
+	Quests       []interface{}     `json:"Quests"`
+	RagfairInfo  PlayerRagfairInfo `json:"RagfairInfo"`
+	WishList     []interface{}     `json:"WishList"`
+	TradersInfo  []interface{}     `json:"TradersInfo"`
+	UnlockedInfo struct {
+		UnlockedProductionRecipe []interface{} `json:"unlockedProductionRecipe"`
+	} `json:"UnlockedInfo"`
+}
+
+type Globals struct {
+	Config               map[string]interface{} `json:"config"`
+	BotPresets           [18]interface{}        `json:"bot_presets"`
+	BotWeaponScatterings [4]interface{}         `json:"BotWeaponScatterings"`
+	ItemPresets          map[string]interface{} `json:"ItemPresets"`
+}
+
+type MainSettings struct {
+	Config struct {
+		MemoryManagementSettings       MemoryManagementSettings `json:"MemoryManagementSettings"`
+		ReleaseProfiler                ReleaseProfiler          `json:"ReleaseProfiler"`
+		FramerateLimit                 FramerateLimit           `json:"FramerateLimit"`
+		ClientSendRateLimit            int                      `json:"ClientSendRateLimit"`
+		TurnOffLogging                 bool                     `json:"TurnOffLogging"`
+		NVidiaHighlights               bool                     `json:"NVidiaHighlights"`
+		WebDiagnosticsEnabled          bool                     `json:"WebDiagnosticsEnabled"`
+		KeepAliveInterval              int                      `json:"KeepAliveInterval"`
+		GroupStatusInterval            int                      `json:"GroupStatusInterval"`
+		GroupStatusButtonInterval      int                      `json:"GroupStatusButtonInterval"`
+		PingServersInterval            int                      `json:"PingServersInterval"`
+		PingServerResultSendInterval   int                      `json:"PingServerResultSendInterval"`
+		WeaponOverlapDistanceCulling   int                      `json:"WeaponOverlapDistanceCulling"`
+		FirstCycleDelaySeconds         int                      `json:"FirstCycleDelaySeconds"`
+		SecondCycleDelaySeconds        int                      `json:"SecondCycleDelaySeconds"`
+		NextCycleDelaySeconds          int                      `json:"NextCycleDelaySeconds"`
+		AdditionalRandomDelaySeconds   int                      `json:"AdditionalRandomDelaySeconds"`
+		Mark502And504AsNonImportant    bool                     `json:"Mark502and504AsNonImportant"`
+		DefaultRetriesCount            int                      `json:"DefaultRetriesCount"`
+		CriticalRetriesCount           int                      `json:"CriticalRetriesCount"`
+		AFKTimeoutSeconds              int                      `json:"AFKTimeoutSeconds"`
+		RequestsMadeThroughLobby       []string                 `json:"RequestsMadeThroughLobby"`
+		LobbyKeepAliveInterval         int                      `json:"LobbyKeepAliveInterval"`
+		RequestConfirmationTimeouts    []float64                `json:"RequestConfirmationTimeouts"`
+		ShouldEstablishLobbyConnection bool                     `json:"ShouldEstablishLobbyConnection"`
+	} `json:"config"`
+	NetworkStateView struct {
+		LossThreshold int `json:"LossThreshold"`
+		RttThreshold  int `json:"RttThreshold"`
+	} `json:"NetworkStateView"`
+}
+
+type MemoryManagementSettings struct {
+	HeapPreAllocationEnabled               bool `json:"HeapPreAllocationEnabled"`
+	HeapPreAllocationMB                    int  `json:"HeapPreAllocationMB"`
+	OverrideRAMCleanerSettings             bool `json:"OverrideRamCleanerSettings"`
+	RAMCleanerEnabled                      bool `json:"RamCleanerEnabled"`
+	GigabytesRequiredToDisableGCDuringRaid int  `json:"GigabytesRequiredToDisableGCDuringRaid"`
+	AggressiveGC                           bool `json:"AggressiveGC"`
+}
+type ReleaseProfiler struct {
+	Enabled            bool `json:"Enabled"`
+	RecordTriggerValue int  `json:"RecordTriggerValue"`
+	MaxRecords         int  `json:"MaxRecords"`
+}
+type FramerateLimit struct {
+	MinFramerateLimit      int `json:"MinFramerateLimit"`
+	MaxFramerateLobbyLimit int `json:"MaxFramerateLobbyLimit"`
+	MaxFramerateGameLimit  int `json:"MaxFramerateGameLimit"`
+}
+
+type ServerConfig struct {
+	IP       string      `json:"ip"`
+	Hostname string      `json:"hostname"`
+	Name     string      `json:"name"`
+	Discord  string      `json:"discord"`
+	Website  string      `json:"website"`
+	Version  string      `json:"version"`
+	Ports    ServerPorts `json:"ports"`
+}
+
+type ServerPorts struct {
+	Main      string `json:"Main"`
+	Messaging string `json:"Messaging"`
+	Trading   string `json:"Trading"`
+	Flea      string `json:"Flea"`
+	Lobby     string `json:"Lobby"`
+}
+
+type MatchMetrics struct {
+	Keys                  []int `json:"Keys"`
+	NetProcessingBins     []int `json:"NetProcessingBins"`
+	RenderBins            []int `json:"RenderBins"`
+	GameUpdateBins        []int `json:"GameUpdateBins"`
+	MemoryMeasureInterval int   `json:"MemoryMeasureInterval"`
+	PauseReasons          []int `json:"PauseReasons"`
 }

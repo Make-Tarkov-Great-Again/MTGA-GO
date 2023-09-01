@@ -1,24 +1,24 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
+	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/goccy/go-json"
 )
 
 const profilesPath string = "user/profiles/"
 
-var profiles = map[string]*structs.Profile{}
+var profiles = map[string]*Profile{}
 
-func GetProfiles() map[string]*structs.Profile {
+// #region Profile getters
+func GetProfiles() map[string]*Profile {
 	return profiles
 }
 
-func GetProfileByUID(uid string) *structs.Profile {
+func GetProfileByUID(uid string) *Profile {
 	if profile, ok := profiles[uid]; ok {
 		return profile
 	}
@@ -27,7 +27,7 @@ func GetProfileByUID(uid string) *structs.Profile {
 	return nil
 }
 
-func GetAccountByUID(uid string) *structs.Account {
+func GetAccountByUID(uid string) *Account {
 	profile := GetProfileByUID(uid)
 	if profile.Account != nil {
 		return profile.Account
@@ -37,7 +37,7 @@ func GetAccountByUID(uid string) *structs.Account {
 	return nil
 }
 
-func GetCharacterByUID(uid string) *structs.PlayerTemplate {
+func GetCharacterByUID(uid string) *Character {
 	if profile, ok := profiles[uid]; ok {
 		return profile.Character
 	}
@@ -46,7 +46,7 @@ func GetCharacterByUID(uid string) *structs.PlayerTemplate {
 	return nil
 }
 
-func GetStorageByUID(uid string) *structs.Storage {
+func GetStorageByUID(uid string) *Storage {
 	if profile, ok := profiles[uid]; ok {
 		return profile.Storage
 	}
@@ -64,7 +64,10 @@ func GetDialogueByUID(uid string) *map[string]interface{} {
 	return nil
 }
 
-func setProfiles() map[string]*structs.Profile {
+// #endregion
+
+// #region Profile setters
+func setProfiles() map[string]*Profile {
 	users, err := tools.GetDirectoriesFrom(profilesPath)
 	if err != nil {
 		panic(err)
@@ -74,28 +77,27 @@ func setProfiles() map[string]*structs.Profile {
 		return profiles
 	}
 	for _, user := range users {
-		profile := &structs.Profile{}
+		profile := &Profile{}
 		userPath := filepath.Join(profilesPath, user)
-		files, err := tools.GetFilesFrom(userPath)
-		if err != nil {
-			panic(err)
+
+		path := filepath.Join(userPath, "account.json")
+		if tools.FileExist(path) {
+			profile.Account = setAccount(path)
 		}
 
-		dynamic := make(map[string]json.RawMessage)
-		for _, file := range files {
-			name := strings.TrimSuffix(file, ".json")
-			data := tools.GetJSONRawMessage(filepath.Join(userPath, file))
-			dynamic[name] = data
+		path = filepath.Join(userPath, "character.json")
+		if tools.FileExist(path) {
+			profile.Character = setCharacter(path)
 		}
 
-		jsonData, err := json.Marshal(dynamic)
-		if err != nil {
-			panic(err)
+		path = filepath.Join(userPath, "storage.json")
+		if tools.FileExist(path) {
+			profile.Storage = setStorage(path)
 		}
 
-		err = json.Unmarshal(jsonData, profile)
-		if err != nil {
-			panic(err)
+		path = filepath.Join(userPath, "dialogue.json")
+		if tools.FileExist(path) {
+			profile.Dialogue = setDialogue(path)
 		}
 
 		if profile.Character.ID != "" {
@@ -113,3 +115,389 @@ func setProfiles() map[string]*structs.Profile {
 
 	return profiles
 }
+
+func setAccount(path string) *Account {
+	output := new(Account)
+
+	data := tools.GetJSONRawMessage(path)
+	err := json.Unmarshal(data, output)
+	if err != nil {
+		panic(err)
+	}
+
+	return output
+}
+
+func setCharacter(path string) *Character {
+	output := new(Character)
+
+	data := tools.GetJSONRawMessage(path)
+	err := json.Unmarshal(data, output)
+	if err != nil {
+		panic(err)
+	}
+
+	return output
+}
+
+func setStorage(path string) *Storage {
+	output := new(Storage)
+
+	data := tools.GetJSONRawMessage(path)
+	err := json.Unmarshal(data, output)
+	if err != nil {
+		panic(err)
+	}
+
+	return output
+}
+
+func setDialogue(path string) map[string]interface{} {
+	output := make(map[string]interface{})
+
+	data := tools.GetJSONRawMessage(path)
+	err := json.Unmarshal(data, &output)
+	if err != nil {
+		panic(err)
+	}
+
+	return output
+}
+
+// #endregion
+
+// #region Profile save
+func (profile Profile) SaveProfile() {
+	sessionID := profile.Account.UID
+	profileDirPath := filepath.Join(profilesPath, sessionID)
+	if !tools.FileExist(profileDirPath) {
+		err := os.Mkdir(profileDirPath, 0755)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	profile.Account.SaveAccount()
+	SaveCharacter(sessionID, *profile.Character)
+	SaveDialogue(sessionID, profile.Dialogue)
+	SaveStorage(sessionID, *profile.Storage)
+	fmt.Println()
+	fmt.Println("Profile saved")
+}
+
+func (account Account) SaveAccount() {
+	accountFilePath := filepath.Join(profilesPath, account.UID, "account.json")
+
+	err := tools.WriteToFile(accountFilePath, account)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Account saved")
+}
+
+func SaveCharacter(sessionID string, character Character) {
+	characterFilePath := filepath.Join(profilesPath, sessionID, "character.json")
+
+	err := tools.WriteToFile(characterFilePath, character)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Character saved")
+}
+
+func SaveStorage(sessionID string, storage Storage) {
+	storageFilePath := filepath.Join(profilesPath, sessionID, "storage.json")
+
+	err := tools.WriteToFile(storageFilePath, storage)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Storage saved")
+}
+
+func SaveDialogue(sessionID string, dialogue map[string]interface{}) {
+	dialogueFilePath := filepath.Join(profilesPath, sessionID, "dialogue.json")
+
+	err := tools.WriteToFile(dialogueFilePath, dialogue)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Dialogue saved")
+}
+
+// #endregion
+
+// #region Profile structs
+type Profile struct {
+	Account   *Account
+	Character *Character
+	Storage   *Storage
+	Dialogue  map[string]interface{}
+}
+
+type Usernames map[string]string
+
+type Account struct {
+	AID                 int           `json:"aid"`
+	UID                 string        `json:"uid"`
+	Username            string        `json:"username"`
+	Password            string        `json:"password"`
+	Wipe                bool          `json:"wipe"`
+	Edition             string        `json:"edition"`
+	Friends             Friends       `json:"friends"`
+	Matching            Matching      `json:"Matching"`
+	FriendRequestInbox  []interface{} `json:"friendRequestInbox"`
+	FriendRequestOutbox []interface{} `json:"friendRequestOutbox"`
+	TarkovPath          string        `json:"tarkovPath"`
+	Lang                string        `json:"lang"`
+}
+type Friends struct {
+	Friends      []FriendRequest `json:"Friends"`
+	Ignore       []string        `json:"Ignore"`
+	InIgnoreList []string        `json:"InIgnoreList"`
+}
+type Matching struct {
+	LookingForGroup bool `json:"LookingForGroup"`
+}
+
+type FriendRequest struct {
+	ID      string               `json:"_id"`
+	From    string               `json:"from"`
+	To      string               `json:"to"`
+	Date    int32                `json:"date"`
+	Profile FriendRequestProfile `json:"profile"`
+}
+
+type FriendRequestProfile struct {
+	ID   int32
+	Info struct {
+		Nickname       string         `json:"Nickname"`
+		Side           string         `json:"Side"`
+		Level          int8           `json:"Level"`
+		MemberCategory MemberCategory `json:"MemberCategory"`
+	}
+}
+
+type Character struct {
+	ID                string                 `json:"_id"`
+	AID               int                    `json:"aid"`
+	Savage            *string                `json:"savage"`
+	Info              PlayerInfo             `json:"Info"`
+	Customization     PlayerCustomization    `json:"Customization"`
+	Health            HealthInfo             `json:"Health"`
+	Inventory         InventoryInfo          `json:"Inventory"`
+	Skills            PlayerSkills           `json:"Skills"`
+	Stats             PlayerStats            `json:"Stats"`
+	Encyclopedia      map[string]bool        `json:"Encyclopedia"`
+	ConditionCounters ConditionCounters      `json:"ConditionCounters"`
+	BackendCounters   map[string]interface{} `json:"BackendCounters"`
+	InsuredItems      []InsuredItem          `json:"InsuredItems"`
+	Hideout           PlayerHideout          `json:"Hideout"`
+	Bonuses           []Bonus                `json:"Bonuses"`
+	Notes             struct {
+		Notes [][]interface{} `json:"Notes"`
+	} `json:"Notes"`
+	Quests       []map[string]interface{}     `json:"Quests"`
+	RagfairInfo  PlayerRagfairInfo            `json:"RagfairInfo"`
+	WishList     []string                     `json:"WishList"`
+	TradersInfo  map[string]PlayerTradersInfo `json:"TradersInfo"`
+	UnlockedInfo struct {
+		UnlockedProductionRecipe []interface{} `json:"unlockedProductionRecipe"`
+	} `json:"UnlockedInfo"`
+}
+
+type PlayerTradersInfo struct {
+	Unlocked bool    `json:"unlocked"`
+	Disabled bool    `json:"disabled"`
+	SalesSum float32 `json:"salesSum"`
+	Standing float32 `json:"standing"`
+}
+
+type PlayerRagfairInfo struct {
+	Rating          float64       `json:"rating"`
+	IsRatingGrowing bool          `json:"isRatingGrowing"`
+	Offers          []interface{} `json:"offers"`
+}
+
+type PlayerHideoutArea struct {
+	Type                  int           `json:"type"`
+	Level                 int           `json:"level"`
+	Active                bool          `json:"active"`
+	PassiveBonusesEnabled bool          `json:"passiveBonusesEnabled"`
+	CompleteTime          int           `json:"completeTime"`
+	Constructing          bool          `json:"constructing"`
+	Slots                 []interface{} `json:"slots"`
+	LastRecipe            string        `json:"lastRecipe"`
+}
+type PlayerHideout struct {
+	Production  map[string]interface{} `json:"Production"`
+	Areas       []PlayerHideoutArea    `json:"Areas"`
+	Improvement map[string]interface{} `json:"Improvement"`
+	//Seed        int                    `json:"Seed"`
+}
+
+type ConditionCounters struct {
+	Counters []interface{} `json:"Counters"`
+}
+
+type PlayerStats struct {
+	Eft EftStats `json:"Eft"`
+}
+
+type StatCounters struct {
+	Items []interface{} `json:"Items"`
+}
+
+type EftStats struct {
+	SessionCounters        map[string]interface{} `json:"SessionCounters"`
+	OverallCounters        map[string]interface{} `json:"OverallCounters"`
+	SessionExperienceMult  int                    `json:"SessionExperienceMult"`
+	ExperienceBonusMult    int                    `json:"ExperienceBonusMult"`
+	TotalSessionExperience int                    `json:"TotalSessionExperience"`
+	LastSessionDate        int                    `json:"LastSessionDate"`
+	Aggressor              map[string]interface{} `json:"Aggressor"`
+	DroppedItems           []interface{}          `json:"DroppedItems"`
+	FoundInRaidItems       []interface{}          `json:"FoundInRaidItems"`
+	Victims                []interface{}          `json:"Victims"`
+	CarriedQuestItems      []interface{}          `json:"CarriedQuestItems"`
+	DamageHistory          map[string]interface{} `json:"DamageHistory"`
+	LastPlayerState        *float32               `json:"LastPlayerState"`
+	TotalInGameTime        int                    `json:"TotalInGameTime"`
+	SurvivorClass          string                 `json:"SurvivorClass"`
+}
+
+type SkillsCommon struct {
+	ID                        string `json:"Id"`
+	Progress                  int    `json:"Progress"`
+	PointsEarnedDuringSession int    `json:"PointsEarnedDuringSession"`
+	LastAccess                int64  `json:"LastAccess"`
+}
+type SkillsMastering struct {
+	ID       string `json:"Id"`
+	Progress int    `json:"Progress"`
+}
+
+type PlayerSkills struct {
+	Common    []SkillsCommon    `json:"Common"`
+	Mastering []SkillsMastering `json:"Mastering"`
+	Points    int               `json:"Points"`
+}
+
+type PlayerInfo struct {
+	Nickname               string                 `json:"Nickname"`
+	LowerNickname          string                 `json:"LowerNickname"`
+	Side                   string                 `json:"Side"`
+	Voice                  string                 `json:"Voice"`
+	Level                  int                    `json:"Level"`
+	Experience             int                    `json:"Experience"`
+	RegistrationDate       int                    `json:"RegistrationDate"`
+	GameVersion            string                 `json:"GameVersion"`
+	AccountType            int                    `json:"AccountType"`
+	MemberCategory         int                    `json:"MemberCategory"`
+	LockedMoveCommands     bool                   `json:"lockedMoveCommands"`
+	SavageLockTime         int                    `json:"SavageLockTime"`
+	LastTimePlayedAsSavage int                    `json:"LastTimePlayedAsSavage"`
+	Settings               map[string]interface{} `json:"Settings"`
+	NicknameChangeDate     int                    `json:"NicknameChangeDate"`
+	NeedWipeOptions        []interface{}          `json:"NeedWipeOptions"`
+	LastCompletedWipe      struct {
+		Oid string `json:"$oid"`
+	} `json:"lastCompletedWipe"`
+	LastCompletedEvent struct {
+		Oid string `json:"$oid"`
+	} `json:"lastCompletedEvent"`
+	BannedState             bool          `json:"BannedState"`
+	BannedUntil             int           `json:"BannedUntil"`
+	IsStreamerModeAvailable bool          `json:"IsStreamerModeAvailable"`
+	SquadInviteRestriction  bool          `json:"SquadInviteRestriction"`
+	Bans                    []interface{} `json:"Bans"`
+}
+
+type InfoSettings struct {
+	Role            string  `json:"Role"`
+	BotDifficulty   string  `json:"BotDifficulty"`
+	Experience      int     `json:"Experience"`
+	StandingForKill float32 `json:"StandingForKill"`
+	AggressorBonus  float32 `json:"AggressorBonus"`
+}
+
+type PlayerCustomization struct {
+	Head  string `json:"Head"`
+	Body  string `json:"Body"`
+	Feet  string `json:"Feet"`
+	Hands string `json:"Hands"`
+}
+
+type InsuredItem struct {
+	Tid    string `json:"tid"`
+	ItemID string `json:"itemId"`
+}
+
+type Bonus struct {
+	ID         string `json:"id"`
+	Type       string `json:"type"`
+	TemplateID string `json:"templateId"`
+}
+
+type InventoryInfo struct {
+	Items              []interface{} `json:"items"`
+	Equipment          string        `json:"equipment"`
+	Stash              string        `json:"stash"`
+	SortingTable       string        `json:"sortingTable"`
+	QuestRaidItems     string        `json:"questRaidItems"`
+	QuestStashItems    string        `json:"questStashItems"`
+	FastPanel          interface{}   `json:"fastPanel"`
+	HideoutAreaStashes interface{}   `json:"hideoutAreaStashes"`
+}
+
+type HealthInfo struct {
+	Hydration   CurrMaxHealth   `json:"Hydration"`
+	Energy      CurrMaxHealth   `json:"Energy"`
+	Temperature CurrMaxHealth   `json:"Temperature"`
+	BodyParts   BodyPartsHealth `json:"BodyParts"`
+	UpdateTime  int             `json:"UpdateTime"`
+}
+
+type HealthOf struct {
+	Health CurrMaxHealth `json:"Health"`
+}
+
+type CurrMaxHealth struct {
+	Current float32 `json:"Current"`
+	Maximum float32 `json:"Maximum"`
+}
+
+type BodyPartsHealth struct {
+	Head     HealthOf `json:"Head"`
+	Chest    HealthOf `json:"Chest"`
+	Stomach  HealthOf `json:"Stomach"`
+	LeftArm  HealthOf `json:"LeftArm"`
+	RightArm HealthOf `json:"RightArm"`
+	LeftLeg  HealthOf `json:"LeftLeg"`
+	RightLeg HealthOf `json:"RightLeg"`
+}
+
+type Storage struct {
+	//ID        string                 `json:"_id"`
+	Suites    []string      `json:"suites"`
+	Builds    Builds        `json:"builds"`
+	Insurance []interface{} `json:"insurance"`
+	Mailbox   []interface{} `json:"mailbox"`
+}
+
+type Builds struct {
+	EquipmentBuilds []EquipmentBuild `json:"equipmentBuilds"`
+	WeaponBuilds    []interface{}    `json:"weaponBuilds"`
+}
+
+type EquipmentBuild struct {
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	Root      string        `json:"root"`
+	Items     []interface{} `json:"items"`
+	Type      string        `json:"type"`
+	FastPanel []interface{} `json:"fastPanel"`
+	BuildType string        `json:"buildType"`
+}
+
+// #endregion

@@ -1,21 +1,20 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
 
 	"github.com/goccy/go-json"
 )
 
-var handbook = structs.Handbook{}
-var prices = structs.Prices{}
+var handbook = Handbook{}
+var prices = Prices{}
 
-func GetHandbook() *structs.Handbook {
+func GetHandbook() *Handbook {
 	return &handbook
 }
 
-func GetPrices() *structs.Prices {
+func GetPrices() *Prices {
 	return &prices
 }
 
@@ -40,3 +39,24 @@ func setHandbook() {
 	}
 	fmt.Println()
 }
+
+type Handbook struct {
+	Categories []HandbookCategory `json:"Categories"`
+	Items      []HandbookItem     `json:"Items"`
+}
+
+type HandbookCategory struct {
+	Id       string `json:"Id"`
+	ParentId string `json:"ParentId"`
+	Icon     string `json:"Icon"`
+	Color    string `json:"Color"`
+	Order    string `json:"Order"`
+}
+
+type HandbookItem struct {
+	Id       string `json:"Id"`
+	ParentId string `json:"ParentId"`
+	Price    int    `json:"Price"`
+}
+
+type Prices map[string]int

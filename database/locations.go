@@ -1,15 +1,14 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
 
-var locations = structs.Locations{}
+var locations = Locations{}
 
-func GetLocations() *structs.Locations {
+func GetLocations() *Locations {
 	return &locations
 }
 
@@ -19,4 +18,9 @@ func setLocations() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+type Locations struct {
+	Locations map[string]interface{} `json:"locations"`
+	Paths     []interface{}          `json:"paths"`
 }

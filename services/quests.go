@@ -2,7 +2,6 @@ package services
 
 import (
 	"MT-GO/database"
-	"MT-GO/structs"
 	"fmt"
 	"strings"
 )
@@ -29,7 +28,7 @@ func checkIfQuestForOtherFaction(side string, qid string) bool {
 	}
 }
 
-func GetQuestsAvailableToPlayer(character *structs.PlayerTemplate) []interface{} {
+func GetQuestsAvailableToPlayer(character *database.Character) []interface{} {
 	output := []interface{}{}
 
 	query := database.GetQuestsQuery()
@@ -136,7 +135,7 @@ const (
 	AvailableAfter     QuestStatus = 9
 ) */
 
-func completedPreviousQuestCheck(quests map[string]*structs.QuestCondition, character *structs.PlayerTemplate) bool {
+func completedPreviousQuestCheck(quests map[string]*database.QuestCondition, character *database.Character) bool {
 	previousQuestCompleted := false
 
 	for _, v := range quests {

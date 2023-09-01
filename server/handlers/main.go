@@ -3,7 +3,6 @@ package handlers
 import (
 	"MT-GO/database"
 	"MT-GO/services"
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
 	"net/http"
@@ -219,7 +218,7 @@ func MainAccountCustomization(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		if side != nil && len(side) > 0 {
+		if len(side) > 0 {
 			output = append(output, id)
 		}
 	}
@@ -324,11 +323,11 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 
 	profile := database.GetProfileByUID(sessionID)
 	if profile.Storage == nil {
-		profile.Storage = &structs.Storage{}
+		profile.Storage = &database.Storage{}
 	}
 
 	editions := database.GetEdition("Edge Of Darkness")
-	var pmc structs.PlayerTemplate
+	var pmc database.Character
 
 	if request.Side == "Bear" {
 		pmc = *editions.Bear
@@ -340,7 +339,8 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 
 	pmc.ID = sessionID
 	pmc.AID = profile.Account.AID
-	sid, _ := tools.GenerateMongoID()
+
+	sid := tools.GenerateMongoID()
 	pmc.Savage = &sid
 
 	pmc.Info.Side = request.Side
@@ -351,7 +351,6 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 
 	time := int(tools.GetCurrentTimeInSeconds())
 	pmc.Info.RegistrationDate = time
-
 	pmc.Health.UpdateTime = time
 
 	pmc.Customization.Head = request.HeadID
@@ -360,10 +359,10 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	stats.SessionCounters = nil
 	stats.OverallCounters = map[string]interface{}{"Items": []interface{}{}}
 	stats.Aggressor = nil
-	stats.DroppedItems = make([]interface{}, 0, 0)
-	stats.FoundInRaidItems = make([]interface{}, 0, 0)
-	stats.Victims = make([]interface{}, 0, 0)
-	stats.CarriedQuestItems = make([]interface{}, 0, 0)
+	stats.DroppedItems = make([]interface{}, 0)
+	stats.FoundInRaidItems = make([]interface{}, 0)
+	stats.Victims = make([]interface{}, 0)
+	stats.CarriedQuestItems = make([]interface{}, 0)
 	stats.DamageHistory = map[string]interface{}{
 		"BodyParts":        []interface{}{},
 		"LethalDamage":     nil,
@@ -371,23 +370,20 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	stats.SurvivorClass = "Unknown"
 
-	commonSkills := make([]structs.SkillsCommon, 0, len(pmc.Skills.Common))
-	for _, skill := range pmc.Skills.Common {
-		commonSkills = append(commonSkills, skill)
-	}
+	commonSkills := make([]database.SkillsCommon, 0, len(pmc.Skills.Common))
+	commonSkills = append(commonSkills, pmc.Skills.Common...)
 	pmc.Skills.Common = commonSkills
 
 	hideout := &pmc.Hideout
-	resizedAreas := make([]structs.PlayerHideoutArea, 0, len(hideout.Areas))
-	for _, area := range hideout.Areas {
-		resizedAreas = append(resizedAreas, area)
-	}
 
+	resizedAreas := make([]database.PlayerHideoutArea, 0, len(hideout.Areas))
+	resizedAreas = append(resizedAreas, hideout.Areas...)
 	hideout.Areas = resizedAreas
+
 	hideout.Improvement = make(map[string]interface{})
 
 	profile.Character = &pmc
-	services.SaveProfile(profile)
+	profile.SaveProfile()
 
 	data := services.ApplyResponseBody(map[string]interface{}{"uid": sessionID})
 	services.ZlibJSONReply(w, data)
@@ -579,8 +575,7 @@ func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainLogoout(w http.ResponseWriter, r *http.Request) {
-	sessionID := services.GetSessionID(r)
-	services.SaveProfile(database.GetProfileByUID(sessionID))
+	database.GetProfileByUID(services.GetSessionID(r)).SaveProfile()
 
 	body := services.ApplyResponseBody(map[string]interface{}{"status": "ok"})
 	services.ZlibJSONReply(w, body)

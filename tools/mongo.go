@@ -2,7 +2,6 @@ package tools
 
 import (
 	"crypto/rand"
-	"errors"
 	"math"
 )
 
@@ -19,14 +18,7 @@ var chars = []rune(alphabet)
 var length int = len(chars)
 
 // GenerateMongoId returns a random string of length 24
-func GenerateMongoID() (string, error) {
-	if alphabetLength == 0 || alphabetLength > 255 {
-		return "", errors.New("alphabet must not be empty and contain no more than 255 chars")
-	}
-	if size <= 0 {
-		return "", errors.New("size must be positive integer")
-	}
-
+func GenerateMongoID() string {
 	mask := getMask(length)
 	// estimate how many random bytes we will need for the ID, we might actually need more but this is tradeoff
 	// between average case and worst case
@@ -38,7 +30,7 @@ func GenerateMongoID() (string, error) {
 	for j := 0; ; {
 		_, err := rand.Read(bytes)
 		if err != nil {
-			return "", err
+			return ""
 		}
 		for i := 0; i < step; i++ {
 			currByte := bytes[i] & byte(mask)
@@ -46,7 +38,7 @@ func GenerateMongoID() (string, error) {
 				id[j] = chars[currByte]
 				j++
 				if j == size {
-					return string(id[:size]), nil
+					return string(id[:size])
 				}
 			}
 		}

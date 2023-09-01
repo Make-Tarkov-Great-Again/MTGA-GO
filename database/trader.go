@@ -1,7 +1,6 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
 	"fmt"
 	"path/filepath"
@@ -9,10 +8,6 @@ import (
 
 	"github.com/goccy/go-json"
 )
-
-type Trader struct {
-	*structs.Trader
-}
 
 var traders = map[string]*Trader{}
 
@@ -35,7 +30,7 @@ func setTraders() {
 	}
 
 	for _, dir := range directory {
-		trader := &Trader{&structs.Trader{}}
+		trader := &Trader{}
 
 		currentTraderPath := filepath.Join(traderPath, dir)
 
@@ -119,7 +114,7 @@ func processBase(basePath string) map[string]interface{} {
 	return base
 }
 
-func processAssort(assortPath string) (*structs.Assort, *structs.AssortIndex) {
+func processAssort(assortPath string) (*Assort, *AssortIndex) {
 	var dynamic map[string]interface{}
 	raw := tools.GetJSONRawMessage(assortPath)
 
@@ -128,13 +123,13 @@ func processAssort(assortPath string) (*structs.Assort, *structs.AssortIndex) {
 		panic(err)
 	}
 
-	assort := &structs.Assort{}
+	assort := &Assort{}
 
 	assort.NextResupply = 1672236024
 
 	items, ok := dynamic["items"].([]interface{})
 	if ok {
-		assort.Items = make([]*structs.AssortItem, 0, len(items))
+		assort.Items = make([]*AssortItem, 0, len(items))
 		data, err := json.Marshal(items)
 		if err != nil {
 			panic(err)
@@ -148,7 +143,7 @@ func processAssort(assortPath string) (*structs.Assort, *structs.AssortIndex) {
 		panic("Items not found")
 	}
 
-	index := &structs.AssortIndex{}
+	index := &AssortIndex{}
 
 	parentItems := make(map[string]map[string]int16)
 	childlessItems := make(map[string]int16)
@@ -184,13 +179,12 @@ func processAssort(assortPath string) (*structs.Assort, *structs.AssortIndex) {
 		parentItems[item.ID] = family
 	}
 
-	items = nil
 	index.ParentItems = parentItems
 	index.Items = childlessItems
 
 	barterSchemes, ok := dynamic["barter_scheme"].(map[string]interface{})
 	if ok {
-		assort.BarterScheme = make(map[string][][]*structs.Scheme)
+		assort.BarterScheme = make(map[string][][]*Scheme)
 		data, err := json.Marshal(barterSchemes)
 		if err != nil {
 			panic(err)
@@ -243,7 +237,6 @@ func processDialogues(dialoguesPath string) map[string][]string {
 	if err != nil {
 		panic(err)
 	}
-	raw = nil
 
 	dialogues := map[string][]string{}
 	for k, v := range dynamic {
@@ -263,8 +256,8 @@ func processDialogues(dialoguesPath string) map[string][]string {
 	return dialogues
 }
 
-func processSuits(dialoguesPath string) ([]structs.TraderSuits, map[string]int8) {
-	var suits []structs.TraderSuits
+func processSuits(dialoguesPath string) ([]TraderSuits, map[string]int8) {
+	var suits []TraderSuits
 	raw := tools.GetJSONRawMessage(dialoguesPath)
 
 	err := json.Unmarshal(raw, &suits)
@@ -280,10 +273,10 @@ func processSuits(dialoguesPath string) ([]structs.TraderSuits, map[string]int8)
 	return suits, suitsIndex
 }
 
-func (t *Trader) GetAssortItemByID(id string) []*structs.AssortItem {
+func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 	item, ok := t.Index.Assort.Items[id]
 	if ok {
-		return []*structs.AssortItem{t.Assort.Items[item]}
+		return []*AssortItem{t.Assort.Items[item]}
 	}
 
 	parentItems, parentOK := t.Index.Assort.ParentItems[id]
@@ -292,7 +285,7 @@ func (t *Trader) GetAssortItemByID(id string) []*structs.AssortItem {
 		return nil
 	}
 
-	items := make([]*structs.AssortItem, 0, len(parentItems))
+	items := make([]*AssortItem, 0, len(parentItems))
 	for _, index := range parentItems {
 		items = append(items, t.Assort.Items[index])
 	}
@@ -300,11 +293,11 @@ func (t *Trader) GetAssortItemByID(id string) []*structs.AssortItem {
 	return items
 }
 
-var index = map[string]*structs.AssortIndex{}
-var assorts = map[string]*structs.Assort{}
+var index = map[string]*AssortIndex{}
+var assorts = map[string]*Assort{}
 var loyaltyLevels = map[string]int8{}
 
-func (t *Trader) GetStrippedAssort(character *structs.PlayerTemplate) *structs.Assort {
+func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 	traderID := t.Base["_id"].(string)
 
 	cachedAssort, ok := assorts[traderID]
@@ -318,12 +311,12 @@ func (t *Trader) GetStrippedAssort(character *structs.PlayerTemplate) *structs.A
 	}
 	loyaltyLevel := loyaltyLevels[traderID]
 
-	assortIndex := structs.AssortIndex{
+	assortIndex := AssortIndex{
 		Items:       map[string]int16{},
 		ParentItems: map[string]map[string]int16{},
 	}
 
-	assort := structs.Assort{}
+	assort := Assort{}
 
 	// iterate through  loyal
 	loyalLevelItems := make(map[string]int8)
@@ -352,8 +345,8 @@ func (t *Trader) GetStrippedAssort(character *structs.PlayerTemplate) *structs.A
 		}
 	}
 
-	assort.Items = make([]*structs.AssortItem, 0, len(t.Assort.Items))
-	assort.BarterScheme = make(map[string][][]*structs.Scheme)
+	assort.Items = make([]*AssortItem, 0, len(t.Assort.Items))
+	assort.BarterScheme = make(map[string][][]*Scheme)
 
 	var counter int16 = 0
 	for itemID := range loyalLevelItems {
@@ -386,7 +379,7 @@ func (t *Trader) GetStrippedAssort(character *structs.PlayerTemplate) *structs.A
 	return assorts[traderID]
 }
 
-func (t *Trader) GetTraderLoyaltyLevel(character *structs.PlayerTemplate) int8 {
+func (t *Trader) GetTraderLoyaltyLevel(character *Character) int8 {
 	loyaltyLevels := t.Base["loyaltyLevels"].([]interface{})
 	traderID := t.Base["_id"].(string)
 
@@ -408,3 +401,77 @@ func (t *Trader) GetTraderLoyaltyLevel(character *structs.PlayerTemplate) int8 {
 
 	return int8(length)
 }
+
+// #region Trader structs
+type Trader struct {
+	Index       TraderIndex                  `json:",omitempty"`
+	Base        map[string]interface{}       `json:",omitempty"`
+	Assort      *Assort                      `json:",omitempty"`
+	QuestAssort map[string]map[string]string `json:",omitempty"`
+	Suits       []TraderSuits                `json:",omitempty"`
+	Dialogue    map[string][]string          `json:",omitempty"`
+}
+
+type TraderIndex struct {
+	Assort *AssortIndex    `json:",omitempty"`
+	Suits  map[string]int8 `json:",omitempty"`
+}
+
+type AssortIndex struct {
+	Items       map[string]int16
+	ParentItems map[string]map[string]int16 `json:",omitempty"`
+}
+
+type TraderSuits struct {
+	ID           string           `json:"_id"`
+	Tid          string           `json:"tid"`
+	SuiteID      string           `json:"suiteId"`
+	IsActive     bool             `json:"isActive"`
+	Requirements SuitRequirements `json:"requirements"`
+}
+type SuitItemRequirements struct {
+	Count          int    `json:"count"`
+	Tpl            string `json:"_tpl"`
+	OnlyFunctional bool   `json:"onlyFunctional"`
+}
+type SuitRequirements struct {
+	LoyaltyLevel         int8                   `json:"loyaltyLevel"`
+	ProfileLevel         int8                   `json:"profileLevel"`
+	Standing             int8                   `json:"standing"`
+	SkillRequirements    []interface{}          `json:"skillRequirements"`
+	QuestRequirements    []string               `json:"questRequirements"`
+	SuitItemRequirements []SuitItemRequirements `json:"itemRequirements"`
+}
+
+type Assort struct {
+	NextResupply    int                    `json:"nextResupply"`
+	BarterScheme    map[string][][]*Scheme `json:"barter_scheme"`
+	Items           []*AssortItem          `json:"items"`
+	LoyalLevelItems map[string]int8        `json:"loyal_level_items"`
+}
+
+type AssortItem struct {
+	ID       string `json:"_id"`
+	Tpl      string `json:"_tpl"`
+	ParentID string `json:"parentId"`
+	SlotID   string `json:"slotId"`
+	Upd      struct {
+		BuyRestrictionCurrent interface{} `json:"BuyRestrictionCurrent,omitempty"`
+		BuyRestrictionMax     interface{} `json:"BuyRestrictionMax,omitempty"`
+		StackObjectsCount     int         `json:"StackObjectsCount,omitempty"`
+		UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
+		FireMode              struct {
+			FireMode string `json:"FireMode"`
+		} `json:"FireMode,omitempty"`
+		Foldable struct {
+			Folded bool `json:"Folded,omitempty"`
+		} `json:"Foldable,omitempty"`
+	} `json:"upd,omitempty"`
+}
+
+type Scheme struct {
+	Tpl   string  `json:"_tpl"`
+	Count float32 `json:"count"`
+}
+
+// #endregion
