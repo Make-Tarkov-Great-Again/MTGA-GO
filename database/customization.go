@@ -6,6 +6,8 @@ import (
 	"github.com/goccy/go-json"
 )
 
+// #region Customization getters
+
 var customizations map[string]interface{}
 
 func GetCustomizations() map[string]interface{} {
@@ -20,6 +22,10 @@ func GetCustomization(id string) map[string]interface{} {
 	return customization.(map[string]interface{})
 }
 
+// #endregion
+
+// #region Customization setters
+
 func setCustomization() {
 	raw := tools.GetJSONRawMessage(customizationPath)
 	err := json.Unmarshal(raw, &customizations)
@@ -27,6 +33,10 @@ func setCustomization() {
 		panic(err)
 	}
 }
+
+// #endregion
+
+// #region Customization structs
 
 type Customization struct {
 	ID     string                 `json:"_id"`
@@ -36,3 +46,5 @@ type Customization struct {
 	Proto  string                 `json:"_proto"`
 	Props  map[string]interface{} `json:"_props"`
 }
+
+// #endregion

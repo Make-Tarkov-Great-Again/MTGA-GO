@@ -9,11 +9,6 @@ import (
 
 var hideout = Hideout{}
 
-// GetHideout retrieves the current hideout configuration.
-func GetHideout() *Hideout {
-	return &hideout
-}
-
 const (
 	areasPath           string = hideoutPath + "areas.json"
 	productionPath      string = hideoutPath + "production.json"
@@ -21,6 +16,63 @@ const (
 	scavcasePath        string = hideoutPath + "scavcase.json"
 	hideoutSettingsPath string = hideoutPath + "settings.json"
 )
+
+// #region Hideout getters
+
+// GetHideout retrieves the current hideout configuration.
+func GetHideout() *Hideout {
+	return &hideout
+}
+
+// GetHideoutAreaByAreaType retrieves a hideout area by its type int8.
+func GetHideoutAreaByAreaType(_type int8) *map[string]interface{} {
+	index, ok := hideout.Index.Areas[_type]
+	if !ok {
+		fmt.Println("Area Type ", _type, " does not exist")
+		return nil
+	}
+
+	hideoutArea := hideout.Areas[index]
+	return &hideoutArea
+}
+
+// GetHideoutAreaByName retrieves a hideout area by its name.
+func GetHideoutAreaByName(name string) *map[string]interface{} {
+	area, ok := HideoutAreaNames[name]
+	if !ok {
+		fmt.Println("Hideout Area ", name, " does not exist")
+		return nil
+	}
+
+	hideoutArea := hideout.Areas[hideout.Index.Areas[area]]
+	return &hideoutArea
+}
+
+// GetHideoutRecipeByID retrieves a hideout production by its ID.
+func GetHideoutRecipeByID(rid string) *map[string]interface{} {
+	index, ok := hideout.Index.Recipes[rid]
+	if ok {
+		recipe := hideout.Recipes[index]
+		return &recipe
+	}
+	fmt.Println("Recipe ", rid, " does not exist")
+	return nil
+}
+
+// GetHideoutRecipeByID retrieves a scavcase production by its ID.
+func GetScavCaseRecipeByID(rid string) *map[string]interface{} {
+	index, ok := hideout.Index.ScavCase[rid]
+	if ok {
+		recipe := hideout.ScavCase[index]
+		return &recipe
+	}
+	fmt.Println("ScavCase recipe ", rid, " does not exist")
+	return nil
+}
+
+// #endregion
+
+// #region Hideout setters
 
 // setHideoutScavcase sets the hideout scavcase items and their indexes.
 func setHideout() {
@@ -76,7 +128,72 @@ func setHideout() {
 	fmt.Println()
 }
 
-var HideoutAreaNames = map[string]int8{
+// setHideoutAreas sets the hideout areas and their indexes.
+func setHideoutAreas(areas []map[string]interface{}) {
+	hideout.Areas = make([]map[string]interface{}, 0, len(areas))
+	hideout.Index.Areas = make(map[int8]int8)
+
+	for index, area := range areas {
+		areaType := int8(area["type"].(float64))
+
+		hideout.Index.Areas[areaType] = int8(index)
+		hideout.Areas = append(hideout.Areas, area)
+	}
+}
+
+// setHideoutRecipes sets the hideout production recipes and their indexes.
+func setHideoutRecipes(recipies []map[string]interface{}) {
+	hideout.Recipes = make([]map[string]interface{}, 0, len(recipies))
+	hideout.Index.Recipes = make(map[string]int16)
+
+	for index, recipe := range recipies {
+		pid := recipe["_id"].(string)
+
+		hideout.Index.Recipes[pid] = int16(index)
+		hideout.Recipes = append(hideout.Recipes, recipe)
+	}
+}
+
+// setHideoutScavcase sets the hideout scavcase items and their indexes.
+func setHideoutScavcase(scavcase []map[string]interface{}) {
+	hideout.ScavCase = make([]map[string]interface{}, 0, len(scavcase))
+	hideout.Index.ScavCase = make(map[string]int8)
+
+	for index, item := range scavcase {
+		pid := item["_id"].(string)
+
+		hideout.ScavCase = append(hideout.ScavCase, item)
+		hideout.Index.ScavCase[pid] = int8(index)
+	}
+}
+
+// #endregion
+
+// #region Hideout structs
+
+type Hideout struct {
+	Index    HideoutIndex
+	Areas    []map[string]interface{}
+	Recipes  []map[string]interface{}
+	QTE      []map[string]interface{}
+	ScavCase []map[string]interface{}
+	Settings HideoutSettings
+}
+
+type HideoutIndex struct {
+	Areas    map[int8]int8
+	ScavCase map[string]int8
+	Recipes  map[string]int16
+}
+
+type HideoutSettings struct {
+	GeneratorSpeedWithoutFuel float64 `json:"generatorSpeedWithoutFuel"`
+	GeneratorFuelFlowRate     float64 `json:"generatorFuelFlowRate"`
+	AirFilterUnitFlowRate     float64 `json:"airFilterUnitFlowRate"`
+	GPUBoostRate              float64 `json:"gpuBoostRate"`
+}
+
+var HideoutAreaNames = map[string]int8{ //Yoink this bish here for better shiz
 	"NotSet":               -1,
 	"Vents":                0,
 	"Security":             1,
@@ -106,109 +223,4 @@ var HideoutAreaNames = map[string]int8{
 	"WeaponStandSecondary": 25,
 }
 
-// GetHideoutAreaByAreaType retrieves a hideout area by its type int8.
-func GetHideoutAreaByAreaType(_type int8) *map[string]interface{} {
-	index, ok := hideout.Index.Areas[_type]
-	if !ok {
-		fmt.Println("Area Type ", _type, " does not exist")
-		return nil
-	}
-
-	hideoutArea := hideout.Areas[index]
-	return &hideoutArea
-}
-
-// GetHideoutAreaByName retrieves a hideout area by its name.
-func GetHideoutAreaByName(name string) *map[string]interface{} {
-	area, ok := HideoutAreaNames[name]
-	if !ok {
-		fmt.Println("Hideout Area ", name, " does not exist")
-		return nil
-	}
-
-	hideoutArea := hideout.Areas[hideout.Index.Areas[area]]
-	return &hideoutArea
-}
-
-// setHideoutAreas sets the hideout areas and their indexes.
-func setHideoutAreas(areas []map[string]interface{}) {
-	hideout.Areas = make([]map[string]interface{}, 0, len(areas))
-	hideout.Index.Areas = make(map[int8]int8)
-
-	for index, area := range areas {
-		areaType := int8(area["type"].(float64))
-
-		hideout.Index.Areas[areaType] = int8(index)
-		hideout.Areas = append(hideout.Areas, area)
-	}
-}
-
-// GetHideoutRecipeByID retrieves a hideout production by its ID.
-func GetHideoutRecipeByID(rid string) *map[string]interface{} {
-	index, ok := hideout.Index.Recipes[rid]
-	if ok {
-		recipe := hideout.Recipes[index]
-		return &recipe
-	}
-	fmt.Println("Recipe ", rid, " does not exist")
-	return nil
-}
-
-// setHideoutRecipes sets the hideout production recipes and their indexes.
-func setHideoutRecipes(recipies []map[string]interface{}) {
-	hideout.Recipes = make([]map[string]interface{}, 0, len(recipies))
-	hideout.Index.Recipes = make(map[string]int16)
-
-	for index, recipe := range recipies {
-		pid := recipe["_id"].(string)
-
-		hideout.Index.Recipes[pid] = int16(index)
-		hideout.Recipes = append(hideout.Recipes, recipe)
-	}
-}
-
-// GetHideoutRecipeByID retrieves a scavcase production by its ID.
-func GetScavCaseRecipeByID(rid string) *map[string]interface{} {
-	index, ok := hideout.Index.ScavCase[rid]
-	if ok {
-		recipe := hideout.ScavCase[index]
-		return &recipe
-	}
-	fmt.Println("ScavCase recipe ", rid, " does not exist")
-	return nil
-}
-
-// setHideoutScavcase sets the hideout scavcase items and their indexes.
-func setHideoutScavcase(scavcase []map[string]interface{}) {
-	hideout.ScavCase = make([]map[string]interface{}, 0, len(scavcase))
-	hideout.Index.ScavCase = make(map[string]int8)
-
-	for index, item := range scavcase {
-		pid := item["_id"].(string)
-
-		hideout.ScavCase = append(hideout.ScavCase, item)
-		hideout.Index.ScavCase[pid] = int8(index)
-	}
-}
-
-type Hideout struct {
-	Index    HideoutIndex
-	Areas    []map[string]interface{}
-	Recipes  []map[string]interface{}
-	QTE      []map[string]interface{}
-	ScavCase []map[string]interface{}
-	Settings HideoutSettings
-}
-
-type HideoutIndex struct {
-	Areas    map[int8]int8
-	ScavCase map[string]int8
-	Recipes  map[string]int16
-}
-
-type HideoutSettings struct {
-	GeneratorSpeedWithoutFuel float64 `json:"generatorSpeedWithoutFuel"`
-	GeneratorFuelFlowRate     float64 `json:"generatorFuelFlowRate"`
-	AirFilterUnitFlowRate     float64 `json:"airFilterUnitFlowRate"`
-	GPUBoostRate              float64 `json:"gpuBoostRate"`
-}
+// #endregion

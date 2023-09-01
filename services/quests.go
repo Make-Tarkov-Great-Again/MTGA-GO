@@ -74,7 +74,7 @@ func GetQuestsAvailableToPlayer(character *database.Character) []interface{} {
 			for trader, loyalty := range forStart.TraderLoyalty {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := float64(GetTraderLoyaltyLevel(trader, character))
+					loyaltyLevel := float64(database.GetTraderByID(trader).GetTraderLoyaltyLevel(character))
 					traderStandings[trader] = &loyaltyLevel
 				}
 
@@ -94,7 +94,7 @@ func GetQuestsAvailableToPlayer(character *database.Character) []interface{} {
 			for trader, loyalty := range forStart.TraderStanding {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := float64(GetTraderLoyaltyLevel(trader, character))
+					loyaltyLevel := float64(database.GetTraderByID(trader).GetTraderLoyaltyLevel(character))
 					traderStandings[trader] = &loyaltyLevel
 				}
 

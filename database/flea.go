@@ -2,13 +2,23 @@ package database
 
 var flea = Flea{}
 
+// #region Flea getters
+
 func GetFlea() *Flea {
 	return &flea
 }
 
+// #endregion
+
+// #region Flea setters
+
 func setFlea() {
 
 }
+
+// #endregion
+
+// #region Flea structs
 
 type Flea struct {
 	Offers           []interface{}
@@ -17,6 +27,8 @@ type Flea struct {
 	Categories       map[string]int
 }
 type MemberCategory int
+
+// #endregion
 
 /* const (
 	defaultCategory                  MemberCategory = 0

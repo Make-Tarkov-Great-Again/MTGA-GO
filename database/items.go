@@ -8,9 +8,15 @@ import (
 
 var items map[string]*DatabaseItem
 
+// #region Item getters
+
 func GetItems() map[string]*DatabaseItem {
 	return items
 }
+
+// #endregion
+
+// #region Item setters
 
 func setItems() {
 	raw := tools.GetJSONRawMessage(itemsPath)
@@ -20,6 +26,10 @@ func setItems() {
 	}
 }
 
+// #endregion
+
+// #region Item structs
+
 type DatabaseItem struct {
 	ID         string                 `json:"_id"`
 	Name       string                 `json:"_name"`
@@ -28,3 +38,5 @@ type DatabaseItem struct {
 	Properties map[string]interface{} `json:"_props"`
 	Proto      string                 `json:"_proto"`
 }
+
+// #endregion

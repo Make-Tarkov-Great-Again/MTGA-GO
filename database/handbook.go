@@ -10,6 +10,8 @@ import (
 var handbook = Handbook{}
 var prices = Prices{}
 
+// #region Handbook getters
+
 func GetHandbook() *Handbook {
 	return &handbook
 }
@@ -18,14 +20,18 @@ func GetPrices() *Prices {
 	return &prices
 }
 
-func GetPriceByID(id string) int {
+func GetPriceByID(id string) *int {
 	price, ok := prices[id]
 	if !ok {
 		fmt.Println("Price of ", id, " not found, returning -1")
-		return -1
+		return nil
 	}
-	return price
+	return &price
 }
+
+// #endregion
+
+// #region Handbook setters
 
 func setHandbook() {
 	raw := tools.GetJSONRawMessage(handbookPath)
@@ -39,6 +45,10 @@ func setHandbook() {
 	}
 	fmt.Println()
 }
+
+// #endregion
+
+// #region Handbook structs
 
 type Handbook struct {
 	Categories []HandbookCategory `json:"Categories"`
@@ -60,3 +70,5 @@ type HandbookItem struct {
 }
 
 type Prices map[string]int
+
+// #endregion

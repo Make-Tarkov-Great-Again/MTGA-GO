@@ -9,8 +9,7 @@ import (
 
 func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-
-	suites := database.GetProfileByUID(sessionID).Storage.Suites
+	suites := database.GetStorageByUID(sessionID).Suites
 
 	storage := map[string]interface{}{
 		"_id":    sessionID,

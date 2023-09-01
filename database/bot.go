@@ -8,19 +8,25 @@ import (
 	"github.com/goccy/go-json"
 )
 
+// #region Bot getters
+
 var bots = Bots{}
 
 func GetBots() *Bots {
 	return &bots
 }
 
+// #endregion
+
+// #region Bot setters
+
 func setBots() {
-	bots.BotTypes = processBotTypes()
-	bots.BotAppearance = processBotAppearance()
-	bots.BotNames = processBotNames()
+	bots.BotTypes = setBotTypes()
+	bots.BotAppearance = setBotAppearance()
+	bots.BotNames = setBotNames()
 }
 
-func processBotTypes() map[string]*BotType {
+func setBotTypes() map[string]*BotType {
 	botTypes := make(map[string]*BotType)
 
 	directory, err := tools.GetDirectoriesFrom(botsDirectory)
@@ -85,7 +91,7 @@ func processBotTypes() map[string]*BotType {
 	return botTypes
 }
 
-func processBotAppearance() map[string]*BotAppearance {
+func setBotAppearance() map[string]*BotAppearance {
 	botAppearance := make(map[string]*BotAppearance)
 
 	raw := tools.GetJSONRawMessage(filepath.Join(botsPath, "appearance.json"))
@@ -96,7 +102,7 @@ func processBotAppearance() map[string]*BotAppearance {
 	return botAppearance
 }
 
-func processBotNames() *BotNames {
+func setBotNames() *BotNames {
 	names := BotNames{}
 
 	raw := tools.GetJSONRawMessage(filepath.Join(botsPath, "names.json"))
@@ -106,6 +112,10 @@ func processBotNames() *BotNames {
 	}
 	return &names
 }
+
+// #endregion
+
+// #region Bot structs
 
 type Bots struct {
 	BotTypes      map[string]*BotType
@@ -164,3 +174,5 @@ type BotLoadout struct {
 	Melee           []string `json:"melee,omitempty"`
 	Pocket          []string `json:"pocket,omitempty"`
 }
+
+// #endregion

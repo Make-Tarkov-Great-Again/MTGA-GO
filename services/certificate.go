@@ -37,15 +37,18 @@ func GetCertificate(ip string, hostname string) *Certificate {
 	}
 
 	if !tools.FileExist(certPath) {
-		os.Mkdir(certPath, 0700)
+		err := os.Mkdir(certPath, 0700)
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	cert.generateCertificate(ip, hostname)
+	cert.setCertificate(ip, hostname)
 	return &cert
 }
 
 // Generate SHA256 certificate for HTTPS server
-func (cg *Certificate) generateCertificate(ip string, hostname string) {
+func (cg *Certificate) setCertificate(ip string, hostname string) {
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		panic(err)
@@ -86,7 +89,10 @@ func (cg *Certificate) generateCertificate(ip string, hostname string) {
 	}
 	defer certFile.Close()
 
-	pem.Encode(certFile, &pem.Block{Type: "CERTIFICATE", Bytes: cert})
+	err = pem.Encode(certFile, &pem.Block{Type: "CERTIFICATE", Bytes: cert})
+	if err != nil {
+		panic(err)
+	}
 
 	keyFile, err := os.Create(cg.KeyFile)
 	if err != nil {
@@ -99,6 +105,9 @@ func (cg *Certificate) generateCertificate(ip string, hostname string) {
 		panic(err)
 	}
 
-	pem.Encode(keyFile, &pem.Block{Type: "EC PRIVATE KEY", Bytes: privBytes})
+	err = pem.Encode(keyFile, &pem.Block{Type: "EC PRIVATE KEY", Bytes: privBytes})
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println("Certificate and key generated successfully")
 }

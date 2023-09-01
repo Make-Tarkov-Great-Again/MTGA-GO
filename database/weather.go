@@ -8,9 +8,16 @@ import (
 
 var weather = Weather{}
 
+// #region Weather getters
+
 func GetWeather() *Weather {
 	return &weather
 }
+
+// #endregion
+
+// #region Weather setters
+
 func setWeather() {
 	raw := tools.GetJSONRawMessage(weatherPath)
 	err := json.Unmarshal(raw, &weather)
@@ -19,7 +26,10 @@ func setWeather() {
 	}
 }
 
+// #endregion
+
 // #region Weather structs
+
 type Weather struct {
 	WeatherInfo struct {
 		Timestamp     int     `json:"timestamp"`

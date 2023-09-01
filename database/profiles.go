@@ -9,11 +9,12 @@ import (
 	"github.com/goccy/go-json"
 )
 
+// #region Profile getters
+
 const profilesPath string = "user/profiles/"
 
 var profiles = map[string]*Profile{}
 
-// #region Profile getters
 func GetProfiles() map[string]*Profile {
 	return profiles
 }
@@ -67,6 +68,7 @@ func GetDialogueByUID(uid string) *map[string]interface{} {
 // #endregion
 
 // #region Profile setters
+
 func setProfiles() map[string]*Profile {
 	users, err := tools.GetDirectoriesFrom(profilesPath)
 	if err != nil {
@@ -167,6 +169,7 @@ func setDialogue(path string) map[string]interface{} {
 // #endregion
 
 // #region Profile save
+
 func (profile Profile) SaveProfile() {
 	sessionID := profile.Account.UID
 	profileDirPath := filepath.Join(profilesPath, sessionID)
@@ -228,6 +231,7 @@ func SaveDialogue(sessionID string, dialogue map[string]interface{}) {
 // #endregion
 
 // #region Profile structs
+
 type Profile struct {
 	Account   *Account
 	Character *Character

@@ -10,19 +10,6 @@ import (
 
 var languages = make(map[string]string)
 
-func GetLanguages() map[string]string {
-	return languages
-}
-
-func setLanguages() map[string]string {
-	raw := tools.GetJSONRawMessage(filepath.Join(localesPath, "/languages.json"))
-	err := json.Unmarshal(raw, &languages)
-	if err != nil {
-		panic(err)
-	}
-	return languages
-}
-
 // Locales contains various locale information for all readable text in-game
 var locales = &Locale{}
 
@@ -45,6 +32,27 @@ var localeMap = map[string]*LocaleData{
 	"tu":    &locales.TU,
 }
 
+// #region Language getters
+
+func GetLanguages() map[string]string {
+	return languages
+}
+
+// #endregion
+
+// #region Language setters
+func setLanguages() map[string]string {
+	raw := tools.GetJSONRawMessage(filepath.Join(localesPath, "/languages.json"))
+	err := json.Unmarshal(raw, &languages)
+	if err != nil {
+		panic(err)
+	}
+	return languages
+}
+
+// #endregion
+
+// #region Locale getters
 func GetLocales() *Locale {
 	return locales
 }
@@ -72,6 +80,10 @@ func GetLocalesLocaleByName(name string) map[string]interface{} {
 	fmt.Println("No such locale ...locale, returning EN")
 	return locales.EN.Locale
 }
+
+// #endregion
+
+// #region Locale setters
 
 func setLocales() {
 	directories, err := tools.GetDirectoriesFrom(localesPath)
@@ -127,6 +139,10 @@ func setLocales() {
 
 }
 
+// #endregion
+
+// #region Locale struct
+
 type Locales struct {
 	Locales   Locale
 	Languages map[string]string
@@ -159,3 +175,5 @@ type LocaleData struct {
 type LocaleMenu struct {
 	Menu map[string]string `json:"menu"`
 }
+
+// #endregion

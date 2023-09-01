@@ -10,6 +10,8 @@ import (
 
 var editions = make(map[string]*Edition)
 
+// #region Edition getters
+
 func GetEditions() map[string]*Edition {
 	return editions
 }
@@ -21,6 +23,10 @@ func GetEdition(version string) *Edition {
 	}
 	return edition
 }
+
+// #endregion
+
+// #region Edition setters
 
 func setEditions() {
 	directories, err := tools.GetDirectoriesFrom(editionsDirPath)
@@ -68,6 +74,10 @@ func setEditions() {
 	}
 }
 
+// #endregion
+
+// #region Edition structs
+
 type Edition struct {
 	Bear    *Character      `json:"bear"`
 	Usec    *Character      `json:"usec"`
@@ -78,3 +88,5 @@ type EditionStorage struct {
 	Bear []string `json:"bear"`
 	Usec []string `json:"usec"`
 }
+
+// #endregion

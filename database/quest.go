@@ -1,3 +1,4 @@
+// Use package descriptions you fool!!!!! https://go.dev/doc/comment#:~:text=Go%20doc%20comments.-,Packages,are%20concatenated%20to%20form%20one%20large%20comment%20for%20the%20entire%20package.,-Commands
 package database
 
 import (
@@ -8,9 +9,10 @@ import (
 	"github.com/goccy/go-json"
 )
 
-// var quests map[string]interface{}
 var questsQuery = map[string]*Quest{}
 var quests = map[string]interface{}{}
+
+// #region Quests getters
 
 func GetQuestsQuery() map[string]*Quest {
 	return questsQuery
@@ -24,6 +26,9 @@ func GetQuests() map[string]interface{} {
 	return quests
 }
 
+// #endregion
+
+// region Quest setters
 const (
 	ForFinish string = "AvailableForFinish"
 	ForStart  string = "AvailableForStart"
@@ -50,12 +55,12 @@ func setQuests() {
 		var quest = &Quest{}
 
 		quest.Name = v["QuestName"].(string)
-		quest.Dialogue = processDialogue(v)
+		quest.Dialogue = setQuestDialogue(v)
 
 		questConditions, ok := v["conditions"].(map[string]interface{})
 		if ok {
 			conditions := &QuestAvailabilityConditions{}
-			process := processConditions(questConditions)
+			process := setQuestConditions(questConditions)
 
 			data, err := json.Marshal(process)
 			if err != nil {
@@ -79,7 +84,7 @@ func setQuests() {
 		questRewards, ok := v["rewards"].(map[string]interface{})
 		if ok {
 			rewards := &QuestRewardAvailabilityConditions{}
-			process := processQuestRewards(questRewards)
+			process := setQuestRewards(questRewards)
 			data, err := json.Marshal(process)
 			if err != nil {
 				fmt.Println(err)
@@ -101,7 +106,7 @@ func setQuests() {
 	//_ = tools.WriteToFile("questsDatabase.json", questsQuery)
 }
 
-func processDialogue(quest map[string]interface{}) QuestDialogues {
+func setQuestDialogue(quest map[string]interface{}) QuestDialogues {
 	dialogues := &QuestDialogues{}
 
 	description, _ := quest["description"].(string)
@@ -130,7 +135,7 @@ const (
 	props  string = "_props"
 )
 
-func processConditions(conditions map[string]interface{}) map[string]map[string]interface{} {
+func setQuestConditions(conditions map[string]interface{}) map[string]map[string]interface{} {
 	output := make(map[string]map[string]interface{})
 
 	processCategory := func(category string, conditionList []interface{}) {
@@ -148,7 +153,7 @@ func processConditions(conditions map[string]interface{}) map[string]map[string]
 				continue
 			}
 
-			process := processCondition(name, conditionMap)
+			process := processQuestCondition(name, conditionMap)
 			processedCategory[name] = process
 
 		}
@@ -170,7 +175,7 @@ func processConditions(conditions map[string]interface{}) map[string]map[string]
 	return output
 }
 
-func processCondition(name string, conditions map[string]interface{}) interface{} {
+func processQuestCondition(name string, conditions map[string]interface{}) interface{} {
 
 	output := make(map[string]interface{})
 	props, _ := conditions[props].(map[string]interface{})
@@ -278,7 +283,7 @@ const (
 	_type string = "type"
 )
 
-func processQuestRewards(rewards map[string]interface{}) map[string]interface{} {
+func setQuestRewards(rewards map[string]interface{}) map[string]interface{} {
 	output := make(map[string]interface{})
 
 	fails, ok := rewards[Fail].([]interface{})
@@ -292,7 +297,7 @@ func processQuestRewards(rewards map[string]interface{}) map[string]interface{} 
 			reward := fail.(map[string]interface{})
 
 			name := reward[_type].(string)
-			succ[name] = processQuestReward(name, reward)
+			succ[name] = setQuestReward(name, reward)
 		}
 		output[Fail] = succ
 	}
@@ -308,7 +313,7 @@ func processQuestRewards(rewards map[string]interface{}) map[string]interface{} 
 			reward := start.(map[string]interface{})
 
 			name := reward[_type].(string)
-			succ[name] = processQuestReward(name, reward)
+			succ[name] = setQuestReward(name, reward)
 		}
 		output[Started] = succ
 	}
@@ -325,14 +330,14 @@ func processQuestRewards(rewards map[string]interface{}) map[string]interface{} 
 			reward := success.(map[string]interface{})
 
 			name := reward[_type].(string)
-			succ[name] = processQuestReward(name, reward)
+			succ[name] = setQuestReward(name, reward)
 		}
 		output[Success] = succ
 	}
 	return output
 }
 
-func processQuestReward(name string, reward map[string]interface{}) interface{} {
+func setQuestReward(name string, reward map[string]interface{}) interface{} {
 	output := make(map[string]interface{})
 
 	switch name {
@@ -441,7 +446,10 @@ func processQuestReward(name string, reward map[string]interface{}) interface{} 
 	return output
 }
 
+// #endregion
+
 // #region Quest structs
+
 type Quest struct {
 	Name       string
 	Dialogue   QuestDialogues                    `json:",omitempty"`

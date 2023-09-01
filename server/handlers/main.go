@@ -322,9 +322,6 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 
 	profile := database.GetProfileByUID(sessionID)
-	if profile.Storage == nil {
-		profile.Storage = &database.Storage{}
-	}
 
 	editions := database.GetEdition("Edge Of Darkness")
 	var pmc database.Character

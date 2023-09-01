@@ -7,26 +7,6 @@ import (
 	"path/filepath"
 )
 
-// InitializeDatabase initializes the database
-func InitializeDatabase() {
-	setRequiredFolders()
-	setCore()
-	setItems()
-	setLocales()
-	setLanguages()
-	setHandbook()
-	setTraders()
-	setLocations()
-	setQuests()
-	setHideout()
-	setWeather()
-	setCustomization()
-	setBots()
-	setEditions()
-	setFlea()
-	setProfiles()
-}
-
 const (
 	databaseLibPath       string = "assets/database"
 	coreFilePath          string = databaseLibPath + "/core"
@@ -51,6 +31,28 @@ const (
 	botsDirectory         string = botsPath + "bots/"
 )
 
+// InitializeDatabase initializes the database
+func InitializeDatabase() {
+	setRequiredFolders()
+	setCore()
+	setItems()
+	setLocales()
+	setLanguages()
+	setHandbook()
+	setTraders()
+	setLocations()
+	setQuests()
+	setHideout()
+	setWeather()
+	setCustomization()
+	setBots()
+	setEditions()
+	setFlea()
+	setProfiles()
+}
+
+// #region Database setters
+
 func setRequiredFolders() {
 	var users string = "user"
 
@@ -69,6 +71,10 @@ func setRequiredFolders() {
 		}
 	}
 }
+
+// #endregion
+
+// #region Database structs
 
 type Database struct {
 	Core *Core
@@ -90,3 +96,5 @@ type Database struct {
 	Profiles      map[string]*Profile
 	//bundles  []map[string]interface{}
 }
+
+// #endregion

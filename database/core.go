@@ -9,6 +9,9 @@ import (
 )
 
 var core = Core{}
+var coreServerData = &serverData{}
+
+// #region Core getters
 
 func GetCore() *Core {
 	return &core
@@ -41,6 +44,53 @@ func GetPlayerScav() *Scav {
 func GetBotTemplate() *Character {
 	return core.Character
 }
+
+func GetMainAddress() string {
+	return coreServerData.MainAddress
+}
+
+func GetTradingAddress() string {
+	return coreServerData.TradingAddress
+}
+
+func GetMessageAddress() string {
+	return coreServerData.MessageAddress
+}
+
+func GetRagFairAddress() string {
+	return coreServerData.RagFairAddress
+}
+
+func GetLobbyAddress() string {
+	return coreServerData.LobbyAddress
+}
+func GetWebSocketAddress() string {
+	return coreServerData.WSSAddress
+}
+
+func GetMainIPandPort() string {
+	return coreServerData.MainIPandPort
+}
+
+func GetTradingIPandPort() string {
+	return coreServerData.TradingIPandPort
+}
+
+func GetMessagingIPandPort() string {
+	return coreServerData.MessagingIPandPort
+}
+
+func GetLobbyIPandPort() string {
+	return coreServerData.LobbyIPandPort
+}
+
+func GetRagFairIPandPort() string {
+	return coreServerData.RagFairIPandPort
+}
+
+// #endregion
+
+// #region Core setters
 
 func setCore() {
 	core.Character = setBotTemplate()
@@ -94,72 +144,6 @@ func setMainSettings() *MainSettings {
 		panic(err)
 	}
 	return &data
-}
-
-type serverData struct {
-	HTTPSTemplate string
-	WSSTemplate   string
-	WSSAddress    string
-
-	MainIPandPort string
-	MainAddress   string
-
-	MessagingIPandPort string
-	MessageAddress     string
-
-	TradingIPandPort string
-	TradingAddress   string
-
-	RagFairIPandPort string
-	RagFairAddress   string
-
-	LobbyIPandPort string
-	LobbyAddress   string
-}
-
-var coreServerData = &serverData{}
-
-func GetMainAddress() string {
-	return coreServerData.MainAddress
-}
-
-func GetTradingAddress() string {
-	return coreServerData.TradingAddress
-}
-
-func GetMessageAddress() string {
-	return coreServerData.MessageAddress
-}
-
-func GetRagFairAddress() string {
-	return coreServerData.RagFairAddress
-}
-
-func GetLobbyAddress() string {
-	return coreServerData.LobbyAddress
-}
-func GetWebSocketAddress() string {
-	return coreServerData.WSSAddress
-}
-
-func GetMainIPandPort() string {
-	return coreServerData.MainIPandPort
-}
-
-func GetTradingIPandPort() string {
-	return coreServerData.TradingIPandPort
-}
-
-func GetMessagingIPandPort() string {
-	return coreServerData.MessagingIPandPort
-}
-
-func GetLobbyIPandPort() string {
-	return coreServerData.LobbyIPandPort
-}
-
-func GetRagFairIPandPort() string {
-	return coreServerData.RagFairIPandPort
 }
 
 func setServerConfig() *ServerConfig {
@@ -216,6 +200,31 @@ func setGlobals() *Globals {
 	}
 
 	return &global
+}
+
+// #endregion
+
+// #region Core structs
+
+type serverData struct {
+	HTTPSTemplate string
+	WSSTemplate   string
+	WSSAddress    string
+
+	MainIPandPort string
+	MainAddress   string
+
+	MessagingIPandPort string
+	MessageAddress     string
+
+	TradingIPandPort string
+	TradingAddress   string
+
+	RagFairIPandPort string
+	RagFairAddress   string
+
+	LobbyIPandPort string
+	LobbyAddress   string
 }
 
 type Core struct {
@@ -344,3 +353,5 @@ type MatchMetrics struct {
 	MemoryMeasureInterval int   `json:"MemoryMeasureInterval"`
 	PauseReasons          []int `json:"PauseReasons"`
 }
+
+// #endregion
