@@ -309,13 +309,8 @@ type ProfileCreateRequest struct {
 
 func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	request := &ProfileCreateRequest{}
-	body, err := json.Marshal(services.GetParsedBody(r))
-	if err != nil {
-		panic(err)
-	}
-
-	err = json.Unmarshal(body, request)
-	if err != nil {
+	body, _ := json.Marshal(services.GetParsedBody(r))
+	if err := json.Unmarshal(body, request); err != nil {
 		panic(err)
 	}
 
@@ -534,6 +529,7 @@ func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(group)
 	services.ZlibJSONReply(w, body)
 }
+
 func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody([]interface{}{})
 	services.ZlibJSONReply(w, body)
@@ -607,4 +603,30 @@ func MainPrices(w http.ResponseWriter, r *http.Request) {
 
 	body := services.ApplyResponseBody(supplyData)
 	services.ZlibJSONReply(w, body)
+}
+
+type ItemsMoving struct {
+	Data   []map[string]interface{} `json:"data"`
+	TM     int8                     `json:"tm"`
+	Reload int8                     `json:"reload"`
+}
+
+func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
+	request := &ItemsMoving{}
+	body, _ := json.Marshal(services.GetParsedBody(r))
+	if err := json.Unmarshal(body, request); err != nil {
+		panic(err)
+	}
+
+	character := database.GetCharacterByUID(services.GetSessionID(r))
+
+	action := request.Data[0]["Action"].(string)
+	switch action {
+	case "QuestAccept":
+		character.QuestAccept(request.Data[0]["qid"].(string))
+	default:
+		fmt.Println(action)
+	}
+
+	fmt.Println()
 }

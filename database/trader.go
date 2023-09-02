@@ -46,23 +46,20 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 	return items
 }
 
-var index = map[string]*AssortIndex{}
-var assorts = map[string]*Assort{}
-var loyaltyLevels = map[string]int8{}
-
 func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 	traderID := t.Base["_id"].(string)
 
-	cachedAssort, ok := assorts[traderID]
+	cache := GetCache(character.ID).Traders
+	cachedAssort, ok := cache.Assorts[traderID]
 	if ok {
 		return cachedAssort
 	}
 
-	_, ok = loyaltyLevels[traderID]
+	_, ok = cache.LoyaltyLevels[traderID]
 	if !ok {
-		loyaltyLevels[traderID] = t.GetTraderLoyaltyLevel(character) // check loyalty level
+		cache.LoyaltyLevels[traderID] = t.GetTraderLoyaltyLevel(character) // check loyalty level
 	}
-	loyaltyLevel := loyaltyLevels[traderID]
+	loyaltyLevel := cache.LoyaltyLevels[traderID]
 
 	assortIndex := AssortIndex{
 		Items:       map[string]int16{},
@@ -126,10 +123,10 @@ func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 
 	assort.NextResupply = SetResupplyTimer()
 
-	index[traderID] = &assortIndex
-	assorts[traderID] = &assort
+	cache.Index[traderID] = &assortIndex
+	cache.Assorts[traderID] = &assort
 
-	return assorts[traderID]
+	return cache.Assorts[traderID]
 }
 
 type ResupplyTimer struct {
@@ -137,6 +134,7 @@ type ResupplyTimer struct {
 	ResupplyTimeInSeconds int
 	NextResupplyTime      int
 	TimerSet              bool
+	Profiles              map[string]*Profile
 }
 
 var rs = &ResupplyTimer{
@@ -144,6 +142,7 @@ var rs = &ResupplyTimer{
 	ResupplyTimeInSeconds: 3600, //1 hour
 	NextResupplyTime:      0,
 	TimerSet:              false,
+	Profiles:              nil,
 }
 
 func SetResupplyTimer() int {
@@ -160,11 +159,14 @@ func SetResupplyTimer() int {
 		timer := time.NewTimer(rs.TimerResupplyTime)
 		for {
 			<-timer.C
-
 			rs.NextResupplyTime += rs.ResupplyTimeInSeconds
+			rs.Profiles = GetProfiles()
 
-			for _, assort := range assorts {
-				assort.NextResupply = rs.NextResupplyTime
+			for _, profile := range rs.Profiles {
+				traders := profile.Cache.Traders
+				for _, assort := range traders.Assorts {
+					assort.NextResupply = rs.NextResupplyTime
+				}
 			}
 
 			timer.Reset(rs.TimerResupplyTime)
@@ -172,10 +174,6 @@ func SetResupplyTimer() int {
 	}()
 
 	return rs.NextResupplyTime
-}
-
-func (t *Trader) GetTraderResupplyTime() int {
-	return assorts[t.Base["_id"].(string)].NextResupply
 }
 
 // GetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes

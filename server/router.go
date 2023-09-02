@@ -47,6 +47,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/game/logout":                         handlers.MainLogoout,
 	"/client/items/prices/":                       handlers.MainPrices,
 	"/files/":                                     services.ServeFiles,
+	"/client/game/profile/items/moving":           handlers.MainItemsMoving,
 	//Incoming [GET] Request URL: [/files/quest/icon/59689e1c86f7740d14064725.jpg] on [:8080]
 }
 
