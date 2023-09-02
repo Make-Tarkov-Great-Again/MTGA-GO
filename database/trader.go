@@ -124,11 +124,10 @@ func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 		}
 	}
 
+	assort.NextResupply = SetResupplyTimer()
+
 	index[traderID] = &assortIndex
 	assorts[traderID] = &assort
-
-	// create timer to reset nextResupply
-	assorts[traderID].NextResupply = SetResupplyTimer(traderID)
 
 	return assorts[traderID]
 }
@@ -147,7 +146,7 @@ var rs = &ResupplyTimer{
 	TimerSet:              false,
 }
 
-func SetResupplyTimer(traderID string) int {
+func SetResupplyTimer() int {
 	if rs.TimerSet {
 		return rs.NextResupplyTime
 	}
