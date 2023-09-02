@@ -535,7 +535,6 @@ func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Sending empty array for right now because I don't feel like doing repeatables rn")
 	body := services.ApplyResponseBody([]interface{}{})
 	services.ZlibJSONReply(w, body)
 }
