@@ -32,7 +32,9 @@ func GetQuestsAvailableToPlayer(character *database.Character) []interface{} {
 	output := []interface{}{}
 
 	query := database.GetQuestsQuery()
-	characterHasQuests := len(character.Quests) != 0
+
+	cachedQuests := database.GetCache(character.ID).Quests
+	characterHasQuests := len(cachedQuests.Index) != 0
 
 	traderStandings := make(map[string]*float64) //temporary
 

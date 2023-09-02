@@ -101,9 +101,20 @@ func setProfiles() map[string]*Profile {
 			profile.Dialogue = setDialogue(path)
 		}
 
+		profiles[user] = profile
+	}
+
+	for _, profile := range profiles {
 		profile.Cache = Cache{
-			Quests:  map[string]QuestCache{},
-			Traders: TraderCache{},
+			Quests: QuestCache{
+				Index:  map[string]int8{},
+				Quests: map[string]CharacterQuest{},
+			},
+			Traders: TraderCache{
+				Index:         map[string]*AssortIndex{},
+				Assorts:       map[string]*Assort{},
+				LoyaltyLevels: map[string]int8{},
+			},
 		}
 
 		if profile.Character.ID != "" {
@@ -115,8 +126,6 @@ func setProfiles() map[string]*Profile {
 				trader.GetStrippedAssort(profile.Character)
 			}
 		}
-
-		profiles[user] = profile
 	}
 
 	return profiles
@@ -235,7 +244,7 @@ type Profile struct {
 }
 
 type Cache struct {
-	Quests  map[string]QuestCache
+	Quests  QuestCache
 	Traders TraderCache
 }
 

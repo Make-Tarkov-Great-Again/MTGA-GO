@@ -28,9 +28,9 @@ func SaveCharacter(sessionID string, character Character) {
 // QuestAccept updates an existing Accepted quest, or creates a new Accepted Quest
 func (c Character) QuestAccept(qid string) {
 	//TODO: check quest cache on character
-	cache := GetCache(c.ID)
-	quest, ok := cache.Quests[qid]
-	if ok {
+	cachedQuests := GetCache(c.ID).Quests
+	quest, ok := cachedQuests.Index[qid]
+	if !ok {
 		fmt.Println(quest)
 	}
 	//quest := &database.CharacterQuest{}
