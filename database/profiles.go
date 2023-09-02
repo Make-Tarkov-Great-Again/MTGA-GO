@@ -38,15 +38,6 @@ func GetAccountByUID(uid string) *Account {
 	return nil
 }
 
-func GetCharacterByUID(uid string) *Character {
-	if profile, ok := profiles[uid]; ok {
-		return profile.Character
-	}
-
-	fmt.Println("Profile with UID ", uid, " does not have a character")
-	return nil
-}
-
 func GetStorageByUID(uid string) *Storage {
 	if profile, ok := profiles[uid]; ok {
 		return profile.Storage
@@ -62,6 +53,14 @@ func GetDialogueByUID(uid string) *map[string]interface{} {
 	}
 
 	fmt.Println("Profile with UID ", uid, " does not have dialogue")
+	return nil
+}
+
+func GetCache(sid string) *Cache {
+	profile, ok := profiles[sid]
+	if ok {
+		return &profile.Cache
+	}
 	return nil
 }
 
@@ -100,6 +99,11 @@ func setProfiles() map[string]*Profile {
 		path = filepath.Join(userPath, "dialogue.json")
 		if tools.FileExist(path) {
 			profile.Dialogue = setDialogue(path)
+		}
+
+		profile.Cache = Cache{
+			Quests:  map[string]QuestCache{},
+			Traders: TraderCache{},
 		}
 
 		if profile.Character.ID != "" {
@@ -198,16 +202,6 @@ func (account Account) SaveAccount() {
 	fmt.Println("Account saved")
 }
 
-func SaveCharacter(sessionID string, character Character) {
-	characterFilePath := filepath.Join(profilesPath, sessionID, "character.json")
-
-	err := tools.WriteToFile(characterFilePath, character)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Character saved")
-}
-
 func SaveStorage(sessionID string, storage Storage) {
 	storageFilePath := filepath.Join(profilesPath, sessionID, "storage.json")
 
@@ -237,6 +231,30 @@ type Profile struct {
 	Character *Character
 	Storage   *Storage
 	Dialogue  map[string]interface{}
+	Cache     Cache
+}
+
+type Cache struct {
+	Quests  map[string]QuestCache
+	Traders TraderCache
+}
+
+type TraderCache struct {
+	Index         map[string]*AssortIndex
+	Assorts       map[string]*Assort
+	LoyaltyLevels map[string]int8
+}
+
+type QuestCache struct {
+	Index  map[string]int8
+	Quests map[string]CharacterQuest
+}
+
+type CharacterQuest struct {
+	QID          string
+	StartTime    int
+	Status       int8
+	StatusTimers map[string]int8
 }
 
 type Usernames map[string]string
