@@ -592,12 +592,13 @@ const pricesRoute string = "/client/items/prices/"
 
 func MainPrices(w http.ResponseWriter, r *http.Request) {
 	traderID := strings.TrimPrefix(r.RequestURI, pricesRoute)
-	fmt.Println("Get Trader ", traderID, " Resupply to provide proper information to client")
 
 	prices := *database.GetPrices()
 
+	nextResupply := database.SetResupplyTimer(traderID)
+
 	supplyData := &SupplyData{
-		SupplyNextTime: 1672236024,
+		SupplyNextTime: nextResupply,
 		Prices:         prices,
 		CurrencyCourses: struct {
 			RUB int `json:"5449016a4bdc2d6f028b456f"`

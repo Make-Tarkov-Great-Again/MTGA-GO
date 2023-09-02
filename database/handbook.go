@@ -43,7 +43,6 @@ func setHandbook() {
 	for _, v := range handbook.Items {
 		prices[v.Id] = v.Price
 	}
-	fmt.Println()
 }
 
 // #endregion

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/goccy/go-json"
 )
@@ -70,9 +71,8 @@ func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 
 	assort := Assort{}
 
-	// iterate through  loyal
+	// TODO: add quest checks
 	loyalLevelItems := make(map[string]int8)
-	fmt.Println("Don't forget to adjust for Quests")
 	for loyalID, loyalLevel := range t.Assort.LoyalLevelItems {
 
 		if loyaltyLevel >= loyalLevel {
@@ -124,11 +124,59 @@ func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 		}
 	}
 
-	assort.NextResupply = int(tools.GetCurrentTimeInSeconds() + 3600)
 	index[traderID] = &assortIndex
 	assorts[traderID] = &assort
 
+	// create timer to reset nextResupply
+	assorts[traderID].NextResupply = SetResupplyTimer(traderID)
+
 	return assorts[traderID]
+}
+
+type ResupplyTimer struct {
+	TimerResupplyTime     time.Duration
+	ResupplyTimeInSeconds int
+	NextResupplyTime      int
+	TimerSet              bool
+}
+
+var rs = &ResupplyTimer{
+	TimerResupplyTime:     0,
+	ResupplyTimeInSeconds: 3600, //1 hour
+	NextResupplyTime:      0,
+	TimerSet:              false,
+}
+
+func SetResupplyTimer(traderID string) int {
+	if rs.TimerSet {
+		return rs.NextResupplyTime
+	}
+
+	rs.NextResupplyTime = int(tools.GetCurrentTimeInSeconds()) + rs.ResupplyTimeInSeconds
+	rs.TimerResupplyTime = time.Duration(rs.ResupplyTimeInSeconds) * time.Second
+
+	rs.TimerSet = true
+
+	go func() {
+		timer := time.NewTimer(rs.TimerResupplyTime)
+		for {
+			<-timer.C
+
+			rs.NextResupplyTime += rs.ResupplyTimeInSeconds
+
+			for _, assort := range assorts {
+				assort.NextResupply = rs.NextResupplyTime
+			}
+
+			timer.Reset(rs.TimerResupplyTime)
+		}
+	}()
+
+	return rs.NextResupplyTime
+}
+
+func (t *Trader) GetTraderResupplyTime() int {
+	return assorts[t.Base["_id"].(string)].NextResupply
 }
 
 // GetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes

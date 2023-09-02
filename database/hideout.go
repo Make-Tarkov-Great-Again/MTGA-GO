@@ -124,8 +124,6 @@ func setHideout() {
 			panic(err)
 		}
 	}
-
-	fmt.Println()
 }
 
 // setHideoutAreas sets the hideout areas and their indexes.
