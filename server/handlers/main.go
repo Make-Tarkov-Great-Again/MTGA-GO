@@ -588,14 +588,9 @@ type SupplyData struct {
 	} `json:"currencyCourses"`
 }
 
-const pricesRoute string = "/client/items/prices/"
-
 func MainPrices(w http.ResponseWriter, r *http.Request) {
-	traderID := strings.TrimPrefix(r.RequestURI, pricesRoute)
-
 	prices := *database.GetPrices()
-
-	nextResupply := database.SetResupplyTimer(traderID)
+	nextResupply := database.SetResupplyTimer()
 
 	supplyData := &SupplyData{
 		SupplyNextTime: nextResupply,
