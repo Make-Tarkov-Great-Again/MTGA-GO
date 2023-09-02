@@ -10,7 +10,11 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": [],
+            "args": [
+                "\n",
+                "exit",
+                "0"
+            ],
             "env": {},
             "console": "integratedTerminal"
         }
