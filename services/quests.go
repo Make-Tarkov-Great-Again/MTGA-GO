@@ -112,7 +112,7 @@ func GetQuestsAvailableToPlayer(character *database.Character) []interface{} {
 		}
 
 		if forStart.Quest != nil && characterHasQuests {
-			if completedPreviousQuestCheck(forStart.Quest, character) {
+			if completedPreviousQuestCheck(forStart.Quest, &cachedQuests) {
 				output = append(output, database.GetQuestByQID(key))
 				continue
 			}
@@ -122,33 +122,17 @@ func GetQuestsAvailableToPlayer(character *database.Character) []interface{} {
 	return output
 }
 
-/* type QuestStatus int
-
-const (
-	Locked             QuestStatus = 0
-	AvailableForStart  QuestStatus = 1
-	Started            QuestStatus = 2
-	AvailableForFinish QuestStatus = 3
-	Success            QuestStatus = 4
-	Fail               QuestStatus = 5
-	FailRestartable    QuestStatus = 6
-	MarkedAsFailed     QuestStatus = 7
-	Expired            QuestStatus = 8
-	AvailableAfter     QuestStatus = 9
-) */
-
-func completedPreviousQuestCheck(quests map[string]*database.QuestCondition, character *database.Character) bool {
+func completedPreviousQuestCheck(quests map[string]*database.QuestCondition, cachedQuests *database.QuestCache) bool {
 	previousQuestCompleted := false
 
 	for _, v := range quests {
-		for _, quest := range character.Quests {
-			qid, ok := quest["qid"].(string)
-			if !ok || qid != v.PreviousQuestID {
-				continue
-			}
-
-			previousQuestCompleted = v.Status == quest["status"].(int)
+		quest, ok := cachedQuests.Quests[v.PreviousQuestID]
+		if !ok {
+			continue
 		}
+
+		previousQuestCompleted = v.Status == quest.Status
+
 	}
 	return previousQuestCompleted
 }

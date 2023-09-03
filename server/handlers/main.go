@@ -55,29 +55,6 @@ func MainLanguages(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, languages)
 }
 
-type Backend struct {
-	Lobby     string `json:"Lobby"`
-	Trading   string `json:"Trading"`
-	Messaging string `json:"Messaging"`
-	Main      string `json:"Main"`
-	RagFair   string `json:"RagFair"`
-}
-
-type GameConfig struct {
-	Aid               string            `json:"aid"`
-	Lang              string            `json:"lang"`
-	Languages         map[string]string `json:"languages"`
-	NdaFree           bool              `json:"ndaFree"`
-	Taxonomy          int               `json:"taxonomy"`
-	ActiveProfileID   string            `json:"activeProfileId"`
-	Backend           Backend           `json:"backend"`
-	UseProtobuf       bool              `json:"useProtobuf"`
-	UtcTime           float64           `json:"utc_time"`
-	TotalInGame       int               `json:"totalInGame"`
-	ReportAvailable   bool              `json:"reportAvailable"`
-	TwitchEventMember bool              `json:"twitchEventMember"`
-}
-
 func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	lang := database.GetAccountByUID(sessionID).Lang
@@ -248,10 +225,7 @@ func MainLocale(w http.ResponseWriter, r *http.Request) {
 
 func MainKeepAlive(w http.ResponseWriter, r *http.Request) {
 
-	data := struct {
-		Msg     string `json:"msg"`
-		UtcTime int    `json:"utc_time"`
-	}{
+	data := &KeepAlive{
 		Msg:     "OK",
 		UtcTime: int(tools.GetCurrentTimeInSeconds()),
 	}
@@ -291,20 +265,11 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	status := struct {
-		Status interface{} `json:"status"`
-	}{
+	status := &NicknameValidate{
 		Status: "ok",
 	}
 	body := services.ApplyResponseBody(status)
 	services.ZlibJSONReply(w, body)
-}
-
-type ProfileCreateRequest struct {
-	Side     string `json:"side"`
-	Nickname string `json:"nickname"`
-	HeadID   string `json:"headId"`
-	VoiceID  string `json:"voiceId"`
 }
 
 func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
@@ -381,20 +346,6 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, data)
 }
 
-type Notifier struct {
-	Server         string `json:"server"`
-	ChannelID      string `json:"channel_id"`
-	URL            string `json:"url"`
-	NotifierServer string `json:"notifierServer"`
-	WS             string `json:"ws"`
-}
-
-type Channel struct {
-	Status         string   `json:"status"`
-	Notifier       Notifier `json:"notifier"`
-	NotifierServer string   `json:"notifierServer"`
-}
-
 var channel = &Channel{}
 
 func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
@@ -419,20 +370,6 @@ func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 
 	body := services.ApplyResponseBody(channel)
 	services.ZlibJSONReply(w, body)
-}
-
-type ProfileStatuses struct {
-	MaxPVECountExceeded bool            `json:"maxPveCountExceeded"`
-	Profiles            []ProfileStatus `json:"profiles"`
-}
-
-type ProfileStatus struct {
-	ProfileID    string      `json:"profileid"`
-	ProfileToken interface{} `json:"profileToken"`
-	Status       string      `json:"status"`
-	SID          string      `json:"sid"`
-	IP           string      `json:"ip"`
-	Port         int         `json:"port"`
 }
 
 func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
@@ -518,10 +455,6 @@ func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-type CurrentGroup struct {
-	Squad []interface{} `json:"squad"`
-}
-
 func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
 	group := &CurrentGroup{
 		Squad: []interface{}{},
@@ -533,11 +466,6 @@ func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
 func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody([]interface{}{})
 	services.ZlibJSONReply(w, body)
-}
-
-type ServerListing struct {
-	IP   string `json:"ip"`
-	Port int    `json:"port"`
 }
 
 func MainServerList(w http.ResponseWriter, r *http.Request) {
@@ -555,10 +483,7 @@ func MainServerList(w http.ResponseWriter, r *http.Request) {
 
 func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
 	check := strings.TrimPrefix(r.Header["App-Version"][0], "EFT Client ")
-	version := struct {
-		IsValid       bool   `json:"isValid"`
-		LatestVersion string `json:"latestVersion"`
-	}{
+	version := &Version{
 		IsValid:       true,
 		LatestVersion: check,
 	}
@@ -573,16 +498,6 @@ func MainLogoout(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-type SupplyData struct {
-	SupplyNextTime  int            `json:"supplyNextTime"`
-	Prices          map[string]int `json:"prices"`
-	CurrencyCourses struct {
-		RUB int `json:"5449016a4bdc2d6f028b456f"`
-		EUR int `json:"569668774bdc2da2298b4568"`
-		DOL int `json:"5696686a4bdc2da3298b456a"`
-	} `json:"currencyCourses"`
-}
-
 func MainPrices(w http.ResponseWriter, r *http.Request) {
 	prices := *database.GetPrices()
 	nextResupply := database.SetResupplyTimer()
@@ -590,11 +505,7 @@ func MainPrices(w http.ResponseWriter, r *http.Request) {
 	supplyData := &SupplyData{
 		SupplyNextTime: nextResupply,
 		Prices:         prices,
-		CurrencyCourses: struct {
-			RUB int `json:"5449016a4bdc2d6f028b456f"`
-			EUR int `json:"569668774bdc2da2298b4568"`
-			DOL int `json:"5696686a4bdc2da3298b456a"`
-		}{
+		CurrencyCourses: CurrencyCourses{
 			RUB: prices["5449016a4bdc2d6f028b456f"],
 			EUR: prices["569668774bdc2da2298b4568"],
 			DOL: prices["5696686a4bdc2da3298b456a"],
@@ -605,25 +516,16 @@ func MainPrices(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-type ItemsMoving struct {
-	Data   []map[string]interface{} `json:"data"`
-	TM     int8                     `json:"tm"`
-	Reload int8                     `json:"reload"`
-}
-
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
-	request := &ItemsMoving{}
-	body, _ := json.Marshal(services.GetParsedBody(r))
-	if err := json.Unmarshal(body, request); err != nil {
-		panic(err)
-	}
+	parsedBody := services.GetParsedBody(r).(map[string]interface{})
+	moveAction := parsedBody["data"].([]interface{})[0].(map[string]interface{})
+	action := moveAction["Action"].(string)
+	fmt.Println(moveAction)
 
 	character := database.GetCharacterByUID(services.GetSessionID(r))
-
-	action := request.Data[0]["Action"].(string)
 	switch action {
 	case "QuestAccept":
-		character.QuestAccept(request.Data[0]["qid"].(string))
+		character.QuestAccept(moveAction["qid"].(string))
 	default:
 		fmt.Println(action)
 	}

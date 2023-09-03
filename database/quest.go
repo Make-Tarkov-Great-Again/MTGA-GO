@@ -1,4 +1,3 @@
-// Use package descriptions you fool!!!!! https://go.dev/doc/comment#:~:text=Go%20doc%20comments.-,Packages,are%20concatenated%20to%20form%20one%20large%20comment%20for%20the%20entire%20package.,-Commands
 package database
 
 import (
@@ -18,8 +17,22 @@ func GetQuestsQuery() map[string]*Quest {
 	return questsQuery
 }
 
+func GetQuestFromQueryByQID(qid string) *Quest {
+	query, ok := questsQuery[qid]
+	if !ok {
+		fmt.Println("Quest", qid, "does not exist in quests query")
+		return nil
+	}
+	return query
+}
+
 func GetQuestByQID(qid string) interface{} {
-	return quests[qid]
+	quest, ok := quests[qid]
+	if !ok {
+		fmt.Println("Quest", qid, "does not exist in quests")
+		return nil
+	}
+	return quest
 }
 
 func GetQuests() map[string]interface{} {
@@ -94,11 +107,6 @@ func setQuests() {
 				fmt.Println(err)
 			}
 			quest.Rewards = *rewards
-
-			/* 			empty := &QuestRewardAvailabilityConditions{}
-			   			if rewards != empty {
-			   			} */
-
 		}
 
 		questsQuery[k] = quest
@@ -175,6 +183,19 @@ func setQuestConditions(conditions map[string]interface{}) map[string]map[string
 	return output
 }
 
+var QuestStatus = map[int8]string{
+	0: "Locked",
+	1: "AvailableForStart",
+	2: "Started",
+	3: "AvailableForFinish",
+	4: "Success",
+	5: "Fail",
+	6: "FailRestartable",
+	7: "MarkedAsFailed",
+	8: "Expired",
+	9: "AvailableAfter",
+}
+
 func processQuestCondition(name string, conditions map[string]interface{}) interface{} {
 
 	output := make(map[string]interface{})
@@ -203,11 +224,16 @@ func processQuestCondition(name string, conditions map[string]interface{}) inter
 		condition := &QuestCondition{}
 		questID, _ := props["id"].(string)
 
+		isFloat, ok := props["availableAfter"].(float64)
+		if ok {
+			condition.AvailableAfter = int(isFloat)
+		}
+
 		previousQuestID, _ := props["target"].(string)
 		condition.PreviousQuestID = previousQuestID
 
 		value, _ := props["status"].([]interface{})[0].(float64)
-		condition.Status = int(value)
+		condition.Status = QuestStatus[int8(value)]
 
 		output[questID] = condition
 		return output
@@ -489,8 +515,9 @@ type HandoverCondition struct {
 }
 
 type QuestCondition struct {
-	Status          int
+	Status          string
 	PreviousQuestID string
+	AvailableAfter  int `json:",omitempty"`
 }
 
 type LevelCondition struct {

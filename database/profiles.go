@@ -194,17 +194,27 @@ func (profile Profile) SaveProfile() {
 	}
 
 	profile.Account.SaveAccount()
-	SaveCharacter(sessionID, *profile.Character)
+	profile.Character.Save(sessionID)
 	SaveDialogue(sessionID, profile.Dialogue)
 	SaveStorage(sessionID, *profile.Storage)
 	fmt.Println()
 	fmt.Println("Profile saved")
 }
 
-func (account Account) SaveAccount() {
-	accountFilePath := filepath.Join(profilesPath, account.UID, "account.json")
+func SaveCharacter(sessionID string, character Character) {
+	characterFilePath := filepath.Join(profilesPath, sessionID, "character.json")
 
-	err := tools.WriteToFile(accountFilePath, account)
+	err := tools.WriteToFile(characterFilePath, character)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Character saved")
+}
+
+func (a *Account) SaveAccount() {
+	accountFilePath := filepath.Join(profilesPath, a.UID, "account.json")
+
+	err := tools.WriteToFile(accountFilePath, a)
 	if err != nil {
 		panic(err)
 	}
@@ -260,10 +270,11 @@ type QuestCache struct {
 }
 
 type CharacterQuest struct {
-	QID          string
-	StartTime    int
-	Status       int8
-	StatusTimers map[string]int8
+	QID            string
+	StartTime      int
+	Status         string
+	StatusTimers   map[string]int
+	AvailableAfter int `json:",omitempty"`
 }
 
 type Usernames map[string]string
@@ -328,7 +339,7 @@ type Character struct {
 	Notes             struct {
 		Notes [][]interface{} `json:"Notes"`
 	} `json:"Notes"`
-	Quests       []map[string]interface{}     `json:"Quests"`
+	Quests       []CharacterQuest             `json:"Quests"`
 	RagfairInfo  PlayerRagfairInfo            `json:"RagfairInfo"`
 	WishList     []string                     `json:"WishList"`
 	TradersInfo  map[string]PlayerTradersInfo `json:"TradersInfo"`
