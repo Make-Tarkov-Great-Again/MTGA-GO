@@ -4,6 +4,7 @@ import (
 	"MT-GO/tools"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/goccy/go-json"
 )
@@ -68,6 +69,7 @@ func setQuests() {
 		var quest = &Quest{}
 
 		quest.Name = v["QuestName"].(string)
+		quest.Trader = v["traderId"].(string)
 		quest.Dialogue = setQuestDialogue(v)
 
 		questConditions, ok := v["conditions"].(map[string]interface{})
@@ -118,22 +120,22 @@ func setQuestDialogue(quest map[string]interface{}) QuestDialogues {
 	dialogues := &QuestDialogues{}
 
 	description, _ := quest["description"].(string)
-	dialogues.Description = description
+	dialogues.Description = strings.TrimSuffix(description, " description")
 
 	complete, _ := quest["completePlayerMessage"].(string)
-	dialogues.Complete = complete
+	dialogues.Complete = strings.TrimSuffix(complete, " completePlayerMessage")
 
 	fail, _ := quest["failMessageText"].(string)
-	dialogues.Fail = fail
+	dialogues.Fail = strings.TrimSuffix(fail, " failMessageText")
 
 	started, _ := quest["startedMessageText"].(string)
-	dialogues.Started = started
+	dialogues.Started = strings.TrimSuffix(started, " startedMessageText")
 
 	success, _ := quest["successMessageText"].(string)
-	dialogues.Success = success
+	dialogues.Success = strings.TrimSuffix(success, " successMessageText")
 
 	accepted, _ := quest["acceptPlayerMessage"].(string)
-	dialogues.Accepted = accepted
+	dialogues.Accepted = strings.TrimSuffix(accepted, " acceptPlayerMessage")
 
 	return *dialogues
 }
@@ -474,10 +476,30 @@ func setQuestReward(name string, reward map[string]interface{}) interface{} {
 
 // #endregion
 
+// #region Quest functions
+
+func CompletedPreviousQuestCheck(quests map[string]*QuestCondition, cachedQuests *QuestCache) bool {
+	previousQuestCompleted := false
+
+	for _, v := range quests {
+		quest, ok := cachedQuests.Quests[v.PreviousQuestID]
+		if !ok {
+			continue
+		}
+
+		previousQuestCompleted = v.Status == quest.Status
+
+	}
+	return previousQuestCompleted
+}
+
+// #endregion
+
 // #region Quest structs
 
 type Quest struct {
 	Name       string
+	Trader     string
 	Dialogue   QuestDialogues                    `json:",omitempty"`
 	Conditions *QuestAvailabilityConditions      `json:",omitempty"`
 	Rewards    QuestRewardAvailabilityConditions `json:",omitempty"`
