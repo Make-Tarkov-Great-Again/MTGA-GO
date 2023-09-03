@@ -270,8 +270,6 @@ type CharacterQuest struct {
 	AvailableAfter int `json:",omitempty"`
 }
 
-type Usernames map[string]string
-
 var Nicknames = make(map[string]struct{})
 
 type Account struct {
