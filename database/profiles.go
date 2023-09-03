@@ -89,6 +89,9 @@ func setProfiles() map[string]*Profile {
 		path = filepath.Join(userPath, "character.json")
 		if tools.FileExist(path) {
 			profile.Character = setCharacter(path)
+			if profile.Character.Info.Nickname != "" {
+				Nicknames[profile.Character.Info.Nickname] = struct{}{}
+			}
 		}
 
 		path = filepath.Join(userPath, "storage.json")
@@ -268,6 +271,8 @@ type CharacterQuest struct {
 }
 
 type Usernames map[string]string
+
+var Nicknames = make(map[string]struct{})
 
 type Account struct {
 	AID                 int           `json:"aid"`

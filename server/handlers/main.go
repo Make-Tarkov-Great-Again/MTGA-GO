@@ -256,7 +256,8 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !services.IsNicknameAvailable(nickname.(string), database.GetProfiles()) {
+	_, ok = database.Nicknames[nickname.(string)]
+	if ok {
 		body := services.ApplyResponseBody(nil)
 		body.Err = 225
 		body.Errmsg = "225 - "
@@ -450,7 +451,7 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	quests := services.GetQuestsAvailableToPlayer(database.GetCharacterByUID(sessionID))
+	quests := database.GetCharacterByUID(sessionID).GetQuestsAvailableToPlayer()
 	body := services.ApplyResponseBody(quests)
 	services.ZlibJSONReply(w, body)
 }

@@ -1,9 +1,11 @@
 package database
 
 import (
+	"MT-GO/services"
 	"MT-GO/tools"
 	"fmt"
 	"path/filepath"
+	"strings"
 )
 
 func GetCharacterByUID(uid string) *Character {
@@ -13,6 +15,100 @@ func GetCharacterByUID(uid string) *Character {
 
 	fmt.Println("Profile with UID ", uid, " does not have a character")
 	return nil
+}
+
+func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
+	output := []interface{}{}
+
+	query := GetQuestsQuery()
+
+	cachedQuests := GetCache(c.ID).Quests
+	characterHasQuests := len(cachedQuests.Index) != 0
+
+	traderStandings := make(map[string]*float64) //temporary
+
+	for key, value := range query {
+
+		if services.CheckIfQuestForOtherFaction(c.Info.Side, key) {
+			continue
+		}
+
+		if strings.Contains(value.Name, "-Event") {
+			fmt.Println("Filter event quests ", value.Name, " properly")
+			continue
+		}
+
+		if value.Conditions == nil || value.Conditions.AvailableForStart == nil {
+			output = append(output, GetQuestByQID(key))
+			continue
+		}
+
+		forStart := value.Conditions.AvailableForStart
+
+		if forStart.Level != nil {
+			if !services.LevelComparisonCheck(
+				forStart.Level.Level,
+				float64(c.Info.Level),
+				forStart.Level.CompareMethod) {
+
+				continue
+			}
+		}
+
+		if forStart.Quest == nil && forStart.TraderLoyalty == nil && forStart.TraderStanding == nil {
+			output = append(output, GetQuestByQID(key))
+			continue
+		}
+
+		loyaltyCheck := false
+		if forStart.TraderLoyalty != nil {
+			for trader, loyalty := range forStart.TraderLoyalty {
+
+				if traderStandings[trader] == nil {
+					loyaltyLevel := float64(GetTraderByID(trader).GetTraderLoyaltyLevel(c))
+					traderStandings[trader] = &loyaltyLevel
+				}
+
+				loyaltyCheck = services.LevelComparisonCheck(
+					loyalty.Level,
+					*traderStandings[trader],
+					loyalty.CompareMethod)
+			}
+
+			if !loyaltyCheck {
+				continue
+			}
+		}
+
+		standingCheck := false
+		if forStart.TraderStanding != nil {
+			for trader, loyalty := range forStart.TraderStanding {
+
+				if traderStandings[trader] == nil {
+					loyaltyLevel := float64(GetTraderByID(trader).GetTraderLoyaltyLevel(c))
+					traderStandings[trader] = &loyaltyLevel
+				}
+
+				standingCheck = services.LevelComparisonCheck(
+					loyalty.Level,
+					*traderStandings[trader],
+					loyalty.CompareMethod)
+			}
+
+			if !standingCheck {
+				continue
+			}
+		}
+
+		if forStart.Quest != nil && characterHasQuests {
+			if CompletedPreviousQuestCheck(forStart.Quest, &cachedQuests) {
+				output = append(output, GetQuestByQID(key))
+				continue
+			}
+		}
+	}
+
+	return output
 }
 
 func (c *Character) Save(sessionID string) {
@@ -52,9 +148,10 @@ func (c *Character) QuestAccept(qid string) {
 		StatusTimers: map[string]int{},
 	}
 
-	startCondition := GetQuestFromQueryByQID(qid).Conditions.AvailableForStart
-	if startCondition.Quest != nil {
-		for _, questCondition := range startCondition.Quest {
+	query := GetQuestFromQueryByQID(qid)
+	if query.Conditions.AvailableForStart.Quest != nil {
+		startCondition := query.Conditions.AvailableForStart.Quest
+		for _, questCondition := range startCondition {
 			if questCondition.AvailableAfter > 0 {
 
 				quest.StartTime = 0
@@ -68,8 +165,9 @@ func (c *Character) QuestAccept(qid string) {
 	cachedQuests.Quests[qid] = *quest
 	c.Quests = append(c.Quests, *quest)
 
-	c.Save(c.ID)
+	//c.Save(c.ID)
+	services.SendNPCMessage(c.ID, "QuestStart", query.Trader, query.Dialogue.Description, []interface{}{})
 
 	//TODO: create dialogue and notification for Quest
-	fmt.Println(startCondition)
+	fmt.Println()
 }
