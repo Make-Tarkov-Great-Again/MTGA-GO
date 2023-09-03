@@ -201,16 +201,6 @@ func (profile Profile) SaveProfile() {
 	fmt.Println("Profile saved")
 }
 
-func SaveCharacter(sessionID string, character Character) {
-	characterFilePath := filepath.Join(profilesPath, sessionID, "character.json")
-
-	err := tools.WriteToFile(characterFilePath, character)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Character saved")
-}
-
 func (a *Account) SaveAccount() {
 	accountFilePath := filepath.Join(profilesPath, a.UID, "account.json")
 
