@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	databaseLibPath       string = "assets/database"
+	databaseLibPath       string = "assets"
 	coreFilePath          string = databaseLibPath + "/core"
 	botTemplateFilePath   string = coreFilePath + "/botTemplate.json"
 	playerScavPath        string = coreFilePath + "/playerScav.json"
