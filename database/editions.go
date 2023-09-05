@@ -48,7 +48,7 @@ func setEditions() {
 			raw := tools.GetJSONRawMessage(filepath.Join(editionPath, file))
 			removeJSON := strings.TrimSuffix(file, ".json")
 			if strings.Contains(removeJSON, "character_") {
-				template := &Character{}
+				template := new(Character)
 				err := json.Unmarshal(raw, template)
 				if err != nil {
 					panic(err)
@@ -63,7 +63,7 @@ func setEditions() {
 				continue
 			}
 
-			storage := &EditionStorage{}
+			storage := new(EditionStorage)
 			err := json.Unmarshal(raw, storage)
 			if err != nil {
 				panic(err)

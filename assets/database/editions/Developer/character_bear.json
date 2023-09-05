@@ -26,7 +26,7 @@
       "Body": "5cc0858d14c02e000c6bea66",
       "Feet": "5cc085bb14c02e000e67a5c5",
       "Hands": "5cc0876314c02e000c6bea6b",
-      "Head": "__REPLACEME__"
+      "Head": ""
     },
     "Encyclopedia": {
       "5448bd6b4bdc2dfc2f8b4569": false,
@@ -509,11 +509,11 @@
       "IsStreamerModeAvailable": false,
       "LastTimePlayedAsSavage": 0,
       "Level": 1,
-      "LowerNickname": "__REPLACEME__",
+      "LowerNickname": "",
       "MemberCategory": 2,
-      "Nickname": "__REPLACEME__",
+      "Nickname": "",
       "NicknameChangeDate": 0,
-      "RegistrationDate": "__REPLACEME__",
+      "RegistrationDate": 0,
       "SavageLockTime": 0,
       "Settings": {
         "BotDifficulty": "easy",
@@ -521,7 +521,7 @@
         "Role": "assault"
       },
       "Side": "Bear",
-      "Voice": "__REPLACEME__",
+      "Voice": "",
       "lockedMoveCommands": false
     },
     "InsuredItems": [],
@@ -4446,9 +4446,9 @@
     },
     "TradersInfo": {},
     "WishList": [],
-    "_id": "__REPLACEME__",
-    "aid": "__REPLACEME__",
-    "savage": "__REPLACEME__"
+    "_id": "",
+    "aid": 0,
+    "savage": ""
   },
   "dialogues": {},
   "suits": [
