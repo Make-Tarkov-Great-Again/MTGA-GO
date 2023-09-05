@@ -91,7 +91,7 @@ func registerAccount() {
 		Insurance: []interface{}{},
 		Mailbox:   []interface{}{},
 	}
-	profiles[UID].Dialogue = map[string]interface{}{}
+	profiles[UID].Dialogue = &database.Dialogue{}
 
 	//save account
 	fmt.Println()

@@ -13,10 +13,10 @@ func MessagingFriendList(w http.ResponseWriter, r *http.Request) {
 }
 
 func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
-	dialogues := database.GetProfileByUID(services.GetSessionID(r)).Dialogue
+	dialogues := database.GetDialogueByUID(services.GetSessionID(r))
 
 	data := []interface{}{}
-	for _, dialogue := range dialogues {
+	for _, dialogue := range *dialogues {
 		data = append(data, dialogue)
 	}
 

@@ -413,14 +413,14 @@ func setQuestReward(name string, reward map[string]interface{}) interface{} {
 
 		float, ok := reward["value"].(float64)
 		if ok {
-			output[traderID] = float32(float)
+			output[traderID] = float
 			return output
 		}
 
 		str, ok := reward["value"].(string)
 		if ok {
-			value, _ := strconv.Atoi(str)
-			output[traderID] = float32(value)
+			value, _ := strconv.ParseFloat(str, 64)
+			output[traderID] = value
 			return output
 		}
 
