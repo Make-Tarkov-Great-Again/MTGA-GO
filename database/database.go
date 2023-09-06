@@ -79,7 +79,8 @@ func setRequiredFolders() {
 type Database struct {
 	Core *Core
 	//Connections *ConnectionStruct
-	Items     map[string]interface{}
+
+	Items     map[string]*DatabaseItem
 	Locales   *Locale
 	Languages map[string]interface{}
 	Handbook  *Handbook

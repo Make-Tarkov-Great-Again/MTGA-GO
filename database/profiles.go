@@ -9,11 +9,11 @@ import (
 	"github.com/goccy/go-json"
 )
 
-// #region Profile getters
-
 const profilesPath string = "user/profiles/"
 
 var profiles = map[string]*Profile{}
+
+// #region Profile getters
 
 func GetProfiles() map[string]*Profile {
 	return profiles

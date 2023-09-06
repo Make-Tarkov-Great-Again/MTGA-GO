@@ -38,7 +38,6 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/hideout/production/recipes":          handlers.MainHideoutRecipes,
 	"/client/hideout/production/scavcase/recipes": handlers.MainHideoutScavRecipes,
 	"/client/handbook/builds/my/list":             handlers.MainBuildsList,
-	"/client/notifier/channel/create":             handlers.MainChannelCreate,
 	"/client/quest/list":                          handlers.MainQuestList,
 	"/client/match/group/current":                 handlers.MainCurrentGroup,
 	"/client/repeatalbeQuests/activityPeriods":    handlers.MainRepeatableQuests,
@@ -46,9 +45,15 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/checkVersion":                        handlers.MainCheckVersion,
 	"/client/game/logout":                         handlers.MainLogoout,
 	"/client/items/prices/":                       handlers.MainPrices,
-	"/files/":                                     services.ServeFiles,
-	"/client/game/profile/items/moving":           handlers.MainItemsMoving,
+
+	"/client/notifier/channel/create": handlers.MainChannelCreate,
+	"/push/notifier/get/":             handlers.MainPushNotifier,
+	"/push/notifier/getwebsocket/":    handlers.MainGetWebSocket,
+
 	//Incoming [GET] Request URL: [/files/quest/icon/59689e1c86f7740d14064725.jpg] on [:8080]
+	"/files/": services.ServeFiles,
+
+	"/client/game/profile/items/moving": handlers.MainItemsMoving,
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {

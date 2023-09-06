@@ -144,7 +144,6 @@ const MainSettingsRoute string = "/client/settings"
 func MainSettings(w http.ResponseWriter, r *http.Request) {
 	ok := services.CheckIfResponseCanBeCached(MainSettingsRoute)
 	if ok {
-
 		ok = services.CheckIfResponseIsCached(MainSettingsRoute)
 		if ok {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainSettingsRoute))
@@ -227,7 +226,7 @@ func MainKeepAlive(w http.ResponseWriter, r *http.Request) {
 
 	data := &KeepAlive{
 		Msg:     "OK",
-		UtcTime: int(tools.GetCurrentTimeInSeconds()),
+		UtcTime: tools.GetCurrentTimeInSeconds(),
 	}
 
 	body := services.ApplyResponseBody(data)
@@ -532,4 +531,14 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println()
+}
+
+func MainPushNotifier(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Push notification")
+	body := services.ApplyResponseBody([]interface{}{})
+	services.ZlibJSONReply(w, body)
+}
+
+func MainGetWebSocket(w http.ResponseWriter, r *http.Request) {
+
 }

@@ -73,7 +73,7 @@ type NicknameValidate struct {
 
 type KeepAlive struct {
 	Msg     string `json:"msg"`
-	UtcTime int    `json:"utc_time"`
+	UtcTime int64  `json:"utc_time"`
 }
 
 type Backend struct {
