@@ -93,7 +93,7 @@ type GameConfig struct {
 	ActiveProfileID   string            `json:"activeProfileId"`
 	Backend           Backend           `json:"backend"`
 	UseProtobuf       bool              `json:"useProtobuf"`
-	UtcTime           float64           `json:"utc_time"`
+	UtcTime           int64             `json:"utc_time"`
 	TotalInGame       int               `json:"totalInGame"`
 	ReportAvailable   bool              `json:"reportAvailable"`
 	TwitchEventMember bool              `json:"twitchEventMember"`

@@ -47,8 +47,6 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/items/prices/":                       handlers.MainPrices,
 
 	"/client/notifier/channel/create": handlers.MainChannelCreate,
-	"/push/notifier/get/":             handlers.MainPushNotifier,
-	"/push/notifier/getwebsocket/":    handlers.MainGetWebSocket,
 
 	//Incoming [GET] Request URL: [/files/quest/icon/59689e1c86f7740d14064725.jpg] on [:8080]
 	"/files/": services.ServeFiles,
@@ -144,4 +142,19 @@ func setMessagingRoutes(mux *http.ServeMux) {
 
 	// "/client/mail/msg/send"
 
+}
+
+var lobbyRouteHandlers = map[string]http.HandlerFunc{
+
+	"/sws":                         handlers.LobbySWS,
+	"/push/notifier/get/":          handlers.LobbyPushNotifier,
+	"/push/notifier/getwebsocket/": handlers.LobbyGetWebSocket,
+	"/push/notifier/getwebsocket":  handlers.LobbyGetWebSocket,
+	"/push/notifier":               handlers.LobbyNotify,
+}
+
+func setLobbyRoutes(mux *http.ServeMux) {
+	for route, handler := range lobbyRouteHandlers {
+		mux.HandleFunc(route, handler)
+	}
 }

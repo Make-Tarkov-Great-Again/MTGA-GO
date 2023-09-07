@@ -164,8 +164,7 @@ func setServerConfig() *ServerConfig {
 	coreServerData.RagFairIPandPort = net.JoinHostPort(data.IP, data.Ports.Flea)
 	coreServerData.LobbyIPandPort = net.JoinHostPort(data.IP, data.Ports.Lobby)
 
-	coreServerData.WSSAddress = fmt.Sprintf(coreServerData.WSSTemplate, coreServerData.MainIPandPort)
-
+	coreServerData.WSSAddress = fmt.Sprintf(coreServerData.WSSTemplate, coreServerData.LobbyIPandPort)
 	coreServerData.MainAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.MainIPandPort)
 
 	coreServerData.MessageAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.MessagingIPandPort)

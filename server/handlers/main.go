@@ -70,14 +70,14 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 		Taxonomy:        6,
 		ActiveProfileID: sessionID,
 		Backend: Backend{
-			Lobby:     database.GetMainAddress(),
+			Lobby:     database.GetLobbyAddress(),
 			Trading:   database.GetTradingAddress(),
 			Messaging: database.GetMessageAddress(),
 			Main:      database.GetMainAddress(),
 			RagFair:   database.GetRagFairAddress(),
 		},
 		UseProtobuf:       false,
-		UtcTime:           float64(tools.GetCurrentTimeInSeconds()),
+		UtcTime:           tools.GetCurrentTimeInSeconds(),
 		TotalInGame:       0, //account.GetTotalInGame
 		ReportAvailable:   true,
 		TwitchEventMember: false,
@@ -352,19 +352,20 @@ func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(channel.Notifier)
 	services.ZlibJSONReply(w, body)
 }
-func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 
+func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 
-	notiServer := fmt.Sprintf("%s/push/notifier/get/%s", database.GetMainAddress(), sessionID)
+	notiServer := fmt.Sprintf("%s/push/notifier/get/%s", database.GetMainIPandPort(), sessionID)
 	wssServer := fmt.Sprintf("%s/push/notifier/getwebsocket/%s", database.GetWebSocketAddress(), sessionID)
 
 	channel.Status = "ok"
+	channel.NotifierServer = notiServer
 	Notifier := &channel.Notifier
 
-	Notifier.Server = database.GetMainIPandPort() //probably will be lobby server
-	fmt.Println("Probably need to set this to Lobby Server in the future")
+	Notifier.Server = database.GetMainIPandPort()
 	Notifier.ChannelID = sessionID
+	Notifier.URL = notiServer
 	Notifier.NotifierServer = notiServer
 	Notifier.WS = wssServer
 
@@ -451,6 +452,7 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	quests := database.GetCharacterByUID(sessionID).GetQuestsAvailableToPlayer()
+	fmt.Println() //removeme
 	body := services.ApplyResponseBody(quests)
 	services.ZlibJSONReply(w, body)
 }
@@ -531,14 +533,4 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println()
-}
-
-func MainPushNotifier(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Push notification")
-	body := services.ApplyResponseBody([]interface{}{})
-	services.ZlibJSONReply(w, body)
-}
-
-func MainGetWebSocket(w http.ResponseWriter, r *http.Request) {
-
 }

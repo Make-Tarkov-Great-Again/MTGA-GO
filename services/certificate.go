@@ -3,11 +3,11 @@ package services
 
 import (
 	"MT-GO/tools"
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"encoding/pem"
 	"fmt"
 	"math/big"
@@ -49,7 +49,7 @@ func GetCertificate(ip string, hostname string) *Certificate {
 
 // Generate SHA256 certificate for HTTPS server
 func (cg *Certificate) setCertificate(ip string, hostname string) {
-	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		panic(err)
 	}
@@ -69,45 +69,74 @@ func (cg *Certificate) setCertificate(ip string, hostname string) {
 			CommonName:   "MTGA",
 			Organization: []string{"Make Tarkov Great Again"},
 		},
-		IPAddresses:           []net.IP{net.ParseIP(ip)},
-		DNSNames:              []string{hostname},
-		NotBefore:             notBefore,
-		NotAfter:              notAfter,
-		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
-		BasicConstraintsValid: true,
+		IPAddresses:        []net.IP{net.ParseIP(ip)},
+		DNSNames:           []string{hostname},
+		NotBefore:          notBefore,
+		NotAfter:           notAfter,
+		SignatureAlgorithm: x509.SHA256WithRSA,
+		KeyUsage:           x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		Extensions:         []pkix.Extension{encodeSubjectAltName(hostname, ip)},
 	}
 
-	cert, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
+	// Self-sign the certificate
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
 	if err != nil {
 		panic(err)
 	}
 
-	certFile, err := os.Create(cg.CertFile)
+	// Save the certificate to files
+	certOut, err := os.Create(cg.CertFile)
 	if err != nil {
 		panic(err)
 	}
-	defer certFile.Close()
+	defer certOut.Close()
 
-	err = pem.Encode(certFile, &pem.Block{Type: "CERTIFICATE", Bytes: cert})
-	if err != nil {
-		panic(err)
-	}
-
-	keyFile, err := os.Create(cg.KeyFile)
-	if err != nil {
-		panic(err)
-	}
-	defer keyFile.Close()
-
-	privBytes, err := x509.MarshalECPrivateKey(priv)
+	err = pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	if err != nil {
 		panic(err)
 	}
 
-	err = pem.Encode(keyFile, &pem.Block{Type: "EC PRIVATE KEY", Bytes: privBytes})
+	keyOut, err := os.Create(cg.KeyFile)
 	if err != nil {
 		panic(err)
 	}
+	defer keyOut.Close()
+	privBytes := x509.MarshalPKCS1PrivateKey(priv)
+
+	err = pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: privBytes})
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Println("Certificate and key generated successfully")
+}
+
+func encodeSubjectAltName(hostname string, ip string) pkix.Extension {
+	san := pkix.Extension{}
+	san.Id = asn1.ObjectIdentifier{2, 5, 29, 17} // subjectAltName extension OID
+
+	altNames := []asn1.RawValue{}
+
+	if hostname != "" {
+		altNames = append(altNames, asn1.RawValue{Tag: asn1.TagIA5String, Bytes: []byte(hostname)})
+	}
+
+	if ip != "" {
+		ipAddr := net.ParseIP(ip)
+		if ipAddr != nil {
+			// Encode the IP address as a string for inclusion in the extension
+			altNames = append(altNames, asn1.RawValue{Tag: asn1.TagIA5String, Bytes: []byte(ip)})
+		}
+	}
+
+	sanExtensionValue, err := asn1.Marshal(altNames)
+	if err != nil {
+		panic(err)
+	}
+
+	return pkix.Extension{
+		Id:    asn1.ObjectIdentifier{2, 5, 29, 17}, // subjectAltName extension OID
+		Value: sanExtensionValue,
+	}
 }
