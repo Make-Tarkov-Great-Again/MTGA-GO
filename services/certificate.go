@@ -5,6 +5,7 @@ import (
 	"MT-GO/tools"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
@@ -21,12 +22,13 @@ const certPath string = "user/cert"
 
 // Certificate represents a certificate in the system certificate authority format
 type Certificate struct {
-	CertFile string
-	KeyFile  string
+	CertFile    string
+	KeyFile     string
+	Certificate tls.Certificate
 }
 
 // GetCertificate returns a Certificate for HTTPS server
-func GetCertificate(ip string, hostname string) *Certificate {
+func GetCertificate(ip string) *Certificate {
 	cert := Certificate{
 		CertFile: filepath.Join(certPath, "cert.pem"),
 		KeyFile:  filepath.Join(certPath, "key.pem"),
@@ -43,12 +45,12 @@ func GetCertificate(ip string, hostname string) *Certificate {
 		}
 	}
 
-	cert.setCertificate(ip, hostname)
+	cert.setCertificate(ip)
 	return &cert
 }
 
 // Generate SHA256 certificate for HTTPS server
-func (cg *Certificate) setCertificate(ip string, hostname string) {
+func (cg *Certificate) setCertificate(ip string) {
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		panic(err)
@@ -69,14 +71,16 @@ func (cg *Certificate) setCertificate(ip string, hostname string) {
 			CommonName:   "MTGA",
 			Organization: []string{"Make Tarkov Great Again"},
 		},
-		IPAddresses:        []net.IP{net.ParseIP(ip)},
-		DNSNames:           []string{hostname},
-		NotBefore:          notBefore,
-		NotAfter:           notAfter,
-		SignatureAlgorithm: x509.SHA256WithRSA,
-		KeyUsage:           x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-		Extensions:         []pkix.Extension{encodeSubjectAltName(hostname, ip)},
+		IPAddresses: []net.IP{net.ParseIP(ip)},
+		DNSNames:    []string{"localhost"},
+		NotBefore:   notBefore,
+		NotAfter:    notAfter,
+		KeyUsage:    x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		ExtraExtensions: []pkix.Extension{{
+			Id:    asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}, // subjectAltName extension OID
+			Value: []byte{0x05, 0x00},
+		}},
 	}
 
 	// Self-sign the certificate
@@ -110,33 +114,4 @@ func (cg *Certificate) setCertificate(ip string, hostname string) {
 	}
 
 	fmt.Println("Certificate and key generated successfully")
-}
-
-func encodeSubjectAltName(hostname string, ip string) pkix.Extension {
-	san := pkix.Extension{}
-	san.Id = asn1.ObjectIdentifier{2, 5, 29, 17} // subjectAltName extension OID
-
-	altNames := []asn1.RawValue{}
-
-	if hostname != "" {
-		altNames = append(altNames, asn1.RawValue{Tag: asn1.TagIA5String, Bytes: []byte(hostname)})
-	}
-
-	if ip != "" {
-		ipAddr := net.ParseIP(ip)
-		if ipAddr != nil {
-			// Encode the IP address as a string for inclusion in the extension
-			altNames = append(altNames, asn1.RawValue{Tag: asn1.TagIA5String, Bytes: []byte(ip)})
-		}
-	}
-
-	sanExtensionValue, err := asn1.Marshal(altNames)
-	if err != nil {
-		panic(err)
-	}
-
-	return pkix.Extension{
-		Id:    asn1.ObjectIdentifier{2, 5, 29, 17}, // subjectAltName extension OID
-		Value: sanExtensionValue,
-	}
 }

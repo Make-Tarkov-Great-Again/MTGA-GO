@@ -24,10 +24,20 @@ type CRCResponseBody struct {
 }
 
 func GetSessionID(r *http.Request) string {
-	coogie := strings.Join(r.Header["Cookie"], ", ")
-	sessionID := strings.TrimPrefix(coogie, "PHPSESSID=")
-	return sessionID
+	sessionID, ok := r.Header["Sessionid"]
+	if ok {
+		return sessionID[0]
+	}
+
+	cookie, ok := r.Header["Cookie"]
+	if ok {
+		coogie := strings.Join(cookie, ", ")
+		return strings.TrimPrefix(coogie, "PHPSESSID=")
+	}
+
+	return ""
 }
+
 func ApplyCRCResponseBody(data interface{}, crc *uint32) *CRCResponseBody {
 	body := &CRCResponseBody{}
 	body.Data = data

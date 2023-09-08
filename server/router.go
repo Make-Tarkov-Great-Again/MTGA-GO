@@ -48,6 +48,8 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 
 	"/client/notifier/channel/create": handlers.MainChannelCreate,
 
+	"/getwebsocket": handlers.LobbyGetWebSocket,
+
 	//Incoming [GET] Request URL: [/files/quest/icon/59689e1c86f7740d14064725.jpg] on [:8080]
 	"/files/": services.ServeFiles,
 
@@ -145,12 +147,13 @@ func setMessagingRoutes(mux *http.ServeMux) {
 }
 
 var lobbyRouteHandlers = map[string]http.HandlerFunc{
-
-	"/sws":                         handlers.LobbySWS,
-	"/push/notifier/get/":          handlers.LobbyPushNotifier,
-	"/push/notifier/getwebsocket/": handlers.LobbyGetWebSocket,
-	"/push/notifier/getwebsocket":  handlers.LobbyGetWebSocket,
-	"/push/notifier":               handlers.LobbyNotify,
+	"/sws":                    handlers.LobbySWS,
+	"/notifier/get/":          handlers.LobbyPushNotifier,
+	"/notifier/getwebsocket/": handlers.LobbyGetWebSocket,
+	"/notifier/getwebsocket":  handlers.LobbyGetWebSocket,
+	"/notifier":               handlers.LobbyNotify,
+	"/?last_id":               handlers.LobbyNotify,
+	"/getwebsocket/":          handlers.LobbyGetWebSocket,
 }
 
 func setLobbyRoutes(mux *http.ServeMux) {

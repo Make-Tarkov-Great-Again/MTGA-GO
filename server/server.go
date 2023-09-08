@@ -19,25 +19,6 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func websocketConnection(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	defer conn.Close()
-
-	for {
-		messageType, p, err := conn.ReadMessage()
-		if err != nil {
-			return
-		}
-		if err := conn.WriteMessage(messageType, p); err != nil {
-			return
-		}
-	}
-}
-
 func logAndDecompress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the incoming request URL
@@ -89,13 +70,14 @@ func logAndDecompress(next http.Handler) http.Handler {
 	})
 }
 
-func startHTTPSServer(serverReady chan<- struct{}, certs tls.Certificate, mux *muxt) {
+func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
 	httpsServer := &http.Server{
 		Addr: mux.address,
 		TLSConfig: &tls.Config{
-			Certificates: []tls.Certificate{certs},
+			RootCAs:      nil,
+			Certificates: []tls.Certificate{certs.Certificate},
 		},
 		Handler: logAndDecompress(mux.mux),
 	}
@@ -103,7 +85,7 @@ func startHTTPSServer(serverReady chan<- struct{}, certs tls.Certificate, mux *m
 	fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
 	serverReady <- struct{}{}
 
-	err := httpsServer.ListenAndServeTLS("", "")
+	err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
 	if err != nil {
 		panic(err)
 	}
@@ -117,11 +99,21 @@ type muxt struct {
 }
 
 func SetHTTPSServer() {
-	cert := services.GetCertificate(database.GetServerConfig().IP, database.GetServerConfig().Hostname)
+	srv := database.GetServerConfig()
+	/* 	hostnames := []string{
+		srv.Ports.Main,
+		srv.Ports.Messaging,
+		srv.Ports.Trading,
+		srv.Ports.Flea,
+		srv.Ports.Lobby,
+	} */
+
+	cert := services.GetCertificate(srv.IP)
 	certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
 	if err != nil {
 		panic(err)
 	}
+	cert.Certificate = certs
 
 	fmt.Println()
 
@@ -151,7 +143,7 @@ func SetHTTPSServer() {
 	serverReady := make(chan struct{})
 
 	for _, muxData := range muxes {
-		go startHTTPSServer(serverReady, certs, muxData)
+		go startHTTPSServer(serverReady, cert, muxData)
 	}
 
 	for range muxes {

@@ -356,17 +356,17 @@ func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
 func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 
-	notiServer := fmt.Sprintf("%s/push/notifier/get/%s", database.GetMainIPandPort(), sessionID)
-	wssServer := fmt.Sprintf("%s/push/notifier/getwebsocket/%s", database.GetWebSocketAddress(), sessionID)
+	//notiServer := fmt.Sprintf("%s/notifier/get", database.GetMainIPandPort())
+	wssServer := fmt.Sprintf("%s/getwebsocket/%s", database.GetWebSocketAddress(), sessionID)
 
 	channel.Status = "ok"
-	channel.NotifierServer = notiServer
+	//channel.NotifierServer = notiServer
 	Notifier := &channel.Notifier
 
 	Notifier.Server = database.GetMainIPandPort()
 	Notifier.ChannelID = sessionID
-	Notifier.URL = notiServer
-	Notifier.NotifierServer = notiServer
+	//Notifier.URL = notiServer
+	Notifier.NotifierServer = "https://" + database.GetLobbyIPandPort() + "/"
 	Notifier.WS = wssServer
 
 	body := services.ApplyResponseBody(channel)
