@@ -117,9 +117,13 @@ func SetHTTPSServer() {
 
 	fmt.Println()
 
+	// serve static content
+	mainServeMux := http.NewServeMux()
+	ServeStaticMux(mainServeMux)
+
 	muxes := []*muxt{
 		{
-			mux: http.NewServeMux(), address: database.GetMainIPandPort(),
+			mux: mainServeMux, address: database.GetMainIPandPort(),
 			serverName: "Main", initRoutes: setMainRoutes, // Embed the route initialization function
 		},
 		{

@@ -13,6 +13,9 @@ import (
 
 func main() {
 	database.InitializeDatabase()
+	// server goroutines
+	server.SetHTTPSServer()
+	// trick : CLI prevents return of main()
 	startHome()
 }
 
@@ -149,7 +152,6 @@ func login() {
 			continue
 		}
 
-		server.SetHTTPSServer()
 		fmt.Println("Logging in...")
 		fmt.Println()
 
