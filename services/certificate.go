@@ -14,7 +14,9 @@ import (
 	"math/big"
 	"net"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -27,6 +29,8 @@ type Certificate struct {
 	Certificate tls.Certificate
 }
 
+const certSubject string = "O=Make Tarkov Great Again, CN=MTGA Root CA Certificate"
+
 // GetCertificate returns a Certificate for HTTPS server
 func GetCertificate(ip string) *Certificate {
 	cert := Certificate{
@@ -34,19 +38,21 @@ func GetCertificate(ip string) *Certificate {
 		KeyFile:  filepath.Join(certPath, "key.pem"),
 	}
 
-	if tools.FileExist(cert.CertFile) && tools.FileExist(cert.KeyFile) {
+	if cert.verifyCertificate() {
+		return &cert
+	} else {
+
+		if !tools.FileExist(certPath) {
+			err := os.Mkdir(certPath, 0700)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		cert.setCertificate(ip)
+		cert.installCertificate()
 		return &cert
 	}
-
-	if !tools.FileExist(certPath) {
-		err := os.Mkdir(certPath, 0700)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	cert.setCertificate(ip)
-	return &cert
 }
 
 // Generate SHA256 certificate for HTTPS server
@@ -57,7 +63,7 @@ func (cg *Certificate) setCertificate(ip string) {
 	}
 
 	notBefore := time.Now().UTC()
-	notAfter := notBefore.AddDate(1, 0, 0)
+	notAfter := notBefore.Add(5 * time.Second) //notBefore.AddDate(1, 0, 0)
 
 	maxSerialNumber := new(big.Int).Lsh(big.NewInt(1), 128) // 1 << 128 = 2^128
 	serialNumber, err := rand.Int(rand.Reader, maxSerialNumber)
@@ -68,7 +74,7 @@ func (cg *Certificate) setCertificate(ip string) {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			CommonName:   "MTGA",
+			CommonName:   "MTGA Root CA Certificate",
 			Organization: []string{"Make Tarkov Great Again"},
 		},
 		IPAddresses: []net.IP{net.ParseIP(ip)},
@@ -77,19 +83,21 @@ func (cg *Certificate) setCertificate(ip string) {
 		NotAfter:    notAfter,
 		KeyUsage:    x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-		ExtraExtensions: []pkix.Extension{{
-			Id:    asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}, // subjectAltName extension OID
-			Value: []byte{0x05, 0x00},
-		}},
+		ExtraExtensions: []pkix.Extension{
+			{
+				Id:    asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}, // subjectAltName extension OID
+				Value: []byte{0x05, 0x00},
+			},
+		},
+		IsCA:                  true,
+		BasicConstraintsValid: true,
 	}
 
-	// Self-sign the certificate
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
 	if err != nil {
 		panic(err)
 	}
 
-	// Save the certificate to files
 	certOut, err := os.Create(cg.CertFile)
 	if err != nil {
 		panic(err)
@@ -114,4 +122,122 @@ func (cg *Certificate) setCertificate(ip string) {
 	}
 
 	fmt.Println("Certificate and key generated successfully")
+}
+
+var certFileExist bool
+var keyFileExist bool
+
+// verifyCertificate verifies the certificate to see if it is still valid
+func (cg *Certificate) verifyCertificate() bool {
+	certFileExist = tools.FileExist(cg.CertFile)
+	keyFileExist = tools.FileExist(cg.KeyFile)
+
+	if !certFileExist || !keyFileExist {
+		cg.removeCertificate()
+		return false
+	}
+
+	if cg.isCertificateInstalled() && cg.isCertificateExpired() {
+		fmt.Println("Certificate is valid.")
+		return true
+	} else {
+
+		cg.removeCertificate()
+		return false
+	}
+}
+
+func (cg *Certificate) removeCertificate() {
+	if certFileExist {
+		err := os.Remove(cg.CertFile)
+		if err != nil {
+			fmt.Println("Failed to remove the certificate")
+			panic(err)
+		}
+	}
+
+	if keyFileExist {
+		err := os.Remove(cg.KeyFile)
+		if err != nil {
+			fmt.Println("Failed to remove the certificate")
+			panic(err)
+		}
+	}
+
+	if cg.isCertificateInstalled() {
+		cmd := exec.Command("certutil", "-delstore", "-user", "Root", "*MTGA*", "-f")
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Println(output)
+			panic(err)
+		}
+	} else {
+		return
+	}
+
+	fmt.Println("Certificate removed from System")
+}
+
+const installCertificatePrompt string = "In order for Notifications/WebSocket to work in-game, we need to install the SHA256 certificate to your Trusted Root Certification Authority under `MTGA Root CA Certificate`. \n\nTLDR: Type `yes` if you want to play"
+const exitCode int = 2147943623
+
+func (cg *Certificate) installCertificate() {
+
+	fmt.Println(installCertificatePrompt)
+	var input string
+
+	for {
+		fmt.Printf("> ")
+		fmt.Scanln(&input)
+
+		if strings.Contains(strings.ToLower(input), "yes") {
+			_, err := exec.Command("certutil", "-addstore", "-user", "Root", cg.CertFile).CombinedOutput()
+			if err != nil {
+				exitErr, _ := err.(*exec.ExitError)
+				if exitErr.ProcessState.ExitCode() == exitCode {
+					fmt.Println("User cancelled the installation")
+					os.Exit(0)
+				}
+				fmt.Println("Failed to install the certificate.")
+				panic(err)
+			}
+			fmt.Println("Certificate installed.")
+			return
+		} else {
+			fmt.Println("User doesn't want to install the certificate, disconnecting...")
+			os.Exit(0)
+		}
+	}
+
+}
+
+func (cg *Certificate) isCertificateExpired() bool {
+	cmd := exec.Command("certutil", "-verifystore", "-user", "Root", "*MTGA*")
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		if strings.Contains(string(output), "Object was not found") {
+			fmt.Println("Certificate is not installed.")
+			return false
+		}
+		fmt.Println("Failed to verify if the certificate has expired.")
+		return false
+	}
+
+	return !strings.Contains(string(output), "This certificate is OK.")
+}
+
+func (cg *Certificate) isCertificateInstalled() bool {
+	cmd := exec.Command("certutil", "-store", "-user", "Root", "*MTGA*")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		if strings.Contains(string(output), "Object was not found") {
+			fmt.Println("Certificate is not installed.")
+			return false
+		}
+		fmt.Println("Failed to verify if the certificate is installed.")
+		return false
+	}
+
+	return strings.Contains(string(output), certSubject)
 }

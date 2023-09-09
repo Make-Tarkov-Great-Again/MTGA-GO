@@ -34,12 +34,10 @@ func startHome() {
 		switch input {
 		case "1":
 			registerAccount()
-			break
 		case "2":
 			login()
-			break
 		case "69":
-			fmt.Println("Adios faggot")
+			fmt.Println("Adios fella")
 			return
 		default:
 			fmt.Println("Invalid input, intellectually less able fella")
