@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/goccy/go-json"
 )
@@ -533,4 +534,44 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println()
+}
+
+func HandleHome(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.New("").ParseFiles("templates/home.html", "templates/base.html")
+	// check your err
+	err = tmpl.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		fmt.Errorf("Cannot load template. err=%s", err)
+	}
+
+}
+
+func HandleLogin(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.New("").ParseFiles("templates/login.html", "templates/base.html")
+	// check your err
+	err = tmpl.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		fmt.Errorf("Cannot load template. err=%s", err)
+	}
+
+}
+
+func HandleSettings(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.New("").ParseFiles("templates/settings.html", "templates/base.html")
+	// check your err
+	err = tmpl.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		fmt.Errorf("Cannot load template. err=%s", err)
+	}
+
+}
+
+func HandleRegister(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.New("").ParseFiles("templates/register.html", "templates/base.html")
+	// check your err
+	err = tmpl.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		fmt.Errorf("Cannot load template. err=%s", err)
+	}
+
 }

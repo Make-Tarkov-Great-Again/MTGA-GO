@@ -52,6 +52,10 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/files/": services.ServeFiles,
 
 	"/client/game/profile/items/moving": handlers.MainItemsMoving,
+	"/":                                 handlers.HandleHome,
+	"/login":                            handlers.HandleLogin,
+	"/register":                         handlers.HandleRegister,
+	"/settings":                         handlers.HandleSettings,
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {
