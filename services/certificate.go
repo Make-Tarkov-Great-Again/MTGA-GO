@@ -64,7 +64,8 @@ func (cg *Certificate) setCertificate(ip string) {
 	}
 
 	notBefore := time.Now().UTC()
-	notAfter := notBefore.AddDate(0, 0, 2) //notBefore.Add(10 * time.Second)
+	//notAfter := notBefore.Add(10 * time.Second) //left for debugging
+	notAfter := notBefore.AddDate(0, 0, 2)
 
 	maxSerialNumber := new(big.Int).Lsh(big.NewInt(1), 128) // 1 << 128 = 2^128
 	serialNumber, err := rand.Int(rand.Reader, maxSerialNumber)
