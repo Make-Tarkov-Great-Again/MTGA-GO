@@ -29,8 +29,8 @@ type Certificate struct {
 	Certificate tls.Certificate
 }
 
-const certSubject string = "O=Make Tarkov Great Again, CN=MTGA Root CA Certificate"
-const wildCard string = "*MTGA*"
+const certSubject string = "CN=MTGA Root CA Certificate, O=Make Tarkov Great Again"
+const commonName string = "MTGA Root CA Certificate"
 
 // GetCertificate returns a Certificate for HTTPS server
 func GetCertificate(ip string) *Certificate {
@@ -64,7 +64,7 @@ func (cg *Certificate) setCertificate(ip string) {
 	}
 
 	notBefore := time.Now().UTC()
-	notAfter := notBefore.AddDate(0, 0, 2)
+	notAfter := notBefore.Add(10 * time.Second) //notBefore.AddDate(0, 0, 2)
 
 	maxSerialNumber := new(big.Int).Lsh(big.NewInt(1), 128) // 1 << 128 = 2^128
 	serialNumber, err := rand.Int(rand.Reader, maxSerialNumber)
@@ -75,7 +75,7 @@ func (cg *Certificate) setCertificate(ip string) {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			CommonName:   "MTGA Root CA Certificate",
+			CommonName:   commonName,
 			Organization: []string{"Make Tarkov Great Again"},
 		},
 		IPAddresses: []net.IP{net.ParseIP(ip)},
@@ -127,25 +127,32 @@ func (cg *Certificate) setCertificate(ip string) {
 
 var certFileExist bool
 var keyFileExist bool
+var caCertInstalled bool
 
 // verifyCertificate verifies the certificate to see if it is still valid
 func (cg *Certificate) verifyCertificate() bool {
 	certFileExist = tools.FileExist(cg.CertFile)
 	keyFileExist = tools.FileExist(cg.KeyFile)
+	caCertInstalled = cg.isCertificateInstalled()
 
 	if !certFileExist || !keyFileExist {
+		if caCertInstalled {
+			cg.removeCertificate()
+		}
+		return false
+	}
+
+	if caCertInstalled {
+		if !cg.isCertificateExpired() {
+			fmt.Println("Certificate is valid.")
+			return true
+		}
+
 		cg.removeCertificate()
 		return false
 	}
 
-	if cg.isCertificateInstalled() && cg.isCertificateExpired() {
-		fmt.Println("Certificate is valid.")
-		return true
-	} else {
-
-		cg.removeCertificate()
-		return false
-	}
+	return false
 }
 
 const deleteCertificatePrompt string = "Certificate is expired and needs to be renewed, you will be prompted to delete the certificate. Type `Yes` if you understand, and would like to proceed."
@@ -175,7 +182,7 @@ func (cg *Certificate) removeCertificate() {
 			}
 
 			if cg.isCertificateInstalled() {
-				cmd := exec.Command("certutil", "-delstore", "-user", "Root", wildCard, "-f")
+				cmd := exec.Command("certutil", "-delstore", "-user", "Root", commonName)
 				output, err := cmd.CombinedOutput()
 				if err != nil {
 					exitErr, _ := err.(*exec.ExitError)
@@ -232,23 +239,14 @@ func (cg *Certificate) installCertificate() {
 }
 
 func (cg *Certificate) isCertificateExpired() bool {
-	cmd := exec.Command("certutil", "-verifystore", "-user", "Root", wildCard)
+	certData, _ := tls.LoadX509KeyPair(cg.CertFile, cg.KeyFile)
+	x509Cert, _ := x509.ParseCertificate(certData.Certificate[0])
 
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		if strings.Contains(string(output), "Object was not found") {
-			fmt.Println("Certificate is not installed.")
-			return false
-		}
-		fmt.Println("Failed to verify if the certificate has expired.")
-		return false
-	}
-
-	return !strings.Contains(string(output), "This certificate is OK.")
+	return x509Cert.NotAfter.Before(time.Now())
 }
 
 func (cg *Certificate) isCertificateInstalled() bool {
-	cmd := exec.Command("certutil", "-store", "-user", "Root", wildCard)
+	cmd := exec.Command("certutil", "-store", "-user", "Root", commonName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		if strings.Contains(string(output), "Object was not found") {
