@@ -197,8 +197,6 @@ func (c *Character) QuestAccept(qid string) {
 	}
 	connection.sendMessage(notification)
 	dialogue.SaveDialogue(c.ID)
-
-	//TODO: Send Notification to Client
 }
 
 func (c *Character) ApplyQuestRewardsToCharacter(rewards *QuestRewards) {

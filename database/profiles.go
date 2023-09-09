@@ -37,15 +37,6 @@ func GetStorageByUID(uid string) *Storage {
 	return nil
 }
 
-func GetDialogueByUID(uid string) *Dialogue {
-	if profile, ok := profiles[uid]; ok {
-		return profile.Dialogue
-	}
-
-	fmt.Println("Profile with UID ", uid, " does not have dialogue")
-	return nil
-}
-
 // #endregion
 
 // #region Profile setters

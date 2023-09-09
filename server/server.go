@@ -32,6 +32,9 @@ func logAndDecompress(next http.Handler) http.Handler {
 			}
 			defer conn.Close()
 
+			sessionID := strings.TrimSuffix(strings.TrimPrefix(r.RequestURI, "/push/notifier/getwebsocket/"), "?last_id=default_id")
+			database.SetConnection(sessionID, conn)
+
 			for {
 				messageType, p, err := conn.ReadMessage()
 				if err != nil {

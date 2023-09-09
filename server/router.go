@@ -105,6 +105,7 @@ var messagingRouteHandlers = map[string]http.HandlerFunc{
 	"/client/mail/dialog/list":           handlers.MessagingDialogList,
 	"/client/friend/request/list/inbox":  handlers.MessagingFriendRequestInbox,
 	"/client/friend/request/list/outbox": handlers.MessagingFriendRequestOutbox,
+	"/client/mail/dialog/info":           handlers.MessagingMailDialogInfo,
 }
 
 func setMessagingRoutes(mux *http.ServeMux) {
