@@ -360,12 +360,10 @@ func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 	wssServer := fmt.Sprintf("%s/push/notifier/getwebsocket/%s", database.GetWebSocketAddress(), sessionID)
 
 	channel.Status = "ok"
-	//channel.NotifierServer = notiServer
 	Notifier := &channel.Notifier
 
-	Notifier.Server = database.GetMainIPandPort()
+	Notifier.Server = database.GetLobbyIPandPort()
 	Notifier.ChannelID = sessionID
-	//Notifier.URL = notiServer
 	Notifier.NotifierServer = notiServer
 	Notifier.WS = wssServer
 
@@ -452,7 +450,6 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	quests := database.GetCharacterByUID(sessionID).GetQuestsAvailableToPlayer()
-	fmt.Println() //removeme
 	body := services.ApplyResponseBody(quests)
 	services.ZlibJSONReply(w, body)
 }

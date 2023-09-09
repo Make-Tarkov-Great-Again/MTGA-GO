@@ -36,7 +36,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
 		}
 
 		if strings.Contains(value.Name, "-Event") {
-			fmt.Println("Filter event quests ", value.Name, " properly")
+			//TODO: filter events properly
 			continue
 		}
 
@@ -186,10 +186,17 @@ func (c *Character) QuestAccept(qid string) {
 	dialog.Messages = append(dialog.Messages, *message)
 
 	dialogue[query.Trader] = dialog
-	dialogue.SaveDialogue(c.ID)
+	//dialogue.SaveDialogue(c.ID)
 
 	notification := CreateNotification(message)
-	notification.SendNotification(c.ID)
+
+	connection := GetConnection(c.ID)
+	if connection == nil {
+		fmt.Println("Can't send message to character because connection is nil")
+		//TODO: Save message to be sent later
+	}
+	connection.sendMessage(notification)
+	dialogue.SaveDialogue(c.ID)
 
 	//TODO: Send Notification to Client
 }
