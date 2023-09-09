@@ -30,6 +30,7 @@ type Certificate struct {
 }
 
 const certSubject string = "O=Make Tarkov Great Again, CN=MTGA Root CA Certificate"
+const wildCard string = "*MTGA*"
 
 // GetCertificate returns a Certificate for HTTPS server
 func GetCertificate(ip string) *Certificate {
@@ -174,7 +175,7 @@ func (cg *Certificate) removeCertificate() {
 			}
 
 			if cg.isCertificateInstalled() {
-				cmd := exec.Command("certutil", "-delstore", "-user", "Root", "*MTGA*", "-f")
+				cmd := exec.Command("certutil", "-delstore", "-user", "Root", wildCard, "-f")
 				output, err := cmd.CombinedOutput()
 				if err != nil {
 					exitErr, _ := err.(*exec.ExitError)
@@ -231,7 +232,7 @@ func (cg *Certificate) installCertificate() {
 }
 
 func (cg *Certificate) isCertificateExpired() bool {
-	cmd := exec.Command("certutil", "-verifystore", "-user", "Root", "*MTGA*")
+	cmd := exec.Command("certutil", "-verifystore", "-user", "Root", wildCard)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -247,7 +248,7 @@ func (cg *Certificate) isCertificateExpired() bool {
 }
 
 func (cg *Certificate) isCertificateInstalled() bool {
-	cmd := exec.Command("certutil", "-store", "-user", "Root", "*MTGA*")
+	cmd := exec.Command("certutil", "-store", "-user", "Root", wildCard)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		if strings.Contains(string(output), "Object was not found") {
