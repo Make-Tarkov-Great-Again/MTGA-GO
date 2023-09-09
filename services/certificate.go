@@ -64,7 +64,7 @@ func (cg *Certificate) setCertificate(ip string) {
 	}
 
 	notBefore := time.Now().UTC()
-	notAfter := notBefore.Add(10 * time.Second) //notBefore.AddDate(0, 0, 2)
+	notAfter := notBefore.AddDate(0, 0, 2) //notBefore.Add(10 * time.Second)
 
 	maxSerialNumber := new(big.Int).Lsh(big.NewInt(1), 128) // 1 << 128 = 2^128
 	serialNumber, err := rand.Int(rand.Reader, maxSerialNumber)
@@ -86,7 +86,7 @@ func (cg *Certificate) setCertificate(ip string) {
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		ExtraExtensions: []pkix.Extension{
 			{
-				Id:    asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}, // subjectAltName extension OID
+				Id:    asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1},
 				Value: []byte{0x05, 0x00},
 			},
 		},
@@ -194,9 +194,8 @@ func (cg *Certificate) removeCertificate() {
 					panic(err)
 				}
 				fmt.Println("Certificate removed from System")
-			} else {
-				return
 			}
+			return
 		} else {
 			fmt.Println("User doesn't want to delete the expired certificate, disconnecting...")
 			os.Exit(0)
