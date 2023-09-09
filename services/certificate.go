@@ -63,7 +63,7 @@ func (cg *Certificate) setCertificate(ip string) {
 	}
 
 	notBefore := time.Now().UTC()
-	notAfter := notBefore.Add(5 * time.Second) //notBefore.AddDate(1, 0, 0)
+	notAfter := notBefore.AddDate(0, 0, 2)
 
 	maxSerialNumber := new(big.Int).Lsh(big.NewInt(1), 128) // 1 << 128 = 2^128
 	serialNumber, err := rand.Int(rand.Reader, maxSerialNumber)
@@ -147,35 +147,54 @@ func (cg *Certificate) verifyCertificate() bool {
 	}
 }
 
+const deleteCertificatePrompt string = "Certificate is expired and needs to be renewed, you will be prompted to delete the certificate. Type `Yes` if you understand, and would like to proceed."
+
 func (cg *Certificate) removeCertificate() {
-	if certFileExist {
-		err := os.Remove(cg.CertFile)
-		if err != nil {
-			fmt.Println("Failed to remove the certificate")
-			panic(err)
+
+	var input string
+	fmt.Println(deleteCertificatePrompt)
+	for {
+		fmt.Printf("> ")
+		fmt.Scanln(&input)
+		if strings.Contains(strings.ToLower(input), "yes") {
+			if certFileExist {
+				err := os.Remove(cg.CertFile)
+				if err != nil {
+					fmt.Println("Failed to remove the certificate")
+					panic(err)
+				}
+			}
+
+			if keyFileExist {
+				err := os.Remove(cg.KeyFile)
+				if err != nil {
+					fmt.Println("Failed to remove the certificate")
+					panic(err)
+				}
+			}
+
+			if cg.isCertificateInstalled() {
+				cmd := exec.Command("certutil", "-delstore", "-user", "Root", "*MTGA*", "-f")
+				output, err := cmd.CombinedOutput()
+				if err != nil {
+					exitErr, _ := err.(*exec.ExitError)
+					if exitErr.ProcessState.ExitCode() == exitCode {
+						fmt.Println("User cancelled the deletion of the certificate")
+						os.Exit(0)
+					}
+					fmt.Println(output)
+					panic(err)
+				}
+				fmt.Println("Certificate removed from System")
+			} else {
+				return
+			}
+		} else {
+			fmt.Println("User doesn't want to delete the expired certificate, disconnecting...")
+			os.Exit(0)
 		}
 	}
 
-	if keyFileExist {
-		err := os.Remove(cg.KeyFile)
-		if err != nil {
-			fmt.Println("Failed to remove the certificate")
-			panic(err)
-		}
-	}
-
-	if cg.isCertificateInstalled() {
-		cmd := exec.Command("certutil", "-delstore", "-user", "Root", "*MTGA*", "-f")
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Println(output)
-			panic(err)
-		}
-	} else {
-		return
-	}
-
-	fmt.Println("Certificate removed from System")
 }
 
 const installCertificatePrompt string = "In order for Notifications/WebSocket to work in-game, we need to install the SHA256 certificate to your Trusted Root Certification Authority under `MTGA Root CA Certificate`. \n\nTLDR: Type `yes` if you want to play"
