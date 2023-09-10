@@ -34,7 +34,7 @@ func GetConnection(sessionID string) *Connect {
 	return conn
 }
 
-func (conn *Connect) sendMessage(notification *Notification) {
+func (conn *Connect) SendMessage(notification *Notification) {
 	err := conn.WriteJSON(notification)
 	if err != nil {
 		panic(err)

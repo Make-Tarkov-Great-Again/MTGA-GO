@@ -127,11 +127,13 @@ func (c *Character) SaveCharacter(sessionID string) {
 }
 
 // QuestAccept updates an existing Accepted quest, or creates and appends new Accepted Quest to cache and Character
-func (c *Character) QuestAccept(qid string) {
+func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 
 	cachedQuests := GetCacheByUID(c.ID).Quests
 	length := len(cachedQuests.Index)
 	time := int(tools.GetCurrentTimeInSeconds())
+
+	query := GetQuestFromQueryByQID(qid)
 
 	if length != 0 {
 		quest, ok := cachedQuests.Index[qid]
@@ -144,42 +146,41 @@ func (c *Character) QuestAccept(qid string) {
 
 			c.Quests[quest] = cachedQuest
 		}
-	}
+	} else {
+		quest := &CharacterQuest{
+			QID:          qid,
+			StartTime:    time,
+			Status:       "Started",
+			StatusTimers: map[string]int{},
+		}
 
-	quest := &CharacterQuest{
-		QID:          qid,
-		StartTime:    time,
-		Status:       "Started",
-		StatusTimers: map[string]int{},
-	}
+		if query.Conditions.AvailableForStart != nil && query.Conditions.AvailableForStart.Quest != nil {
+			startCondition := query.Conditions.AvailableForStart.Quest
+			for _, questCondition := range startCondition {
+				if questCondition.AvailableAfter > 0 {
 
-	query := GetQuestFromQueryByQID(qid)
-	if query.Conditions.AvailableForStart.Quest != nil {
-		startCondition := query.Conditions.AvailableForStart.Quest
-		for _, questCondition := range startCondition {
-			if questCondition.AvailableAfter > 0 {
-
-				quest.StartTime = 0
-				quest.Status = "AvailableAfter"
-				quest.AvailableAfter = time + questCondition.AvailableAfter
+					quest.StartTime = 0
+					quest.Status = "AvailableAfter"
+					quest.AvailableAfter = time + questCondition.AvailableAfter
+				}
 			}
 		}
-	}
 
-	cachedQuests.Index[qid] = int8(length)
-	cachedQuests.Quests[qid] = *quest
-	c.Quests = append(c.Quests, *quest)
+		cachedQuests.Index[qid] = int8(length)
+		cachedQuests.Quests[qid] = *quest
+		c.Quests = append(c.Quests, cachedQuests.Quests[qid])
+	}
 
 	changeEvent := GetProfileChangeByUID(c.ID)
 	if query.Rewards.Start != nil {
 		fmt.Println("There are rewards heeyrrrr!")
 		fmt.Println(changeEvent.ProfileChanges.ID)
+
+		// TODO: Apply then Get Quest rewards and then route messages from there
 		// Character.ApplyQuestRewardsToCharacter()  applies the given reward
 		// Quests.GetQuestReward() returns the given reward
 		// CreateNPCMessageWithReward()
 	}
-
-	// TODO: Apply then Get Quest rewards and then route messages from there
 
 	dialogue := *GetDialogueByUID(c.ID)
 
@@ -188,7 +189,6 @@ func (c *Character) QuestAccept(qid string) {
 	dialog.Messages = append(dialog.Messages, *message)
 
 	dialogue[query.Trader] = dialog
-	//dialogue.SaveDialogue(c.ID)
 
 	notification := CreateNotification(message)
 
@@ -199,12 +199,15 @@ func (c *Character) QuestAccept(qid string) {
 		storage.Mailbox = append(storage.Mailbox, notification)
 		storage.SaveStorage(c.ID)
 	} else {
-		connection.sendMessage(notification)
+		connection.SendMessage(notification)
 	}
 
-	dialogue.SaveDialogue(c.ID)
 	//TODO: Get new player quests from database now that we've accepted one
-	//changeEvent.ProfileChanges.Quests =
+	changeEvent.ProfileChanges.Quests = c.GetQuestsAvailableToPlayer()
+
+	dialogue.SaveDialogue(c.ID)
+	c.SaveCharacter(c.ID)
+	return changeEvent
 }
 
 func (c *Character) ApplyQuestRewardsToCharacter(rewards *QuestRewards) {
@@ -415,12 +418,12 @@ type BodyPartsHealth struct {
 }
 
 type CharacterQuest struct {
-	QID                 string
-	StartTime           int
-	Status              string
-	StatusTimers        map[string]int
-	CompletedConditions []string `json:"completedConditions,omitempty"`
-	AvailableAfter      int      `json:",omitempty"`
+	QID                 string         `json:"qid"`
+	StartTime           int            `json:"startTime"`
+	Status              string         `json:"status"`
+	StatusTimers        map[string]int `json:"statusTimers"`
+	CompletedConditions []string       `json:"completedConditions,omitempty"`
+	AvailableAfter      int            `json:"availableAfter,omitempty"`
 }
 
 // #endregion

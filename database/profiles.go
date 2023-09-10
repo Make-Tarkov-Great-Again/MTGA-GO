@@ -45,6 +45,7 @@ func GetProfileChangeByUID(uid string) *ProfileChangesEvent {
 			RepeatableQuests:      make([]interface{}, 0),
 			RecipeUnlocked:        make(map[string]bool),
 			ChangedHideoutStashes: make(map[string]interface{}),
+			QuestsStatus:          make([]CharacterQuest, 0),
 		},
 	}
 
@@ -307,6 +308,7 @@ type ProfileChanges struct {
 	RepeatableQuests      []interface{}                `json:"repeatableQuests"`
 	RecipeUnlocked        map[string]bool              `json:"recipeUnlocked"`
 	ChangedHideoutStashes map[string]interface{}       `json:"changedHideoutStashes,omitempty"`
+	QuestsStatus          []CharacterQuest             `json:"questsStatus"`
 }
 
 // #endregion

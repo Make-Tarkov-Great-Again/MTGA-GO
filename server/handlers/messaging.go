@@ -61,3 +61,29 @@ func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(dialogInfo)
 	services.ZlibJSONReply(w, body)
 }
+
+func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
+	parsedData := services.GetParsedBody(r)
+	dialogId, _ := parsedData.(map[string]interface{})["dialogId"].(string)
+
+	data := new(database.DialogMessageView)
+
+	dialogues := *database.GetDialogueByUID(services.GetSessionID(r))
+	dialog, ok := dialogues[dialogId]
+	if !ok {
+		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". Sending empty data!")
+		data.Messages = make([]database.DialogMessage, 0)
+		data.Profiles = make([]database.DialogUserInfo, 0)
+		data.HasMessageWithRewards = false
+	} else {
+		dialog.New = 0
+		dialog.AttachmentsNew = dialog.GetUnreadMessagesWithAttachments()
+
+		data.Messages = dialog.Messages
+		data.Profiles = make([]database.DialogUserInfo, 0)
+		data.HasMessageWithRewards = dialog.HasMessagesWithRewards()
+	}
+
+	body := services.ApplyResponseBody(data)
+	services.ZlibJSONReply(w, body)
+}

@@ -24,27 +24,22 @@ const (
 
 // WriteToFile writes the given string of data to the specified file path
 func WriteToFile(filePath string, data interface{}) error {
-	// Get the absolute path of the file
 	path := GetAbsolutePathFrom(filePath)
-
-	// Create the directory if it doesn't exist
 	err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
 	if err != nil {
 		return err
 	}
 
-	// Create or truncate the file
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	// Create a custom JSON encoder that doesn't escape Unicode
 	encoder := json.NewEncoder(file)
-	encoder.SetEscapeHTML(false)
+	encoder.SetEscapeHTML(false)  // don't escape Unicode
+	encoder.SetIndent("", "    ") //4 space indentation
 
-	// Encode and write the data to the file
 	err = encoder.Encode(data)
 	if err != nil {
 		return err

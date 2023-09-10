@@ -46,16 +46,26 @@ type DialogUserDetails struct {
 }
 
 type DialogMessage struct {
-	ID                  string        `json:"_id"`
-	UID                 string        `json:"uid"`
-	Type                int8          `json:"type"`
-	DT                  int64         `json:"dt"`
-	Text                string        `json:"text"`
-	TemplateID          string        `json:"templateId,omitempty"`
-	HasRewards          bool          `json:"hasRewards"`
-	RewardCollected     bool          `json:"rewardCollected"`
-	SystemData          string        `json:"systemData,omitempty"`
-	ProfileChangeEvents []interface{} `json:"profileChangeEvents,omitempty"`
+	ID                  string                 `json:"_id"`
+	UID                 string                 `json:"uid"`
+	Type                int8                   `json:"type"`
+	DT                  int64                  `json:"dt"`
+	UtcDateTime         int64                  `json:"UtcDateTime,omitempty"`
+	Member              map[string]interface{} `json:"Member,omitempty"`
+	Text                string                 `json:"text"`
+	TemplateID          string                 `json:"templateId,omitempty"`
+	Items               []interface{}          `json:"items,omitempty"`
+	HasRewards          bool                   `json:"hasRewards"`
+	RewardCollected     bool                   `json:"rewardCollected"`
+	MaxStorageTime      int64                  `json:"maxStorageTime"`
+	SystemData          string                 `json:"systemData,omitempty"`
+	ProfileChangeEvents []interface{}          `json:"profileChangeEvents,omitempty"`
+}
+
+type DialogMessageView struct {
+	Messages              []DialogMessage  `json:"messages"`
+	Profiles              []DialogUserInfo `json:"profiles"`
+	HasMessageWithRewards bool             `json:"hasMessageWithRewards"`
 }
 
 type DialogueDetails struct {
@@ -87,7 +97,7 @@ type DialogueInfoMessage struct {
 	SystemData string `json:"systemData,omitempty"`
 }
 
-func (d Dialog) CreateQuestDialogueInfo() *DialogueInfo {
+func (d *Dialog) CreateQuestDialogueInfo() *DialogueInfo {
 	info := &DialogueInfo{
 		ID:             d.ID,
 		Type:           d.Type,
@@ -105,7 +115,7 @@ func (d Dialog) CreateQuestDialogueInfo() *DialogueInfo {
 	return info
 }
 
-func (d Dialog) CreateDialogueInfoMessage() *DialogueInfoMessage {
+func (d *Dialog) CreateDialogueInfoMessage() *DialogueInfoMessage {
 	message := d.Messages[len(d.Messages)-1]
 
 	return &DialogueInfoMessage{
@@ -117,9 +127,43 @@ func (d Dialog) CreateDialogueInfoMessage() *DialogueInfoMessage {
 	}
 }
 
-func (d Dialog) CreateDialogueUsers() []DialogUserDetails {
+func (d *Dialog) CreateDialogueUsers() []DialogUserDetails {
 	//users := make([]DialogueUsers, 0)
 	return nil
+}
+
+func (d *Dialog) HasMessagesWithRewards() bool {
+	for _, message := range d.Messages {
+		if len(message.Items) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func (d *Dialog) GetUnreadMessagesWithAttachments() int8 {
+	active := d.GetActiveMessages()
+	var attachmentCount int8 = 0
+
+	for _, message := range active {
+		if message.HasRewards && !message.RewardCollected {
+			attachmentCount++
+		}
+	}
+
+	return attachmentCount
+}
+
+func (d *Dialog) GetActiveMessages() []DialogMessage {
+	messages := make([]DialogMessage, 0, len(d.Messages))
+
+	time := tools.GetCurrentTimeInSeconds()
+	for _, message := range d.Messages {
+		if (message.DT + message.MaxStorageTime) > time {
+			messages = append(messages, message)
+		}
+	}
+	return messages
 }
 
 func GetDialogueByUID(uid string) *Dialogue {
@@ -160,12 +204,13 @@ func CreateQuestDialogue(playerID string, sender string, traderID string, dialog
 	}
 
 	message := &DialogMessage{
-		ID:         tools.GenerateMongoID(),
-		UID:        traderID,
-		Type:       contents.Sender,
-		DT:         tools.GetCurrentTimeInSeconds(),
-		Text:       "",
-		TemplateID: dialogueID,
+		ID:             tools.GenerateMongoID(),
+		UID:            traderID,
+		Type:           contents.Sender,
+		DT:             tools.GetCurrentTimeInSeconds(),
+		Text:           "",
+		TemplateID:     dialogueID,
+		MaxStorageTime: tools.GetCurrentTimeInSeconds() + 3600,
 	}
 
 	return dialog, message

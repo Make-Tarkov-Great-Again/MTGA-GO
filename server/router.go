@@ -106,6 +106,7 @@ var messagingRouteHandlers = map[string]http.HandlerFunc{
 	"/client/friend/request/list/inbox":  handlers.MessagingFriendRequestInbox,
 	"/client/friend/request/list/outbox": handlers.MessagingFriendRequestOutbox,
 	"/client/mail/dialog/info":           handlers.MessagingMailDialogInfo,
+	"/client/mail/dialog/view":           handlers.MessagingMailDialogView,
 }
 
 func setMessagingRoutes(mux *http.ServeMux) {
@@ -127,10 +128,8 @@ func setMessagingRoutes(mux *http.ServeMux) {
 	// "/client/mail/dialog/getAllAttachments"
 	// "/client/mail/dialog/clear"
 	// "/client/mail/dialog/remove"
-	// "/client/mail/dialog/view"
 	// "/client/mail/dialog/pin"
 	// "/client/mail/dialog/unpin"
-	// "/client/mail/dialog/info"
 	// "/client/mail/dialog/read"
 
 	// "/client/mail/dialog/group/create"

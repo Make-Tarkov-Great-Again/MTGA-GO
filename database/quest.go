@@ -4,7 +4,6 @@ import (
 	"MT-GO/tools"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/goccy/go-json"
 )
@@ -120,22 +119,22 @@ func setQuestDialogue(quest map[string]interface{}) QuestDialogues {
 	dialogues := &QuestDialogues{}
 
 	description, _ := quest["description"].(string)
-	dialogues.Description = strings.TrimSuffix(description, " description")
+	dialogues.Description = description
 
 	complete, _ := quest["completePlayerMessage"].(string)
-	dialogues.Complete = strings.TrimSuffix(complete, " completePlayerMessage")
+	dialogues.Complete = complete
 
 	fail, _ := quest["failMessageText"].(string)
-	dialogues.Fail = strings.TrimSuffix(fail, " failMessageText")
+	dialogues.Fail = fail
 
 	started, _ := quest["startedMessageText"].(string)
-	dialogues.Started = strings.TrimSuffix(started, " startedMessageText")
+	dialogues.Started = started
 
 	success, _ := quest["successMessageText"].(string)
-	dialogues.Success = strings.TrimSuffix(success, " successMessageText")
+	dialogues.Success = success
 
 	accepted, _ := quest["acceptPlayerMessage"].(string)
-	dialogues.Accepted = strings.TrimSuffix(accepted, " acceptPlayerMessage")
+	dialogues.Accepted = accepted
 
 	return *dialogues
 }

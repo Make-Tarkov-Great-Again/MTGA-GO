@@ -15,7 +15,17 @@ func LobbyPushNotifier(w http.ResponseWriter, r *http.Request) {
 
 func LobbyGetWebSocket(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Get Websocket for, " + r.URL.String())
-	body := fmt.Sprintf("%s/getwebsocket/%s", database.GetWebSocketAddress(), services.GetSessionID(r))
+	sessionID := services.GetSessionID(r)
+	storage := database.GetStorageByUID(sessionID)
+
+	connection := database.GetConnection(sessionID)
+	for _, v := range storage.Mailbox {
+		connection.SendMessage(v)
+	}
+	storage.Mailbox = make([]*database.Notification, 0, len(storage.Mailbox))
+	storage.SaveStorage(sessionID)
+
+	body := fmt.Sprintf("%s/getwebsocket/%s", database.GetWebSocketAddress(), sessionID)
 	services.ZlibJSONReply(w, body)
 }
 

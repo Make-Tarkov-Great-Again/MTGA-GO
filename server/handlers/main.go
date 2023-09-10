@@ -522,12 +522,12 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(moveAction)
 
 	character := database.GetCharacterByUID(services.GetSessionID(r))
+
 	switch action {
 	case "QuestAccept":
-		character.QuestAccept(moveAction["qid"].(string))
+		data := character.QuestAccept(moveAction["qid"].(string))
+		services.ZlibJSONReply(w, data)
 	default:
 		fmt.Println(action)
 	}
-
-	fmt.Println()
 }

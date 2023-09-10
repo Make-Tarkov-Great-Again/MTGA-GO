@@ -86,11 +86,11 @@ func registerAccount() {
 	profiles[UID].Storage = &database.Storage{
 		Suites: []string{},
 		Builds: database.Builds{
-			EquipmentBuilds: []database.EquipmentBuild{},
-			WeaponBuilds:    []interface{}{},
+			EquipmentBuilds: []*database.EquipmentBuild{},
+			WeaponBuilds:    []*database.WeaponBuild{},
 		},
 		Insurance: []interface{}{},
-		Mailbox:   []interface{}{},
+		Mailbox:   []*database.Notification{},
 	}
 	profiles[UID].Dialogue = &database.Dialogue{}
 
