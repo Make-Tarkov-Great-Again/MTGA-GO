@@ -64,10 +64,11 @@ func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
+	sessionID := services.GetSessionID(r)
 	parsedData := services.GetParsedBody(r)
 	dialogId, _ := parsedData.(map[string]interface{})["dialogId"].(string)
 
-	dialogues := *database.GetDialogueByUID(services.GetSessionID(r))
+	dialogues := *database.GetDialogueByUID(sessionID)
 	dialog, ok := dialogues[dialogId]
 	if !ok {
 		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
@@ -83,5 +84,66 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 	data.HasMessageWithRewards = dialog.HasMessagesWithRewards()
 
 	body := services.ApplyResponseBody(data)
+	services.ZlibJSONReply(w, body)
+	dialogues.SaveDialogue(sessionID)
+}
+
+func MessagingMailDialogPin(w http.ResponseWriter, r *http.Request) {
+	sessionID := services.GetSessionID(r)
+
+	parsedData := services.GetParsedBody(r)
+	dialogId, _ := parsedData.(map[string]interface{})["dialogId"].(string)
+
+	dialogues := *database.GetDialogueByUID(sessionID)
+	dialog, ok := dialogues[dialogId]
+	if !ok {
+		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
+		return
+	}
+
+	dialog.Pinned = true
+	dialogues.SaveDialogue(sessionID)
+
+	body := services.ApplyResponseBody([]struct{}{})
+	services.ZlibJSONReply(w, body)
+}
+
+func MessagingMailDialogUnpin(w http.ResponseWriter, r *http.Request) {
+	sessionID := services.GetSessionID(r)
+
+	parsedData := services.GetParsedBody(r)
+	dialogId, _ := parsedData.(map[string]interface{})["dialogId"].(string)
+
+	dialogues := *database.GetDialogueByUID(sessionID)
+	dialog, ok := dialogues[dialogId]
+	if !ok {
+		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
+		return
+	}
+
+	dialog.Pinned = false
+	dialogues.SaveDialogue(sessionID)
+
+	body := services.ApplyResponseBody([]struct{}{})
+	services.ZlibJSONReply(w, body)
+}
+
+func MessagingMailDialogRemove(w http.ResponseWriter, r *http.Request) {
+	sessionID := services.GetSessionID(r)
+
+	parsedData := services.GetParsedBody(r)
+	dialogId, _ := parsedData.(map[string]interface{})["dialogId"].(string)
+
+	dialogues := *database.GetDialogueByUID(sessionID)
+	delete(dialogues, dialogId)
+
+	dialogues.SaveDialogue(sessionID)
+
+	body := services.ApplyResponseBody([]struct{}{})
+	services.ZlibJSONReply(w, body)
+}
+
+func MessagingMailDialogClear(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody([]struct{}{})
 	services.ZlibJSONReply(w, body)
 }
