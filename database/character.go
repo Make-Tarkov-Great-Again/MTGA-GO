@@ -170,8 +170,10 @@ func (c *Character) QuestAccept(qid string) {
 	cachedQuests.Quests[qid] = *quest
 	c.Quests = append(c.Quests, *quest)
 
+	changeEvent := GetProfileChangeByUID(c.ID)
 	if query.Rewards.Start != nil {
 		fmt.Println("There are rewards heeyrrrr!")
+		fmt.Println(changeEvent.ProfileChanges.ID)
 		// Character.ApplyQuestRewardsToCharacter()  applies the given reward
 		// Quests.GetQuestReward() returns the given reward
 		// CreateNPCMessageWithReward()
@@ -192,11 +194,17 @@ func (c *Character) QuestAccept(qid string) {
 
 	connection := GetConnection(c.ID)
 	if connection == nil {
-		fmt.Println("Can't send message to character because connection is nil")
-		//TODO: Save message to be sent later
+		fmt.Println("Can't send message to character because connection is nil, storing...")
+		storage := GetStorageByUID(c.ID)
+		storage.Mailbox = append(storage.Mailbox, notification)
+		storage.SaveStorage(c.ID)
+	} else {
+		connection.sendMessage(notification)
 	}
-	connection.sendMessage(notification)
+
 	dialogue.SaveDialogue(c.ID)
+	//TODO: Get new player quests from database now that we've accepted one
+	//changeEvent.ProfileChanges.Quests =
 }
 
 func (c *Character) ApplyQuestRewardsToCharacter(rewards *QuestRewards) {
@@ -407,11 +415,12 @@ type BodyPartsHealth struct {
 }
 
 type CharacterQuest struct {
-	QID            string
-	StartTime      int
-	Status         string
-	StatusTimers   map[string]int
-	AvailableAfter int `json:",omitempty"`
+	QID                 string
+	StartTime           int
+	Status              string
+	StatusTimers        map[string]int
+	CompletedConditions []string `json:"completedConditions,omitempty"`
+	AvailableAfter      int      `json:",omitempty"`
 }
 
 // #endregion

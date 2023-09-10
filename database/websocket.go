@@ -15,7 +15,7 @@ type Connect struct {
 func SetConnection(sessionID string, conn *websocket.Conn) {
 	_, ok := connections[sessionID]
 	if ok {
-		fmt.Println("Couldn't set connection because it already exists")
+		fmt.Println("Websocket connection has already been established for sessionID:", sessionID)
 		return
 	}
 
@@ -27,6 +27,7 @@ func SetConnection(sessionID string, conn *websocket.Conn) {
 func GetConnection(sessionID string) *Connect {
 	conn, ok := connections[sessionID]
 	if !ok {
+		fmt.Println("Websocket connection has not been established for sessionID:", sessionID, ". Returning nil...")
 		return nil
 	}
 

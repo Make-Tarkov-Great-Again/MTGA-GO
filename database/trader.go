@@ -484,11 +484,13 @@ type TraderSuits struct {
 	IsActive     bool             `json:"isActive"`
 	Requirements SuitRequirements `json:"requirements"`
 }
+
 type SuitItemRequirements struct {
 	Count          int    `json:"count"`
 	Tpl            string `json:"_tpl"`
 	OnlyFunctional bool   `json:"onlyFunctional"`
 }
+
 type SuitRequirements struct {
 	LoyaltyLevel         int8                   `json:"loyaltyLevel"`
 	ProfileLevel         int8                   `json:"profileLevel"`
@@ -506,22 +508,27 @@ type Assort struct {
 }
 
 type AssortItem struct {
-	ID       string `json:"_id"`
-	Tpl      string `json:"_tpl"`
-	ParentID string `json:"parentId"`
-	SlotID   string `json:"slotId"`
-	Upd      struct {
-		BuyRestrictionCurrent interface{} `json:"BuyRestrictionCurrent,omitempty"`
-		BuyRestrictionMax     interface{} `json:"BuyRestrictionMax,omitempty"`
-		StackObjectsCount     int         `json:"StackObjectsCount,omitempty"`
-		UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
-		FireMode              struct {
-			FireMode string `json:"FireMode"`
-		} `json:"FireMode,omitempty"`
-		Foldable struct {
-			Folded bool `json:"Folded,omitempty"`
-		} `json:"Foldable,omitempty"`
-	} `json:"upd,omitempty"`
+	ID       string        `json:"_id"`
+	Tpl      string        `json:"_tpl"`
+	ParentID string        `json:"parentId"`
+	SlotID   string        `json:"slotId"`
+	Upd      AssortItemUpd `json:"upd,omitempty"`
+}
+
+type AssortItemUpd struct {
+	BuyRestrictionCurrent interface{} `json:"BuyRestrictionCurrent,omitempty"`
+	BuyRestrictionMax     interface{} `json:"BuyRestrictionMax,omitempty"`
+	StackObjectsCount     int         `json:"StackObjectsCount,omitempty"`
+	UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
+	FireMode              FireMode    `json:"FireMode,omitempty"`
+	Foldable              Foldable    `json:"Foldable,omitempty"`
+}
+
+type FireMode struct {
+	FireMode string `json:"FireMode"`
+}
+type Foldable struct {
+	Folded bool `json:"Folded,omitempty"`
 }
 
 type Scheme struct {

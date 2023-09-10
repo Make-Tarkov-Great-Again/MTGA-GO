@@ -75,7 +75,7 @@ type DialogueInfo struct {
 	AttachmentsNew int8                 `json:"attachmentsNew"`
 	New            int8                 `json:"new"`
 	Pinned         bool                 `json:"pinned"`
-	Users          []DialogueUsers      `json:"Users"`
+	Users          []DialogUserDetails  `json:"Users,omitempty"`
 }
 
 type DialogueInfoMessage struct {
@@ -85,9 +85,6 @@ type DialogueInfoMessage struct {
 	UID        string `json:"uid"`
 	Text       string `json:"text,omitempty"`
 	SystemData string `json:"systemData,omitempty"`
-}
-
-type DialogueUsers struct {
 }
 
 func (d Dialog) CreateQuestDialogueInfo() *DialogueInfo {
@@ -120,7 +117,7 @@ func (d Dialog) CreateDialogueInfoMessage() *DialogueInfoMessage {
 	}
 }
 
-func (d Dialog) CreateDialogueUsers() []DialogueUsers {
+func (d Dialog) CreateDialogueUsers() []DialogUserDetails {
 	//users := make([]DialogueUsers, 0)
 	return nil
 }
@@ -170,8 +167,6 @@ func CreateQuestDialogue(playerID string, sender string, traderID string, dialog
 		Text:       "",
 		TemplateID: dialogueID,
 	}
-
-	//dialog.Messages = append(dialog.Messages)
 
 	return dialog, message
 }
