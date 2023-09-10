@@ -24,21 +24,21 @@ var MessageType = map[string]int8{
 }
 
 type Dialog struct {
-	ID             string           `json:"_id"`
-	Type           int8             `json:"type"`
-	Messages       []DialogMessage  `json:"messages"`
-	Pinned         bool             `json:"pinned"`
-	New            int8             `json:"new"`
-	AttachmentsNew int8             `json:"attachmentsNew"`
-	Users          []DialogUserInfo `json:"users"`
+	ID             string          `json:"_id"`
+	Type           int8            `json:"type"`
+	Messages       []DialogMessage `json:"messages"`
+	Pinned         bool            `json:"pinned"`
+	New            int8            `json:"new"`
+	AttachmentsNew int8            `json:"attachmentsNew"`
+	Users          []DialogUser    `json:"users"`
+}
+
+type DialogUser struct {
+	ID   string         `json:"_id"`
+	Info DialogUserInfo `json:"info"`
 }
 
 type DialogUserInfo struct {
-	ID   string            `json:"_id"`
-	Info DialogUserDetails `json:"info"`
-}
-
-type DialogUserDetails struct {
 	Nickname       string `json:"Nickname"`
 	Side           string `json:"Side"`
 	Level          int8   `json:"Level"`
@@ -85,7 +85,7 @@ type DialogueInfo struct {
 	AttachmentsNew int8                 `json:"attachmentsNew"`
 	New            int8                 `json:"new"`
 	Pinned         bool                 `json:"pinned"`
-	Users          []DialogUserDetails  `json:"Users,omitempty"`
+	Users          []DialogUserInfo     `json:"Users,omitempty"`
 }
 
 type DialogueInfoMessage struct {
@@ -127,7 +127,7 @@ func (d *Dialog) CreateDialogueInfoMessage() *DialogueInfoMessage {
 	}
 }
 
-func (d *Dialog) CreateDialogueUsers() []DialogUserDetails {
+func (d *Dialog) CreateDialogueUsers() []DialogUserInfo {
 	//users := make([]DialogueUsers, 0)
 	return nil
 }
