@@ -1,0 +1,32 @@
+/* Show it is fixed to the top */
+body {
+  min-height: 75rem;
+  padding-top: 4.5rem;
+  background-color: #0D1117;
+}
+
+h2, p {
+  color: whitesmoke;
+}
+
+.form {
+  max-width: 550px;
+  padding: 15px;
+}
+
+.form .form-floating:focus-within {
+  z-index: 2;
+}
+
+.form input {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.form select {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+

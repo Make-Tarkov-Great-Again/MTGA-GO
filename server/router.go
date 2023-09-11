@@ -3,6 +3,7 @@ package server
 
 import (
 	"MT-GO/server/handlers"
+	"MT-GO/server/webapi"
 	"MT-GO/services"
 	"fmt"
 	"net/http"
@@ -52,10 +53,12 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/files/": services.ServeFiles,
 
 	"/client/game/profile/items/moving": handlers.MainItemsMoving,
-	"/":                                 handlers.HandleHome,
-	"/login":                            handlers.HandleLogin,
-	"/register":                         handlers.HandleRegister,
-	"/settings":                         handlers.HandleSettings,
+	/*
+		"/":                                 handlers.HandleHome,
+		"/login":                            handlers.HandleLogin,
+		"/register":                         handlers.HandleRegister,
+		"/settings":                         handlers.HandleSettings,
+	*/
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {
@@ -70,6 +73,12 @@ func AddMainRoute(route string, handler http.HandlerFunc) {
 
 func setMainRoutes(mux *http.ServeMux) {
 	for route, handler := range mainRouteHandlers {
+		mux.HandleFunc(route, handler)
+	}
+}
+
+func setWebRoutes(mux *http.ServeMux) {
+	for route, handler := range webapi.WebRouteHandlers() {
 		mux.HandleFunc(route, handler)
 	}
 }

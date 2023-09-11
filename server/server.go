@@ -70,6 +70,28 @@ func logAndDecompress(next http.Handler) http.Handler {
 	})
 }
 
+/*
+	func startHTTPSApi(api *webapi.WebApi, serverReady chan<- struct{}, certs *services.Certificate, mux *muxt) {
+		mux.initRoutes(mux.mux)
+
+		httpsServer := &http.Server{
+			Addr: mux.address,
+			TLSConfig: &tls.Config{
+				RootCAs:      nil,
+				Certificates: []tls.Certificate{certs.Certificate},
+			},
+			Handler: logAndDecompress(mux.mux),
+		}
+
+		fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
+		serverReady <- struct{}{}
+
+		err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
+		if err != nil {
+			panic(err)
+		}
+	}
+*/
 func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
@@ -118,13 +140,18 @@ func SetHTTPSServer() {
 	fmt.Println()
 
 	// serve static content
-	mainServeMux := http.NewServeMux()
-	ServeStaticMux(mainServeMux)
+	webServeMux := http.NewServeMux()
+	ServeStaticMux(webServeMux)
 
 	muxes := []*muxt{
+
 		{
-			mux: mainServeMux, address: database.GetMainIPandPort(),
+			mux: http.NewServeMux(), address: database.GetMainIPandPort(),
 			serverName: "Main", initRoutes: setMainRoutes, // Embed the route initialization function
+		},
+		{
+			mux: webServeMux, address: "localhost:443",
+			serverName: "Web", initRoutes: setWebRoutes, // Embed the route initialization function
 		},
 		{
 			mux: http.NewServeMux(), address: database.GetTradingIPandPort(),

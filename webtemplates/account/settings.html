@@ -1,0 +1,54 @@
+{{define "content"}}
+<div class="row mb-3">
+    <div class="col-6 themed-grid-col">
+        <h2>Account Settings</h2>
+
+        <div class="form w-100 m-auto" id="password-div">
+            <h1 class="h3 mb-3 fw-normal">Change Password</h1>
+            <div class="form-floating">
+                <input name="password" type="password" class="form-control" id="password" placeholder="Password">
+                <label for="password">Password</label>
+            </div>
+            <div class="form-floating">
+                <input name="password_retype" type="password" class="form-control" id="password_retype"
+                    placeholder="Retype Password">
+                <label for="password_retype">Retype Password</label>
+            </div>
+        </div>
+        <div class="form w-100 m-auto">
+            <h1 class="h3 mb-3 fw-normal">Client</h1>
+            <div class="form-floating">
+                <input name="tarkovPath" type="text" class="form-control" id="tarkovPath" placeholder="tarkovPath"
+                    value="TODO tarkovPath">
+                <label for="tarkovPath">tarkovPath</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 themed-grid-col">
+        <h2>Profile Settings</h2>
+        <div class="form w-100 m-auto">
+            <h1 class="h3 mb-3 fw-normal">Edition</h1>
+            <div class="form-floating">
+                <select name="edition" type="dropdown" class="form-control" id="edition">
+                    TODO editions
+                </select>
+                <label for="edition">Edition</label>
+            </div>
+            <div class="form w-100 m-auto"></div>
+            <h1 class="h3 mb-3 fw-normal">Wipe</h1>
+            <div class="form-check">
+                <input class="form-check-input" name="wipe" type="checkbox" value="true" id="wipe">
+                <label class="form-check-label" for="wipe">Check to wipe account</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12 themed-grid-col">
+        <div class="form w-100 m-auto">
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Save</button>
+        </div>
+    </div>
+</div>
+{{end}}
