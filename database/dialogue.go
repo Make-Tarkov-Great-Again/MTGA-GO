@@ -203,7 +203,8 @@ func (d Dialogue) SaveDialogue(sessionID string) {
 	fmt.Println("Dialogue saved")
 }
 
-const redeemTime int32 = 48 * 3600
+// TODO: remove this and put in config or sumn (hours x 3600)
+const redeemTime int32 = 172800
 
 func CreateQuestDialogue(playerID string, sender string, traderID string, dialogueID string) (*Dialog, *DialogMessage) {
 	contents := &DialogueDetails{
