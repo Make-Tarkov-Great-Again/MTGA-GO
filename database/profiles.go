@@ -20,7 +20,7 @@ func GetProfileChangeByUID(uid string) *ProfileChangesEvent {
 		return changes
 	}
 
-	fmt.Println("No changes found for UID ", uid, ". Generating...")
+	//fmt.Println("No changes found for UID ", uid, ". Generating...")
 	character := GetCharacterByUID(uid)
 
 	profileChangeEvents[uid] = &ProfileChangesEvent{
@@ -114,7 +114,7 @@ func setProfiles() map[string]*Profile {
 			profile.Dialogue = setDialogue(path)
 		}
 
-		profile.Cache = setCache()
+		profile.Cache = profile.setCache()
 		profiles[user] = profile
 	}
 	return profiles
@@ -144,18 +144,24 @@ func setCharacter(path string) *Character {
 	return output
 }
 
-func setCache() *Cache {
+func (p *Profile) setCache() *Cache {
 	cache := &Cache{
-		Quests: QuestCache{
+		Quests: &QuestCache{
 			Index:  map[string]int8{},
 			Quests: map[string]CharacterQuest{},
 		},
-		Traders: TraderCache{
+		Traders: &TraderCache{
 			Index:         map[string]*AssortIndex{},
 			Assorts:       map[string]*Assort{},
 			LoyaltyLevels: map[string]int8{},
 		},
 	}
+
+	for index, quest := range p.Character.Quests {
+		cache.Quests.Index[quest.QID] = int8(index)
+		cache.Quests.Quests[quest.QID] = quest
+	}
+
 	return cache
 }
 

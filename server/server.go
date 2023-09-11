@@ -19,31 +19,35 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer conn.Close()
+
+	sessionID := strings.TrimSuffix(strings.TrimPrefix(r.RequestURI, "/push/notifier/getwebsocket/"), "?last_id=default_id")
+	database.SetConnection(sessionID, conn)
+
+	for {
+		messageType, p, err := conn.ReadMessage()
+		if err != nil {
+			return
+		}
+		if err := conn.WriteMessage(messageType, p); err != nil {
+			return
+		}
+	}
+}
+
 func logAndDecompress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the incoming request URL
 		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + strings.TrimPrefix(r.Host, "127.0.0.1") + "]")
 
 		if r.Header.Get("Connection") == "Upgrade" && r.Header.Get("Upgrade") == "websocket" {
-			conn, err := upgrader.Upgrade(w, r, nil)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			defer conn.Close()
-
-			sessionID := strings.TrimSuffix(strings.TrimPrefix(r.RequestURI, "/push/notifier/getwebsocket/"), "?last_id=default_id")
-			database.SetConnection(sessionID, conn)
-
-			for {
-				messageType, p, err := conn.ReadMessage()
-				if err != nil {
-					return
-				}
-				if err := conn.WriteMessage(messageType, p); err != nil {
-					return
-				}
-			}
+			upgradeToWebsocket(w, r)
 		} else {
 			buffer := &bytes.Buffer{}
 
@@ -58,10 +62,11 @@ func logAndDecompress(next http.Handler) http.Handler {
 				return
 			}
 
-			var parsedData interface{}
-			err := json.Unmarshal(buffer.Bytes(), &parsedData)
-			if err != nil {
-				panic(err)
+			var parsedData map[string]interface{}
+			decoder := json.NewDecoder(buffer)
+			if err := decoder.Decode(&parsedData); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
 			}
 
 			/// Store the parsed data in the request's context
@@ -103,13 +108,6 @@ type muxt struct {
 
 func SetHTTPSServer() {
 	srv := database.GetServerConfig()
-	/* 	hostnames := []string{
-		srv.Ports.Main,
-		srv.Ports.Messaging,
-		srv.Ports.Trading,
-		srv.Ports.Flea,
-		srv.Ports.Lobby,
-	} */
 
 	cert := services.GetCertificate(srv.IP)
 	certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)

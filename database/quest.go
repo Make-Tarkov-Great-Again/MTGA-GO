@@ -116,25 +116,45 @@ func setQuests() {
 }
 
 func setQuestDialogue(quest map[string]interface{}) QuestDialogues {
-	dialogues := &QuestDialogues{}
+	dialogues := new(QuestDialogues)
 
-	description, _ := quest["description"].(string)
+	description, ok := quest["description"].(string)
+	if !ok {
+		fmt.Println("quest[`description`]")
+	}
 	dialogues.Description = description
 
-	complete, _ := quest["completePlayerMessage"].(string)
-	dialogues.Complete = complete
+	//TODO: remove if not needed
+	/* 	complete, ok := quest["completePlayerMessage"].(string)
+	   	if !ok {
+	   		fmt.Println("quest[`completePlayerMessage`]")
+	   	}
+	   	dialogues.Complete = complete */
 
-	fail, _ := quest["failMessageText"].(string)
+	fail, ok := quest["failMessageText"].(string)
+	if !ok {
+		fmt.Println("quest[`failMessageText`]")
+	}
 	dialogues.Fail = fail
 
-	started, _ := quest["startedMessageText"].(string)
+	started, ok := quest["startedMessageText"].(string)
+	if !ok {
+		fmt.Println("quest[`startedMessageText`]")
+	}
 	dialogues.Started = started
 
-	success, _ := quest["successMessageText"].(string)
+	success, ok := quest["successMessageText"].(string)
+	if !ok {
+		fmt.Println("quest[`successMessageText`]")
+	}
 	dialogues.Success = success
 
-	accepted, _ := quest["acceptPlayerMessage"].(string)
-	dialogues.Accepted = accepted
+	//TODO: remove if not needed
+	/* 	accepted, ok := quest["acceptPlayerMessage"].(string)
+	   	if !ok {
+	   		fmt.Println("quest[`acceptPlayerMessage`]")
+	   	}
+	   	dialogues.Accepted = accepted */
 
 	return *dialogues
 }
@@ -479,7 +499,6 @@ func setQuestReward(name string, reward map[string]interface{}) interface{} {
 
 func CompletedPreviousQuestCheck(quests map[string]*QuestCondition, cachedQuests *QuestCache) bool {
 	previousQuestCompleted := false
-
 	for _, v := range quests {
 		quest, ok := cachedQuests.Quests[v.PreviousQuestID]
 		if !ok {
@@ -487,7 +506,6 @@ func CompletedPreviousQuestCheck(quests map[string]*QuestCondition, cachedQuests
 		}
 
 		previousQuestCompleted = v.Status == quest.Status
-
 	}
 	return previousQuestCompleted
 }
@@ -506,11 +524,11 @@ type Quest struct {
 
 type QuestDialogues struct {
 	Description string
-	Accepted    string
-	Started     string
-	Complete    string
-	Success     string
-	Fail        string
+	//Accepted    string
+	Started string
+	//Complete    string
+	Success string
+	Fail    string
 }
 
 type QuestAvailabilityConditions struct {

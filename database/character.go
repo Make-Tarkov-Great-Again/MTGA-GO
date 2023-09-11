@@ -24,7 +24,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
 
 	query := GetQuestsQuery()
 
-	cachedQuests := GetCacheByUID(c.ID).Quests
+	cachedQuests := GetQuestCacheByUID(c.ID)
 	characterHasQuests := len(cachedQuests.Index) != 0
 
 	traderStandings := make(map[string]*float64) //temporary
@@ -103,7 +103,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
 		}
 
 		if forStart.Quest != nil && characterHasQuests {
-			if CompletedPreviousQuestCheck(forStart.Quest, &cachedQuests) {
+			if CompletedPreviousQuestCheck(forStart.Quest, cachedQuests) {
 				output = append(output, GetQuestByQID(key))
 				continue
 			}
@@ -129,23 +129,22 @@ func (c *Character) SaveCharacter(sessionID string) {
 // QuestAccept updates an existing Accepted quest, or creates and appends new Accepted Quest to cache and Character
 func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 
-	cachedQuests := GetCacheByUID(c.ID).Quests
+	cachedQuests := GetQuestCacheByUID(c.ID)
 	length := len(cachedQuests.Index)
 	time := int(tools.GetCurrentTimeInSeconds())
 
 	query := GetQuestFromQueryByQID(qid)
 
-	if length != 0 {
-		quest, ok := cachedQuests.Index[qid]
-		if ok { //if exists, update cache and copy to quest on character
-			cachedQuest := cachedQuests.Quests[qid]
+	quest, ok := cachedQuests.Index[qid]
+	if ok { //if exists, update cache and copy to quest on character
+		cachedQuest := cachedQuests.Quests[qid]
 
-			cachedQuest.Status = "Started"
-			cachedQuest.StartTime = time
-			cachedQuest.StatusTimers[cachedQuest.Status] = time
+		cachedQuest.Status = "Started"
+		cachedQuest.StartTime = time
+		cachedQuest.StatusTimers[cachedQuest.Status] = time
 
-			c.Quests[quest] = cachedQuest
-		}
+		c.Quests[quest] = cachedQuest
+
 	} else {
 		quest := &CharacterQuest{
 			QID:          qid,

@@ -49,7 +49,7 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 	traderID := t.Base["_id"].(string)
 
-	cache := GetCacheByUID(character.ID).Traders
+	cache := GetTraderCacheByUID(character.ID)
 	cachedAssort, ok := cache.Assorts[traderID]
 	if ok {
 		return cachedAssort

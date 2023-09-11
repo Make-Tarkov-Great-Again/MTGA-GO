@@ -11,9 +11,23 @@ func GetCacheByUID(uid string) *Cache {
 	return nil
 }
 
+func GetQuestCacheByUID(uid string) *QuestCache {
+	if profile, ok := profiles[uid]; ok {
+		return profile.Cache.Quests
+	}
+	return nil
+}
+
+func GetTraderCacheByUID(uid string) *TraderCache {
+	if profile, ok := profiles[uid]; ok {
+		return profile.Cache.Traders
+	}
+	return nil
+}
+
 type Cache struct {
-	Quests  QuestCache
-	Traders TraderCache
+	Quests  *QuestCache
+	Traders *TraderCache
 }
 
 type TraderCache struct {

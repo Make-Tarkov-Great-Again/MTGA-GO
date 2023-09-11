@@ -30,7 +30,7 @@ type Dialog struct {
 	Pinned         bool            `json:"pinned"`
 	New            int8            `json:"new"`
 	AttachmentsNew int8            `json:"attachmentsNew"`
-	Users          []DialogUser    `json:"users"`
+	Users          []DialogUser    `json:"users,omitempty"`
 }
 
 type DialogUser struct {
@@ -49,17 +49,17 @@ type DialogMessage struct {
 	ID                  string                 `json:"_id"`
 	UID                 string                 `json:"uid"`
 	Type                int8                   `json:"type"`
-	DT                  int64                  `json:"dt"`
-	UtcDateTime         int64                  `json:"UtcDateTime,omitempty"`
+	DT                  int32                  `json:"dt"`
+	UtcDateTime         int32                  `json:"UtcDateTime,omitempty"`
 	Member              map[string]interface{} `json:"Member,omitempty"`
 	Text                string                 `json:"text"`
 	TemplateID          string                 `json:"templateId,omitempty"`
 	Items               []interface{}          `json:"items,omitempty"`
 	HasRewards          bool                   `json:"hasRewards"`
 	RewardCollected     bool                   `json:"rewardCollected"`
-	MaxStorageTime      int64                  `json:"maxStorageTime"`
+	MaxStorageTime      int32                  `json:"maxStorageTime,omitempty"`
 	SystemData          string                 `json:"systemData,omitempty"`
-	ProfileChangeEvents []interface{}          `json:"profileChangeEvents,omitempty"`
+	ProfileChangeEvents []interface{}          `json:"profileChangeEvents"`
 }
 
 type DialogMessageView struct {
@@ -75,7 +75,7 @@ type DialogueDetails struct {
 	Trader                         string        `json:"trader"`
 	TemplateID                     string        `json:"template"`
 	Items                          []interface{} `json:"items,omitempty"`
-	ItemsMaxStorageLifetimeSeconds int           `json:"itemsMaxStorageLifetimeSeconds,omitempty"`
+	ItemsMaxStorageLifetimeSeconds int32         `json:"itemsMaxStorageLifetimeSeconds,omitempty"`
 }
 
 type DialogueInfo struct {
@@ -89,7 +89,7 @@ type DialogueInfo struct {
 }
 
 type DialogueInfoMessage struct {
-	DT         int64  `json:"dt"`
+	DT         int32  `json:"dt"`
 	Type       int8   `json:"type"`
 	TemplateID string `json:"templateId"`
 	UID        string `json:"uid"`
@@ -107,9 +107,27 @@ func (d *Dialog) CreateQuestDialogueInfo() *DialogueInfo {
 		Pinned:         d.Pinned,
 	}
 
-	if d.Users != nil {
+	if d.Users != nil && len(d.Users) > 0 {
 		//TODO: DEAL WITH USERS
 		fmt.Println("No users were created")
+	}
+
+	return info
+}
+
+func (d *Dialog) CreateDialogListEntry() *DialogueInfo {
+	info := &DialogueInfo{
+		ID:             d.ID,
+		Type:           d.Type,
+		AttachmentsNew: d.AttachmentsNew,
+		New:            d.New,
+		Pinned:         d.Pinned,
+	}
+
+	if d.Type == 1 {
+		fmt.Println("NOT DONE YET")
+	} else {
+		info.Message = d.CreateDialogueInfoMessage()
 	}
 
 	return info
@@ -157,7 +175,7 @@ func (d *Dialog) GetUnreadMessagesWithAttachments() int8 {
 func (d *Dialog) GetActiveMessages() []DialogMessage {
 	messages := make([]DialogMessage, 0, len(d.Messages))
 
-	time := tools.GetCurrentTimeInSeconds()
+	time := int32(tools.GetCurrentTimeInSeconds())
 	for _, message := range d.Messages {
 		if (message.DT + message.MaxStorageTime) > time {
 			messages = append(messages, message)
@@ -185,13 +203,16 @@ func (d Dialogue) SaveDialogue(sessionID string) {
 	fmt.Println("Dialogue saved")
 }
 
+const redeemTime int32 = 48 * 3600
+
 func CreateQuestDialogue(playerID string, sender string, traderID string, dialogueID string) (*Dialog, *DialogMessage) {
 	contents := &DialogueDetails{
-		RecipientID: playerID,
-		Sender:      MessageType[sender],
-		DialogType:  MessageType["Trader"],
-		Trader:      traderID,
-		TemplateID:  dialogueID,
+		RecipientID:                    playerID,
+		Sender:                         MessageType[sender],
+		DialogType:                     MessageType["Trader"],
+		Trader:                         traderID,
+		TemplateID:                     dialogueID,
+		ItemsMaxStorageLifetimeSeconds: redeemTime,
 	}
 
 	dialog := &Dialog{
@@ -204,13 +225,12 @@ func CreateQuestDialogue(playerID string, sender string, traderID string, dialog
 	}
 
 	message := &DialogMessage{
-		ID:             tools.GenerateMongoID(),
-		UID:            traderID,
-		Type:           contents.Sender,
-		DT:             tools.GetCurrentTimeInSeconds(),
-		Text:           "",
-		TemplateID:     dialogueID,
-		MaxStorageTime: tools.GetCurrentTimeInSeconds() + 3600,
+		ID:         tools.GenerateMongoID(),
+		UID:        traderID,
+		Type:       contents.Sender,
+		DT:         int32(tools.GetCurrentTimeInSeconds()),
+		Text:       "",
+		TemplateID: dialogueID,
 	}
 
 	return dialog, message

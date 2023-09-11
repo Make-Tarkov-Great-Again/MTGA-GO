@@ -239,9 +239,9 @@ func MainNicknameReserved(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
-	context := services.GetParsedBody(r).(map[string]interface{})
+	parsedData := services.GetParsedBody(r).(map[string]interface{})
 
-	nickname, ok := context["nickname"]
+	nickname, ok := parsedData["nickname"]
 	if !ok {
 		fmt.Println("For whatever reason, the nickname does not exist.")
 	}
@@ -273,7 +273,7 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
-	request := &ProfileCreateRequest{}
+	request := new(ProfileCreateRequest)
 	body, _ := json.Marshal(services.GetParsedBody(r))
 	if err := json.Unmarshal(body, request); err != nil {
 		panic(err)

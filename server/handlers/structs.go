@@ -98,3 +98,15 @@ type GameConfig struct {
 	ReportAvailable   bool              `json:"reportAvailable"`
 	TwitchEventMember bool              `json:"twitchEventMember"`
 }
+
+type DialogView struct {
+	Type     int8   `json:"type"`
+	DialogID string `json:"dialogId"`
+	Limit    int8   `json:"limit"`
+	Time     int64  `json:"time"`
+}
+
+type FriendRequestMailbox struct {
+	Err  int           `json:"err"`
+	Data []interface{} `json:"data"`
+}
