@@ -60,11 +60,21 @@ func InitializeDatabase() {
 		{"Flea", setFlea},
 	}
 
+	// Define the number of worker goroutines (adjust as needed)
+	numWorkers := tools.CalculateWorkers()
+	fmt.Println("Workers: ", numWorkers)
+
+	// Create a buffered channel with enough capacity
+	workerCh := make(chan struct{}, numWorkers)
+
+	// Start a goroutine for each task in parallel
 	for _, task := range tasks {
 		wg.Add(1)
 		go func(taskName string, taskFunc func()) {
 			defer wg.Done()
+			workerCh <- struct{}{} // Reserve a worker
 			taskFunc()
+			<-workerCh // Release the worker
 			completionCh <- struct{}{}
 			fmt.Printf("%s initialized\n", taskName)
 		}(task.name, task.function)
