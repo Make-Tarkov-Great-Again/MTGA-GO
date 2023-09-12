@@ -2,6 +2,7 @@ package server
 
 import (
 	"MT-GO/database"
+	"MT-GO/server/middleware"
 	"MT-GO/services"
 	"bytes"
 	"context"
@@ -70,30 +71,23 @@ func logAndDecompress(next http.Handler) http.Handler {
 	})
 }
 
-/*
-	func startHTTPSApi(api *webapi.WebApi, serverReady chan<- struct{}, certs *services.Certificate, mux *muxt) {
-		mux.initRoutes(mux.mux)
+func logOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Log the incoming request URL
+		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + strings.TrimPrefix(r.Host, "127.0.0.1") + "]")
 
-		httpsServer := &http.Server{
-			Addr: mux.address,
-			TLSConfig: &tls.Config{
-				RootCAs:      nil,
-				Certificates: []tls.Certificate{certs.Certificate},
-			},
-			Handler: logAndDecompress(mux.mux),
-		}
+	})
+}
 
-		fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
-		serverReady <- struct{}{}
-
-		err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
-		if err != nil {
-			panic(err)
-		}
-	}
-*/
 func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
+
+	secret := "TODO" // TODO load a secret key from somewhere
+
+	serverHandler := logAndDecompress(mux.mux)
+	if mux.enableJwt {
+		serverHandler = middleware.CreateJwtMiddleWare(secret).CheckJWT(logOnly(mux.mux))
+	}
 
 	httpsServer := &http.Server{
 		Addr: mux.address,
@@ -101,7 +95,7 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, 
 			RootCAs:      nil,
 			Certificates: []tls.Certificate{certs.Certificate},
 		},
-		Handler: logAndDecompress(mux.mux),
+		Handler: serverHandler,
 	}
 
 	fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
@@ -117,6 +111,7 @@ type muxt struct {
 	mux        *http.ServeMux
 	address    string
 	serverName string
+	enableJwt  bool
 	initRoutes func(mux *http.ServeMux)
 }
 
@@ -146,27 +141,28 @@ func SetHTTPSServer() {
 	muxes := []*muxt{
 
 		{
-			mux: http.NewServeMux(), address: database.GetMainIPandPort(),
+			mux: http.NewServeMux(), address: database.GetMainIPandPort(), enableJwt: false,
 			serverName: "Main", initRoutes: setMainRoutes, // Embed the route initialization function
+
 		},
 		{
-			mux: webServeMux, address: "localhost:443",
+			mux: webServeMux, address: "localhost:443", enableJwt: true,
 			serverName: "Web", initRoutes: setWebRoutes, // Embed the route initialization function
 		},
 		{
-			mux: http.NewServeMux(), address: database.GetTradingIPandPort(),
+			mux: http.NewServeMux(), address: database.GetTradingIPandPort(), enableJwt: false,
 			serverName: "Trading", initRoutes: setTradingRoutes, // Embed the route initialization function
 		},
 		{
-			mux: http.NewServeMux(), address: database.GetMessagingIPandPort(),
+			mux: http.NewServeMux(), address: database.GetMessagingIPandPort(), enableJwt: false,
 			serverName: "Messaging", initRoutes: setMessagingRoutes, // Embed the route initialization function
 		},
 		{
-			mux: http.NewServeMux(), address: database.GetRagFairIPandPort(),
+			mux: http.NewServeMux(), address: database.GetRagFairIPandPort(), enableJwt: false,
 			serverName: "RagFair", initRoutes: setRagfairRoutes, // Embed the route initialization function
 		},
 		{
-			mux: http.NewServeMux(), address: database.GetLobbyIPandPort(),
+			mux: http.NewServeMux(), address: database.GetLobbyIPandPort(), enableJwt: false,
 			serverName: "Lobby", initRoutes: setLobbyRoutes, // Embed the route initialization function
 		},
 	}

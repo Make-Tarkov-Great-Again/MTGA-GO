@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+
 	database.InitializeDatabase()
 	// server goroutines
 	server.SetHTTPSServer()
