@@ -16,17 +16,19 @@ func GetHandbook() *Handbook {
 	return &handbook
 }
 
+// Get prices of all items
 func GetPrices() *Prices {
 	return &prices
 }
 
-func GetPriceByID(id string) *int {
+// Get item price by ID
+func GetPriceByID(id string) *int32 {
 	price, ok := prices[id]
 	if !ok {
 		fmt.Println("Price of ", id, " not found, returning -1")
 		return nil
 	}
-	return &price
+	return price
 }
 
 // #endregion
@@ -41,7 +43,7 @@ func setHandbook() {
 	}
 
 	for _, v := range handbook.Items {
-		prices[v.Id] = v.Price
+		prices[v.Id] = &v.Price
 	}
 }
 
@@ -65,9 +67,9 @@ type HandbookCategory struct {
 type HandbookItem struct {
 	Id       string `json:"Id"`
 	ParentId string `json:"ParentId"`
-	Price    int    `json:"Price"`
+	Price    int32  `json:"Price"`
 }
 
-type Prices map[string]int
+type Prices map[string]*int32
 
 // #endregion

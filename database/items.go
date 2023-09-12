@@ -2,6 +2,7 @@ package database
 
 import (
 	"MT-GO/tools"
+	"fmt"
 
 	"github.com/goccy/go-json"
 )
@@ -12,6 +13,124 @@ var items map[string]*DatabaseItem
 
 func GetItems() map[string]*DatabaseItem {
 	return items
+}
+
+func GetItemByUID(uid string) *DatabaseItem {
+	item, ok := items[uid]
+	if !ok {
+		fmt.Println("Item:", uid, " not found in database")
+		return nil
+	}
+	return item
+}
+
+// Get item... price...
+func (i *DatabaseItem) GetItemPrice() *int32 {
+	return GetPriceByID(i.ID)
+}
+
+// Get item height and width
+func (i *DatabaseItem) GetItemSize() (int8, int8) {
+	height, ok := i.Properties["Height"].(float64)
+	if !ok {
+		fmt.Println("Item:", i.ID, " does not have a height")
+		return 0, 0
+	}
+
+	width, ok := i.Properties["Width"].(float64)
+	if !ok {
+		fmt.Println("Item:", i.ID, " does not have a width")
+		return 0, 0
+	}
+
+	return int8(height), int8(width)
+}
+
+type Grid struct {
+	Name   string    `json:"_name"`
+	ID     string    `json:"_id"`
+	Parent string    `json:"_parent"`
+	Props  GridProps `json:"_props"`
+	Proto  string    `json:"_proto"`
+}
+type GridFilters struct {
+	Filter         []string `json:"Filter"`
+	ExcludedFilter []string `json:"ExcludedFilter"`
+}
+type GridProps struct {
+	Filters        []GridFilters `json:"filters"`
+	CellsH         int8          `json:"cellsH"`
+	CellsV         int8          `json:"cellsV"`
+	MinCount       int8          `json:"minCount"`
+	MaxCount       int8          `json:"maxCount"`
+	MaxWeight      int8          `json:"maxWeight"`
+	IsSortingTable bool          `json:"isSortingTable"`
+}
+
+// Get the grid property from the item if it exists
+func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
+	grids, ok := i.Properties["Grids"].([]interface{})
+	if !ok || len(grids) == 0 {
+		fmt.Println("Item:", i.ID, " does not have Grid property")
+		return nil
+	}
+
+	output := make(map[string]*Grid)
+	for _, g := range grids {
+		grid := new(Grid)
+		data, err := json.Marshal(g)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal(data, grid)
+		if err != nil {
+			panic(err)
+		}
+		output[grid.Name] = grid
+	}
+
+	return output
+}
+
+type Slot struct {
+	Name                  string    `json:"_name"`
+	ID                    string    `json:"_id"`
+	Parent                string    `json:"_parent"`
+	Props                 SlotProps `json:"_props"`
+	Required              bool      `json:"_required"`
+	MergeSlotWithChildren bool      `json:"_mergeSlotWithChildren"`
+	Proto                 string    `json:"_proto"`
+}
+type SlotFilters struct {
+	Filter []string `json:"Filter"`
+}
+type SlotProps struct {
+	Filters []SlotFilters `json:"filters"`
+}
+
+// Get the slot property from the item if it exists
+func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
+	slots, ok := i.Properties["Slots"].([]interface{})
+	if !ok || len(slots) == 0 {
+		fmt.Println("Item:", i.ID, " does not have Grid property")
+		return nil
+	}
+
+	output := make(map[string]*Slot)
+	for _, s := range slots {
+		slot := new(Slot)
+		data, err := json.Marshal(s)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal(data, slot)
+		if err != nil {
+			panic(err)
+		}
+		output[slot.Name] = slot
+	}
+
+	return output
 }
 
 // #endregion

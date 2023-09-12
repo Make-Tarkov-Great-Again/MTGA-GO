@@ -3,8 +3,10 @@ package database
 
 import (
 	"MT-GO/tools"
+	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
 const (
@@ -34,21 +36,52 @@ const (
 // InitializeDatabase initializes the database
 func InitializeDatabase() {
 	setRequiredFolders()
-	setCore()
-	setItems()
-	setLocales()
-	setLanguages()
-	setHandbook()
-	setTraders()
-	setLocations()
-	setQuests()
-	setHideout()
-	setWeather()
-	setCustomization()
-	setBots()
-	setEditions()
-	setFlea()
+
+	var wg sync.WaitGroup
+	completionCh := make(chan struct{})
+
+	tasks := []struct {
+		name     string
+		function func()
+	}{
+		{"Core", setCore},
+		{"Items", setItems},
+		{"Locales", setLocales},
+		{"Languages", setLanguages},
+		{"Handbook", setHandbook},
+		{"Prices", setPrices},
+		{"Traders", setTraders},
+		{"Locations", setLocations},
+		{"Quests", setQuests},
+		{"Hideout", setHideout},
+		{"Weather", setWeather},
+		{"Customization", setCustomization},
+		{"Bots", setBots},
+		{"Editions", setEditions},
+		{"Flea", setFlea},
+	}
+
+	for _, task := range tasks {
+		wg.Add(1)
+		go func(taskName string, taskFunc func()) {
+			defer wg.Done()
+			taskFunc()
+			completionCh <- struct{}{}
+			fmt.Printf("%s initialized\n", taskName)
+		}(task.name, task.function)
+	}
+
+	go func() {
+		wg.Wait()
+		close(completionCh)
+	}()
+
+	for range tasks {
+		<-completionCh
+	}
+
 	setProfiles()
+	fmt.Printf("%s initialized\n", "Profiles")
 }
 
 // #region Database setters

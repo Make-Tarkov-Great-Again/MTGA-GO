@@ -41,13 +41,12 @@ func GetLanguages() map[string]string {
 // #endregion
 
 // #region Language setters
-func setLanguages() map[string]string {
+func setLanguages() {
 	raw := tools.GetJSONRawMessage(filepath.Join(localesPath, "/languages.json"))
 	err := json.Unmarshal(raw, &languages)
 	if err != nil {
 		panic(err)
 	}
-	return languages
 }
 
 // #endregion
@@ -61,7 +60,7 @@ func GetLocaleByName(name string) *LocaleData {
 	if locale, ok := localeMap[name]; ok {
 		return locale
 	}
-	fmt.Println("No such locale, returning EN")
+	fmt.Println("Locale doesnt exist, returning EN")
 	return &locales.EN
 }
 
@@ -69,7 +68,7 @@ func GetLocalesMenuByName(name string) *LocaleMenu {
 	if locale, ok := localeMap[name]; ok {
 		return locale.Menu
 	}
-	fmt.Println("No such locale menu, returning EN")
+	fmt.Println("Locale menu doesnt exist , returning EN")
 	return locales.EN.Menu
 }
 
@@ -77,7 +76,7 @@ func GetLocalesLocaleByName(name string) map[string]interface{} {
 	if locale, ok := localeMap[name]; ok {
 		return locale.Locale
 	}
-	fmt.Println("No such locale ...locale, returning EN")
+	fmt.Println("Locale doesnt exist, returning EN")
 	return locales.EN.Locale
 }
 
