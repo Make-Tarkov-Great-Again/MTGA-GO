@@ -1,6 +1,8 @@
 package tools
 
-import "runtime"
+import (
+	"runtime"
+)
 
 // Calculate max number of CPU cores we have available for parallel execution
 func CalculateWorkers() int {

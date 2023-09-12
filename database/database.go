@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 )
 
 const (
@@ -60,23 +61,19 @@ func InitializeDatabase() {
 		{"Flea", setFlea},
 	}
 
-	// Define the number of worker goroutines (adjust as needed)
-	numWorkers := tools.CalculateWorkers()
-	fmt.Println("Workers: ", numWorkers)
+	numWorkers := tools.CalculateWorkers() / 4
 
-	// Create a buffered channel with enough capacity
 	workerCh := make(chan struct{}, numWorkers)
 
-	// Start a goroutine for each task in parallel
+	startTime := time.Now()
 	for _, task := range tasks {
 		wg.Add(1)
 		go func(taskName string, taskFunc func()) {
 			defer wg.Done()
-			workerCh <- struct{}{} // Reserve a worker
+			workerCh <- struct{}{}
 			taskFunc()
-			<-workerCh // Release the worker
+			<-workerCh
 			completionCh <- struct{}{}
-			fmt.Printf("%s initialized\n", taskName)
 		}(task.name, task.function)
 	}
 
@@ -90,7 +87,8 @@ func InitializeDatabase() {
 	}
 
 	setProfiles()
-	fmt.Printf("%s initialized\n", "Profiles")
+	endTime := time.Now()
+	fmt.Printf("\n\nDatabase initialized in %s with %d workers\n", endTime.Sub(startTime), numWorkers)
 }
 
 // #region Database setters
