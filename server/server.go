@@ -74,7 +74,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 func logOnly(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the incoming request URL
-		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + strings.TrimPrefix(r.Host, "127.0.0.1") + "]")
+		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + strings.TrimPrefix(r.Host, "localhost") + "]")
 
 	})
 }
@@ -146,7 +146,7 @@ func SetHTTPSServer() {
 
 		},
 		{
-			mux: webServeMux, address: "localhost:443", enableJwt: true,
+			mux: webServeMux, address: "localhost:443", enableJwt: false,
 			serverName: "Web", initRoutes: setWebRoutes, // Embed the route initialization function
 		},
 		{

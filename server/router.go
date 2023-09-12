@@ -172,5 +172,5 @@ func setLobbyRoutes(mux *http.ServeMux) {
 
 func ServeStaticMux(mux *http.ServeMux) {
 
-	mux.Handle("/resources/", http.StripPrefix("/resources/", http.FileServer(http.Dir("./web/resources"))))
+	mux.Handle("/web/resources/", http.StripPrefix("/web/resources/", http.FileServer(http.Dir("./web/resources"))))
 }
