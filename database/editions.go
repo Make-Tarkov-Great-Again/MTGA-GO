@@ -4,6 +4,7 @@ import (
 	"MT-GO/tools"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/goccy/go-json"
 )
@@ -34,44 +35,57 @@ func setEditions() {
 		panic(err)
 	}
 
+	var wg sync.WaitGroup
+	editions := make(map[string]*Edition)
+
 	for _, directory := range directories {
+		wg.Add(1)
+		go setEdition(directory, editionsDirPath, editions, &wg)
+	}
 
-		editionPath := filepath.Join(editionsDirPath, directory)
-		files, err := tools.GetFilesFrom(editionPath)
-		if err != nil {
-			panic(err)
-		}
-		edition := &Edition{}
+	wg.Wait()
+}
 
-		for _, file := range files {
+func setEdition(directory string, editionsDirPath string, editions map[string]*Edition, wg *sync.WaitGroup) {
+	defer wg.Done()
 
-			raw := tools.GetJSONRawMessage(filepath.Join(editionPath, file))
-			removeJSON := strings.TrimSuffix(file, ".json")
-			if strings.Contains(removeJSON, "character_") {
-				template := new(Character)
-				err := json.Unmarshal(raw, template)
-				if err != nil {
-					panic(err)
-				}
+	editionPath := filepath.Join(editionsDirPath, directory)
+	files, err := tools.GetFilesFrom(editionPath)
+	if err != nil {
+		panic(err)
+	}
 
-				name := strings.TrimPrefix(removeJSON, "character_")
-				if name == "bear" {
-					edition.Bear = template
-				} else {
-					edition.Usec = template
-				}
-				continue
-			}
+	edition := &Edition{}
 
-			storage := new(EditionStorage)
-			err := json.Unmarshal(raw, storage)
+	for _, file := range files {
+		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, file))
+		removeJSON := strings.TrimSuffix(file, ".json")
+
+		if strings.Contains(removeJSON, "character_") {
+			template := new(Character)
+			err := json.Unmarshal(raw, template)
 			if err != nil {
 				panic(err)
 			}
-			edition.Storage = storage
+
+			name := strings.TrimPrefix(removeJSON, "character_")
+			if name == "bear" {
+				edition.Bear = template
+			} else {
+				edition.Usec = template
+			}
+			continue
 		}
-		editions[directory] = edition
+
+		storage := new(EditionStorage)
+		err := json.Unmarshal(raw, storage)
+		if err != nil {
+			panic(err)
+		}
+		edition.Storage = storage
 	}
+
+	editions[directory] = edition
 }
 
 // #endregion

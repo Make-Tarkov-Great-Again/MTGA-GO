@@ -4,6 +4,7 @@ import (
 	"MT-GO/tools"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/goccy/go-json"
 )
@@ -34,61 +35,74 @@ func setBotTypes() map[string]*BotType {
 		panic(err)
 	}
 
+	var wg sync.WaitGroup
+
 	for _, directory := range directory {
-		botType := BotType{}
-		var dirPath = filepath.Join(botsDirectory, directory)
+		wg.Add(1)
 
-		var diffPath = filepath.Join(dirPath, "difficulties")
-		files, err := tools.GetFilesFrom(diffPath)
-		if err != nil {
-			panic(err)
-		}
-
-		difficulties := make(map[string]json.RawMessage)
-		botDifficulty := map[string]interface{}{}
-		for _, difficulty := range files {
-			difficultyPath := filepath.Join(diffPath, difficulty)
-			raw := tools.GetJSONRawMessage(difficultyPath)
-			name := strings.TrimSuffix(difficulty, ".json")
-			difficulties[name] = raw
-		}
-
-		jsonData, err := json.Marshal(difficulties)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal(jsonData, &botDifficulty)
-		if err != nil {
-			panic(err)
-		}
-		botType.Difficulties = botDifficulty
-
-		healthPath := filepath.Join(dirPath, "health.json")
-		if tools.FileExist(healthPath) {
-			health := map[string]interface{}{}
-
-			raw := tools.GetJSONRawMessage(healthPath)
-			err = json.Unmarshal(raw, &health)
-			if err != nil {
-				panic(err)
-			}
-			botType.Health = health
-		}
-
-		loadoutPath := filepath.Join(dirPath, "loadout.json")
-		if tools.FileExist(loadoutPath) {
-			loadout := BotLoadout{}
-			raw := tools.GetJSONRawMessage(loadoutPath)
-			err = json.Unmarshal(raw, &loadout)
-			if err != nil {
-				panic(err)
-			}
-			botType.Loadout = &loadout
-		}
-		botTypes[directory] = &botType
+		go setBotType(directory, botTypes, &wg)
 	}
 
+	wg.Wait()
+
 	return botTypes
+}
+
+func setBotType(directory string, botTypes map[string]*BotType, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	botType := BotType{}
+	var dirPath = filepath.Join(botsDirectory, directory)
+
+	var diffPath = filepath.Join(dirPath, "difficulties")
+	files, err := tools.GetFilesFrom(diffPath)
+	if err != nil {
+		panic(err)
+	}
+
+	difficulties := make(map[string]json.RawMessage)
+	botDifficulty := map[string]interface{}{}
+	for _, difficulty := range files {
+		difficultyPath := filepath.Join(diffPath, difficulty)
+		raw := tools.GetJSONRawMessage(difficultyPath)
+		name := strings.TrimSuffix(difficulty, ".json")
+		difficulties[name] = raw
+	}
+
+	jsonData, err := json.Marshal(difficulties)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(jsonData, &botDifficulty)
+	if err != nil {
+		panic(err)
+	}
+	botType.Difficulties = botDifficulty
+
+	healthPath := filepath.Join(dirPath, "health.json")
+	if tools.FileExist(healthPath) {
+		health := map[string]interface{}{}
+
+		raw := tools.GetJSONRawMessage(healthPath)
+		err = json.Unmarshal(raw, &health)
+		if err != nil {
+			panic(err)
+		}
+		botType.Health = health
+	}
+
+	loadoutPath := filepath.Join(dirPath, "loadout.json")
+	if tools.FileExist(loadoutPath) {
+		loadout := BotLoadout{}
+		raw := tools.GetJSONRawMessage(loadoutPath)
+		err = json.Unmarshal(raw, &loadout)
+		if err != nil {
+			panic(err)
+		}
+		botType.Loadout = &loadout
+	}
+
+	botTypes[directory] = &botType
 }
 
 func setBotAppearance() map[string]*BotAppearance {

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 // #region Character getters
@@ -67,7 +69,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
 			for trader, loyalty := range forStart.TraderLoyalty {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := float64(GetTraderByID(trader).GetTraderLoyaltyLevel(c))
+					loyaltyLevel := float64(GetTraderByUID(trader).GetTraderLoyaltyLevel(c))
 					traderStandings[trader] = &loyaltyLevel
 				}
 
@@ -87,7 +89,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
 			for trader, loyalty := range forStart.TraderStanding {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := float64(GetTraderByID(trader).GetTraderLoyaltyLevel(c))
+					loyaltyLevel := float64(GetTraderByUID(trader).GetTraderLoyaltyLevel(c))
 					traderStandings[trader] = &loyaltyLevel
 				}
 
@@ -211,6 +213,76 @@ func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 
 func (c *Character) ApplyQuestRewardsToCharacter(rewards *QuestRewards) {
 	fmt.Println()
+}
+
+type examine struct {
+	Action    string     `json:"Action"`
+	Item      string     `json:"item"`
+	FromOwner *fromOwner `json:"fromOwner,omitempty"`
+}
+type fromOwner struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
+}
+
+func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChangesEvent {
+	examine := new(examine)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &examine)
+	if err != nil {
+		panic(err)
+	}
+
+	var item *DatabaseItem
+	changeEvent := GetProfileChangeByUID(c.ID)
+	if examine.FromOwner == nil {
+		fmt.Println("Examing Item from Player Inventory")
+		for _, i := range c.Inventory.Items {
+			if i["_id"].(string) == examine.Item {
+				item = GetItemByUID(i["_tpl"].(string))
+			}
+		}
+		if item == nil {
+			fmt.Println("[EXAMINE] Examing Item", examine.Item, " from Player Inventory failed, does not exist!")
+			return changeEvent
+		}
+	} else {
+		switch examine.FromOwner.Type {
+		case "Trader":
+			assortItem := GetTraderByUID(examine.FromOwner.ID).GetAssortItemByID(examine.Item)
+			item = GetItemByUID(assortItem[0].Tpl)
+
+		case "HideoutUpgrade":
+		case "HideoutProduction":
+		case "ScavCase":
+			item = GetItemByUID(examine.Item)
+
+		case "RagFair":
+		default:
+			fmt.Println("[EXAMINE] FromOwner.Type: ", examine.FromOwner.Type, "is not supported, returning...")
+			return changeEvent
+		}
+	}
+
+	if item == nil {
+		fmt.Println("[EXAMINE] Examing Item", examine.Item, "failed, does not exist in Item Database")
+		return changeEvent
+	}
+
+	c.Encyclopedia[item.ID] = true
+	fmt.Println("[EXAMINE] Encyclopedia entry added for", item.ID)
+
+	//add experience
+	experience, ok := item.Properties["ExamineExperience"].(float64)
+	if !ok {
+		fmt.Println("[EXAMINE] Item", examine.Item, "does not have ExamineExperience property, returning...")
+		return changeEvent
+	}
+
+	c.Info.Experience += int(experience)
+	c.SaveCharacter(c.ID)
+	return changeEvent
+
 }
 
 // #endregion
@@ -379,14 +451,14 @@ type Bonus struct {
 }
 
 type InventoryInfo struct {
-	Items              []interface{} `json:"items"`
-	Equipment          string        `json:"equipment"`
-	Stash              string        `json:"stash"`
-	SortingTable       string        `json:"sortingTable"`
-	QuestRaidItems     string        `json:"questRaidItems"`
-	QuestStashItems    string        `json:"questStashItems"`
-	FastPanel          interface{}   `json:"fastPanel"`
-	HideoutAreaStashes interface{}   `json:"hideoutAreaStashes"`
+	Items              []map[string]interface{} `json:"items"`
+	Equipment          string                   `json:"equipment"`
+	Stash              string                   `json:"stash"`
+	SortingTable       string                   `json:"sortingTable"`
+	QuestRaidItems     string                   `json:"questRaidItems"`
+	QuestStashItems    string                   `json:"questStashItems"`
+	FastPanel          interface{}              `json:"fastPanel"`
+	HideoutAreaStashes interface{}              `json:"hideoutAreaStashes"`
 }
 
 type HealthInfo struct {

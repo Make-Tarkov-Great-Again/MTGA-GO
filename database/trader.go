@@ -18,14 +18,16 @@ func GetTraders() map[string]*Trader {
 	return traders
 }
 
-func GetTraderByID(id string) *Trader {
-	trader, ok := traders[id]
+// Return trader by UID
+func GetTraderByUID(UID string) *Trader {
+	trader, ok := traders[UID]
 	if ok {
 		return trader
 	}
 	return nil
 }
 
+// Returns entire item from assort (to get parent item use [0] when calling)
 func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 	item, ok := t.Index.Assort.Items[id]
 	if ok {

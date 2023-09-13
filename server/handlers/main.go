@@ -527,7 +527,14 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	case "QuestAccept":
 		data := character.QuestAccept(moveAction["qid"].(string))
 		services.ZlibJSONReply(w, data)
+
+	case "Examine":
+		data := character.ExamineItem(moveAction)
+		services.ZlibJSONReply(w, data)
+
+	case "ReadEncyclopedia":
 	default:
-		fmt.Println(action)
+		fmt.Println(action, "is not supported, sending empty response")
+		services.ZlibJSONReply(w, database.GetProfileChangeByUID(character.ID))
 	}
 }
