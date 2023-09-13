@@ -4,7 +4,6 @@ import (
 	"MT-GO/tools"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/goccy/go-json"
 )
@@ -28,30 +27,37 @@ func setBots() {
 }
 
 func setBotTypes() map[string]*BotType {
-	botTypes := make(map[string]*BotType)
-
 	directory, err := tools.GetDirectoriesFrom(botsDirectory)
 	if err != nil {
 		panic(err)
 	}
 
-	var wg sync.WaitGroup
+	// Create a channel to collect the results
+	resultChan := make(chan map[string]*BotType, len(directory))
 
 	for _, directory := range directory {
-		wg.Add(1)
-
-		go setBotType(directory, botTypes, &wg)
+		go func(dir string) {
+			botType := setBotType(dir)
+			resultChan <- map[string]*BotType{dir: botType}
+		}(directory)
 	}
 
-	wg.Wait()
+	// Create a map to store the results
+	botTypes := make(map[string]*BotType)
+
+	// Collect results from the channel
+	for i := 0; i < len(directory); i++ {
+		result := <-resultChan
+		for key, value := range result {
+			botTypes[key] = value
+		}
+	}
 
 	return botTypes
 }
 
-func setBotType(directory string, botTypes map[string]*BotType, wg *sync.WaitGroup) {
-	defer wg.Done()
-
-	botType := BotType{}
+func setBotType(directory string) *BotType {
+	botType := new(BotType)
 	var dirPath = filepath.Join(botsDirectory, directory)
 
 	var diffPath = filepath.Join(dirPath, "difficulties")
@@ -81,7 +87,7 @@ func setBotType(directory string, botTypes map[string]*BotType, wg *sync.WaitGro
 
 	healthPath := filepath.Join(dirPath, "health.json")
 	if tools.FileExist(healthPath) {
-		health := map[string]interface{}{}
+		health := make(map[string]interface{})
 
 		raw := tools.GetJSONRawMessage(healthPath)
 		err = json.Unmarshal(raw, &health)
@@ -93,16 +99,16 @@ func setBotType(directory string, botTypes map[string]*BotType, wg *sync.WaitGro
 
 	loadoutPath := filepath.Join(dirPath, "loadout.json")
 	if tools.FileExist(loadoutPath) {
-		loadout := BotLoadout{}
+		loadout := new(BotLoadout)
 		raw := tools.GetJSONRawMessage(loadoutPath)
 		err = json.Unmarshal(raw, &loadout)
 		if err != nil {
 			panic(err)
 		}
-		botType.Loadout = &loadout
+		botType.Loadout = loadout
 	}
 
-	botTypes[directory] = &botType
+	return botType
 }
 
 func setBotAppearance() map[string]*BotAppearance {
@@ -117,14 +123,14 @@ func setBotAppearance() map[string]*BotAppearance {
 }
 
 func setBotNames() *BotNames {
-	names := BotNames{}
+	names := new(BotNames)
 
 	raw := tools.GetJSONRawMessage(filepath.Join(botsPath, "names.json"))
-	err := json.Unmarshal(raw, &names)
+	err := json.Unmarshal(raw, names)
 	if err != nil {
 		panic(err)
 	}
-	return &names
+	return names
 }
 
 // #endregion

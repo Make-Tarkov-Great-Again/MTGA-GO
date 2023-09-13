@@ -105,7 +105,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
 		}
 
 		if forStart.Quest != nil && characterHasQuests {
-			if CompletedPreviousQuestCheck(forStart.Quest, cachedQuests) {
+			if c.CompletedPreviousQuestCheck(forStart.Quest, cachedQuests) {
 				output = append(output, GetQuestByQID(key))
 				continue
 			}
@@ -113,6 +113,19 @@ func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
 	}
 
 	return output
+}
+
+func (c *Character) CompletedPreviousQuestCheck(quests map[string]*QuestCondition, cachedQuests *QuestCache) bool {
+	previousQuestCompleted := false
+	for _, v := range quests {
+		index, ok := cachedQuests.Index[v.PreviousQuestID]
+		if !ok {
+			continue
+		}
+
+		previousQuestCompleted = v.Status == c.Quests[index].Status
+	}
+	return previousQuestCompleted
 }
 
 // #endregion
@@ -139,13 +152,11 @@ func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 
 	quest, ok := cachedQuests.Index[qid]
 	if ok { //if exists, update cache and copy to quest on character
-		cachedQuest := cachedQuests.Quests[qid]
+		cachedQuest := c.Quests[quest]
 
 		cachedQuest.Status = "Started"
 		cachedQuest.StartTime = time
 		cachedQuest.StatusTimers[cachedQuest.Status] = time
-
-		c.Quests[quest] = cachedQuest
 
 	} else {
 		quest := &CharacterQuest{
@@ -168,8 +179,7 @@ func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 		}
 
 		cachedQuests.Index[qid] = int8(length)
-		cachedQuests.Quests[qid] = *quest
-		c.Quests = append(c.Quests, cachedQuests.Quests[qid])
+		c.Quests[cachedQuests.Index[qid]] = *quest
 	}
 
 	changeEvent := GetProfileChangeByUID(c.ID)
@@ -296,7 +306,7 @@ type Character struct {
 	Info              PlayerInfo             `json:"Info"`
 	Customization     PlayerCustomization    `json:"Customization"`
 	Health            HealthInfo             `json:"Health"`
-	Inventory         InventoryInfo          `json:"Inventory"`
+	Inventory         Inventory              `json:"Inventory"`
 	Skills            PlayerSkills           `json:"Skills"`
 	Stats             PlayerStats            `json:"Stats"`
 	Encyclopedia      map[string]bool        `json:"Encyclopedia"`
@@ -448,17 +458,6 @@ type Bonus struct {
 	ID         string `json:"id"`
 	Type       string `json:"type"`
 	TemplateID string `json:"templateId"`
-}
-
-type InventoryInfo struct {
-	Items              []map[string]interface{} `json:"items"`
-	Equipment          string                   `json:"equipment"`
-	Stash              string                   `json:"stash"`
-	SortingTable       string                   `json:"sortingTable"`
-	QuestRaidItems     string                   `json:"questRaidItems"`
-	QuestStashItems    string                   `json:"questStashItems"`
-	FastPanel          interface{}              `json:"fastPanel"`
-	HideoutAreaStashes interface{}              `json:"hideoutAreaStashes"`
 }
 
 type HealthInfo struct {

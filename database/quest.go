@@ -497,19 +497,6 @@ func setQuestReward(name string, reward map[string]interface{}) interface{} {
 
 // #region Quest functions
 
-func CompletedPreviousQuestCheck(quests map[string]*QuestCondition, cachedQuests *QuestCache) bool {
-	previousQuestCompleted := false
-	for _, v := range quests {
-		quest, ok := cachedQuests.Quests[v.PreviousQuestID]
-		if !ok {
-			continue
-		}
-
-		previousQuestCompleted = v.Status == quest.Status
-	}
-	return previousQuestCompleted
-}
-
 // #endregion
 
 // #region Quest structs

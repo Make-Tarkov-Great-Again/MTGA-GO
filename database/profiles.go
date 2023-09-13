@@ -144,27 +144,6 @@ func setCharacter(path string) *Character {
 	return output
 }
 
-func (p *Profile) setCache() *Cache {
-	cache := &Cache{
-		Quests: &QuestCache{
-			Index:  map[string]int8{},
-			Quests: map[string]CharacterQuest{},
-		},
-		Traders: &TraderCache{
-			Index:         map[string]*AssortIndex{},
-			Assorts:       map[string]*Assort{},
-			LoyaltyLevels: map[string]int8{},
-		},
-	}
-
-	for index, quest := range p.Character.Quests {
-		cache.Quests.Index[quest.QID] = int8(index)
-		cache.Quests.Quests[quest.QID] = quest
-	}
-
-	return cache
-}
-
 func setStorage(path string) *Storage {
 	output := new(Storage)
 

@@ -245,7 +245,7 @@ type Scav struct {
 	Info              PlayerInfo             `json:"Info"`
 	Customization     PlayerCustomization    `json:"Customization"`
 	Health            HealthInfo             `json:"Health"`
-	Inventory         InventoryInfo          `json:"Inventory"`
+	Inventory         Inventory              `json:"Inventory"`
 	Skills            PlayerSkills           `json:"Skills"`
 	Stats             PlayerStats            `json:"Stats"`
 	Encyclopedia      map[string]bool        `json:"Encyclopedia"`

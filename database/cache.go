@@ -25,9 +25,52 @@ func GetTraderCacheByUID(uid string) *TraderCache {
 	return nil
 }
 
+func (p *Profile) setCache() *Cache {
+	cache := &Cache{
+		Skills: &SkillsCache{
+			Common: make(map[string]int8),
+		},
+		Hideout: &HideoutCache{
+			Areas: make(map[int8]int8),
+		},
+		Quests: &QuestCache{
+			Index: make(map[string]int8),
+		},
+		Traders: &TraderCache{
+			Index:         make(map[string]*AssortIndex),
+			Assorts:       make(map[string]*Assort),
+			LoyaltyLevels: make(map[string]int8),
+		},
+	}
+
+	for index, quest := range p.Character.Quests {
+		cache.Quests.Index[quest.QID] = int8(index)
+	}
+
+	for index, commonSkill := range p.Character.Skills.Common {
+		cache.Skills.Common[commonSkill.ID] = int8(index)
+	}
+
+	for index, area := range p.Character.Hideout.Areas {
+		cache.Hideout.Areas[int8(area.Type)] = int8(index)
+	}
+
+	return cache
+}
+
 type Cache struct {
+	Skills  *SkillsCache
+	Hideout *HideoutCache
 	Quests  *QuestCache
 	Traders *TraderCache
+}
+
+type SkillsCache struct {
+	Common map[string]int8
+}
+
+type HideoutCache struct {
+	Areas map[int8]int8
 }
 
 type TraderCache struct {
@@ -37,6 +80,5 @@ type TraderCache struct {
 }
 
 type QuestCache struct {
-	Index  map[string]int8
-	Quests map[string]CharacterQuest
+	Index map[string]int8
 }
