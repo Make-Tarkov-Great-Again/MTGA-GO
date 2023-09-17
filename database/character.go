@@ -179,7 +179,7 @@ func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 		}
 
 		cachedQuests.Index[qid] = int8(length)
-		c.Quests[cachedQuests.Index[qid]] = *quest
+		c.Quests = append(c.Quests, *quest)
 	}
 
 	changeEvent := GetProfileChangeByUID(c.ID)
@@ -248,8 +248,8 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChang
 	if examine.FromOwner == nil {
 		fmt.Println("Examing Item from Player Inventory")
 		for _, i := range c.Inventory.Items {
-			if i["_id"].(string) == examine.Item {
-				item = GetItemByUID(i["_tpl"].(string))
+			if i.ID == examine.Item {
+				item = GetItemByUID(i.TPL)
 			}
 		}
 		if item == nil {
@@ -283,7 +283,7 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChang
 	fmt.Println("[EXAMINE] Encyclopedia entry added for", item.ID)
 
 	//add experience
-	experience, ok := item.Properties["ExamineExperience"].(float64)
+	experience, ok := item.Props["ExamineExperience"].(float64)
 	if !ok {
 		fmt.Println("[EXAMINE] Item", examine.Item, "does not have ExamineExperience property, returning...")
 		return changeEvent

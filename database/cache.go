@@ -55,14 +55,17 @@ func (p *Profile) setCache() *Cache {
 		cache.Hideout.Areas[int8(area.Type)] = int8(index)
 	}
 
+	cache.Inventory = SetInventoryContainer(&p.Character.Inventory)
+
 	return cache
 }
 
 type Cache struct {
-	Skills  *SkillsCache
-	Hideout *HideoutCache
-	Quests  *QuestCache
-	Traders *TraderCache
+	Inventory *InventoryContainer
+	Skills    *SkillsCache
+	Hideout   *HideoutCache
+	Quests    *QuestCache
+	Traders   *TraderCache
 }
 
 type SkillsCache struct {
