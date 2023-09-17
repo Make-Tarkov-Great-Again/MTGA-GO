@@ -515,6 +515,19 @@ func MainPrices(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
+var actionHandlers = map[string]func(map[string]interface{}, *database.Character) interface{}{
+	"QuestAccept": func(moveAction map[string]interface{}, character *database.Character) interface{} {
+		return character.QuestAccept(moveAction["qid"].(string))
+	},
+	"Examine": func(moveAction map[string]interface{}, character *database.Character) interface{} {
+		return character.ExamineItem(moveAction)
+	}, /*
+		"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character) interface{} {
+			// Handle the "ReadEncyclopedia" action here
+			return nil
+		}, */
+}
+
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	parsedBody := services.GetParsedBody(r).(map[string]interface{})
 	moveAction := parsedBody["data"].([]interface{})[0].(map[string]interface{})
@@ -523,17 +536,10 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 
 	character := database.GetCharacterByUID(services.GetSessionID(r))
 
-	switch action {
-	case "QuestAccept":
-		data := character.QuestAccept(moveAction["qid"].(string))
+	if handler, ok := actionHandlers[action]; ok {
+		data := handler(moveAction, character)
 		services.ZlibJSONReply(w, data)
-
-	case "Examine":
-		data := character.ExamineItem(moveAction)
-		services.ZlibJSONReply(w, data)
-
-	case "ReadEncyclopedia":
-	default:
+	} else {
 		fmt.Println(action, "is not supported, sending empty response")
 		services.ZlibJSONReply(w, database.GetProfileChangeByUID(character.ID))
 	}

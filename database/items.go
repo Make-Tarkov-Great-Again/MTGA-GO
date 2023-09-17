@@ -31,13 +31,13 @@ func (i *DatabaseItem) GetItemPrice() *int32 {
 
 // Get item height and width
 func (i *DatabaseItem) GetItemSize() (int8, int8) {
-	height, ok := i.Properties["Height"].(float64)
+	height, ok := i.Props["Height"].(float64)
 	if !ok {
 		fmt.Println("Item:", i.ID, " does not have a height")
 		return 0, 0
 	}
 
-	width, ok := i.Properties["Width"].(float64)
+	width, ok := i.Props["Width"].(float64)
 	if !ok {
 		fmt.Println("Item:", i.ID, " does not have a width")
 		return 0, 0
@@ -69,7 +69,7 @@ type GridProps struct {
 
 // Get the grid property from the item if it exists
 func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
-	grids, ok := i.Properties["Grids"].([]interface{})
+	grids, ok := i.Props["Grids"].([]interface{})
 	if !ok || len(grids) == 0 {
 		fmt.Println("Item:", i.ID, " does not have Grid property")
 		return nil
@@ -110,7 +110,7 @@ type SlotProps struct {
 
 // Get the slot property from the item if it exists
 func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
-	slots, ok := i.Properties["Slots"].([]interface{})
+	slots, ok := i.Props["Slots"].([]interface{})
 	if !ok || len(slots) == 0 {
 		fmt.Println("Item:", i.ID, " does not have Grid property")
 		return nil
@@ -150,12 +150,14 @@ func setItems() {
 // #region Item structs
 
 type DatabaseItem struct {
-	ID         string                 `json:"_id"`
-	Name       string                 `json:"_name"`
-	Parent     string                 `json:"_parent"`
-	Type       string                 `json:"_type"`
-	Properties map[string]interface{} `json:"_props"`
-	Proto      string                 `json:"_proto"`
+	ID     string                 `json:"_id"`
+	Name   string                 `json:"_name"`
+	Parent string                 `json:"_parent"`
+	Type   string                 `json:"_type"`
+	Props  DatabaseItemProperties `json:"_props"`
+	Proto  string                 `json:"_proto"`
 }
+
+type DatabaseItemProperties map[string]interface{}
 
 // #endregion
