@@ -24,3 +24,6 @@ user/cert/
 questsDatabase.json
 *.png
 *.jpg
+.idea/vcs.xml
+.idea/MT-GO.iml
+.idea/modules.xml
