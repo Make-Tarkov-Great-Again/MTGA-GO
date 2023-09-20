@@ -16,12 +16,12 @@ func GetHandbook() *Handbook {
 	return &handbook
 }
 
-// Get prices of all items
+// GetPrices Get prices of all items
 func GetPrices() *Prices {
 	return &prices
 }
 
-// Get item price by ID
+// GetPriceByID Get item price by ID
 func GetPriceByID(id string) *int32 {
 	price, ok := prices[id]
 	if !ok {

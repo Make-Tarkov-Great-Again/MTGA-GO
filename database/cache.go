@@ -25,7 +25,7 @@ func GetTraderCacheByUID(uid string) *TraderCache {
 	return nil
 }
 
-func (p *Profile) setCache() *Cache {
+func (profile *Profile) setCache() *Cache {
 	cache := &Cache{
 		Skills: &SkillsCache{
 			Common: make(map[string]int8),
@@ -43,19 +43,19 @@ func (p *Profile) setCache() *Cache {
 		},
 	}
 
-	for index, quest := range p.Character.Quests {
+	for index, quest := range profile.Character.Quests {
 		cache.Quests.Index[quest.QID] = int8(index)
 	}
 
-	for index, commonSkill := range p.Character.Skills.Common {
+	for index, commonSkill := range profile.Character.Skills.Common {
 		cache.Skills.Common[commonSkill.ID] = int8(index)
 	}
 
-	for index, area := range p.Character.Hideout.Areas {
+	for index, area := range profile.Character.Hideout.Areas {
 		cache.Hideout.Areas[int8(area.Type)] = int8(index)
 	}
 
-	cache.Inventory = SetInventoryContainer(&p.Character.Inventory)
+	cache.Inventory = SetInventoryContainer(&profile.Character.Inventory)
 
 	return cache
 }

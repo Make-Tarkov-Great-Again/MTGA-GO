@@ -59,7 +59,7 @@ func GetHideoutRecipeByID(rid string) *map[string]interface{} {
 	return nil
 }
 
-// GetHideoutRecipeByID retrieves a scavcase production by its ID.
+// GetScavCaseRecipeByID retrieves a scavcase production by its ID.
 func GetScavCaseRecipeByID(rid string) *map[string]interface{} {
 	index, ok := hideout.Index.ScavCase[rid]
 	if ok {
@@ -79,7 +79,7 @@ func setHideout() {
 
 	if tools.FileExist(areasPath) {
 		areas := tools.GetJSONRawMessage(areasPath)
-		areasMap := []map[string]interface{}{}
+		var areasMap []map[string]interface{}
 		err := json.Unmarshal(areas, &areasMap)
 		if err != nil {
 			panic(err)
@@ -88,9 +88,9 @@ func setHideout() {
 	}
 
 	if tools.FileExist(productionPath) {
-		recipies := tools.GetJSONRawMessage(productionPath)
-		productionsMap := []map[string]interface{}{}
-		err := json.Unmarshal(recipies, &productionsMap)
+		recipes := tools.GetJSONRawMessage(productionPath)
+		var productionsMap []map[string]interface{}
+		err := json.Unmarshal(recipes, &productionsMap)
 		if err != nil {
 			panic(err)
 		}
@@ -99,7 +99,7 @@ func setHideout() {
 
 	if tools.FileExist(scavcasePath) {
 		scavcase := tools.GetJSONRawMessage(scavcasePath)
-		scavcaseReturns := []map[string]interface{}{}
+		var scavcaseReturns []map[string]interface{}
 		err := json.Unmarshal(scavcase, &scavcaseReturns)
 		if err != nil {
 			panic(err)
@@ -140,11 +140,11 @@ func setHideoutAreas(areas []map[string]interface{}) {
 }
 
 // setHideoutRecipes sets the hideout production recipes and their indexes.
-func setHideoutRecipes(recipies []map[string]interface{}) {
-	hideout.Recipes = make([]map[string]interface{}, 0, len(recipies))
+func setHideoutRecipes(recipes []map[string]interface{}) {
+	hideout.Recipes = make([]map[string]interface{}, 0, len(recipes))
 	hideout.Index.Recipes = make(map[string]int16)
 
-	for index, recipe := range recipies {
+	for index, recipe := range recipes {
 		pid := recipe["_id"].(string)
 
 		hideout.Index.Recipes[pid] = int16(index)

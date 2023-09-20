@@ -52,6 +52,7 @@ func setLanguages() {
 // #endregion
 
 // #region Locale getters
+
 func GetLocales() *Locale {
 	return locales
 }

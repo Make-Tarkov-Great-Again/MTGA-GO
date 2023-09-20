@@ -1,6 +1,8 @@
 package database
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Inventory struct {
 	Items              []InventoryItem `json:"items"`
@@ -45,9 +47,20 @@ type Stash struct {
 }
 
 type Map struct {
-	Height int8
-	Width  int8
-	Map    []string
+	Height  int8
+	Width   int8
+	Map     []string
+	FlatMap map[string]FlatMapLookup
+}
+
+type FlatMapLookup struct {
+	Width   int8
+	Height  int8
+	Rotated bool
+	StartX  int16
+	EndX    int16
+	StartY  int16
+	EndY    int16
 }
 
 func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
@@ -76,23 +89,65 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		arraySize := int(height) * int(width)
 
 		stash.Container = Map{
-			Height: height,
-			Width:  width,
-			Map:    make([]string, arraySize),
+			Height:  height,
+			Width:   width,
+			Map:     make([]string, arraySize),
+			FlatMap: make(map[string]FlatMapLookup),
 		}
 	}
 
 	for index := range ic.Lookup.Reverse {
 		itemInInventory := inventory.Items[index]
-		if itemInInventory.SlotID == nil || *itemInInventory.SlotID != "hideout" {
+		if itemInInventory.SlotID == nil || *itemInInventory.SlotID != "hideout" || itemInInventory.Location == nil {
 			continue
 		}
 
-		height, width := GetItemByUID(itemInInventory.TPL).GetItemSize()
-		fmt.Println(height, width)
+		itemFlatMap := FlatMapLookup{}
+		height, width := ic.GetSizeInInventory(inventory.Items, itemInInventory.ID)
+		itemFlatMap.Height = height
+		itemFlatMap.Width = width
+
+		stash.Container.FlatMap[itemInInventory.ID] = itemFlatMap
+
+		//fmt.Println(height, width)
 	}
 
 	fmt.Println(grids)
+}
+
+func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
+	var list []string
+
+	for _, childitem := range items {
+		if childitem.ParentID == nil {
+			continue
+		}
+
+		if *childitem.ParentID == parent {
+			list = append(list, GetInventoryItemFamilyTree(items, childitem.ID)...)
+		}
+	}
+
+	list = append(list, parent) // required
+	return list
+}
+
+func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent string) (int8, int8) {
+	family := GetInventoryItemFamilyTree(items, parent)
+
+	height, width := GetItemByUID(items[ic.Lookup.Forward[family[0]]].TPL).GetItemSize() //get parent as starting point
+	length := len(family)
+	if length == 1 {
+		return height, width
+	}
+
+	for i := 1; i < len(family); i++ {
+		forcedHeight, forcedWidth := GetItemByUID(items[ic.Lookup.Forward[family[i]]].TPL).GetItemForcedSize()
+		height += forcedHeight
+		width += forcedWidth
+	}
+
+	return height, width
 }
 
 func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {

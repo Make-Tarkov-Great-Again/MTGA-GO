@@ -131,6 +131,7 @@ func (c *Character) CompletedPreviousQuestCheck(quests map[string]*QuestConditio
 // #endregion
 
 // #region Character functions
+
 func (c *Character) SaveCharacter(sessionID string) {
 	characterFilePath := filepath.Join(profilesPath, sessionID, "character.json")
 
@@ -246,14 +247,14 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChang
 	var item *DatabaseItem
 	changeEvent := GetProfileChangeByUID(c.ID)
 	if examine.FromOwner == nil {
-		fmt.Println("Examing Item from Player Inventory")
+		fmt.Println("Examining Item from Player Inventory")
 		for _, i := range c.Inventory.Items {
 			if i.ID == examine.Item {
 				item = GetItemByUID(i.TPL)
 			}
 		}
 		if item == nil {
-			fmt.Println("[EXAMINE] Examing Item", examine.Item, " from Player Inventory failed, does not exist!")
+			fmt.Println("[EXAMINE] Examining Item", examine.Item, " from Player Inventory failed, does not exist!")
 			return changeEvent
 		}
 	} else {
@@ -275,7 +276,7 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChang
 	}
 
 	if item == nil {
-		fmt.Println("[EXAMINE] Examing Item", examine.Item, "failed, does not exist in Item Database")
+		fmt.Println("[EXAMINE] Examining Item", examine.Item, "failed, does not exist in Item Database")
 		return changeEvent
 	}
 

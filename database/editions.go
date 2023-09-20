@@ -2,11 +2,9 @@ package database
 
 import (
 	"MT-GO/tools"
+	"github.com/goccy/go-json"
 	"path/filepath"
 	"strings"
-	"sync"
-
-	"github.com/goccy/go-json"
 )
 
 var editions = make(map[string]*Edition)
@@ -35,20 +33,14 @@ func setEditions() {
 		panic(err)
 	}
 
-	var wg sync.WaitGroup
 	editions := make(map[string]*Edition)
 
 	for _, directory := range directories {
-		wg.Add(1)
-		go setEdition(directory, editionsDirPath, editions, &wg)
+		setEdition(directory, editionsDirPath, editions)
 	}
-
-	wg.Wait()
 }
 
-func setEdition(directory string, editionsDirPath string, editions map[string]*Edition, wg *sync.WaitGroup) {
-	defer wg.Done()
-
+func setEdition(directory string, editionsDirPath string, editions map[string]*Edition) {
 	editionPath := filepath.Join(editionsDirPath, directory)
 	files, err := tools.GetFilesFrom(editionPath)
 	if err != nil {

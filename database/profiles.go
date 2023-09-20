@@ -15,6 +15,7 @@ var profiles = make(map[string]*Profile)
 var profileChangeEvents = make(map[string]*ProfileChangesEvent)
 
 // #region Profile getters
+
 func GetProfileChangeByUID(uid string) *ProfileChangesEvent {
 	if changes, ok := profileChangeEvents[uid]; ok {
 		return changes

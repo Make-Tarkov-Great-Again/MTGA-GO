@@ -46,6 +46,37 @@ func (i *DatabaseItem) GetItemSize() (int8, int8) {
 	return int8(height), int8(width)
 }
 
+func (i *DatabaseItem) GetItemForcedSize() (int8, int8) {
+	extraSize, ok := i.Props["ExtraSizeForceAdd"].(bool)
+	if !ok || !extraSize {
+		return 0, 0
+	}
+
+	var height, width int8 = 0, 0
+
+	down, ok := i.Props["ExtraSizeDown"].(float64)
+	if ok {
+		height += int8(down)
+	}
+
+	up, ok := i.Props["ExtraSizeUp"].(float64)
+	if ok {
+		height += int8(up)
+	}
+
+	left, ok := i.Props["ExtraSizeLeft"].(float64)
+	if ok {
+		width += int8(left)
+	}
+
+	right, ok := i.Props["ExtraSizeRight"].(float64)
+	if ok {
+		width += int8(right)
+	}
+
+	return height, width
+}
+
 type Grid struct {
 	Name   string    `json:"_name"`
 	ID     string    `json:"_id"`

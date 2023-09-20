@@ -29,7 +29,7 @@ func startHome() {
 	var input string
 	for {
 		fmt.Printf("> ")
-		fmt.Scanln(&input)
+		_, _ = fmt.Scanln(&input)
 
 		switch input {
 		case "1":
@@ -53,7 +53,7 @@ func registerAccount() {
 	fmt.Println("What is your username?")
 	for {
 		fmt.Printf("> ")
-		fmt.Scanln(&input)
+		_, _ = fmt.Scanln(&input)
 		if !validateUsername(profiles, input) {
 			fmt.Println("Username taken, try again")
 			continue
@@ -63,7 +63,7 @@ func registerAccount() {
 	account.Username = input
 
 	fmt.Println("What is your password?")
-	fmt.Scanln(&input)
+	_, _ = fmt.Scanln(&input)
 	fmt.Printf("> ")
 	account.Password = input
 
@@ -128,7 +128,7 @@ func login() {
 	for {
 		fmt.Println("What is your username?")
 		fmt.Printf("> ")
-		fmt.Scanln(&input)
+		_, _ = fmt.Scanln(&input)
 
 		for _, profile := range profiles {
 			if profile.Account.Username == input {
@@ -143,7 +143,7 @@ func login() {
 
 		fmt.Println("What is your password?")
 		fmt.Printf("> ")
-		fmt.Scanln(&input)
+		_, _ = fmt.Scanln(&input)
 
 		if account.Password != input {
 			fmt.Println("Invalid password, try again moron")
@@ -173,7 +173,7 @@ func loggedIn(account *database.Account) {
 		var input string
 
 		fmt.Printf("> ")
-		fmt.Scanln(&input)
+		_, _ = fmt.Scanln(&input)
 		switch input {
 		case "1":
 			launchTarkov(account)
@@ -201,7 +201,7 @@ func editAccountInfo(account *database.Account) {
 		var input string
 
 		fmt.Printf("> ")
-		fmt.Scanln(&input)
+		_, _ = fmt.Scanln(&input)
 
 		switch input {
 		case "1":
@@ -211,7 +211,7 @@ func editAccountInfo(account *database.Account) {
 				fmt.Println()
 				fmt.Println("Set new Path to Tarkov executable")
 				fmt.Printf("> ")
-				fmt.Scanln(&tarkovPath)
+				_, _ = fmt.Scanln(&tarkovPath)
 				exePath := filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
 				if tools.FileExist(exePath) && exePath != account.TarkovPath {
 					account.TarkovPath = exePath
@@ -242,7 +242,7 @@ func launchTarkov(account *database.Account) {
 			var tarkovPath string
 
 			fmt.Printf("> ")
-			fmt.Scanln(&tarkovPath)
+			_, _ = fmt.Scanln(&tarkovPath)
 			if !tools.FileExist(filepath.Join(tarkovPath, "BepInEx")) {
 				fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
 				continue
@@ -277,6 +277,8 @@ func launchTarkov(account *database.Account) {
 
 	err = cmd.Wait()
 	if err != nil {
-		panic(err)
+		fmt.Println("Client has been closed")
+		//database.GetProfileByUID(account.UID).SaveProfile()
+		os.Exit(0)
 	}
 }
