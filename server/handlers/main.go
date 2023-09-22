@@ -541,11 +541,9 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 	"Fold": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.FoldItem(moveAction, profileChangeEvent)
 	},
-	/*
-		"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character) interface{} {
-			// Handle the "ReadEncyclopedia" action here
-			return nil
-		}, */
+	"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.ReadEncyclopedia(moveAction)
+	},
 }
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
@@ -565,8 +563,6 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(action, "is not supported, sending empty response")
 		}
 	}
-
-	//_ = tools.WriteToFile("/profileChangeEvent.json", profileChangeEvent)
 
 	character.SaveCharacter(character.ID)
 	services.ZlibJSONReply(w, services.ApplyResponseBody(profileChangeEvent))

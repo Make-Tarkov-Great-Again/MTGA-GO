@@ -442,6 +442,25 @@ func (c *Character) FoldItem(moveAction map[string]interface{}, profileChangesEv
 	profileChangesEvent.ProfileChanges[c.ID].Production = nil
 }
 
+type readEncyclopedia struct {
+	Action string   `json:"Action"`
+	IDs    []string `json:"ids"`
+}
+
+func (c *Character) ReadEncyclopedia(moveAction map[string]interface{}) {
+	readEncyclopedia := new(readEncyclopedia)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &readEncyclopedia)
+	if err != nil {
+		panic(err)
+	}
+
+	length := int8(len(readEncyclopedia.IDs))
+	for i := int8(0); i < length; i++ {
+		c.Encyclopedia[readEncyclopedia.IDs[i]] = true
+	}
+}
+
 // #endregion
 
 // #region Character structs
