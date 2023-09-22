@@ -30,7 +30,12 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 		if err != nil {
 			panic(err)
 		}
-		defer reader.Close()
+		defer func(reader io.ReadCloser) {
+			err := reader.Close()
+			if err != nil {
+				panic(err)
+			}
+		}(reader)
 
 		// Read the decompressed data
 		_, err = io.Copy(buffer, reader)
@@ -46,14 +51,14 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 func zlibDeflate(w http.ResponseWriter, data interface{}) {
 
 	// Convert data to JSON bytes
-	bytes, err := json.Marshal(data)
+	bites, err := json.Marshal(data)
 	if err != nil {
 		http.Error(w, "Failed to marshal data to JSON", http.StatusInternalServerError)
 		return
 	}
 
 	// Compress the JSON bytes
-	compressedBytes := compressZlib(bytes)
+	compressedBytes := compressZlib(bites)
 
 	// Set appropriate response headers
 	w.WriteHeader(http.StatusOK)
@@ -70,7 +75,12 @@ func compressZlib(data []byte) []byte {
 	buffer := &bytes.Buffer{}
 	writer := zlib.NewWriter(buffer)
 
-	defer writer.Close()
+	defer func(writer *zlib.Writer) {
+		err := writer.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(writer)
 
 	_, err := writer.Write(data)
 	if err != nil {

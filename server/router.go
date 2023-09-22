@@ -44,7 +44,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/repeatalbeQuests/activityPeriods":    handlers.MainRepeatableQuests,
 	"/client/server/list":                         handlers.MainServerList,
 	"/client/checkVersion":                        handlers.MainCheckVersion,
-	"/client/game/logout":                         handlers.MainLogoout,
+	"/client/game/logout":                         handlers.MainLogout,
 	"/client/items/prices/":                       handlers.MainPrices,
 
 	"/client/notifier/channel/create": handlers.MainChannelCreate,

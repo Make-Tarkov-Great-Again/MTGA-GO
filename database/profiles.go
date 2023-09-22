@@ -25,29 +25,22 @@ func GetProfileChangeByUID(uid string) *ProfileChangesEvent {
 	character := GetCharacterByUID(uid)
 
 	profileChangeEvents[uid] = &ProfileChangesEvent{
-		Warnings: []*Warning{},
-		ProfileChanges: &ProfileChanges{
-			ID:              character.ID,
-			Experience:      character.Info.Experience,
-			Quests:          make([]interface{}, 0),
-			RagfairOffers:   make([]interface{}, 0),
-			WeaponBuilds:    make([]interface{}, 0),
-			EquipmentBuilds: make([]interface{}, 0),
-			Items: ItemChanges{
-				New:    make([]*InventoryItem, 0),
-				Change: make([]*InventoryItem, 0),
-				Del:    make([]*InventoryItem, 0),
-			},
-			Production:            make(map[string]interface{}),
-			Improvements:          make(map[string]interface{}),
-			Skills:                character.Skills,
-			Health:                character.Health,
-			TraderRelations:       character.TradersInfo,
-			RepeatableQuests:      make([]interface{}, 0),
-			RecipeUnlocked:        make(map[string]bool),
-			ChangedHideoutStashes: make(map[string]interface{}),
-			QuestsStatus:          make([]CharacterQuest, 0),
-		},
+		Warnings:       []*Warning{},
+		ProfileChanges: make(map[string]*ProfileChanges),
+	}
+	profileChangeEvents[uid].ProfileChanges[uid] = &ProfileChanges{
+		ID:              character.ID,
+		Experience:      character.Info.Experience,
+		Quests:          make([]interface{}, 0),
+		RagfairOffers:   make([]interface{}, 0),
+		WeaponBuilds:    make([]interface{}, 0),
+		EquipmentBuilds: make([]interface{}, 0),
+		Items:           ItemChanges{},
+		Improvements:    make(map[string]interface{}),
+		Skills:          character.Skills,
+		Health:          character.Health,
+		TraderRelations: make([]PlayerTradersInfo, 0),
+		QuestsStatus:    make([]CharacterQuest, 0),
 	}
 
 	return profileChangeEvents[uid]
@@ -184,11 +177,6 @@ func setDialogue(path string) *Dialogue {
 	return &output
 }
 
-func (pc *ProfileChangesEvent) SetProfileChanges() {
-	profileChangeEvents[pc.ProfileChanges.ID] = pc
-	fmt.Println("Profile changes for ", pc.ProfileChanges.ID, " updated.")
-}
-
 // #endregion
 
 // #region Profile save
@@ -261,8 +249,8 @@ type EquipmentBuild struct {
 // #region Profile Change struct
 
 type ProfileChangesEvent struct {
-	Warnings       []*Warning      `json:"warnings"`
-	ProfileChanges *ProfileChanges `json:"profileChanges"`
+	Warnings       []*Warning                 `json:"warnings"`
+	ProfileChanges map[string]*ProfileChanges `json:"profileChanges"`
 }
 
 type Warning struct {
@@ -273,9 +261,9 @@ type Warning struct {
 }
 
 type ItemChanges struct {
-	New    []*InventoryItem `json:"new"`
-	Change []*InventoryItem `json:"change"`
-	Del    []*InventoryItem `json:"del"`
+	New    []*InventoryItem `json:"new,omitempty"`
+	Change []*InventoryItem `json:"change,omitempty"`
+	Del    []*InventoryItem `json:"del,omitempty"`
 }
 
 type ItemLocation struct {
@@ -286,22 +274,22 @@ type ItemLocation struct {
 }
 
 type ProfileChanges struct {
-	ID                    string                       `json:"_id"`
-	Experience            int                          `json:"experience"`
-	Quests                []interface{}                `json:"quests"`
-	RagfairOffers         []interface{}                `json:"ragFairOffers"`
-	WeaponBuilds          []interface{}                `json:"weaponBuilds"`
-	EquipmentBuilds       []interface{}                `json:"equipmentBuilds"`
-	Items                 ItemChanges                  `json:"items"`
-	Production            map[string]interface{}       `json:"production"`
-	Improvements          map[string]interface{}       `json:"improvements"`
-	Skills                PlayerSkills                 `json:"skills"`
-	Health                HealthInfo                   `json:"health"`
-	TraderRelations       map[string]PlayerTradersInfo `json:"traderRelations"`
-	RepeatableQuests      []interface{}                `json:"repeatableQuests"`
-	RecipeUnlocked        map[string]bool              `json:"recipeUnlocked"`
-	ChangedHideoutStashes map[string]interface{}       `json:"changedHideoutStashes,omitempty"`
-	QuestsStatus          []CharacterQuest             `json:"questsStatus"`
+	ID                    string                  `json:"_id"`
+	Experience            int                     `json:"experience"`
+	Quests                []interface{}           `json:"quests"`
+	QuestsStatus          []CharacterQuest        `json:"questsStatus"`
+	RagfairOffers         []interface{}           `json:"ragFairOffers"`
+	WeaponBuilds          []interface{}           `json:"weaponBuilds"`
+	EquipmentBuilds       []interface{}           `json:"equipmentBuilds"`
+	Items                 ItemChanges             `json:"items"`
+	Production            *map[string]interface{} `json:"production"`
+	Improvements          map[string]interface{}  `json:"improvements"`
+	Skills                PlayerSkills            `json:"skills"`
+	Health                HealthInfo              `json:"health"`
+	TraderRelations       []PlayerTradersInfo     `json:"traderRelations"`
+	RepeatableQuests      *[]interface{}          `json:"repeatableQuests,omitempty"`
+	RecipeUnlocked        *map[string]bool        `json:"recipeUnlocked,omitempty"`
+	ChangedHideoutStashes *map[string]interface{} `json:"changedHideoutStashes,omitempty"`
 }
 
 // #endregion

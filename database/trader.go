@@ -522,15 +522,8 @@ type AssortItemUpd struct {
 	BuyRestrictionMax     interface{} `json:"BuyRestrictionMax,omitempty"`
 	StackObjectsCount     int         `json:"StackObjectsCount,omitempty"`
 	UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
-	FireMode              FireMode    `json:"FireMode,omitempty"`
-	Foldable              Foldable    `json:"Foldable,omitempty"`
-}
-
-type FireMode struct {
-	FireMode string `json:"FireMode"`
-}
-type Foldable struct {
-	Folded bool `json:"Folded,omitempty"`
+	FireMode              *FireMode   `json:"FireMode,omitempty"`
+	Foldable              *Foldable   `json:"Foldable,omitempty"`
 }
 
 type Scheme struct {

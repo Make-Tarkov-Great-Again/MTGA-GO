@@ -4,6 +4,7 @@ import (
 	"MT-GO/services"
 	"MT-GO/tools"
 	"fmt"
+	"log"
 	"path/filepath"
 	"strings"
 
@@ -22,7 +23,7 @@ func GetCharacterByUID(uid string) *Character {
 }
 
 func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
-	output := []interface{}{}
+	var output []interface{}
 
 	query := GetQuestsQuery()
 
@@ -186,7 +187,7 @@ func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 	changeEvent := GetProfileChangeByUID(c.ID)
 	if query.Rewards.Start != nil {
 		fmt.Println("There are rewards heeyrrrr!")
-		fmt.Println(changeEvent.ProfileChanges.ID)
+		fmt.Println(changeEvent.ProfileChanges[c.ID].ID)
 
 		// TODO: Apply then Get Quest rewards and then route messages from there
 		// Character.ApplyQuestRewardsToCharacter()  applies the given reward
@@ -215,7 +216,7 @@ func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 	}
 
 	//TODO: Get new player quests from database now that we've accepted one
-	changeEvent.ProfileChanges.Quests = c.GetQuestsAvailableToPlayer()
+	changeEvent.ProfileChanges[c.ID].Quests = c.GetQuestsAvailableToPlayer()
 
 	dialogue.SaveDialogue(c.ID)
 	c.SaveCharacter(c.ID)
@@ -236,7 +237,7 @@ type fromOwner struct {
 	Type string `json:"type"`
 }
 
-func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChangesEvent {
+func (c *Character) ExamineItem(moveAction map[string]interface{}) {
 	examine := new(examine)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &examine)
@@ -245,7 +246,6 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChang
 	}
 
 	var item *DatabaseItem
-	changeEvent := GetProfileChangeByUID(c.ID)
 	if examine.FromOwner == nil {
 		fmt.Println("Examining Item from Player Inventory")
 		for _, i := range c.Inventory.Items {
@@ -255,7 +255,7 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChang
 		}
 		if item == nil {
 			fmt.Println("[EXAMINE] Examining Item", examine.Item, " from Player Inventory failed, does not exist!")
-			return changeEvent
+			return
 		}
 	} else {
 		switch examine.FromOwner.Type {
@@ -271,13 +271,13 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChang
 		case "RagFair":
 		default:
 			fmt.Println("[EXAMINE] FromOwner.Type: ", examine.FromOwner.Type, "is not supported, returning...")
-			return changeEvent
+			return
 		}
 	}
 
 	if item == nil {
 		fmt.Println("[EXAMINE] Examining Item", examine.Item, "failed, does not exist in Item Database")
-		return changeEvent
+		return
 	}
 
 	c.Encyclopedia[item.ID] = true
@@ -287,16 +287,10 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChang
 	experience, ok := item.Props["ExamineExperience"].(float64)
 	if !ok {
 		fmt.Println("[EXAMINE] Item", examine.Item, "does not have ExamineExperience property, returning...")
-		return changeEvent
+		return
 	}
 
 	c.Info.Experience += int(experience)
-	c.SaveCharacter(c.ID)
-	return changeEvent
-
-}
-
-func (c *Character) MoveItem(moveAction map[string]interface{}) {
 }
 
 type move struct {
@@ -318,7 +312,7 @@ type moveToLocation struct {
 	IsSearched bool   `json:"isSearched"`
 }
 
-func (c *Character) MoveItemInStash(moveAction map[string]interface{}) *ProfileChangesEvent {
+func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
 	move := new(move)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &move)
@@ -327,13 +321,17 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}) *ProfileC
 	}
 
 	cache := GetCacheByUID(c.ID).Inventory.Lookup.Forward[move.Item]
-	itemInInventory := c.Inventory.Items[cache]
+	itemInInventory := &c.Inventory.Items[cache]
 
 	if move.To.Location != nil {
 		moveToLocation := move.To.Location
 		rotation := 0
 		if moveToLocation.R == "Vertical" {
 			rotation++
+		}
+
+		if itemInInventory.Location == nil {
+			itemInInventory.Location = new(InventoryItemLocation)
 		}
 
 		itemInInventory.Location.Y = moveToLocation.Y
@@ -347,12 +345,101 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}) *ProfileC
 	itemInInventory.ParentID = &move.To.ID
 	itemInInventory.SlotID = &move.To.Container
 
-	c.SaveCharacter(c.ID)
+	profileChangesEvent.ProfileChanges[c.ID].Production = nil
+}
 
-	output := GetProfileChangeByUID(c.ID)
-	/*	output.ProfileChanges.Production = nil
-		output.ProfileChanges.Items.Change = append(output.ProfileChanges.Items.Change, &itemInInventory)*/
-	return output
+type swap struct {
+	Action string
+	Item   string `json:"item"`
+	To     moveTo `json:"to"`
+	Item2  string `json:"item2"`
+	To2    moveTo `json:"to2"`
+}
+
+func (c *Character) SwapItemInStash(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	swap := new(swap)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &swap)
+	if err != nil {
+		panic(err)
+	}
+
+	cache := GetCacheByUID(c.ID).Inventory.Lookup.Forward[swap.Item]
+	itemInInventory := &c.Inventory.Items[cache]
+
+	if swap.To.Location != nil {
+		moveToLocation := swap.To.Location
+		rotation := 0
+		if moveToLocation.R == "Vertical" {
+			rotation++
+		}
+
+		if itemInInventory.Location == nil {
+			itemInInventory.Location = new(InventoryItemLocation)
+		}
+
+		itemInInventory.Location.Y = moveToLocation.Y
+		itemInInventory.Location.X = moveToLocation.X
+		itemInInventory.Location.R = rotation
+		itemInInventory.Location.IsSearched = moveToLocation.IsSearched
+	} else {
+		itemInInventory.Location = nil
+	}
+
+	itemInInventory.ParentID = &swap.To.ID
+	itemInInventory.SlotID = &swap.To.Container
+
+	cache = GetCacheByUID(c.ID).Inventory.Lookup.Forward[swap.Item2]
+	itemInInventory = &c.Inventory.Items[cache]
+
+	if swap.To2.Location != nil {
+		moveToLocation := swap.To2.Location
+		rotation := 0
+		if moveToLocation.R == "Vertical" {
+			rotation++
+		}
+
+		if itemInInventory.Location == nil {
+			itemInInventory.Location = new(InventoryItemLocation)
+		}
+
+		itemInInventory.Location.Y = moveToLocation.Y
+		itemInInventory.Location.X = moveToLocation.X
+		itemInInventory.Location.R = rotation
+		itemInInventory.Location.IsSearched = moveToLocation.IsSearched
+	} else {
+		itemInInventory.Location = nil
+	}
+
+	itemInInventory.ParentID = &swap.To2.ID
+	itemInInventory.SlotID = &swap.To2.Container
+
+	profileChangesEvent.ProfileChanges[c.ID].Production = nil
+}
+
+type fold struct {
+	Action string
+	Item   string `json:"item"`
+	Value  bool   `json:"value"`
+}
+
+func (c *Character) FoldItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	fold := new(fold)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &fold)
+	if err != nil {
+		panic(err)
+	}
+
+	cache := GetCacheByUID(c.ID).Inventory.Lookup.Forward[fold.Item]
+	itemInInventory := &c.Inventory.Items[cache]
+	if itemInInventory.UPD == nil || itemInInventory.UPD.Foldable == nil {
+		log.Fatalln(itemInInventory.ID, "cannot be folded!")
+	}
+
+	itemInInventory.UPD.Foldable.Folded = fold.Value
+
+	profileChangesEvent.ProfileChanges[c.ID].Production = nil
 }
 
 // #endregion

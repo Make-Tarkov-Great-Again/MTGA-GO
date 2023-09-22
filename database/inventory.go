@@ -16,12 +16,61 @@ type Inventory struct {
 }
 
 type InventoryItem struct {
-	ID       string                  `json:"_id"`
-	TPL      string                  `json:"_tpl"`
-	Location *InventoryItemLocation  `json:"location,omitempty"`
-	ParentID *string                 `json:"parentId,omitempty"`
-	SlotID   *string                 `json:"slotId,omitempty"`
-	UPD      *map[string]interface{} `json:"upd,omitempty"`
+	ID       string                 `json:"_id"`
+	TPL      string                 `json:"_tpl"`
+	Location *InventoryItemLocation `json:"location,omitempty"`
+	ParentID *string                `json:"parentId,omitempty"`
+	SlotID   *string                `json:"slotId,omitempty"`
+	UPD      *InventoryItemUpd      `json:"upd,omitempty"`
+}
+
+type InventoryItemUpd struct {
+	StackObjectsCount *int32      `json:"StackObjectsCount,omitempty"`
+	FireMode          *FireMode   `json:"FireMode,omitempty"`
+	Foldable          *Foldable   `json:"Foldable,omitempty"`
+	Repairable        *Repairable `json:"Repairable,omitempty"`
+	Sight             *Sight      `json:"Sight,omitempty"`
+	MedKit            *MedicalKit `json:"MedKit,omitempty"`
+	FoodDrink         *FoodDrink  `json:"FoodDrink,omitempty"`
+	RepairKit         *RepairKit  `json:"RepairKit,omitempty"`
+	Light             *Light      `json:"Light,omitempty"`
+	Resource          *Resource   `json:"Resource,omitempty"`
+}
+
+type Resource struct {
+	Value int16 `json:"Value"`
+}
+
+type Light struct {
+	IsActive     bool `json:"IsActive"`
+	SelectedMode int8 `json:"SelectedMode"`
+}
+type RepairKit struct {
+	Resource int16 `json:"Resource"`
+}
+type FoodDrink struct {
+	HpPercent int16 `json:"HpPercent"`
+}
+
+type MedicalKit struct {
+	HpResource int `json:"HpResource"`
+}
+
+type Sight struct {
+	ScopesCurrentCalibPointIndexes []int `json:"ScopesCurrentCalibPointIndexes"`
+	ScopesSelectedModes            []int `json:"ScopesSelectedModes"`
+	SelectedScope                  int   `json:"SelectedScope"`
+}
+
+type Repairable struct {
+	Durability    int `json:"Durability"`
+	MaxDurability int `json:"MaxDurability"`
+}
+type Foldable struct {
+	Folded bool `json:"Folded"`
+}
+type FireMode struct {
+	FireMode string `json:"FireMode"`
 }
 
 type InventoryItemLocation struct {
@@ -207,7 +256,3 @@ func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {
 		index.Reverse[pos] = item.ID
 	}
 }
-
-func (c *Character) GetInventoryIndex(container *InventoryContainer) {}
-
-func (c *Character) SetInventoryContainer(container *InventoryContainer) {}

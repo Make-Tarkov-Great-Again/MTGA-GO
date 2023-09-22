@@ -13,11 +13,11 @@ import (
 	"github.com/goccy/go-json"
 )
 
-const route_not_implemented = "Route is not implemented yet, using empty values instead"
+const routeNotImplemented = "Route is not implemented yet, using empty values instead"
 
 // GetBundleList returns a list of custom bundles to the client
 func GetBundleList(w http.ResponseWriter, _ *http.Request) {
-	fmt.Println(route_not_implemented)
+	fmt.Println(routeNotImplemented)
 	services.ZlibJSONReply(w, []string{})
 }
 
@@ -55,7 +55,7 @@ func MainVersionValidate(w http.ResponseWriter, _ *http.Request) {
 	services.ZlibJSONReply(w, services.ApplyResponseBody(nil))
 }
 
-func MainLanguages(w http.ResponseWriter, r *http.Request) {
+func MainLanguages(w http.ResponseWriter, _ *http.Request) {
 	languages := services.ApplyResponseBody(database.GetLanguages())
 	services.ZlibJSONReply(w, languages)
 }
@@ -93,7 +93,7 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 
 const itemsRoute string = "/client/items"
 
-func MainItems(w http.ResponseWriter, r *http.Request) {
+func MainItems(w http.ResponseWriter, _ *http.Request) {
 	ok := services.CheckIfResponseCanBeCached(itemsRoute)
 	if ok {
 
@@ -112,7 +112,7 @@ func MainItems(w http.ResponseWriter, r *http.Request) {
 
 const customizationRoute string = "/client/customization"
 
-func MainCustomization(w http.ResponseWriter, r *http.Request) {
+func MainCustomization(w http.ResponseWriter, _ *http.Request) {
 	ok := services.CheckIfResponseCanBeCached(customizationRoute)
 	if ok {
 
@@ -129,7 +129,7 @@ func MainCustomization(w http.ResponseWriter, r *http.Request) {
 
 const globalsRoute string = "/client/globals"
 
-func MainGlobals(w http.ResponseWriter, r *http.Request) {
+func MainGlobals(w http.ResponseWriter, _ *http.Request) {
 	ok := services.CheckIfResponseCanBeCached(globalsRoute)
 	if ok {
 
@@ -146,7 +146,7 @@ func MainGlobals(w http.ResponseWriter, r *http.Request) {
 
 const MainSettingsRoute string = "/client/settings"
 
-func MainSettings(w http.ResponseWriter, r *http.Request) {
+func MainSettings(w http.ResponseWriter, _ *http.Request) {
 	ok := services.CheckIfResponseCanBeCached(MainSettingsRoute)
 	if ok {
 		ok = services.CheckIfResponseIsCached(MainSettingsRoute)
@@ -182,7 +182,7 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func MainAccountCustomization(w http.ResponseWriter, r *http.Request) {
+func MainAccountCustomization(w http.ResponseWriter, _ *http.Request) {
 	customization := database.GetCustomizations()
 	var output []string
 	for id, c := range customization {
@@ -358,7 +358,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 
 var channel = &Channel{}
 
-func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
+func MainChannelCreate(w http.ResponseWriter, _ *http.Request) {
 	body := services.ApplyResponseBody(channel.Notifier)
 	services.ZlibJSONReply(w, body)
 }
@@ -366,7 +366,7 @@ func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
 func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 
-	notiServer := fmt.Sprintf("%s/push/notifier/get/%s", database.GetLobbyIPandPort(), sessionID)
+	notifierServer := fmt.Sprintf("%s/push/notifier/get/%s", database.GetLobbyIPandPort(), sessionID)
 	wssServer := fmt.Sprintf("%s/push/notifier/getwebsocket/%s", database.GetWebSocketAddress(), sessionID)
 
 	channel.Status = "ok"
@@ -374,7 +374,7 @@ func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 
 	Notifier.Server = database.GetLobbyIPandPort()
 	Notifier.ChannelID = sessionID
-	Notifier.NotifierServer = notiServer
+	Notifier.NotifierServer = notifierServer
 	Notifier.WS = wssServer
 
 	body := services.ApplyResponseBody(channel)
@@ -403,51 +403,51 @@ func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-func MainWeather(w http.ResponseWriter, r *http.Request) {
+func MainWeather(w http.ResponseWriter, _ *http.Request) {
 	weather := database.GetWeather()
 	body := services.ApplyResponseBody(weather)
 	services.ZlibJSONReply(w, body)
 }
 
-func MainLocations(w http.ResponseWriter, r *http.Request) {
+func MainLocations(w http.ResponseWriter, _ *http.Request) {
 	locations := database.GetLocations()
 	body := services.ApplyResponseBody(locations)
 	services.ZlibJSONReply(w, body)
 }
 
-func MainTemplates(w http.ResponseWriter, r *http.Request) {
+func MainTemplates(w http.ResponseWriter, _ *http.Request) {
 	templates := database.GetHandbook()
 	body := services.ApplyResponseBody(templates)
 	services.ZlibJSONReply(w, body)
 }
 
-func MainHideoutAreas(w http.ResponseWriter, r *http.Request) {
+func MainHideoutAreas(w http.ResponseWriter, _ *http.Request) {
 	areas := database.GetHideout().Areas
 	body := services.ApplyResponseBody(areas)
 	services.ZlibJSONReply(w, body)
 }
 
-func MainHideoutQTE(w http.ResponseWriter, r *http.Request) {
+func MainHideoutQTE(w http.ResponseWriter, _ *http.Request) {
 	qte := database.GetHideout().QTE
 	body := services.ApplyResponseBody(qte)
 	services.ZlibJSONReply(w, body)
 }
 
-func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
+func MainHideoutSettings(w http.ResponseWriter, _ *http.Request) {
 	settings := database.GetHideout().Settings
 	body := services.ApplyResponseBody(settings)
 	services.ZlibJSONReply(w, body)
 }
 
-func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
+func MainHideoutRecipes(w http.ResponseWriter, _ *http.Request) {
 	recipes := database.GetHideout().Recipes
 	body := services.ApplyResponseBody(recipes)
 	services.ZlibJSONReply(w, body)
 }
 
-func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
-	scavCaseRecipies := database.GetHideout().ScavCase
-	body := services.ApplyResponseBody(scavCaseRecipies)
+func MainHideoutScavRecipes(w http.ResponseWriter, _ *http.Request) {
+	scavCaseRecipes := database.GetHideout().ScavCase
+	body := services.ApplyResponseBody(scavCaseRecipes)
 	services.ZlibJSONReply(w, body)
 }
 
@@ -464,7 +464,7 @@ func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
+func MainCurrentGroup(w http.ResponseWriter, _ *http.Request) {
 	group := &CurrentGroup{
 		Squad: []interface{}{},
 	}
@@ -472,13 +472,13 @@ func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
+func MainRepeatableQuests(w http.ResponseWriter, _ *http.Request) {
 	body := services.ApplyResponseBody([]interface{}{})
 	services.ZlibJSONReply(w, body)
 }
 
-func MainServerList(w http.ResponseWriter, r *http.Request) {
-	serverListings := []ServerListing{}
+func MainServerList(w http.ResponseWriter, _ *http.Request) {
+	var serverListings []ServerListing
 	port, _ := strconv.Atoi(database.GetServerConfig().Ports.Main)
 
 	serverListings = append(serverListings, ServerListing{
@@ -500,14 +500,14 @@ func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-func MainLogoout(w http.ResponseWriter, r *http.Request) {
+func MainLogout(w http.ResponseWriter, r *http.Request) {
 	database.GetProfileByUID(services.GetSessionID(r)).SaveProfile()
 
 	body := services.ApplyResponseBody(map[string]interface{}{"status": "ok"})
 	services.ZlibJSONReply(w, body)
 }
 
-func MainPrices(w http.ResponseWriter, r *http.Request) {
+func MainPrices(w http.ResponseWriter, _ *http.Request) {
 	prices := *database.GetPrices()
 	nextResupply := database.SetResupplyTimer()
 
@@ -525,15 +525,21 @@ func MainPrices(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
-var actionHandlers = map[string]func(map[string]interface{}, *database.Character) interface{}{
-	"QuestAccept": func(moveAction map[string]interface{}, character *database.Character) interface{} {
-		return character.QuestAccept(moveAction["qid"].(string))
+var actionHandlers = map[string]func(map[string]interface{}, *database.Character, *database.ProfileChangesEvent){
+	"QuestAccept": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.QuestAccept(moveAction["qid"].(string))
 	},
-	"Examine": func(moveAction map[string]interface{}, character *database.Character) interface{} {
-		return character.ExamineItem(moveAction)
+	"Examine": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.ExamineItem(moveAction)
 	},
-	"Move": func(moveAction map[string]interface{}, character *database.Character) interface{} {
-		return character.MoveItemInStash(moveAction)
+	"Move": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.MoveItemInStash(moveAction, profileChangeEvent)
+	},
+	"Swap": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.SwapItemInStash(moveAction, profileChangeEvent)
+	},
+	"Fold": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.FoldItem(moveAction, profileChangeEvent)
 	},
 	/*
 		"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character) interface{} {
@@ -543,17 +549,25 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 }
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
-	parsedBody := services.GetParsedBody(r).(map[string]interface{})
-	moveAction := parsedBody["data"].([]interface{})[0].(map[string]interface{})
-	action := moveAction["Action"].(string)
-	fmt.Println(moveAction)
-	character := database.GetCharacterByUID(services.GetSessionID(r))
+	data := services.GetParsedBody(r).(map[string]interface{})["data"].([]interface{})
+	length := int8(len(data))
 
-	if handler, ok := actionHandlers[action]; ok {
-		data := handler(moveAction, character)
-		services.ZlibJSONReply(w, data)
-	} else {
-		fmt.Println(action, "is not supported, sending empty response")
-		services.ZlibJSONReply(w, database.GetProfileChangeByUID(character.ID))
+	character := database.GetCharacterByUID(services.GetSessionID(r))
+	profileChangeEvent := database.GetProfileChangeByUID(character.ID)
+
+	for i := int8(0); i < length; i++ {
+		moveAction := data[i].(map[string]interface{})
+		action := moveAction["Action"].(string)
+
+		if handler, ok := actionHandlers[action]; ok {
+			handler(moveAction, character, profileChangeEvent)
+		} else {
+			fmt.Println(action, "is not supported, sending empty response")
+		}
 	}
+
+	//_ = tools.WriteToFile("/profileChangeEvent.json", profileChangeEvent)
+
+	character.SaveCharacter(character.ID)
+	services.ZlibJSONReply(w, services.ApplyResponseBody(profileChangeEvent))
 }
