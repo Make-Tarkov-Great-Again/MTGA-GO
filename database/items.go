@@ -34,16 +34,16 @@ func (i *DatabaseItem) GetItemSize() (int8, int8) {
 	height, ok := i.Props["Height"].(float64)
 	if !ok {
 		fmt.Println("Item:", i.ID, " does not have a height")
-		return 0, 0
+		return -1, -1
 	}
 
 	width, ok := i.Props["Width"].(float64)
 	if !ok {
 		fmt.Println("Item:", i.ID, " does not have a width")
-		return 0, 0
+		return -1, -1
 	}
 
-	return int8(height), int8(width)
+	return int8(height) - 1, int8(width) - 1
 }
 
 func (i *DatabaseItem) GetItemForcedSize() (int8, int8) {

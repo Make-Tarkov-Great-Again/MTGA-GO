@@ -12,6 +12,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/getBundleList":                              handlers.GetBundleList,
 	"/client/raid/person/killed/showMessage":      handlers.ShowPersonKilledMessage,
 	"/client/game/start":                          handlers.MainGameStart,
+	"/client/putMetrics":                          handlers.MainPutMetrics,
 	"/client/menu/locale/":                        handlers.MainMenuLocale,
 	"/client/game/version/validate":               handlers.MainVersionValidate,
 	"/client/languages":                           handlers.MainLanguages,

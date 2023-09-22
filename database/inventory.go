@@ -67,7 +67,7 @@ func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
 	output := &InventoryContainer{}
 
 	output.SetInventoryIndex(inventory)
-	output.SetInventoryStash(inventory)
+	//output.SetInventoryStash(inventory)
 
 	return output
 }
@@ -96,23 +96,66 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		}
 	}
 
+	jump := int16(stash.Container.Width)
 	for index := range ic.Lookup.Reverse {
 		itemInInventory := inventory.Items[index]
-		if itemInInventory.SlotID == nil || *itemInInventory.SlotID != "hideout" || itemInInventory.Location == nil {
+		if itemInInventory.ParentID == nil ||
+			*itemInInventory.ParentID != inventory.Stash ||
+			itemInInventory.SlotID == nil ||
+			*itemInInventory.SlotID != "hideout" ||
+			itemInInventory.Location == nil {
 			continue
 		}
 
 		itemFlatMap := FlatMapLookup{}
 		height, width := ic.GetSizeInInventory(inventory.Items, itemInInventory.ID)
-		itemFlatMap.Height = height
-		itemFlatMap.Width = width
+		if height == -1 && width == -1 {
+			continue
+		}
+
+		if itemInInventory.Location.R.(float64) == 1 {
+			itemFlatMap.Height = width
+			itemFlatMap.Width = height
+		} else {
+			itemFlatMap.Height = height
+			itemFlatMap.Width = width
+		}
+
+		itemFlatMap.StartX = int16(itemInInventory.Location.X.(float64)) + (int16(itemInInventory.Location.Y.(float64)) * jump)
+		itemFlatMap.EndX = itemFlatMap.StartX + int16(width)
 
 		stash.Container.FlatMap[itemInInventory.ID] = itemFlatMap
 
-		//fmt.Println(height, width)
+		if itemInInventory.ID == "fb08ac9e01a36533563a4389" {
+			fmt.Println()
+		}
+
+		if height == 0 && width == 0 {
+			if stash.Container.Map[itemFlatMap.StartX] != "" {
+				//log.Fatalln("X position is taken by", stash.Container.Map[itemFlatMap.StartX])
+			}
+
+			stash.Container.Map[itemFlatMap.StartX] = itemInInventory.ID
+			continue
+		}
+
+		for posX := itemFlatMap.StartX; posX <= itemFlatMap.EndX; posX++ {
+			if stash.Container.Map[posX] != "" {
+				//log.Fatalln("X position is taken by", stash.Container.Map[posX])
+			}
+			stash.Container.Map[posX] = itemInInventory.ID
+
+			for y := int16(1); y <= int16(height); y++ {
+				posY := y*jump + posX
+				if stash.Container.Map[posY] != "" {
+					//log.Fatalln("Y position is taken by", stash.Container.Map[posY])
+				}
+				stash.Container.Map[posY] = itemInInventory.ID
+			}
+		}
 	}
 
-	fmt.Println(grids)
+	//fmt.Println()
 }
 
 func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {

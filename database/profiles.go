@@ -34,9 +34,9 @@ func GetProfileChangeByUID(uid string) *ProfileChangesEvent {
 			WeaponBuilds:    make([]interface{}, 0),
 			EquipmentBuilds: make([]interface{}, 0),
 			Items: ItemChanges{
-				New:    make([]*Product, 0),
-				Change: make([]*Product, 0),
-				Del:    make([]*Product, 0),
+				New:    make([]*InventoryItem, 0),
+				Change: make([]*InventoryItem, 0),
+				Del:    make([]*InventoryItem, 0),
 			},
 			Production:            make(map[string]interface{}),
 			Improvements:          make(map[string]interface{}),
@@ -103,19 +103,34 @@ func setProfiles() map[string]*Profile {
 			if profile.Character.Info.Nickname != "" {
 				Nicknames[profile.Character.Info.Nickname] = struct{}{}
 			}
+		} else {
+			profile.Character = &Character{}
 		}
 
 		path = filepath.Join(userPath, "storage.json")
 		if tools.FileExist(path) {
 			profile.Storage = setStorage(path)
+		} else {
+			profile.Storage = &Storage{
+				Suites: make([]string, 0),
+				Builds: Builds{
+					EquipmentBuilds: make([]*EquipmentBuild, 0),
+					WeaponBuilds:    make([]*WeaponBuild, 0),
+				},
+				Insurance: make([]interface{}, 0),
+				Mailbox:   make([]*Notification, 0),
+			}
 		}
 
 		path = filepath.Join(userPath, "dialogue.json")
 		if tools.FileExist(path) {
 			profile.Dialogue = setDialogue(path)
+		} else {
+			profile.Dialogue = &Dialogue{}
 		}
 
-		profile.Cache = profile.setCache()
+		profile.Cache = profile.SetCache()
+
 		profiles[user] = profile
 	}
 	return profiles
@@ -258,17 +273,9 @@ type Warning struct {
 }
 
 type ItemChanges struct {
-	New    []*Product `json:"new"`
-	Change []*Product `json:"change"`
-	Del    []*Product `json:"del"`
-}
-
-type Product struct {
-	ID       string        `json:"_id"`
-	TPL      string        `json:"_tpl,omitempty"`
-	ParentID string        `json:"parentId,omitempty"`
-	SlotID   string        `json:"slotId,omitempty"`
-	Location *ItemLocation `json:"location,omitempty"`
+	New    []*InventoryItem `json:"new"`
+	Change []*InventoryItem `json:"change"`
+	Del    []*InventoryItem `json:"del"`
 }
 
 type ItemLocation struct {

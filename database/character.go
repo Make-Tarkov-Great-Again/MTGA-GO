@@ -296,6 +296,65 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) *ProfileChang
 
 }
 
+func (c *Character) MoveItem(moveAction map[string]interface{}) {
+}
+
+type move struct {
+	Action string
+	Item   string `json:"item"`
+	To     moveTo `json:"to"`
+}
+
+type moveTo struct {
+	ID        string          `json:"id"`
+	Container string          `json:"container"`
+	Location  *moveToLocation `json:"location,omitempty"`
+}
+
+type moveToLocation struct {
+	X          int16  `json:"x"`
+	Y          int16  `json:"y"`
+	R          string `json:"r"`
+	IsSearched bool   `json:"isSearched"`
+}
+
+func (c *Character) MoveItemInStash(moveAction map[string]interface{}) *ProfileChangesEvent {
+	move := new(move)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &move)
+	if err != nil {
+		panic(err)
+	}
+
+	cache := GetCacheByUID(c.ID).Inventory.Lookup.Forward[move.Item]
+	itemInInventory := c.Inventory.Items[cache]
+
+	if move.To.Location != nil {
+		moveToLocation := move.To.Location
+		rotation := 0
+		if moveToLocation.R == "Vertical" {
+			rotation++
+		}
+
+		itemInInventory.Location.Y = moveToLocation.Y
+		itemInInventory.Location.X = moveToLocation.X
+		itemInInventory.Location.R = rotation
+		itemInInventory.Location.IsSearched = moveToLocation.IsSearched
+	} else {
+		itemInInventory.Location = nil
+	}
+
+	itemInInventory.ParentID = &move.To.ID
+	itemInInventory.SlotID = &move.To.Container
+
+	c.SaveCharacter(c.ID)
+
+	output := GetProfileChangeByUID(c.ID)
+	/*	output.ProfileChanges.Production = nil
+		output.ProfileChanges.Items.Change = append(output.ProfileChanges.Items.Change, &itemInInventory)*/
+	return output
+}
+
 // #endregion
 
 // #region Character structs

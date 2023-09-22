@@ -16,10 +16,7 @@ func GetEditions() map[string]*Edition {
 }
 
 func GetEdition(version string) *Edition {
-	edition, ok := editions[version]
-	if !ok {
-		return nil
-	}
+	edition, _ := editions[version]
 	return edition
 }
 
@@ -33,21 +30,19 @@ func setEditions() {
 		panic(err)
 	}
 
-	editions := make(map[string]*Edition)
-
 	for _, directory := range directories {
-		setEdition(directory, editionsDirPath, editions)
+		setEdition(directory, editionsDirPath)
 	}
 }
 
-func setEdition(directory string, editionsDirPath string, editions map[string]*Edition) {
+func setEdition(directory string, editionsDirPath string) {
 	editionPath := filepath.Join(editionsDirPath, directory)
 	files, err := tools.GetFilesFrom(editionPath)
 	if err != nil {
 		panic(err)
 	}
 
-	edition := &Edition{}
+	edition := new(Edition)
 
 	for _, file := range files {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, file))

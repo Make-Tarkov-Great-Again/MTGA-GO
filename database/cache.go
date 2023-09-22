@@ -25,38 +25,44 @@ func GetTraderCacheByUID(uid string) *TraderCache {
 	return nil
 }
 
-func (profile *Profile) setCache() *Cache {
-	cache := &Cache{
-		Skills: &SkillsCache{
-			Common: make(map[string]int8),
-		},
-		Hideout: &HideoutCache{
-			Areas: make(map[int8]int8),
-		},
-		Quests: &QuestCache{
-			Index: make(map[string]int8),
-		},
-		Traders: &TraderCache{
-			Index:         make(map[string]*AssortIndex),
-			Assorts:       make(map[string]*Assort),
-			LoyaltyLevels: make(map[string]int8),
-		},
+func (profile *Profile) SetCache() *Cache {
+	var cache *Cache
+	if profile.Cache == nil {
+		cache = &Cache{
+			Skills: &SkillsCache{
+				Common: make(map[string]int8),
+			},
+			Hideout: &HideoutCache{
+				Areas: make(map[int8]int8),
+			},
+			Quests: &QuestCache{
+				Index: make(map[string]int8),
+			},
+			Traders: &TraderCache{
+				Index:         make(map[string]*AssortIndex),
+				Assorts:       make(map[string]*Assort),
+				LoyaltyLevels: make(map[string]int8),
+			},
+		}
+	} else {
+		cache = profile.Cache
 	}
 
-	for index, quest := range profile.Character.Quests {
-		cache.Quests.Index[quest.QID] = int8(index)
+	if profile.Character != nil {
+		for index, quest := range profile.Character.Quests {
+			cache.Quests.Index[quest.QID] = int8(index)
+		}
+
+		for index, commonSkill := range profile.Character.Skills.Common {
+			cache.Skills.Common[commonSkill.ID] = int8(index)
+		}
+
+		for index, area := range profile.Character.Hideout.Areas {
+			cache.Hideout.Areas[int8(area.Type)] = int8(index)
+		}
+
+		cache.Inventory = SetInventoryContainer(&profile.Character.Inventory)
 	}
-
-	for index, commonSkill := range profile.Character.Skills.Common {
-		cache.Skills.Common[commonSkill.ID] = int8(index)
-	}
-
-	for index, area := range profile.Character.Hideout.Areas {
-		cache.Hideout.Areas[int8(area.Type)] = int8(index)
-	}
-
-	cache.Inventory = SetInventoryContainer(&profile.Character.Inventory)
-
 	return cache
 }
 

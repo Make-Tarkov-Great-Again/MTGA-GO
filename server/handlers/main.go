@@ -5,6 +5,7 @@ import (
 	"MT-GO/services"
 	"MT-GO/tools"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -38,6 +39,10 @@ func MainGameStart(w http.ResponseWriter, _ *http.Request) {
 
 	start := services.ApplyResponseBody(data)
 	services.ZlibJSONReply(w, start)
+}
+
+func MainPutMetrics(w http.ResponseWriter, _ *http.Request) {
+	services.ZlibJSONReply(w, services.ApplyResponseBody(nil))
 }
 
 func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
@@ -160,7 +165,7 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	character := database.GetCharacterByUID(sessionID)
 
-	if character.ID == "" {
+	if character == nil || character.ID == "" {
 		profiles := services.ApplyResponseBody([]interface{}{})
 		services.ZlibJSONReply(w, profiles)
 		fmt.Println("Character doesn't exist, begin creation")
@@ -179,7 +184,7 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 
 func MainAccountCustomization(w http.ResponseWriter, r *http.Request) {
 	customization := database.GetCustomizations()
-	output := []string{}
+	var output []string
 	for id, c := range customization {
 		custom, ok := c.(map[string]interface{})
 		if !ok {
@@ -222,18 +227,19 @@ func MainLocale(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func MainKeepAlive(w http.ResponseWriter, r *http.Request) {
+var keepAlive = &KeepAlive{
+	Msg:     "OK",
+	UtcTime: 0,
+}
 
-	data := &KeepAlive{
-		Msg:     "OK",
-		UtcTime: tools.GetCurrentTimeInSeconds(),
-	}
+func MainKeepAlive(w http.ResponseWriter, _ *http.Request) {
+	keepAlive.UtcTime = tools.GetCurrentTimeInSeconds()
 
-	body := services.ApplyResponseBody(data)
+	body := services.ApplyResponseBody(keepAlive)
 	services.ZlibJSONReply(w, body)
 }
 
-func MainNicknameReserved(w http.ResponseWriter, r *http.Request) {
+func MainNicknameReserved(w http.ResponseWriter, _ *http.Request) {
 	body := services.ApplyResponseBody("")
 	services.ZlibJSONReply(w, body)
 }
@@ -283,15 +289,18 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 
 	profile := database.GetProfileByUID(sessionID)
 
-	editions := database.GetEdition("Edge Of Darkness")
+	edition := database.GetEdition("Edge Of Darkness")
+	if edition == nil {
+		log.Fatalln("[MainProfileCreate] Edition is nil, this ain't good fella!")
+	}
 	var pmc database.Character
 
 	if request.Side == "Bear" {
-		pmc = *editions.Bear
-		profile.Storage.Suites = editions.Storage.Bear
+		pmc = *edition.Bear
+		profile.Storage.Suites = edition.Storage.Bear
 	} else {
-		pmc = *editions.Usec
-		profile.Storage.Suites = editions.Storage.Usec
+		pmc = *edition.Usec
+		profile.Storage.Suites = edition.Storage.Usec
 	}
 
 	pmc.ID = sessionID
@@ -340,6 +349,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	hideout.Improvement = make(map[string]interface{})
 
 	profile.Character = &pmc
+	profile.Cache = profile.SetCache()
 	profile.SaveProfile()
 
 	data := services.ApplyResponseBody(map[string]interface{}{"uid": sessionID})
@@ -521,7 +531,11 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 	},
 	"Examine": func(moveAction map[string]interface{}, character *database.Character) interface{} {
 		return character.ExamineItem(moveAction)
-	}, /*
+	},
+	"Move": func(moveAction map[string]interface{}, character *database.Character) interface{} {
+		return character.MoveItemInStash(moveAction)
+	},
+	/*
 		"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character) interface{} {
 			// Handle the "ReadEncyclopedia" action here
 			return nil
@@ -533,7 +547,6 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	moveAction := parsedBody["data"].([]interface{})[0].(map[string]interface{})
 	action := moveAction["Action"].(string)
 	fmt.Println(moveAction)
-
 	character := database.GetCharacterByUID(services.GetSessionID(r))
 
 	if handler, ok := actionHandlers[action]; ok {
