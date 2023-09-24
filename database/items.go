@@ -43,7 +43,7 @@ func (i *DatabaseItem) GetItemSize() (int8, int8) {
 		return -1, -1
 	}
 
-	return int8(height) - 1, int8(width) - 1
+	return int8(height), int8(width)
 }
 
 func (i *DatabaseItem) GetItemForcedSize() (int8, int8) {
