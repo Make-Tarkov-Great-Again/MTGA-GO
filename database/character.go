@@ -461,6 +461,41 @@ func (c *Character) ReadEncyclopedia(moveAction map[string]interface{}) {
 	}
 }
 
+type merge struct {
+	Action string
+	Item   string `json:"item"`
+	With   string `json:"with"`
+}
+
+func (c *Character) MergeItem(moveAction map[string]interface{}) {
+	merge := new(merge)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &merge)
+	if err != nil {
+		panic(err)
+	}
+
+	cache := GetCacheByUID(c.ID)
+
+	toMergeIndex := cache.Inventory.Lookup.Forward[merge.Item]
+	toMerge := &c.Inventory.Items[toMergeIndex]
+
+	mergeWithIndex := cache.Inventory.Lookup.Forward[merge.With]
+	mergeWith := &c.Inventory.Items[mergeWithIndex]
+
+	*mergeWith.UPD.StackObjectsCount += *toMerge.UPD.StackObjectsCount
+
+	cache.Inventory.ClearItemFromStash(toMerge.ID)
+	c.Inventory.Items = append(c.Inventory.Items[:toMergeIndex], c.Inventory.Items[toMergeIndex+1:]...)
+}
+
+type buyFromTrader struct {
+}
+
+func (c *Character) BuyItemFromTrader(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	fmt.Println()
+}
+
 // #endregion
 
 // #region Character structs
