@@ -157,12 +157,13 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		}
 
 		itemFlatMap := FlatMapLookup{}
+
 		height, width := ic.GetSizeInInventory(inventory.Items, itemInInventory.ID)
 		if height == -1 && width == -1 {
 			continue
 		}
 
-		// the item is already going to be set to its zero coordinate which counts as 1 for height and width
+		// TODO: See if this would be better off in GetSizeInInventory() function
 		if width != 0 {
 			width--
 		}
@@ -186,7 +187,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		if height == 0 && width == 0 {
 			if stash.Container.Map[itemFlatMap.StartX] != "" {
-				log.Fatalln("X position is taken by", stash.Container.Map[itemFlatMap.StartX])
+				log.Fatalln("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but it occupied by", stash.Container.Map[itemFlatMap.StartX])
 			}
 
 			stash.Container.Map[itemFlatMap.StartX] = itemInInventory.ID
@@ -195,19 +196,22 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
 			if stash.Container.Map[column] != "" {
-				log.Fatalln("X position is taken by", stash.Container.Map[column])
+				log.Fatalln("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but it occupied by", stash.Container.Map[column])
 			}
 			stash.Container.Map[column] = itemInInventory.ID
 
 			for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
 				coordinate := row*stride + column
 				if stash.Container.Map[coordinate] != "" {
-					log.Fatalln("Y position is taken by", stash.Container.Map[coordinate])
+					log.Fatalln("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but it occupied by", stash.Container.Map[coordinate])
+
 				}
 				stash.Container.Map[coordinate] = itemInInventory.ID
 			}
 		}
 	}
+	// TODO: Remove this
+	//_ = tools.WriteToFile("/1darray.json", stash.Container.Map)
 }
 
 func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
@@ -229,17 +233,20 @@ func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
 
 func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent string) (int8, int8) {
 	family := GetInventoryItemFamilyTree(items, parent)
-
-	itemID := ic.Lookup.Forward[family[0]]
-	height, width := GetItemByUID(items[itemID].TPL).GetItemSize() //get parent as starting point
 	length := len(family)
+	index := ic.Lookup.Forward[family[length-1]]
+	itemID := items[index].TPL
+
+	height, width := GetItemByUID(itemID).GetItemSize() //get parent as starting point
+
 	if length == 1 {
 		return height, width
 	}
 
-	for i := 1; i < length; i++ {
-		itemID = ic.Lookup.Forward[family[i]]
-		forcedHeight, forcedWidth := GetItemByUID(items[itemID].TPL).GetItemForcedSize()
+	for i := 1; i < length-1; i++ {
+		index = ic.Lookup.Forward[family[i]]
+		itemID = items[index].TPL
+		forcedHeight, forcedWidth := GetItemByUID(itemID).GetItemForcedSize()
 		height += forcedHeight
 		width += forcedWidth
 	}

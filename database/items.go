@@ -24,12 +24,12 @@ func GetItemByUID(uid string) *DatabaseItem {
 	return item
 }
 
-// Get item... price...
+// GetItemPrice Gets item... price...
 func (i *DatabaseItem) GetItemPrice() *int32 {
 	return GetPriceByID(i.ID)
 }
 
-// Get item height and width
+// GetItemSize Get item height and width
 func (i *DatabaseItem) GetItemSize() (int8, int8) {
 	height, ok := i.Props["Height"].(float64)
 	if !ok {
@@ -48,7 +48,7 @@ func (i *DatabaseItem) GetItemSize() (int8, int8) {
 
 func (i *DatabaseItem) GetItemForcedSize() (int8, int8) {
 	extraSize, ok := i.Props["ExtraSizeForceAdd"].(bool)
-	if !ok || !extraSize {
+	if !ok {
 		return 0, 0
 	}
 
@@ -56,22 +56,34 @@ func (i *DatabaseItem) GetItemForcedSize() (int8, int8) {
 
 	down, ok := i.Props["ExtraSizeDown"].(float64)
 	if ok {
-		height += int8(down)
+		down := int8(down)
+		if extraSize || height < down {
+			height += down
+		}
 	}
 
 	up, ok := i.Props["ExtraSizeUp"].(float64)
 	if ok {
-		height += int8(up)
+		up := int8(up)
+		if extraSize || height < up {
+			height += up
+		}
 	}
 
 	left, ok := i.Props["ExtraSizeLeft"].(float64)
 	if ok {
-		width += int8(left)
+		left := int8(left)
+		if extraSize || width < left {
+			width += left
+		}
 	}
 
 	right, ok := i.Props["ExtraSizeRight"].(float64)
 	if ok {
-		width += int8(right)
+		right := int8(right)
+		if extraSize || width < right {
+			width += right
+		}
 	}
 
 	return height, width
@@ -98,7 +110,7 @@ type GridProps struct {
 	IsSortingTable bool          `json:"isSortingTable"`
 }
 
-// Get the grid property from the item if it exists
+// GetItemGrids Get the grid property from the item if it exists
 func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 	grids, ok := i.Props["Grids"].([]interface{})
 	if !ok || len(grids) == 0 {
@@ -139,7 +151,7 @@ type SlotProps struct {
 	Filters []SlotFilters `json:"filters"`
 }
 
-// Get the slot property from the item if it exists
+// GetItemSlots Get the slot property from the item if it exists
 func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 	slots, ok := i.Props["Slots"].([]interface{})
 	if !ok || len(slots) == 0 {
