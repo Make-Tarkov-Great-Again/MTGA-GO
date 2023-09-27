@@ -526,6 +526,39 @@ func (c *Character) TransferItem(moveAction map[string]interface{}) {
 	*mergeWith.UPD.StackObjectsCount += transfer.Count
 }
 
+type split struct {
+	Action    string `json:"Action"`
+	SplitItem string `json:"splitItem"`
+	NewItem   string `json:"newItem"`
+	Container moveTo `json:"container"`
+	Count     int32  `json:"count"`
+}
+
+func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	split := new(split)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &split)
+	if err != nil {
+		panic(err)
+	}
+
+	inventoryCache := *GetCacheByUID(c.ID).Inventory
+
+	originalItem := &c.Inventory.Items[*inventoryCache.GetIndexOfItemByUID(split.SplitItem)]
+	*originalItem.UPD.StackObjectsCount -= split.Count
+
+	newItem := InventoryItem{
+		ID:  split.NewItem,
+		TPL: originalItem.TPL,
+		UPD: originalItem.UPD,
+	}
+	*newItem.UPD.StackObjectsCount = split.Count
+
+	c.Inventory.Items = append(c.Inventory.Items, newItem)
+	inventoryCache.AddItemToContainer(split.NewItem, &c.Inventory)
+	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangeEvents[c.ID].ProfileChanges[c.ID].Items.New, &newItem)
+}
+
 type buyFromTrader struct {
 }
 

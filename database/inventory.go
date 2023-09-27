@@ -220,7 +220,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 	//_ = tools.WriteToFile("/1darray.json", stash.Container.Map)
 }
 
-// ClearItemFromContainer wipes item, based on the UID, from the container cached map, flatmap, and lookups
+// ClearItemFromContainer wipes item, based on the UID, from the Lookup, Map and FlatMap
 func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 	var stash = &ic.Stash
 	var itemFlatMap = stash.Container.FlatMap[UID]
@@ -249,6 +249,64 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 	delete(ic.Lookup.Reverse, ic.Lookup.Forward[UID])
 	delete(ic.Lookup.Forward, UID)
 	delete(stash.Container.FlatMap, UID)
+}
+
+// TODO: Consider refactoring AddItemToContainer
+
+// AddItemToContainer adds item, based on the UID, to the Lookup, Map and FlatMap
+func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventory) {
+	var stash = &ic.Stash
+	var itemFlatMap = new(FlatMapLookup)
+
+	itemInInventory := Inventory.Items[*ic.GetIndexOfItemByUID(UID)]
+	height, width := ic.GetSizeInInventory(Inventory.Items, UID)
+	if height == -1 && width == -1 {
+		log.Fatalln("Item", UID, "does not have an item size")
+	}
+
+	// TODO: See if this would be better off in GetSizeInInventory() function
+	if width != 0 {
+		width--
+	}
+	if height != 0 {
+		height--
+	}
+
+	if itemInInventory.Location.R.(float64) == 1 {
+		itemFlatMap.Height = width
+		itemFlatMap.Width = height
+	} else {
+		itemFlatMap.Height = height
+		itemFlatMap.Width = width
+	}
+
+	row := int16(itemInInventory.Location.Y.(float64)) * int16(ic.Stash.Container.Width)
+	itemFlatMap.StartX = int16(itemInInventory.Location.X.(float64)) + row
+	itemFlatMap.EndX = itemFlatMap.StartX + int16(itemFlatMap.Width)
+	var containerMap = &stash.Container.Map
+
+	var stride = int16(stash.Container.Width)
+	var itemID string
+
+	for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
+		itemID = (*containerMap)[column]
+		if itemID != "" {
+			log.Fatalln("Flat Map Index of X position", column, "is trying to be filled by", UID, "but is occupied by", stash.Container.Map[column])
+		}
+		(*containerMap)[column] = UID
+
+		for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
+			var coordinate = row*stride + column
+			itemID = (*containerMap)[coordinate]
+			if itemID != "" {
+				log.Fatalln("Flat Map Index of Y position", row, "is trying to be filled by", UID, "but is occupied by", stash.Container.Map[coordinate])
+			}
+			(*containerMap)[coordinate] = UID
+		}
+	}
+
+	stash.Container.FlatMap[UID] = *itemFlatMap
+	ic.SetInventoryIndex(Inventory)
 }
 
 func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
