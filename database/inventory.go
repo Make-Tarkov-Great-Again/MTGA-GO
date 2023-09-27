@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -82,7 +83,7 @@ type InventoryItemLocation struct {
 
 type InventoryContainer struct {
 	Stash  Stash
-	Lookup Lookup
+	Lookup *Lookup
 }
 
 type Lookup struct {
@@ -123,7 +124,7 @@ func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
 
 func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 	ic.Stash = Stash{}
-	stash := &ic.Stash
+	var stash = &ic.Stash
 
 	item := GetItemByUID(inventory.Items[ic.Lookup.Forward[inventory.Stash]].TPL)
 	grids := item.GetItemGrids()
@@ -144,7 +145,9 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		}
 	}
 
-	stride := int16(stash.Container.Width)
+	var stride = int16(stash.Container.Width)
+	var itemID string
+
 	for index := range ic.Lookup.Reverse {
 		itemInInventory := inventory.Items[index]
 		if itemInInventory.ParentID == nil ||
@@ -182,29 +185,34 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		itemFlatMap.StartX = int16(itemInInventory.Location.X.(float64)) + row
 		itemFlatMap.EndX = itemFlatMap.StartX + int16(itemFlatMap.Width)
 
-		stash.Container.FlatMap[itemInInventory.ID] = itemFlatMap
+		var containerMap = &stash.Container.Map
+		var containerFlatMap = &stash.Container.FlatMap
+
+		(*containerFlatMap)[itemInInventory.ID] = itemFlatMap
 
 		if height == 0 && width == 0 {
 			if stash.Container.Map[itemFlatMap.StartX] != "" {
 				log.Fatalln("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[itemFlatMap.StartX])
 			}
 
-			stash.Container.Map[itemFlatMap.StartX] = itemInInventory.ID
+			(*containerMap)[itemFlatMap.StartX] = itemInInventory.ID
 			continue
 		}
 
 		for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
-			if stash.Container.Map[column] != "" {
+			itemID = (*containerMap)[column]
+			if itemID != "" {
 				log.Fatalln("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[column])
 			}
-			stash.Container.Map[column] = itemInInventory.ID
+			(*containerMap)[column] = itemInInventory.ID
 
 			for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
-				coordinate := row*stride + column
-				if stash.Container.Map[coordinate] != "" {
+				var coordinate = row*stride + column
+				itemID = (*containerMap)[coordinate]
+				if itemID != "" {
 					log.Fatalln("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[coordinate])
 				}
-				stash.Container.Map[coordinate] = itemInInventory.ID
+				(*containerMap)[coordinate] = itemInInventory.ID
 			}
 		}
 	}
@@ -212,24 +220,29 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 	//_ = tools.WriteToFile("/1darray.json", stash.Container.Map)
 }
 
-// ClearItemFromStash wipes item, based on the UID, from the container cached map, flatmap, and lookups
-func (ic *InventoryContainer) ClearItemFromStash(UID string) {
-	stash := &ic.Stash
-	itemFlatMap := stash.Container.FlatMap[UID]
-	stride := int16(stash.Container.Width)
+// ClearItemFromContainer wipes item, based on the UID, from the container cached map, flatmap, and lookups
+func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
+	var stash = &ic.Stash
+	var itemFlatMap = stash.Container.FlatMap[UID]
+	var containerMap = &stash.Container.Map
+
+	var stride = int16(stash.Container.Width)
+	var itemID string
 
 	for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
-		if stash.Container.Map[column] != UID {
+		itemID = (*containerMap)[column]
+		if itemID != UID {
 			log.Fatalln("Flat Map Index of X position", column, "is trying to be emptied of", UID, "but is occupied by", stash.Container.Map[column])
 		}
-		stash.Container.Map[column] = ""
+		(*containerMap)[column] = ""
 
 		for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
-			coordinate := row*stride + column
-			if stash.Container.Map[coordinate] != UID {
+			var coordinate = row*stride + column
+			itemID = (*containerMap)[coordinate]
+			if itemID != UID {
 				log.Fatalln("Flat Map Index of Y position", row, "is trying to be emptied of", UID, "but is occupied by", stash.Container.Map[coordinate])
 			}
-			stash.Container.Map[coordinate] = ""
+			(*containerMap)[coordinate] = ""
 		}
 	}
 
@@ -241,13 +254,13 @@ func (ic *InventoryContainer) ClearItemFromStash(UID string) {
 func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
 	var list []string
 
-	for _, childitem := range items {
-		if childitem.ParentID == nil {
+	for _, childItem := range items {
+		if childItem.ParentID == nil {
 			continue
 		}
 
-		if *childitem.ParentID == parent {
-			list = append(list, GetInventoryItemFamilyTree(items, childitem.ID)...)
+		if *childItem.ParentID == parent {
+			list = append(list, GetInventoryItemFamilyTree(items, childItem.ID)...)
 		}
 	}
 
@@ -259,9 +272,9 @@ func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent s
 	family := GetInventoryItemFamilyTree(items, parent)
 	length := len(family)
 	index := ic.Lookup.Forward[family[length-1]]
-	itemID := items[index].TPL
+	UID := items[index].TPL
 
-	height, width := GetItemByUID(itemID).GetItemSize() //get parent as starting point
+	height, width := GetItemByUID(UID).GetItemSize() //get parent as starting point
 
 	if length == 1 {
 		return height, width
@@ -269,8 +282,8 @@ func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent s
 
 	for i := 1; i < length-1; i++ {
 		index = ic.Lookup.Forward[family[i]]
-		itemID = items[index].TPL
-		forcedHeight, forcedWidth := GetItemByUID(itemID).GetItemForcedSize()
+		UID = items[index].TPL
+		forcedHeight, forcedWidth := GetItemByUID(UID).GetItemForcedSize()
 		height += forcedHeight
 		width += forcedWidth
 	}
@@ -279,16 +292,29 @@ func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent s
 }
 
 func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {
-	ic.Lookup = Lookup{
-		Forward: make(map[string]int16),
-		Reverse: make(map[int16]string),
+	if ic.Lookup == nil {
+		ic.Lookup = &Lookup{
+			Forward: make(map[string]int16),
+			Reverse: make(map[int16]string),
+		}
 	}
 
-	index := ic.Lookup
+	var pos int16
 	for idx, item := range inventory.Items {
-		pos := int16(idx)
+		pos = int16(idx)
 
-		index.Forward[item.ID] = pos
-		index.Reverse[pos] = item.ID
+		ic.Lookup.Forward[item.ID] = pos
+		ic.Lookup.Reverse[pos] = item.ID
 	}
+}
+
+// GetIndexOfItemByUID retrieves cached index of the item in your
+// Inventory by its UID in Lookup.Forward
+func (ic *InventoryContainer) GetIndexOfItemByUID(UID string) *int16 {
+	index, ok := ic.Lookup.Forward[UID]
+	if !ok {
+		fmt.Println("Item of UID", UID, "does not exist in cache. Returning -1")
+		return nil
+	}
+	return &index
 }

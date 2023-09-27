@@ -320,7 +320,7 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileCh
 		panic(err)
 	}
 
-	cache := GetCacheByUID(c.ID).Inventory.Lookup.Forward[move.Item]
+	cache := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(move.Item)
 	itemInInventory := &c.Inventory.Items[cache]
 
 	if move.To.Location != nil {
@@ -364,7 +364,7 @@ func (c *Character) SwapItemInStash(moveAction map[string]interface{}, profileCh
 		panic(err)
 	}
 
-	cache := GetCacheByUID(c.ID).Inventory.Lookup.Forward[swap.Item]
+	cache := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(swap.Item)
 	itemInInventory := &c.Inventory.Items[cache]
 
 	if swap.To.Location != nil {
@@ -431,7 +431,7 @@ func (c *Character) FoldItem(moveAction map[string]interface{}, profileChangesEv
 		panic(err)
 	}
 
-	cache := GetCacheByUID(c.ID).Inventory.Lookup.Forward[fold.Item]
+	cache := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(fold.Item)
 	itemInInventory := &c.Inventory.Items[cache]
 	if itemInInventory.UPD == nil || itemInInventory.UPD.Foldable == nil {
 		log.Fatalln(itemInInventory.ID, "cannot be folded!")
@@ -475,18 +475,55 @@ func (c *Character) MergeItem(moveAction map[string]interface{}) {
 		panic(err)
 	}
 
-	cache := GetCacheByUID(c.ID)
+	inventoryCache := GetCacheByUID(c.ID).Inventory
 
-	toMergeIndex := cache.Inventory.Lookup.Forward[merge.Item]
+	toMergeIndex := *inventoryCache.GetIndexOfItemByUID(merge.Item)
 	toMerge := &c.Inventory.Items[toMergeIndex]
 
-	mergeWithIndex := cache.Inventory.Lookup.Forward[merge.With]
+	mergeWithIndex := *inventoryCache.GetIndexOfItemByUID(merge.With)
 	mergeWith := &c.Inventory.Items[mergeWithIndex]
 
 	*mergeWith.UPD.StackObjectsCount += *toMerge.UPD.StackObjectsCount
 
-	cache.Inventory.ClearItemFromStash(toMerge.ID)
-	c.Inventory.Items = append(c.Inventory.Items[:toMergeIndex], c.Inventory.Items[toMergeIndex+1:]...)
+	inventoryCache.ClearItemFromContainer(toMerge.ID)
+	c.Inventory.RemoveItemFromInventoryByIndex(toMergeIndex)
+	inventoryCache.SetInventoryIndex(&c.Inventory)
+}
+
+// RemoveItemFromInventoryByIndex takes the existing Inventory.Items and removes an InventoryItem at its index
+// by shifting the indexes to the left
+func (inv *Inventory) RemoveItemFromInventoryByIndex(index int16) {
+	if index < 0 || index >= int16(len(inv.Items)) {
+		log.Fatalln("[RemoveItemFromInventoryByIndex] Index out of Range")
+	}
+	copy(inv.Items[index:], inv.Items[index+1:])
+}
+
+type transfer struct {
+	Action string
+	Item   string `json:"item"`
+	With   string `json:"with"`
+	Count  int32  `json:"count"`
+}
+
+func (c *Character) TransferItem(moveAction map[string]interface{}) {
+	transfer := new(transfer)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &transfer)
+	if err != nil {
+		panic(err)
+	}
+
+	inventoryCache := GetCacheByUID(c.ID).Inventory
+
+	toMergeIndex := *inventoryCache.GetIndexOfItemByUID(transfer.Item)
+	toMerge := &c.Inventory.Items[toMergeIndex]
+
+	mergeWithIndex := *inventoryCache.GetIndexOfItemByUID(transfer.With)
+	mergeWith := &c.Inventory.Items[mergeWithIndex]
+
+	*toMerge.UPD.StackObjectsCount -= transfer.Count
+	*mergeWith.UPD.StackObjectsCount += transfer.Count
 }
 
 type buyFromTrader struct {

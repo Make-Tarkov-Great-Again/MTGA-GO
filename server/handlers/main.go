@@ -544,6 +544,9 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 	"Merge": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.MergeItem(moveAction)
 	},
+	"Transfer": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.TransferItem(moveAction)
+	},
 	"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.ReadEncyclopedia(moveAction)
 	},
