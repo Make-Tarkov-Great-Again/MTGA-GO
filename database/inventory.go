@@ -163,10 +163,6 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		itemFlatMap := FlatMapLookup{}
 
-		if itemInInventory.ID == "aee2db2a5b61e09942c5b7d7" {
-			fmt.Println()
-		}
-
 		height, width := ic.GetSizeInInventory(inventory.Items, itemInInventory.ID)
 		if height == -1 && width == -1 {
 			continue
