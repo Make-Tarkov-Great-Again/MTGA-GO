@@ -550,6 +550,9 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 	"Split": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.SplitItem(moveAction, profileChangeEvent)
 	},
+	"ApplyInventoryChanges": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.ApplyInventoryChanges(moveAction, profileChangeEvent)
+	},
 	"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.ReadEncyclopedia(moveAction)
 	},

@@ -83,7 +83,7 @@ type InventoryItemLocation struct {
 }
 
 type InventoryContainer struct {
-	Stash  Stash
+	Stash  *Stash
 	Lookup *Lookup
 }
 
@@ -124,26 +124,33 @@ func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
 }
 
 func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
-	ic.Stash = Stash{}
-	var stash = &ic.Stash
+	var stash *Stash
+	if ic.Stash == nil {
+		ic.Stash = &Stash{}
+		stash = ic.Stash
 
-	item := GetItemByUID(inventory.Items[ic.Lookup.Forward[inventory.Stash]].TPL)
-	grids := item.GetItemGrids()
+		item := GetItemByUID(inventory.Items[ic.Lookup.Forward[inventory.Stash]].TPL)
+		grids := item.GetItemGrids()
 
-	for key, value := range grids {
-		stash.SlotID = key
+		for key, value := range grids {
+			stash.SlotID = key
 
-		height := value.Props.CellsV
-		width := value.Props.CellsH
+			height := value.Props.CellsV
+			width := value.Props.CellsH
 
-		arraySize := int(height) * int(width)
+			arraySize := int(height) * int(width)
 
-		stash.Container = Map{
-			Height:  height,
-			Width:   width,
-			Map:     make([]string, arraySize),
-			FlatMap: make(map[string]FlatMapLookup),
+			stash.Container = Map{
+				Height:  height,
+				Width:   width,
+				Map:     make([]string, arraySize),
+				FlatMap: make(map[string]FlatMapLookup),
+			}
 		}
+	} else {
+		stash = ic.Stash
+		stash.Container.Map = stash.Container.Map[0:]
+		stash.Container.FlatMap = make(map[string]FlatMapLookup)
 	}
 
 	var containerMap = &stash.Container.Map
@@ -221,7 +228,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 // ClearItemFromContainer wipes item, based on the UID, from the Lookup, Map and FlatMap
 func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
-	var stash = &ic.Stash
+	var stash = *ic.Stash
 	var itemFlatMap = stash.Container.FlatMap[UID]
 	var containerMap = &stash.Container.Map
 
@@ -256,7 +263,7 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventory) {
 	ic.SetInventoryIndex(Inventory)
 
-	var stash = &ic.Stash
+	var stash = *ic.Stash
 	var itemFlatMap = new(FlatMapLookup)
 
 	itemInInventory := Inventory.Items[*ic.GetIndexOfItemByUID(UID)]

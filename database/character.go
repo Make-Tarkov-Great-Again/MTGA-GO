@@ -560,6 +560,64 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangeEvents[c.ID].ProfileChanges[c.ID].Items.New, &newItem)
 }
 
+type applyInventoryChanges struct {
+	Action       string
+	ChangedItems []interface{} `json:"changedItems"`
+}
+
+func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	applyInventoryChanges := new(applyInventoryChanges)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &applyInventoryChanges)
+	if err != nil {
+		panic(err)
+	}
+
+	cache := *GetCacheByUID(c.ID).Inventory
+	for _, item := range applyInventoryChanges.ChangedItems {
+		//vertical = 1 horizontal = 0
+		properties, ok := item.(map[string]interface{})
+		if !ok {
+			log.Fatalln("Cannot type assert item from Auto-Sort items slice")
+		}
+
+		location, ok := properties["location"].(map[string]interface{})
+		if ok {
+			r, ok := location["r"].(string)
+			if !ok {
+				log.Fatalln("I hate this fucking game")
+			}
+
+			if r == "Horizontal" {
+				location["r"] = float64(0)
+			} else {
+				location["r"] = float64(1)
+			}
+		}
+
+		UID, ok := properties["_id"].(string)
+		if !ok {
+			log.Fatalln("I hate this fucking game")
+		}
+		itemInInventory := &c.Inventory.Items[*cache.GetIndexOfItemByUID(UID)]
+
+		if isSearched, ok := location["isSearched"].(bool); ok {
+			itemInInventory.Location.IsSearched = isSearched
+		}
+
+		if r, ok := location["r"].(float64); ok {
+			itemInInventory.Location.R = r
+		}
+		if x, ok := location["r"].(float64); ok {
+			itemInInventory.Location.X = x
+		}
+
+		if y, ok := location["r"].(float64); ok {
+			itemInInventory.Location.Y = y
+		}
+	}
+}
+
 type buyFromTrader struct {
 }
 
