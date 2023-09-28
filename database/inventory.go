@@ -163,7 +163,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		itemFlatMap := FlatMapLookup{}
 
-		if itemInInventory.ID == "88d67c13e89abba40c550ef1" {
+		if itemInInventory.ID == "aee2db2a5b61e09942c5b7d7" {
 			fmt.Println()
 		}
 
@@ -330,6 +330,17 @@ func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
 	return list
 }
 
+type sizes struct {
+	ForcedUp    int8
+	ForcedDown  int8
+	ForcedRight int8
+	ForcedLeft  int8
+	SizeUp      int8
+	SizeDown    int8
+	SizeLeft    int8
+	SizeRight   int8
+}
+
 func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent string) (int8, int8) {
 	family := GetInventoryItemFamilyTree(items, parent)
 	length := len(family) - 1
@@ -342,11 +353,18 @@ func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent s
 		return height, width
 	}
 
-	for i := 1; i < length; i++ {
-		index = ic.Lookup.Forward[family[i]]
+	var member string
+	sizes := &sizes{}
+
+	for i := 0; i < length; i++ {
+		member = family[i]
+		index = ic.Lookup.Forward[member]
 		UID = items[index].TPL
-		GetItemByUID(UID).GetItemForcedSize(&height, &width)
+		GetItemByUID(UID).GetItemForcedSize(sizes)
 	}
+
+	height += sizes.SizeUp + sizes.SizeDown + sizes.ForcedDown + sizes.ForcedUp
+	width += sizes.SizeLeft + sizes.SizeRight + sizes.ForcedRight + sizes.ForcedLeft
 
 	return height, width
 }

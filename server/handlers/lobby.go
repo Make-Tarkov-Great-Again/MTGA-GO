@@ -22,17 +22,9 @@ func LobbyGetWebSocket(w http.ResponseWriter, r *http.Request) {
 	for _, v := range storage.Mailbox {
 		connection.SendMessage(v)
 	}
-	storage.Mailbox = make([]*database.Notification, 0, len(storage.Mailbox))
+	storage.Mailbox = storage.Mailbox[:0]
 	storage.SaveStorage(sessionID)
 
 	body := fmt.Sprintf("%s/getwebsocket/%s", database.GetWebSocketAddress(), sessionID)
 	services.ZlibJSONReply(w, body)
-}
-
-func LobbySWS(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("SWS")
-}
-
-func LobbyNotify(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("NOTIFY for," + r.URL.String())
 }

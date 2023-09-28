@@ -147,10 +147,8 @@ func setMessagingRoutes(mux *http.ServeMux) {
 }
 
 var lobbyRouteHandlers = map[string]http.HandlerFunc{
-	"/sws/":                        handlers.LobbySWS,
 	"/push/notifier/get/":          handlers.LobbyPushNotifier,
 	"/push/notifier/getwebsocket/": handlers.LobbyGetWebSocket,
-	"/?last_id":                    handlers.LobbyNotify,
 }
 
 func setLobbyRoutes(mux *http.ServeMux) {
@@ -160,6 +158,5 @@ func setLobbyRoutes(mux *http.ServeMux) {
 }
 
 func ServeStaticMux(mux *http.ServeMux) {
-
 	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./web"))))
 }

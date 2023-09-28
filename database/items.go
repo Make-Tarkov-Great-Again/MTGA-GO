@@ -46,50 +46,27 @@ func (i *DatabaseItem) GetItemSize() (int8, int8) {
 	return int8(height), int8(width)
 }
 
-func (i *DatabaseItem) GetItemForcedSize(height *int8, width *int8) {
+func (i *DatabaseItem) GetItemForcedSize(sizes *sizes) {
 	extraSize, ok := i.Props["ExtraSizeForceAdd"].(bool)
 	if !ok {
 		return
 	}
 
-	sizeDown, ok := i.Props["ExtraSizeDown"].(float64)
-	if ok {
-		down := int8(sizeDown)
-		if extraSize {
-			*height += down
-		} else if *height < down {
-			*height = down
-		}
-	}
+	extraSizeDown := int8(i.Props["ExtraSizeDown"].(float64))
+	extraSizeUp := int8(i.Props["ExtraSizeUp"].(float64))
+	extraSizeLeft := int8(i.Props["ExtraSizeLeft"].(float64))
+	extraSizeRight := int8(i.Props["ExtraSizeRight"].(float64))
 
-	sizeUp, ok := i.Props["ExtraSizeUp"].(float64)
-	if ok {
-		up := int8(sizeUp)
-		if extraSize {
-			*height += up
-		} else if *height < up {
-			*height = up
-		}
-	}
-
-	sizeLeft, ok := i.Props["ExtraSizeLeft"].(float64)
-	if ok {
-		left := int8(sizeLeft)
-		if extraSize {
-			*width += left
-		} else if *width < left {
-			*width = left
-		}
-	}
-
-	sizeRight, ok := i.Props["ExtraSizeRight"].(float64)
-	if ok {
-		right := int8(sizeRight)
-		if extraSize {
-			*width += right
-		} else if *width < right {
-			*width = right
-		}
+	if extraSize {
+		sizes.ForcedDown += extraSizeDown
+		sizes.ForcedUp += extraSizeUp
+		sizes.ForcedLeft += extraSizeLeft
+		sizes.ForcedRight += extraSizeRight
+	} else {
+		sizes.SizeUp = max(sizes.SizeUp, extraSizeUp)
+		sizes.SizeDown = max(sizes.SizeDown, extraSizeDown)
+		sizes.SizeLeft = max(sizes.SizeLeft, extraSizeLeft)
+		sizes.SizeRight = max(sizes.SizeRight, extraSizeRight)
 	}
 }
 
