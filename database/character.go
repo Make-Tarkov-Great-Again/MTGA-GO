@@ -248,12 +248,10 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) {
 	var item *DatabaseItem
 	if examine.FromOwner == nil {
 		fmt.Println("Examining Item from Player Inventory")
-		for _, i := range c.Inventory.Items {
-			if i.ID == examine.Item {
-				item = GetItemByUID(i.TPL)
-			}
-		}
-		if item == nil {
+		if index := GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(examine.Item); index != nil {
+			itemInInventory := c.Inventory.Items[*index]
+			item = GetItemByUID(itemInInventory.TPL)
+		} else {
 			fmt.Println("[EXAMINE] Examining Item", examine.Item, " from Player Inventory failed, does not exist!")
 			return
 		}
@@ -431,8 +429,11 @@ func (c *Character) FoldItem(moveAction map[string]interface{}, profileChangesEv
 		panic(err)
 	}
 
-	cache := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(fold.Item)
-	itemInInventory := &c.Inventory.Items[cache]
+	cache := GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(fold.Item)
+	if cache == nil {
+		log.Fatalln("Item", fold.Item, "does not exist in cache!")
+	}
+	itemInInventory := &c.Inventory.Items[*cache]
 	if itemInInventory.UPD == nil || itemInInventory.UPD.Foldable == nil {
 		log.Fatalln(itemInInventory.ID, "cannot be folded!")
 	}

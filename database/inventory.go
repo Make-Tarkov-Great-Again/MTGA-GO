@@ -1,6 +1,7 @@
 package database
 
 import (
+	"MT-GO/tools"
 	"fmt"
 	"log"
 )
@@ -145,6 +146,8 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		}
 	}
 
+	var containerMap = &stash.Container.Map
+	var containerFlatMap = &stash.Container.FlatMap
 	var stride = int16(stash.Container.Width)
 	var itemID string
 
@@ -160,12 +163,17 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		itemFlatMap := FlatMapLookup{}
 
+		if itemInInventory.ID == "88d67c13e89abba40c550ef1" {
+			fmt.Println()
+		}
+
 		height, width := ic.GetSizeInInventory(inventory.Items, itemInInventory.ID)
 		if height == -1 && width == -1 {
 			continue
 		}
 
 		// TODO: See if this would be better off in GetSizeInInventory() function
+		// answer is NO
 		if width != 0 {
 			width--
 		}
@@ -185,13 +193,10 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		itemFlatMap.StartX = int16(itemInInventory.Location.X.(float64)) + row
 		itemFlatMap.EndX = itemFlatMap.StartX + int16(itemFlatMap.Width)
 
-		var containerMap = &stash.Container.Map
-		var containerFlatMap = &stash.Container.FlatMap
-
 		(*containerFlatMap)[itemInInventory.ID] = itemFlatMap
 
-		if height == 0 && width == 0 {
-			if stash.Container.Map[itemFlatMap.StartX] != "" {
+		if itemFlatMap.Height == 0 && itemFlatMap.Width == 0 {
+			if itemID = (*containerMap)[itemFlatMap.StartX]; itemID != "" {
 				log.Fatalln("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[itemFlatMap.StartX])
 			}
 
@@ -200,16 +205,14 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		}
 
 		for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
-			itemID = (*containerMap)[column]
-			if itemID != "" {
+			if itemID = (*containerMap)[column]; itemID != "" {
 				log.Fatalln("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[column])
 			}
 			(*containerMap)[column] = itemInInventory.ID
 
 			for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
 				var coordinate = row*stride + column
-				itemID = (*containerMap)[coordinate]
-				if itemID != "" {
+				if itemID = (*containerMap)[coordinate]; itemID != "" {
 					log.Fatalln("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[coordinate])
 				}
 				(*containerMap)[coordinate] = itemInInventory.ID
@@ -217,7 +220,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		}
 	}
 	// TODO: Remove this
-	//_ = tools.WriteToFile("/1darray.json", stash.Container.Map)
+	_ = tools.WriteToFile("/1darray.json", stash.Container.Map)
 }
 
 // ClearItemFromContainer wipes item, based on the UID, from the Lookup, Map and FlatMap
@@ -255,6 +258,8 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 
 // AddItemToContainer adds item, based on the UID, to the Lookup, Map and FlatMap
 func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventory) {
+	ic.SetInventoryIndex(Inventory)
+
 	var stash = &ic.Stash
 	var itemFlatMap = new(FlatMapLookup)
 
@@ -306,7 +311,6 @@ func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventor
 	}
 
 	stash.Container.FlatMap[UID] = *itemFlatMap
-	ic.SetInventoryIndex(Inventory)
 }
 
 func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
@@ -328,8 +332,8 @@ func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
 
 func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent string) (int8, int8) {
 	family := GetInventoryItemFamilyTree(items, parent)
-	length := len(family)
-	index := ic.Lookup.Forward[family[length-1]]
+	length := len(family) - 1
+	index := ic.Lookup.Forward[family[length]]
 	UID := items[index].TPL
 
 	height, width := GetItemByUID(UID).GetItemSize() //get parent as starting point
@@ -338,12 +342,10 @@ func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent s
 		return height, width
 	}
 
-	for i := 1; i < length-1; i++ {
+	for i := 1; i < length; i++ {
 		index = ic.Lookup.Forward[family[i]]
 		UID = items[index].TPL
-		forcedHeight, forcedWidth := GetItemByUID(UID).GetItemForcedSize()
-		height += forcedHeight
-		width += forcedWidth
+		GetItemByUID(UID).GetItemForcedSize(&height, &width)
 	}
 
 	return height, width

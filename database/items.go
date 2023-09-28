@@ -46,47 +46,51 @@ func (i *DatabaseItem) GetItemSize() (int8, int8) {
 	return int8(height), int8(width)
 }
 
-func (i *DatabaseItem) GetItemForcedSize() (int8, int8) {
+func (i *DatabaseItem) GetItemForcedSize(height *int8, width *int8) {
 	extraSize, ok := i.Props["ExtraSizeForceAdd"].(bool)
 	if !ok {
-		return 0, 0
+		return
 	}
 
-	var height, width int8 = 0, 0
-
-	down, ok := i.Props["ExtraSizeDown"].(float64)
+	sizeDown, ok := i.Props["ExtraSizeDown"].(float64)
 	if ok {
-		down := int8(down)
-		if extraSize || height < down {
-			height += down
+		down := int8(sizeDown)
+		if extraSize {
+			*height += down
+		} else if *height < down {
+			*height = down
 		}
 	}
 
-	up, ok := i.Props["ExtraSizeUp"].(float64)
+	sizeUp, ok := i.Props["ExtraSizeUp"].(float64)
 	if ok {
-		up := int8(up)
-		if extraSize || height < up {
-			height += up
+		up := int8(sizeUp)
+		if extraSize {
+			*height += up
+		} else if *height < up {
+			*height = up
 		}
 	}
 
-	left, ok := i.Props["ExtraSizeLeft"].(float64)
+	sizeLeft, ok := i.Props["ExtraSizeLeft"].(float64)
 	if ok {
-		left := int8(left)
-		if extraSize || width < left {
-			width += left
+		left := int8(sizeLeft)
+		if extraSize {
+			*width += left
+		} else if *width < left {
+			*width = left
 		}
 	}
 
-	right, ok := i.Props["ExtraSizeRight"].(float64)
+	sizeRight, ok := i.Props["ExtraSizeRight"].(float64)
 	if ok {
-		right := int8(right)
-		if extraSize || width < right {
-			width += right
+		right := int8(sizeRight)
+		if extraSize {
+			*width += right
+		} else if *width < right {
+			*width = right
 		}
 	}
-
-	return height, width
 }
 
 type Grid struct {

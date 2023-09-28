@@ -136,7 +136,6 @@ func setLocales() {
 	if err != nil {
 		panic(err)
 	}
-
 }
 
 // #endregion

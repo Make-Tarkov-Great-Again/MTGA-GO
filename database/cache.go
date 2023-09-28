@@ -1,6 +1,9 @@
 package database
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 func GetCacheByUID(uid string) *Cache {
 	if profile, ok := profiles[uid]; ok {
@@ -48,18 +51,38 @@ func (profile *Profile) SetCache() *Cache {
 		cache = profile.Cache
 	}
 
-	if profile.Character != nil {
-		for index, quest := range profile.Character.Quests {
-			cache.Quests.Index[quest.QID] = int8(index)
+	if profile.Character.ID != "" {
+		var wg sync.WaitGroup
+
+		// Define a function to update the quests map
+		updateQuests := func() {
+			defer wg.Done()
+			for index, quest := range profile.Character.Quests {
+				cache.Quests.Index[quest.QID] = int8(index)
+			}
 		}
 
-		for index, commonSkill := range profile.Character.Skills.Common {
-			cache.Skills.Common[commonSkill.ID] = int8(index)
+		// Define a function to update the common skills map
+		updateCommonSkills := func() {
+			defer wg.Done()
+			for index, commonSkill := range profile.Character.Skills.Common {
+				cache.Skills.Common[commonSkill.ID] = int8(index)
+			}
 		}
 
-		for index, area := range profile.Character.Hideout.Areas {
-			cache.Hideout.Areas[int8(area.Type)] = int8(index)
+		// Define a function to update the hideout areas map
+		updateHideoutAreas := func() {
+			defer wg.Done()
+			for index, area := range profile.Character.Hideout.Areas {
+				cache.Hideout.Areas[int8(area.Type)] = int8(index)
+			}
 		}
+
+		// Start Goroutines for parallel execution
+		wg.Add(3)
+		go updateQuests()
+		go updateCommonSkills()
+		go updateHideoutAreas()
 
 		cache.Inventory = SetInventoryContainer(&profile.Character.Inventory)
 	}
