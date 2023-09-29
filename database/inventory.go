@@ -1,7 +1,6 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
 	"log"
 )
@@ -175,8 +174,6 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 			continue
 		}
 
-		// TODO: See if this would be better off in GetSizeInInventory() function
-		// answer is NO
 		if width != 0 {
 			width--
 		}
@@ -222,8 +219,66 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 			}
 		}
 	}
-	// TODO: Remove this
-	_ = tools.WriteToFile("/1darray.json", stash.Container.Map)
+}
+
+//TODO: Check consistency of this code
+
+// ResetItemSizeInContainer resets item size in InventoryContainer to reflect item size change
+func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *InventoryItem, Inventory *Inventory) {
+	var stash = *ic.Stash
+	var itemFlatMap = stash.Container.FlatMap[itemInInventory.ID]
+	var containerMap = &stash.Container.Map
+	var stride = int16(stash.Container.Width)
+
+	newItemFlatMap := FlatMapLookup{}
+
+	height, width := ic.GetSizeInInventory(Inventory.Items, itemInInventory.ID)
+
+	if width != 0 {
+		width--
+	}
+	if height != 0 {
+		height--
+	}
+
+	if itemInInventory.Location.R.(float64) == 1 {
+		newItemFlatMap.Height = width
+		newItemFlatMap.Width = height
+	} else {
+		newItemFlatMap.Height = height
+		newItemFlatMap.Width = width
+	}
+
+	startRow := int16(itemInInventory.Location.Y.(float64)) * stride
+	newItemFlatMap.StartX = int16(itemInInventory.Location.X.(float64)) + startRow
+	newItemFlatMap.EndX = newItemFlatMap.StartX + int16(newItemFlatMap.Width)
+
+	if newItemFlatMap.EndX < itemFlatMap.EndX {
+		for column := newItemFlatMap.EndX + 1; column <= itemFlatMap.EndX; column++ {
+			(*containerMap)[column] = ""
+
+			if newItemFlatMap.Height < itemFlatMap.Height {
+				for row := int16(newItemFlatMap.Height) + 1; row <= int16(itemFlatMap.Height); row++ {
+					var coordinate = row*stride + itemFlatMap.EndX
+					(*containerMap)[coordinate] = ""
+				}
+			}
+		}
+	} else if newItemFlatMap.EndX > itemFlatMap.EndX {
+		for column := itemFlatMap.EndX + 1; column <= newItemFlatMap.EndX; column++ {
+			(*containerMap)[column] = itemInInventory.ID
+
+			if newItemFlatMap.Height > itemFlatMap.Height {
+				for row := int16(itemFlatMap.Height) + 1; row <= int16(newItemFlatMap.Height); row++ {
+					var coordinate = row*stride + itemFlatMap.EndX
+					(*containerMap)[coordinate] = itemInInventory.ID
+				}
+			}
+		}
+	}
+
+	stash.Container.FlatMap[itemInInventory.ID] = newItemFlatMap
+	ic.SetInventoryIndex(Inventory)
 }
 
 // ClearItemFromContainer wipes item, based on the UID, from the Lookup, Map and FlatMap
@@ -345,12 +400,33 @@ type sizes struct {
 }
 
 func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent string) (int8, int8) {
+	index := ic.Lookup.Forward[parent]
+	itemInInventory := items[index]
+
+	itemInDatabase := GetItemByUID(itemInInventory.TPL) //parent
+	height, width := itemInDatabase.GetItemSize()       //get parent as starting point
+
+	if itemInDatabase.Parent == "5448e53e4bdc2d60728b4567" || //backpack
+		itemInDatabase.Parent == "566168634bdc2d144c8b456c" || //searchableItem
+		itemInDatabase.Parent == "5795f317245977243854e041" { //simpleContainer
+		return height, width
+	}
+
+	var parentFolded = itemInInventory.UPD != nil && itemInInventory.UPD.Foldable != nil && itemInInventory.UPD.Foldable.Folded
+
+	canFold, foldablePropertyExists := itemInDatabase.Props["Foldable"].(bool)
+	foldedSlotID, foldedSlotPropertyExists := itemInDatabase.Props["FoldedSlot"].(string)
+
+	if (foldablePropertyExists && canFold) && foldedSlotPropertyExists && parentFolded {
+		sizeReduceRight, ok := itemInDatabase.Props["SizeReduceRight"].(float64)
+		if !ok {
+			log.Fatalln("Could not type assert itemInDatabase.Props.SizeReduceRight of UID", itemInInventory.ID)
+		}
+		width -= int8(sizeReduceRight)
+	}
+
 	family := GetInventoryItemFamilyTree(items, parent)
 	length := len(family) - 1
-	index := ic.Lookup.Forward[family[length]]
-	UID := items[index].TPL
-
-	height, width := GetItemByUID(UID).GetItemSize() //get parent as starting point
 
 	if length == 1 {
 		return height, width
@@ -359,11 +435,22 @@ func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent s
 	var member string
 	sizes := &sizes{}
 
+	var childFolded bool
 	for i := 0; i < length; i++ {
 		member = family[i]
 		index = ic.Lookup.Forward[member]
-		UID = items[index].TPL
-		GetItemByUID(UID).GetItemForcedSize(sizes)
+		itemInInventory = items[index]
+
+		childFolded = itemInInventory.UPD != nil && itemInInventory.UPD.Foldable != nil && itemInInventory.UPD.Foldable.Folded
+		if parentFolded || childFolded {
+			continue
+		} else if (foldablePropertyExists && canFold) &&
+			*itemInInventory.SlotID == foldedSlotID &&
+			(parentFolded || childFolded) {
+			continue
+		}
+
+		GetItemByUID(itemInInventory.TPL).GetItemForcedSize(sizes)
 	}
 
 	height += sizes.SizeUp + sizes.SizeDown + sizes.ForcedDown + sizes.ForcedUp

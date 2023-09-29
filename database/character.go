@@ -429,17 +429,19 @@ func (c *Character) FoldItem(moveAction map[string]interface{}, profileChangesEv
 		panic(err)
 	}
 
-	cache := GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(fold.Item)
-	if cache == nil {
+	inventoryCache := GetCacheByUID(c.ID).Inventory
+	index := inventoryCache.GetIndexOfItemByUID(fold.Item)
+	if index == nil {
 		log.Fatalln("Item", fold.Item, "does not exist in cache!")
 	}
-	itemInInventory := &c.Inventory.Items[*cache]
+	itemInInventory := &c.Inventory.Items[*index]
 	if itemInInventory.UPD == nil || itemInInventory.UPD.Foldable == nil {
 		log.Fatalln(itemInInventory.ID, "cannot be folded!")
 	}
 
 	itemInInventory.UPD.Foldable.Folded = fold.Value
 
+	inventoryCache.ResetItemSizeInContainer(itemInInventory, &c.Inventory)
 	profileChangesEvent.ProfileChanges[c.ID].Production = nil
 }
 
@@ -565,7 +567,7 @@ type applyInventoryChanges struct {
 	ChangedItems []interface{} `json:"changedItems"`
 }
 
-func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 	applyInventoryChanges := new(applyInventoryChanges)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &applyInventoryChanges)
@@ -575,45 +577,56 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}, pro
 
 	cache := *GetCacheByUID(c.ID).Inventory
 	for _, item := range applyInventoryChanges.ChangedItems {
-		//vertical = 1 horizontal = 0
 		properties, ok := item.(map[string]interface{})
 		if !ok {
 			log.Fatalln("Cannot type assert item from Auto-Sort items slice")
 		}
 
-		location, ok := properties["location"].(map[string]interface{})
-		if ok {
-			r, ok := location["r"].(string)
-			if !ok {
-				log.Fatalln("I hate this fucking game")
-			}
-
-			if r == "Horizontal" {
-				location["r"] = float64(0)
-			} else {
-				location["r"] = float64(1)
-			}
-		}
-
 		UID, ok := properties["_id"].(string)
 		if !ok {
-			log.Fatalln("I hate this fucking game")
+			log.Fatalln("Cannot type assert item `_id` property from Auto-Sort items slice")
 		}
 		itemInInventory := &c.Inventory.Items[*cache.GetIndexOfItemByUID(UID)]
 
-		if isSearched, ok := location["isSearched"].(bool); ok {
-			itemInInventory.Location.IsSearched = isSearched
+		parent, ok := properties["parentId"].(string)
+		if !ok {
+			log.Fatalln("Cannot type assert item `parentId` property from Auto-Sort items slice")
 		}
+		itemInInventory.ParentID = &parent
 
-		if r, ok := location["r"].(float64); ok {
-			itemInInventory.Location.R = r
+		slotId, ok := properties["slotId"].(string)
+		if !ok {
+			log.Fatalln("Cannot type assert item `slotId` property from Auto-Sort items slice")
 		}
-		if x, ok := location["r"].(float64); ok {
-			itemInInventory.Location.X = x
-		}
+		itemInInventory.SlotID = &slotId
 
-		if y, ok := location["r"].(float64); ok {
-			itemInInventory.Location.Y = y
+		location, ok := properties["location"].(map[string]interface{})
+		if !ok {
+			itemInInventory.Location = nil
+			continue
+		} else {
+			r, ok := location["r"].(string)
+			if !ok {
+				log.Fatalln("Cannot type assert item.Location `r` property from Auto-Sort items slice")
+			}
+
+			if r == "Horizontal" {
+				itemInInventory.Location.R = float64(0)
+			} else {
+				itemInInventory.Location.R = float64(1)
+			}
+
+			if x, ok := location["r"].(float64); ok {
+				itemInInventory.Location.X = x
+			}
+
+			if isSearched, ok := location["isSearched"].(bool); ok {
+				itemInInventory.Location.IsSearched = isSearched
+			}
+
+			if y, ok := location["r"].(float64); ok {
+				itemInInventory.Location.Y = y
+			}
 		}
 	}
 }

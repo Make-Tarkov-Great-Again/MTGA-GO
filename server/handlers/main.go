@@ -551,7 +551,7 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 		character.SplitItem(moveAction, profileChangeEvent)
 	},
 	"ApplyInventoryChanges": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
-		character.ApplyInventoryChanges(moveAction, profileChangeEvent)
+		character.ApplyInventoryChanges(moveAction)
 	},
 	"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.ReadEncyclopedia(moveAction)
@@ -565,9 +565,10 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	character := database.GetCharacterByUID(services.GetSessionID(r))
 	profileChangeEvent := database.GetProfileChangeByUID(character.ID)
 
-	for i := int8(0); i < length; i++ {
-		moveAction := data[i].(map[string]interface{})
+	for i, move := range data {
+		moveAction := move.(map[string]interface{})
 		action := moveAction["Action"].(string)
+		log.Println("[", i+1, "/", length, "] Action: ", action)
 
 		if handler, ok := actionHandlers[action]; ok {
 			handler(moveAction, character, profileChangeEvent)
