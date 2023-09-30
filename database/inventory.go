@@ -258,16 +258,6 @@ func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *Inventor
 				}
 			}
 		}
-	} else if newItemFlatMap.Height > itemFlatMap.Height {
-		for row := int16(itemFlatMap.Height) + 1; row <= int16(newItemFlatMap.Height); row++ {
-			var coordinate = row*stride + itemFlatMap.EndX
-			(*containerMap)[coordinate] = itemInInventory.ID
-		}
-	} else if newItemFlatMap.Height < itemFlatMap.Height {
-		for row := int16(newItemFlatMap.Height) + 1; row <= int16(itemFlatMap.Height); row++ {
-			var coordinate = row*stride + itemFlatMap.EndX
-			(*containerMap)[coordinate] = ""
-		}
 	}
 
 	stash.Container.FlatMap[itemInInventory.ID] = newItemFlatMap
