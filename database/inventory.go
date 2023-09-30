@@ -104,13 +104,11 @@ type Map struct {
 }
 
 type FlatMapLookup struct {
-	Width   int8
-	Height  int8
-	Rotated bool
-	StartX  int16
-	EndX    int16
-	StartY  int16
-	EndY    int16
+	Width       int8
+	Height      int8
+	StartX      int16
+	EndX        int16
+	Coordinates []int16
 }
 
 func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
@@ -167,31 +165,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 			continue
 		}
 
-		itemFlatMap := FlatMapLookup{}
-
-		height, width := ic.GetSizeInInventory(inventory.Items, itemInInventory.ID)
-		if height == -1 && width == -1 {
-			continue
-		}
-
-		if width != 0 {
-			width--
-		}
-		if height != 0 {
-			height--
-		}
-
-		if itemInInventory.Location.R.(float64) == 1 {
-			itemFlatMap.Height = width
-			itemFlatMap.Width = height
-		} else {
-			itemFlatMap.Height = height
-			itemFlatMap.Width = width
-		}
-
-		row := int16(itemInInventory.Location.Y.(float64)) * stride
-		itemFlatMap.StartX = int16(itemInInventory.Location.X.(float64)) + row
-		itemFlatMap.EndX = itemFlatMap.StartX + int16(itemFlatMap.Width)
+		itemFlatMap := *ic.CreateFlatMapLookup(&inventory.Items, &itemInInventory)
 
 		(*containerFlatMap)[itemInInventory.ID] = itemFlatMap
 
@@ -221,18 +195,13 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 	}
 }
 
-//TODO: Check consistency of this code
+func (ic *InventoryContainer) CreateFlatMapLookup(inventoryItems *[]InventoryItem, itemInInventory *InventoryItem) *FlatMapLookup {
+	output := &FlatMapLookup{}
 
-// ResetItemSizeInContainer resets item size in InventoryContainer to reflect item size change
-func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *InventoryItem, Inventory *Inventory) {
-	var stash = *ic.Stash
-	var itemFlatMap = stash.Container.FlatMap[itemInInventory.ID]
-	var containerMap = &stash.Container.Map
-	var stride = int16(stash.Container.Width)
-
-	newItemFlatMap := FlatMapLookup{}
-
-	height, width := ic.GetSizeInInventory(Inventory.Items, itemInInventory.ID)
+	height, width := ic.MeasureItemForInventoryMapping(*inventoryItems, itemInInventory.ID)
+	if height == -1 && width == -1 {
+		return nil
+	}
 
 	if width != 0 {
 		width--
@@ -242,16 +211,30 @@ func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *Inventor
 	}
 
 	if itemInInventory.Location.R.(float64) == 1 {
-		newItemFlatMap.Height = width
-		newItemFlatMap.Width = height
+		output.Height = width
+		output.Width = height
 	} else {
-		newItemFlatMap.Height = height
-		newItemFlatMap.Width = width
+		output.Height = height
+		output.Width = width
 	}
 
-	startRow := int16(itemInInventory.Location.Y.(float64)) * stride
-	newItemFlatMap.StartX = int16(itemInInventory.Location.X.(float64)) + startRow
-	newItemFlatMap.EndX = newItemFlatMap.StartX + int16(newItemFlatMap.Width)
+	row := int16(itemInInventory.Location.Y.(float64)) * int16(ic.Stash.Container.Width)
+	output.StartX = int16(itemInInventory.Location.X.(float64)) + row
+	output.EndX = output.StartX + int16(output.Width)
+
+	return output
+}
+
+//TODO: Check consistency of this code
+
+// ResetItemSizeInContainer resets item size in InventoryContainer to reflect item size change
+func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *InventoryItem, Inventory *Inventory) {
+	var stash = *ic.Stash
+	var itemFlatMap = stash.Container.FlatMap[itemInInventory.ID]
+	var containerMap = &stash.Container.Map
+	var stride = int16(stash.Container.Width)
+
+	newItemFlatMap := *ic.CreateFlatMapLookup(&Inventory.Items, itemInInventory)
 
 	if newItemFlatMap.EndX < itemFlatMap.EndX {
 		for column := newItemFlatMap.EndX + 1; column <= itemFlatMap.EndX; column++ {
@@ -275,13 +258,23 @@ func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *Inventor
 				}
 			}
 		}
+	} else if newItemFlatMap.Height > itemFlatMap.Height {
+		for row := int16(itemFlatMap.Height) + 1; row <= int16(newItemFlatMap.Height); row++ {
+			var coordinate = row*stride + itemFlatMap.EndX
+			(*containerMap)[coordinate] = itemInInventory.ID
+		}
+	} else if newItemFlatMap.Height < itemFlatMap.Height {
+		for row := int16(newItemFlatMap.Height) + 1; row <= int16(itemFlatMap.Height); row++ {
+			var coordinate = row*stride + itemFlatMap.EndX
+			(*containerMap)[coordinate] = ""
+		}
 	}
 
 	stash.Container.FlatMap[itemInInventory.ID] = newItemFlatMap
 	ic.SetInventoryIndex(Inventory)
 }
 
-// ClearItemFromContainer wipes item, based on the UID, from the Lookup, Map and FlatMap
+// ClearItemFromContainer wipes item, based on the UID, from the cached InventoryContainer
 func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 	var stash = *ic.Stash
 	var itemFlatMap = stash.Container.FlatMap[UID]
@@ -314,7 +307,7 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 
 // TODO: Consider refactoring AddItemToContainer
 
-// AddItemToContainer adds item, based on the UID, to the Lookup, Map and FlatMap
+// AddItemToContainer adds item, based on the UID, to the cached InventoryContainer
 func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventory) {
 	ic.SetInventoryIndex(Inventory)
 
@@ -322,12 +315,12 @@ func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventor
 	var itemFlatMap = new(FlatMapLookup)
 
 	itemInInventory := Inventory.Items[*ic.GetIndexOfItemByUID(UID)]
-	height, width := ic.GetSizeInInventory(Inventory.Items, UID)
+	height, width := ic.MeasureItemForInventoryMapping(Inventory.Items, UID)
 	if height == -1 && width == -1 {
 		log.Fatalln("Item", UID, "does not have an item size")
 	}
 
-	// TODO: See if this would be better off in GetSizeInInventory() function
+	// TODO: See if this would be better off in MeasureItemForInventoryMapping() function
 	if width != 0 {
 		width--
 	}
@@ -399,7 +392,9 @@ type sizes struct {
 	SizeRight   int8
 }
 
-func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent string) (int8, int8) {
+// MeasureItemForInventoryMapping gets the correct size of an item within the Character.Inventory for setting in
+// Stash.Container
+func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryItem, parent string) (int8, int8) {
 	index := ic.Lookup.Forward[parent]
 	itemInInventory := items[index]
 
@@ -459,6 +454,7 @@ func (ic *InventoryContainer) GetSizeInInventory(items []InventoryItem, parent s
 	return height, width
 }
 
+// SetInventoryIndex set/reset InventoryContainer.Lookup for fast Inventory.Items lookup
 func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {
 	if ic.Lookup == nil {
 		ic.Lookup = &Lookup{

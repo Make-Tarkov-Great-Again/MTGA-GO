@@ -44,7 +44,13 @@ func GetHideoutAreaByName(name string) *map[string]interface{} {
 		return nil
 	}
 
-	hideoutArea := hideout.Areas[hideout.Index.Areas[area]]
+	index, ok := hideout.Index.Areas[area]
+	if !ok {
+		fmt.Println("Area Type ", area, " does not exist")
+		return nil
+	}
+
+	hideoutArea := hideout.Areas[index]
 	return &hideoutArea
 }
 
@@ -191,7 +197,7 @@ type HideoutSettings struct {
 	GPUBoostRate              float64 `json:"gpuBoostRate"`
 }
 
-var HideoutAreaNames = map[string]int8{ //Yoink this bish here for better shiz
+var HideoutAreaNames = map[string]int8{
 	"NotSet":               -1,
 	"Vents":                0,
 	"Security":             1,
