@@ -92,7 +92,7 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 	imagePath := filepath.Join(imagesPath, icon[2], icon[3], strings.TrimSuffix(icon[4], ".jpg"))
 
 	for ext, mimeType := range mime {
-		path := filepath.Join(imagePath, ext)
+		path := imagePath + ext
 		if !tools.FileExist(path) {
 			continue
 		}
@@ -104,7 +104,7 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 
 	if tools.CheckInternet() {
 		client := &http.Client{}
-		prodURL := filepath.Join(prod, strings.TrimSuffix(r.RequestURI, ".jpg"))
+		prodURL := prod + strings.TrimSuffix(r.RequestURI, ".jpg")
 
 		for ext, mimeType := range mime {
 			path := prodURL + ext
@@ -157,7 +157,7 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 				log.Fatalln(err)
 			}
 
-			fmt.Println("Successfully downloaded to ", imagePath)
+			fmt.Println("Successfully downloaded to", imagePath)
 			ServeFile(w, imagePath, mimeType)
 			return
 		}

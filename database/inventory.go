@@ -5,6 +5,7 @@ import (
 	"log"
 	"slices"
 
+	"MT-GO/tools"
 	"github.com/goccy/go-json"
 )
 
@@ -316,18 +317,8 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 	delete(stash.Container.FlatMap, UID)
 }
 
-func (ic *InventoryContainer) GetValidPositionForItem(itemInInventory *InventoryItem, Inventory *Inventory) []int16 {
+func (ic *InventoryContainer) GetValidPositionForItem(height int8, width int8) []int16 {
 	var output []int16
-
-	//var itemID string
-	//var containerMap = &ic.Stash.Container.Map
-	//var containerFlatMap = &ic.Stash.Container.FlatMap
-	//var stride = int16(ic.Stash.Container.Width)
-
-	height, width := ic.MeasureItemForInventoryMapping(Inventory.Items, itemInInventory.ID)
-	if height == -1 && width == -1 {
-		return nil
-	}
 
 	if width != 0 {
 		width--
@@ -336,11 +327,23 @@ func (ic *InventoryContainer) GetValidPositionForItem(itemInInventory *Inventory
 		height--
 	}
 
+	var containerMap = &ic.Stash.Container.Map
+	var containerFlatMap = &ic.Stash.Container.FlatMap
+	var stride = int16(ic.Stash.Container.Width)
+
+	fmt.Println(containerMap, containerFlatMap, stride)
+
 	return output
 }
 
-func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem) []*InventoryItem {
+// ConvertAssortItemsToInventoryItem converts AssortItem to InventoryItem, also reassigns IDs of all items
+// as well as their children; sets parent item to last index
+func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *string) []*InventoryItem {
 	output := make([]*InventoryItem, 0, len(assortItems))
+	convertedIDs := make(map[string]string)
+
+	var parent *InventoryItem
+
 	for _, assortItem := range assortItems {
 		data, err := json.Marshal(assortItem)
 		if err != nil {
@@ -354,7 +357,30 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem) []*InventoryIt
 			log.Println("Failed to unmarshal Assort Item to Inventory Item, returning empty output")
 			return output
 		}
+
+		newId := tools.GenerateMongoID()
+		convertedIDs[inventoryItem.ID] = newId
+		inventoryItem.ID = newId
+
+		if *inventoryItem.SlotID == "hideout" && *inventoryItem.ParentID == "hideout" {
+			inventoryItem.SlotID = stashID
+			inventoryItem.ParentID = stashID
+
+			parent = inventoryItem
+			continue
+		}
+
 		output = append(output, inventoryItem)
+	}
+
+	output = append(output, parent)
+
+	for _, item := range output {
+		CID, ok := convertedIDs[*item.ParentID]
+		if !ok {
+			continue
+		}
+		item.ParentID = &CID
 	}
 	return output
 }
@@ -407,38 +433,6 @@ func GetInventoryItemFamilyTreeIDs(items []InventoryItem, parent string) []strin
 
 	list = append(list, parent) // required
 	return list
-}
-
-func GetAllChildItemsInInventory(items []*InventoryItem, parentID string) []InventoryItem {
-
-	// Create a map to store parentIDs and their child objects
-	parentReference := make(map[string][]InventoryItem)
-
-	// Loop through inventory items to populate the parentReference map
-	for _, thisItem := range items {
-		if thisItem.ID != "" && thisItem.ParentID != nil {
-			if _, exists := parentReference[*thisItem.ParentID]; !exists {
-				parentReference[*thisItem.ParentID] = []InventoryItem{*thisItem}
-			} else {
-				parentReference[*thisItem.ParentID] = append(parentReference[*thisItem.ParentID], *thisItem)
-			}
-		}
-	}
-
-	if children, exists := parentReference[parentID]; !exists {
-		return nil
-	} else {
-		returnArray := make([]InventoryItem, len(children))
-		copy(returnArray, children)
-
-		for _, child := range returnArray {
-			if grandchildren, exists := parentReference[child.ID]; exists {
-				returnArray = append(returnArray, grandchildren...)
-			}
-		}
-
-		return returnArray
-	}
 }
 
 type sizes struct {
@@ -541,4 +535,56 @@ func (ic *InventoryContainer) GetIndexOfItemByUID(UID string) *int16 {
 		return nil
 	}
 	return &index
+}
+
+// MeasurePurchaseForInventoryMapping is the same as MeasureItemForInventoryMapping except it's exclusively
+// used for Trader/RagFair purchases; returns correct height and width based on items given
+func MeasurePurchaseForInventoryMapping(items []*InventoryItem) (int8, int8) {
+	parentItem := items[len(items)-1]
+	itemInDatabase := GetItemByUID(parentItem.TPL) //parent
+	height, width := itemInDatabase.GetItemSize()  //get parent as starting point
+
+	if itemInDatabase.Parent == "5448e53e4bdc2d60728b4567" || //backpack
+		itemInDatabase.Parent == "566168634bdc2d144c8b456c" || //searchableItem
+		itemInDatabase.Parent == "5795f317245977243854e041" { //simpleContainer
+		return height, width
+	}
+
+	var parentFolded = parentItem.UPD != nil && parentItem.UPD.Foldable != nil && parentItem.UPD.Foldable.Folded
+
+	canFold, foldablePropertyExists := itemInDatabase.Props["Foldable"].(bool)
+	foldedSlotID, foldedSlotPropertyExists := itemInDatabase.Props["FoldedSlot"].(string)
+
+	if (foldablePropertyExists && canFold) && foldedSlotPropertyExists && parentFolded {
+		sizeReduceRight, ok := itemInDatabase.Props["SizeReduceRight"].(float64)
+		if !ok {
+			log.Fatalln("Could not type assert itemInDatabase.Props.SizeReduceRight of UID", parentItem.ID)
+		}
+		width -= int8(sizeReduceRight)
+	}
+
+	if len(items) == 1 {
+		return height, width
+	}
+
+	sizes := &sizes{}
+
+	var childFolded bool
+	for _, item := range items {
+		childFolded = item.UPD != nil && item.UPD.Foldable != nil && item.UPD.Foldable.Folded
+		if parentFolded || childFolded {
+			continue
+		} else if (foldablePropertyExists && canFold) &&
+			*item.SlotID == foldedSlotID &&
+			(parentFolded || childFolded) {
+			continue
+		}
+
+		GetItemByUID(item.TPL).GetItemForcedSize(sizes)
+	}
+
+	height += sizes.SizeUp + sizes.SizeDown + sizes.ForcedDown + sizes.ForcedUp
+	width += sizes.SizeLeft + sizes.SizeRight + sizes.ForcedRight + sizes.ForcedLeft
+
+	return height, width
 }

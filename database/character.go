@@ -666,15 +666,18 @@ func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileCha
 		log.Fatalln(err)
 	}
 
-	//cache := GetCacheByUID(c.ID)
+	cache := GetCacheByUID(c.ID)
 
 	// see if item can fit in inventory first
 	assortItem := GetTraderByUID(tradingConfirm.TID).GetAssortItemByID(tradingConfirm.ItemID)
-	inventoryItems := ConvertAssortItemsToInventoryItem(assortItem)
-	children := GetAllChildItemsInInventory(inventoryItems, tradingConfirm.ItemID)
+	inventoryItems := ConvertAssortItemsToInventoryItem(assortItem, &c.Inventory.Stash)
+	inventoryItems[len(inventoryItems)-1].UPD.StackObjectsCount = &tradingConfirm.Count
+	height, width := MeasurePurchaseForInventoryMapping(inventoryItems)
+	inventoryCache := cache.Inventory.GetValidPositionForItem(height, width)
+
 	// iterate through schemeItems and remove items used to barter (cash/items)
 	// send proper profilesChangesEvent shit
-	fmt.Println(children)
+	fmt.Println(inventoryCache)
 }
 
 // #endregion
