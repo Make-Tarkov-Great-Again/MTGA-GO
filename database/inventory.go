@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"slices"
 
 	"github.com/goccy/go-json"
 )
@@ -212,7 +213,18 @@ func (ic *InventoryContainer) CreateFlatMapLookup(inventoryItems *[]InventoryIte
 		height--
 	}
 
-	if itemInInventory.Location.R.(float64) == 1 {
+	isVertical := false
+	if locationR, ok := itemInInventory.Location.R.(string); ok {
+		if slices.Contains([]string{"1", "Vertical"}, locationR) {
+			isVertical = true
+		}
+	} else {
+		if itemInInventory.Location.R.(float64) == 1 {
+			isVertical = true
+		}
+	}
+
+	if isVertical {
 		output.Height = width
 		output.Width = height
 	} else {
@@ -220,8 +232,14 @@ func (ic *InventoryContainer) CreateFlatMapLookup(inventoryItems *[]InventoryIte
 		output.Width = width
 	}
 
-	row := int16(itemInInventory.Location.Y.(float64)) * int16(ic.Stash.Container.Width)
-	output.StartX = int16(itemInInventory.Location.X.(float64)) + row
+	if locationY, ok := itemInInventory.Location.Y.(int16); ok {
+		row := locationY * int16(ic.Stash.Container.Width)
+		output.StartX = itemInInventory.Location.X.(int16) + row
+	} else {
+		row := int16(itemInInventory.Location.Y.(float64)) * int16(ic.Stash.Container.Width)
+		output.StartX = int16(itemInInventory.Location.X.(float64)) + row
+	}
+
 	output.EndX = output.StartX + int16(output.Width)
 
 	return output
