@@ -1,6 +1,8 @@
 package database
 
 import (
+	"log"
+
 	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
@@ -30,7 +32,7 @@ func setCustomization() {
 	raw := tools.GetJSONRawMessage(customizationPath)
 	err := json.Unmarshal(raw, &customizations)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 

@@ -2,13 +2,15 @@
 package main
 
 import (
-	"MT-GO/database"
-	"MT-GO/server"
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"MT-GO/database"
+	"MT-GO/server"
+	"MT-GO/tools"
 )
 
 func main() {
@@ -297,7 +299,7 @@ func launchTarkov(account *database.Account) {
 
 	err := cmd.Start()
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	err = cmd.Wait()

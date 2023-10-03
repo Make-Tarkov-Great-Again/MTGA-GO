@@ -1,9 +1,11 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"path/filepath"
+
+	"MT-GO/tools"
 )
 
 func (storage *Storage) SaveStorage(sessionID string) {
@@ -11,7 +13,7 @@ func (storage *Storage) SaveStorage(sessionID string) {
 
 	err := tools.WriteToFile(storageFilePath, storage)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	fmt.Println("Storage saved")
 }

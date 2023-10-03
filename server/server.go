@@ -1,14 +1,16 @@
 package server
 
 import (
-	"MT-GO/database"
-	"MT-GO/services"
 	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
+
+	"MT-GO/database"
+	"MT-GO/services"
 
 	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
@@ -25,17 +27,25 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	defer conn.Close()
+	defer func(conn *websocket.Conn) {
+		err := conn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(conn)
 
-	sessionID := strings.TrimSuffix(strings.TrimPrefix(r.RequestURI, "/push/notifier/getwebsocket/"), "?last_id=default_id")
+	sessionID := r.URL.Path[28:] //mongoID is 24 chars
 	database.SetConnection(sessionID, conn)
 
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
+			log.Println(err)
 			return
 		}
-		if err := conn.WriteMessage(messageType, p); err != nil {
+		err = conn.WriteMessage(messageType, p)
+		if err != nil {
+			log.Println(err)
 			return
 		}
 	}
@@ -95,7 +105,7 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, 
 
 	err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 
@@ -112,7 +122,7 @@ func SetHTTPSServer() {
 	cert := services.GetCertificate(srv.IP)
 	certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	cert.Certificate = certs
 
@@ -122,7 +132,7 @@ func SetHTTPSServer() {
 	mainServeMux := http.NewServeMux()
 	ServeStaticMux(mainServeMux)
 
-	muxes := []*muxt{
+	muxers := []*muxt{
 		{
 			mux: mainServeMux, address: database.GetMainIPandPort(),
 			serverName: "Main", initRoutes: setMainRoutes, // Embed the route initialization function
@@ -147,11 +157,11 @@ func SetHTTPSServer() {
 
 	serverReady := make(chan struct{})
 
-	for _, muxData := range muxes {
+	for _, muxData := range muxers {
 		go startHTTPSServer(serverReady, cert, muxData)
 	}
 
-	for range muxes {
+	for range muxers {
 		<-serverReady
 	}
 

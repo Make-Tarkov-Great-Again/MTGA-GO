@@ -2,12 +2,14 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+
+	"MT-GO/tools"
 )
 
 const (
@@ -99,7 +101,7 @@ func setRequiredFolders() {
 	if !tools.FileExist(users) {
 		err := os.Mkdir(users, 0755)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	}
 
@@ -107,7 +109,7 @@ func setRequiredFolders() {
 	if !tools.FileExist(profilesPath) {
 		err := os.Mkdir(profilesPath, 0755)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	}
 }

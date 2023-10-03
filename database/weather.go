@@ -1,6 +1,8 @@
 package database
 
 import (
+	"log"
+
 	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
@@ -22,7 +24,7 @@ func setWeather() {
 	raw := tools.GetJSONRawMessage(weatherPath)
 	err := json.Unmarshal(raw, &weather)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 

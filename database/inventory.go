@@ -3,6 +3,8 @@ package database
 import (
 	"fmt"
 	"log"
+
+	"github.com/goccy/go-json"
 )
 
 type Inventory struct {
@@ -226,6 +228,7 @@ func (ic *InventoryContainer) CreateFlatMapLookup(inventoryItems *[]InventoryIte
 }
 
 //TODO: Check consistency of this code
+// i might need to check if oldX = newX then check heights
 
 // ResetItemSizeInContainer resets item size in InventoryContainer to reflect item size change
 func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *InventoryItem, Inventory *Inventory) {
@@ -257,16 +260,6 @@ func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *Inventor
 					(*containerMap)[coordinate] = itemInInventory.ID
 				}
 			}
-		}
-	} else if newItemFlatMap.Height > itemFlatMap.Height {
-		for row := int16(itemFlatMap.Height) + 1; row <= int16(newItemFlatMap.Height); row++ {
-			var coordinate = row*stride + itemFlatMap.EndX
-			(*containerMap)[coordinate] = itemInInventory.ID
-		}
-	} else if newItemFlatMap.Height < itemFlatMap.Height {
-		for row := int16(newItemFlatMap.Height) + 1; row <= int16(itemFlatMap.Height); row++ {
-			var coordinate = row*stride + itemFlatMap.EndX
-			(*containerMap)[coordinate] = ""
 		}
 	}
 
@@ -305,22 +298,19 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 	delete(stash.Container.FlatMap, UID)
 }
 
-// TODO: Consider refactoring AddItemToContainer
+func (ic *InventoryContainer) GetValidPositionForItem(itemInInventory *InventoryItem, Inventory *Inventory) []int16 {
+	var output []int16
 
-// AddItemToContainer adds item, based on the UID, to the cached InventoryContainer
-func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventory) {
-	ic.SetInventoryIndex(Inventory)
+	//var itemID string
+	//var containerMap = &ic.Stash.Container.Map
+	//var containerFlatMap = &ic.Stash.Container.FlatMap
+	//var stride = int16(ic.Stash.Container.Width)
 
-	var stash = *ic.Stash
-	var itemFlatMap = new(FlatMapLookup)
-
-	itemInInventory := Inventory.Items[*ic.GetIndexOfItemByUID(UID)]
-	height, width := ic.MeasureItemForInventoryMapping(Inventory.Items, UID)
+	height, width := ic.MeasureItemForInventoryMapping(Inventory.Items, itemInInventory.ID)
 	if height == -1 && width == -1 {
-		log.Fatalln("Item", UID, "does not have an item size")
+		return nil
 	}
 
-	// TODO: See if this would be better off in MeasureItemForInventoryMapping() function
 	if width != 0 {
 		width--
 	}
@@ -328,17 +318,37 @@ func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventor
 		height--
 	}
 
-	if itemInInventory.Location.R.(float64) == 1 {
-		itemFlatMap.Height = width
-		itemFlatMap.Width = height
-	} else {
-		itemFlatMap.Height = height
-		itemFlatMap.Width = width
-	}
+	return output
+}
 
-	row := int16(itemInInventory.Location.Y.(float64)) * int16(ic.Stash.Container.Width)
-	itemFlatMap.StartX = int16(itemInInventory.Location.X.(float64)) + row
-	itemFlatMap.EndX = itemFlatMap.StartX + int16(itemFlatMap.Width)
+func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem) []*InventoryItem {
+	output := make([]*InventoryItem, 0, len(assortItems))
+	for _, assortItem := range assortItems {
+		data, err := json.Marshal(assortItem)
+		if err != nil {
+			log.Println("Failed to marshal Assort Item, returning empty output")
+			return output
+		}
+
+		inventoryItem := new(InventoryItem)
+		err = json.Unmarshal(data, inventoryItem)
+		if err != nil {
+			log.Println("Failed to unmarshal Assort Item to Inventory Item, returning empty output")
+			return output
+		}
+		output = append(output, inventoryItem)
+	}
+	return output
+}
+
+// TODO: Consider refactoring AddItemToContainer
+
+// AddItemToContainer adds item, based on the UID, to the cached InventoryContainer
+func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventory) {
+	ic.SetInventoryIndex(Inventory)
+
+	var stash = *ic.Stash
+	var itemFlatMap = ic.CreateFlatMapLookup(&Inventory.Items, &Inventory.Items[*ic.GetIndexOfItemByUID(UID)])
 	var containerMap = &stash.Container.Map
 
 	var stride = int16(stash.Container.Width)
@@ -364,7 +374,7 @@ func (ic *InventoryContainer) AddItemToContainer(UID string, Inventory *Inventor
 	stash.Container.FlatMap[UID] = *itemFlatMap
 }
 
-func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
+func GetInventoryItemFamilyTreeIDs(items []InventoryItem, parent string) []string {
 	var list []string
 
 	for _, childItem := range items {
@@ -373,12 +383,44 @@ func GetInventoryItemFamilyTree(items []InventoryItem, parent string) []string {
 		}
 
 		if *childItem.ParentID == parent {
-			list = append(list, GetInventoryItemFamilyTree(items, childItem.ID)...)
+			list = append(list, GetInventoryItemFamilyTreeIDs(items, childItem.ID)...)
 		}
 	}
 
 	list = append(list, parent) // required
 	return list
+}
+
+func GetAllChildItemsInInventory(items []*InventoryItem, parentID string) []InventoryItem {
+
+	// Create a map to store parentIDs and their child objects
+	parentReference := make(map[string][]InventoryItem)
+
+	// Loop through inventory items to populate the parentReference map
+	for _, thisItem := range items {
+		if thisItem.ID != "" && thisItem.ParentID != nil {
+			if _, exists := parentReference[*thisItem.ParentID]; !exists {
+				parentReference[*thisItem.ParentID] = []InventoryItem{*thisItem}
+			} else {
+				parentReference[*thisItem.ParentID] = append(parentReference[*thisItem.ParentID], *thisItem)
+			}
+		}
+	}
+
+	if children, exists := parentReference[parentID]; !exists {
+		return nil
+	} else {
+		returnArray := make([]InventoryItem, len(children))
+		copy(returnArray, children)
+
+		for _, child := range returnArray {
+			if grandchildren, exists := parentReference[child.ID]; exists {
+				returnArray = append(returnArray, grandchildren...)
+			}
+		}
+
+		return returnArray
+	}
 }
 
 type sizes struct {
@@ -420,7 +462,7 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 		width -= int8(sizeReduceRight)
 	}
 
-	family := GetInventoryItemFamilyTree(items, parent)
+	family := GetInventoryItemFamilyTreeIDs(items, parent)
 	length := len(family) - 1
 
 	if length == 1 {

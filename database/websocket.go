@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gorilla/websocket"
 )
@@ -37,6 +38,6 @@ func GetConnection(sessionID string) *Connect {
 func (conn *Connect) SendMessage(notification *Notification) {
 	err := conn.WriteJSON(notification)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }

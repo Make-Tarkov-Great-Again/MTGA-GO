@@ -2,7 +2,6 @@
 package services
 
 import (
-	"MT-GO/tools"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/tls"
@@ -11,6 +10,7 @@ import (
 	"encoding/asn1"
 	"encoding/pem"
 	"fmt"
+	"log"
 	"math/big"
 	"net"
 	"os"
@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"MT-GO/tools"
 )
 
 const certPath string = "user/cert"
@@ -46,7 +48,7 @@ func GetCertificate(ip string) *Certificate {
 		if !tools.FileExist(certPath) {
 			err := os.Mkdir(certPath, 0700)
 			if err != nil {
-				panic(err)
+				log.Fatalln(err)
 			}
 		}
 
@@ -60,7 +62,7 @@ func GetCertificate(ip string) *Certificate {
 func (cg *Certificate) setCertificate(ip string) {
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	notBefore := time.Now().UTC()
@@ -70,7 +72,7 @@ func (cg *Certificate) setCertificate(ip string) {
 	maxSerialNumber := new(big.Int).Lsh(big.NewInt(1), 128) // 1 << 128 = 2^128
 	serialNumber, err := rand.Int(rand.Reader, maxSerialNumber)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	template := x509.Certificate{
@@ -97,30 +99,30 @@ func (cg *Certificate) setCertificate(ip string) {
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	certOut, err := os.Create(cg.CertFile)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	defer certOut.Close()
 
 	err = pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	keyOut, err := os.Create(cg.KeyFile)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	defer keyOut.Close()
 	privBytes := x509.MarshalPKCS1PrivateKey(priv)
 
 	err = pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: privBytes})
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	fmt.Println("Certificate and key generated successfully")
@@ -170,7 +172,7 @@ func (cg *Certificate) removeCertificate() {
 				err := os.Remove(cg.CertFile)
 				if err != nil {
 					fmt.Println("Failed to remove the certificate")
-					panic(err)
+					log.Fatalln(err)
 				}
 			}
 
@@ -178,7 +180,7 @@ func (cg *Certificate) removeCertificate() {
 				err := os.Remove(cg.KeyFile)
 				if err != nil {
 					fmt.Println("Failed to remove the certificate")
-					panic(err)
+					log.Fatalln(err)
 				}
 			}
 
@@ -192,7 +194,7 @@ func (cg *Certificate) removeCertificate() {
 						os.Exit(0)
 					}
 					fmt.Println(output)
-					panic(err)
+					log.Fatalln(err)
 				}
 				fmt.Println("Certificate removed from System")
 			}
@@ -226,7 +228,7 @@ func (cg *Certificate) installCertificate() {
 					os.Exit(0)
 				}
 				fmt.Println("Failed to install the certificate.")
-				panic(err)
+				log.Fatalln(err)
 			}
 			fmt.Println("Certificate installed.")
 			return

@@ -1,13 +1,15 @@
 package services
 
 import (
-	"MT-GO/tools"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"MT-GO/tools"
 )
 
 type ResponseBody struct {
@@ -23,19 +25,27 @@ type CRCResponseBody struct {
 	Crc    *uint32     `json:"crc"`
 }
 
+const (
+	sessionIDHeader string = "Sessionid"
+	cookieHeader    string = "Cookie"
+	phpsessIDHeader string = "PHPSESSID="
+)
+
 func GetSessionID(r *http.Request) string {
-	sessionID, ok := r.Header["Sessionid"]
-	if ok {
-		return sessionID[0]
+	var sessionID = ""
+
+	sessionID = r.Header.Get(sessionIDHeader)
+	if sessionID != "" {
+		return sessionID
 	}
 
-	cookie, ok := r.Header["Cookie"]
-	if ok {
-		coogie := strings.Join(cookie, ", ")
-		return strings.TrimPrefix(coogie, "PHPSESSID=")
+	cookie := r.Header.Get(cookieHeader)
+	if cookie != "" {
+		cookie = cookie[len(cookie)-24:]
+		return strings.TrimPrefix(cookie, phpsessIDHeader)
 	}
 
-	return ""
+	return sessionID
 }
 
 func ApplyCRCResponseBody(data interface{}, crc *uint32) *CRCResponseBody {
@@ -67,76 +77,88 @@ var cachableRoutes = map[string]struct{}{
 	//"/client/location/getLocalloot": {}, don't fully understand why this would be cached
 }
 
-const prod string = "https://prod.escapefromtarkov.com"
-const imagesPath string = "assets/images/"
+const (
+	prod       string = "https://prod.escapefromtarkov.com"
+	imagesPath string = "assets/images/"
+)
 
-var mime = map[string]string{".jpg": "image/jpeg", ".png": "image/png"}
-var extensions = []string{".jpg", ".png"}
+var mime = map[string]string{
+	".jpg": "image/jpeg",
+	".png": "image/png",
+}
 
 func ServeFiles(w http.ResponseWriter, r *http.Request) {
 	icon := strings.Split(r.RequestURI, "/")
 	imagePath := filepath.Join(imagesPath, icon[2], icon[3], strings.TrimSuffix(icon[4], ".jpg"))
 
-	for _, ext := range extensions {
-		path := imagePath + ext
+	for ext, mimeType := range mime {
+		path := filepath.Join(imagePath, ext)
 		if !tools.FileExist(path) {
 			continue
 		}
 
 		fmt.Println("Image exists in ", path, " serving...")
-		ServeFile(w, path, mime[ext])
+		ServeFile(w, path, mimeType)
 		return
 	}
 
 	if tools.CheckInternet() {
 		client := &http.Client{}
-		prodURL := prod + strings.TrimSuffix(r.RequestURI, ".jpg")
+		prodURL := filepath.Join(prod, strings.TrimSuffix(r.RequestURI, ".jpg"))
 
-		for _, ext := range extensions {
+		for ext, mimeType := range mime {
 			path := prodURL + ext
 
 			req, err := http.NewRequest("GET", path, nil)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
 
 			req.Header.Set("User-Agent", "ballsack")
 			response, err := client.Do(req)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				if err != nil {
+					log.Fatalln(err)
+				}
+			}(response.Body)
 
 			if response.StatusCode != http.StatusOK {
-				response.Body.Close()
+				err := response.Body.Close()
+				if err != nil {
+					log.Fatalln(err)
+				}
 				continue
 			}
-			defer response.Body.Close()
 
 			imagePath = imagePath + ext
 			dir := filepath.Dir(imagePath)
 			err = os.MkdirAll(dir, os.ModePerm)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
 
 			file, err := os.Create(imagePath)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
-			defer file.Close()
+			defer func(file *os.File) {
+				err := file.Close()
+				if err != nil {
+					log.Fatalln(err)
+				}
+			}(file)
 
 			_, err = io.Copy(file, response.Body)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
 
 			fmt.Println("Successfully downloaded to ", imagePath)
-			ServeFile(w, imagePath, mime[ext])
+			ServeFile(w, imagePath, mimeType)
 			return
 		}
 	}
@@ -145,14 +167,19 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 func ServeFile(w http.ResponseWriter, imagePath, mime string) {
 	file, err := os.Open(imagePath)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}(file)
 
 	w.Header().Set("Content-Type", mime)
 	_, err = io.Copy(w, file)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 
@@ -254,3 +281,13 @@ func CalculateCRC32(input string) *uint32 {
 
 	return &crc32
 }
+
+//TODO: I think this is for generating a CRC32 name for the cache files? BSG uses the return of this
+// concatenates the directory + return
+
+/*func GetMd5Hash(input string) string {
+	hash := md5.New()
+	_, _ = io.WriteString(hash, input)
+	hashInBytes := hash.Sum(nil)
+	return hex.EncodeToString(hashInBytes)
+}*/

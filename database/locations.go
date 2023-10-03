@@ -1,6 +1,8 @@
 package database
 
 import (
+	"log"
+
 	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
@@ -22,7 +24,7 @@ func setLocations() {
 	raw := tools.GetJSONRawMessage(locationsFilePath)
 	err := json.Unmarshal(raw, &locations)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 

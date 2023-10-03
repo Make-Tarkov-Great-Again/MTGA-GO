@@ -1,12 +1,13 @@
 package database
 
 import (
-	"MT-GO/services"
-	"MT-GO/tools"
 	"fmt"
 	"log"
 	"path/filepath"
 	"strings"
+
+	"MT-GO/services"
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -138,7 +139,7 @@ func (c *Character) SaveCharacter(sessionID string) {
 
 	err := tools.WriteToFile(characterFilePath, c)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	fmt.Println("Character saved")
 }
@@ -242,7 +243,7 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) {
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &examine)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	var item *DatabaseItem
@@ -315,7 +316,7 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileCh
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &move)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	cache := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(move.Item)
@@ -359,7 +360,7 @@ func (c *Character) SwapItemInStash(moveAction map[string]interface{}, profileCh
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &swap)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	cache := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(swap.Item)
@@ -426,7 +427,7 @@ func (c *Character) FoldItem(moveAction map[string]interface{}, profileChangesEv
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &fold)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	inventoryCache := GetCacheByUID(c.ID).Inventory
@@ -455,7 +456,7 @@ func (c *Character) ReadEncyclopedia(moveAction map[string]interface{}) {
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &readEncyclopedia)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	length := int8(len(readEncyclopedia.IDs))
@@ -470,12 +471,12 @@ type merge struct {
 	With   string `json:"with"`
 }
 
-func (c *Character) MergeItem(moveAction map[string]interface{}) {
+func (c *Character) MergeItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
 	merge := new(merge)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &merge)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	inventoryCache := GetCacheByUID(c.ID).Inventory
@@ -491,6 +492,8 @@ func (c *Character) MergeItem(moveAction map[string]interface{}) {
 	inventoryCache.ClearItemFromContainer(toMerge.ID)
 	c.Inventory.RemoveItemFromInventoryByIndex(toMergeIndex)
 	inventoryCache.SetInventoryIndex(&c.Inventory)
+
+	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: toMerge.ID})
 }
 
 // RemoveItemFromInventoryByIndex takes the existing Inventory.Items and removes an InventoryItem at its index
@@ -500,6 +503,7 @@ func (inv *Inventory) RemoveItemFromInventoryByIndex(index int16) {
 		log.Fatalln("[RemoveItemFromInventoryByIndex] Index out of Range")
 	}
 	copy(inv.Items[index:], inv.Items[index+1:])
+	inv.Items = inv.Items[:len(inv.Items)-1]
 }
 
 type transfer struct {
@@ -514,7 +518,7 @@ func (c *Character) TransferItem(moveAction map[string]interface{}) {
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &transfer)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	inventoryCache := GetCacheByUID(c.ID).Inventory
@@ -542,7 +546,7 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &split)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	inventoryCache := *GetCacheByUID(c.ID).Inventory
@@ -572,7 +576,7 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &applyInventoryChanges)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	cache := *GetCacheByUID(c.ID).Inventory
@@ -631,11 +635,38 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 	}
 }
 
-type buyFromTrader struct {
+type tradingConfirm struct {
+	Action      string
+	Type        string          `json:"type"`
+	TID         string          `json:"tid"`
+	ItemID      string          `json:"item_id"`
+	Count       int32           `json:"count"`
+	SchemeID    int8            `json:"scheme_id"`
+	SchemeItems []tradingScheme `json:"scheme_items"`
 }
 
-func (c *Character) BuyItemFromTrader(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
-	fmt.Println()
+type tradingScheme struct {
+	ID    string
+	Count int32
+}
+
+func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	tradingConfirm := new(tradingConfirm)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &tradingConfirm)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	//cache := GetCacheByUID(c.ID)
+
+	// see if item can fit in inventory first
+	assortItem := GetTraderByUID(tradingConfirm.TID).GetAssortItemByID(tradingConfirm.ItemID)
+	inventoryItems := ConvertAssortItemsToInventoryItem(assortItem)
+	children := GetAllChildItemsInInventory(inventoryItems, tradingConfirm.ItemID)
+	// iterate through schemeItems and remove items used to barter (cash/items)
+	// send proper profilesChangesEvent shit
+	fmt.Println(children)
 }
 
 // #endregion

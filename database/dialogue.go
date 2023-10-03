@@ -1,9 +1,11 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"path/filepath"
+
+	"MT-GO/tools"
 )
 
 var MessageType = map[string]int8{
@@ -198,7 +200,7 @@ func (d Dialogue) SaveDialogue(sessionID string) {
 
 	err := tools.WriteToFile(dialogueFilePath, d)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	fmt.Println("Dialogue saved")
 }
