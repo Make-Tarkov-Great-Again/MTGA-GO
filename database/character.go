@@ -558,11 +558,19 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 		ID:  split.NewItem,
 		TPL: originalItem.TPL,
 		UPD: originalItem.UPD,
+		Location: &InventoryItemLocation{
+			IsSearched: split.Container.Location.IsSearched,
+			R:          split.Container.Location.R,
+			X:          split.Container.Location.X,
+			Y:          split.Container.Location.Y,
+		},
+		ParentID: &split.Container.ID,
+		SlotID:   &split.Container.Container,
 	}
 	*newItem.UPD.StackObjectsCount = split.Count
 
 	c.Inventory.Items = append(c.Inventory.Items, newItem)
-	inventoryCache.AddItemToContainer(split.NewItem, &c.Inventory)
+	//inventoryCache.AddItemToContainer(split.NewItem, &c.Inventory)
 	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangeEvents[c.ID].ProfileChanges[c.ID].Items.New, &newItem)
 }
 
