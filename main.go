@@ -254,7 +254,6 @@ func wipeYoAss(account *database.Account) {
 	}
 	profiles[account.UID].Dialogue = &database.Dialogue{}
 	fmt.Println("Yo ass is clean")
-	account.SaveAccount()
 	profiles[account.UID].SaveProfile()
 	loggedIn(account)
 }
