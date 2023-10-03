@@ -1,10 +1,12 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
+
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -75,7 +77,7 @@ func GetStorageByUID(uid string) *Storage {
 func setProfiles() map[string]*Profile {
 	users, err := tools.GetDirectoriesFrom(profilesPath)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	if len(users) == 0 {
@@ -135,7 +137,7 @@ func setAccount(path string) *Account {
 	data := tools.GetJSONRawMessage(path)
 	err := json.Unmarshal(data, output)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	return output
@@ -147,7 +149,7 @@ func setCharacter(path string) *Character {
 	data := tools.GetJSONRawMessage(path)
 	err := json.Unmarshal(data, output)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	return output
@@ -159,7 +161,7 @@ func setStorage(path string) *Storage {
 	data := tools.GetJSONRawMessage(path)
 	err := json.Unmarshal(data, output)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	return output
@@ -171,7 +173,7 @@ func setDialogue(path string) *Dialogue {
 	data := tools.GetJSONRawMessage(path)
 	err := json.Unmarshal(data, &output)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	return &output
@@ -187,7 +189,7 @@ func (profile *Profile) SaveProfile() {
 	if !tools.FileExist(profileDirPath) {
 		err := os.Mkdir(profileDirPath, 0755)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	}
 

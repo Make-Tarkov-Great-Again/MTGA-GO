@@ -1,8 +1,10 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
+
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -104,11 +106,11 @@ func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 		grid := new(Grid)
 		data, err := json.Marshal(g)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		err = json.Unmarshal(data, grid)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		output[grid.Name] = grid
 	}
@@ -145,11 +147,11 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 		slot := new(Slot)
 		data, err := json.Marshal(s)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		err = json.Unmarshal(data, slot)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		output[slot.Name] = slot
 	}
@@ -165,7 +167,7 @@ func setItems() {
 	raw := tools.GetJSONRawMessage(itemsPath)
 	err := json.Unmarshal(raw, &items)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 

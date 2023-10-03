@@ -1,9 +1,11 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"path/filepath"
+
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -45,7 +47,7 @@ func setLanguages() {
 	raw := tools.GetJSONRawMessage(filepath.Join(localesPath, "/languages.json"))
 	err := json.Unmarshal(raw, &languages)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 
@@ -88,7 +90,7 @@ func GetLocalesLocaleByName(name string) map[string]interface{} {
 func setLocales() {
 	directories, err := tools.GetDirectoriesFrom(localesPath)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	structure := make(map[string]*LocaleData)
@@ -102,7 +104,7 @@ func setLocales() {
 
 			fileContent := tools.GetJSONRawMessage(filepath.Join(dirPath, file))
 			if err != nil {
-				panic(err)
+				log.Fatalln(err)
 			}
 
 			raw := make(map[string]interface{})
@@ -110,14 +112,14 @@ func setLocales() {
 			if file == "locale.json" {
 				err = json.Unmarshal(fileContent, &raw)
 				if err != nil {
-					panic(err)
+					log.Fatalln(err)
 				}
 				localeData.Locale = raw
 			} else {
 				localeMenu := &LocaleMenu{}
 				err = json.Unmarshal(fileContent, &localeMenu)
 				if err != nil {
-					panic(err)
+					log.Fatalln(err)
 				}
 
 				localeData.Menu = localeMenu
@@ -129,12 +131,12 @@ func setLocales() {
 
 	bytes, err := json.Marshal(structure)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	err = json.Unmarshal(bytes, &locales)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 

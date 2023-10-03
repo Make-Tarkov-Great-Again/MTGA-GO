@@ -1,9 +1,11 @@
 package database
 
 import (
-	"MT-GO/tools"
+	"log"
 	"path/filepath"
 	"strings"
+
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -29,7 +31,7 @@ func setBots() {
 func setBotTypes() map[string]*BotType {
 	directory, err := tools.GetDirectoriesFrom(botsDirectory)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	// Create a channel to collect the results
@@ -63,7 +65,7 @@ func setBotType(directory string) *BotType {
 	var diffPath = filepath.Join(dirPath, "difficulties")
 	files, err := tools.GetFilesFrom(diffPath)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	difficulties := make(map[string]json.RawMessage)
@@ -77,11 +79,11 @@ func setBotType(directory string) *BotType {
 
 	jsonData, err := json.Marshal(difficulties)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	err = json.Unmarshal(jsonData, &botDifficulty)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	botType.Difficulties = botDifficulty
 
@@ -92,7 +94,7 @@ func setBotType(directory string) *BotType {
 		raw := tools.GetJSONRawMessage(healthPath)
 		err = json.Unmarshal(raw, &health)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		botType.Health = health
 	}
@@ -103,7 +105,7 @@ func setBotType(directory string) *BotType {
 		raw := tools.GetJSONRawMessage(loadoutPath)
 		err = json.Unmarshal(raw, &loadout)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		botType.Loadout = loadout
 	}
@@ -117,7 +119,7 @@ func setBotAppearance() map[string]*BotAppearance {
 	raw := tools.GetJSONRawMessage(filepath.Join(botsPath, "appearance.json"))
 	err := json.Unmarshal(raw, &botAppearance)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return botAppearance
 }
@@ -128,7 +130,7 @@ func setBotNames() *BotNames {
 	raw := tools.GetJSONRawMessage(filepath.Join(botsPath, "names.json"))
 	err := json.Unmarshal(raw, names)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return names
 }

@@ -1,8 +1,10 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
+
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -39,7 +41,7 @@ func setHandbook() {
 	raw := tools.GetJSONRawMessage(handbookPath)
 	err := json.Unmarshal(raw, &handbook)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	for _, v := range handbook.Items {

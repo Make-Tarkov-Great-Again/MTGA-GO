@@ -1,9 +1,11 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"net"
+
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -108,7 +110,7 @@ func setGlobalBotSettings() *map[string]interface{} {
 	globalBotSettings := map[string]interface{}{}
 	err := json.Unmarshal(raw, &globalBotSettings)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return &globalBotSettings
 }
@@ -119,7 +121,7 @@ func setPlayerScav() *Scav {
 	var playerScav Scav
 	err := json.Unmarshal(raw, &playerScav)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return &playerScav
 }
@@ -130,7 +132,7 @@ func setBotTemplate() *Character {
 	var botTemplate Character
 	err := json.Unmarshal(raw, &botTemplate)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return &botTemplate
 }
@@ -141,7 +143,7 @@ func setMainSettings() *MainSettings {
 	var data MainSettings
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return &data
 }
@@ -152,7 +154,7 @@ func setServerConfig() *ServerConfig {
 	var data ServerConfig
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	coreServerData.HTTPSTemplate = "https://%s"
@@ -184,7 +186,7 @@ func setMatchMetrics() *MatchMetrics {
 	var data MatchMetrics
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return &data
 }
@@ -195,7 +197,7 @@ func setGlobals() *Globals {
 	var global = Globals{}
 	err := json.Unmarshal(raw, &global)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	return &global

@@ -1,9 +1,11 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"strconv"
+
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -55,13 +57,13 @@ func setQuests() {
 	raw := tools.GetJSONRawMessage(questsPath)
 	err := json.Unmarshal(raw, &quests)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	dynamic := make(map[string]map[string]interface{})
 	err = json.Unmarshal(raw, &dynamic)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	for k, v := range dynamic {

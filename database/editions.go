@@ -1,10 +1,13 @@
 package database
 
 import (
-	"MT-GO/tools"
-	"github.com/goccy/go-json"
+	"log"
 	"path/filepath"
 	"strings"
+
+	"MT-GO/tools"
+
+	"github.com/goccy/go-json"
 )
 
 var editions = make(map[string]*Edition)
@@ -27,7 +30,7 @@ func GetEdition(version string) *Edition {
 func setEditions() {
 	directories, err := tools.GetDirectoriesFrom(editionsDirPath)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	for _, directory := range directories {
@@ -39,7 +42,7 @@ func setEdition(directory string, editionsDirPath string) {
 	editionPath := filepath.Join(editionsDirPath, directory)
 	files, err := tools.GetFilesFrom(editionPath)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	edition := new(Edition)
@@ -52,7 +55,7 @@ func setEdition(directory string, editionsDirPath string) {
 			template := new(Character)
 			err := json.Unmarshal(raw, template)
 			if err != nil {
-				panic(err)
+				log.Fatalln(err)
 			}
 
 			name := strings.TrimPrefix(removeJSON, "character_")
@@ -67,7 +70,7 @@ func setEdition(directory string, editionsDirPath string) {
 		storage := new(EditionStorage)
 		err := json.Unmarshal(raw, storage)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		edition.Storage = storage
 	}

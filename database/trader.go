@@ -1,11 +1,13 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -209,7 +211,7 @@ func (t *Trader) GetTraderLoyaltyLevel(character *Character) int8 {
 func setTraders() {
 	directory, err := tools.GetDirectoriesFrom(traderPath)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	for _, dir := range directory {
@@ -254,7 +256,7 @@ func setTraderBase(basePath string) map[string]interface{} {
 	raw := tools.GetJSONRawMessage(basePath)
 	err := json.Unmarshal(raw, &dynamic)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	loyaltyLevels := dynamic["loyaltyLevels"].([]interface{})
@@ -270,7 +272,7 @@ func setTraderBase(basePath string) map[string]interface{} {
 
 		level["insurance_price_coef"], err = strconv.Atoi(insurancePriceCoef)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	}
 
@@ -280,18 +282,18 @@ func setTraderBase(basePath string) map[string]interface{} {
 	if ok {
 		repair["quality"], err = strconv.ParseFloat(repairQuality, 32)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	}
 
 	sanitized, err := json.Marshal(dynamic)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	err = json.Unmarshal(sanitized, &base)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	return base
@@ -303,7 +305,7 @@ func setTraderAssort(assortPath string) (*Assort, *AssortIndex) {
 
 	err := json.Unmarshal(raw, &dynamic)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	assort := &Assort{}
@@ -315,11 +317,11 @@ func setTraderAssort(assortPath string) (*Assort, *AssortIndex) {
 		assort.Items = make([]*AssortItem, 0, len(items))
 		data, err := json.Marshal(items)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		err = json.Unmarshal(data, &assort.Items)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 
 	} else {
@@ -370,11 +372,11 @@ func setTraderAssort(assortPath string) (*Assort, *AssortIndex) {
 		assort.BarterScheme = make(map[string][][]*Scheme)
 		data, err := json.Marshal(barterSchemes)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		err = json.Unmarshal(data, &assort.BarterScheme)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	} else {
 		panic("Barter scheme not found")
@@ -390,11 +392,11 @@ func setTraderAssort(assortPath string) (*Assort, *AssortIndex) {
 
 	data, err := json.Marshal(loyalLevelItems)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	err = json.Unmarshal(data, &assort.LoyalLevelItems)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	return assort, index
@@ -406,7 +408,7 @@ func setTraderQuestAssort(questsPath string) map[string]map[string]string {
 
 	err := json.Unmarshal(raw, &quests)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	return quests
@@ -418,7 +420,7 @@ func setTraderDialogues(dialoguesPath string) map[string][]string {
 
 	err := json.Unmarshal(raw, &dynamic)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	dialogues := map[string][]string{}
@@ -445,7 +447,7 @@ func setTraderSuits(dialoguesPath string) ([]TraderSuits, map[string]int8) {
 
 	err := json.Unmarshal(raw, &suits)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	suitsIndex := make(map[string]int8)

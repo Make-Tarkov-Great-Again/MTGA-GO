@@ -1,9 +1,11 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
 	"path/filepath"
+
+	"MT-GO/tools"
 )
 
 func GetAccountByUID(uid string) *Account {
@@ -21,7 +23,7 @@ func (a *Account) SaveAccount() {
 
 	err := tools.WriteToFile(accountFilePath, a)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	fmt.Println("Account saved")
 }

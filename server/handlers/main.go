@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"MT-GO/database"
-	"MT-GO/services"
-	"MT-GO/tools"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"MT-GO/database"
+	"MT-GO/services"
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -282,7 +283,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	request := new(ProfileCreateRequest)
 	body, _ := json.Marshal(services.GetParsedBody(r))
 	if err := json.Unmarshal(body, request); err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	sessionID := services.GetSessionID(r)
@@ -491,7 +492,7 @@ func MainServerList(w http.ResponseWriter, _ *http.Request) {
 }
 
 func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
-	check := strings.TrimPrefix(r.Header["App-Version"][0], "EFT Client ")
+	check := strings.TrimPrefix(r.Header.Get("App-Version"), "EFT Client ")
 	version := &Version{
 		IsValid:       true,
 		LatestVersion: check,
@@ -542,7 +543,7 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 		character.FoldItem(moveAction, profileChangeEvent)
 	},
 	"Merge": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
-		character.MergeItem(moveAction)
+		character.MergeItem(moveAction, profileChangeEvent)
 	},
 	"Transfer": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.TransferItem(moveAction)
@@ -556,11 +557,14 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 	"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.ReadEncyclopedia(moveAction)
 	},
+	"TradingConfirm": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.TradingConfirm(moveAction, profileChangeEvent)
+	},
 }
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	data := services.GetParsedBody(r).(map[string]interface{})["data"].([]interface{})
-	length := int8(len(data))
+	length := int8(len(data)) - 1
 
 	character := database.GetCharacterByUID(services.GetSessionID(r))
 	profileChangeEvent := database.GetProfileChangeByUID(character.ID)
@@ -568,7 +572,7 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	for i, move := range data {
 		moveAction := move.(map[string]interface{})
 		action := moveAction["Action"].(string)
-		log.Println("[", i+1, "/", length, "] Action: ", action)
+		log.Println("[", i, "/", length, "] Action: ", action)
 
 		if handler, ok := actionHandlers[action]; ok {
 			handler(moveAction, character, profileChangeEvent)

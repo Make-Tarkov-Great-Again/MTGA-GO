@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 
@@ -28,19 +29,19 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 		// Inflate r.Body with zlib
 		reader, err := zlib.NewReader(r.Body)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		defer func(reader io.ReadCloser) {
 			err := reader.Close()
 			if err != nil {
-				panic(err)
+				log.Fatalln(err)
 			}
 		}(reader)
 
 		// Read the decompressed data
 		_, err = io.Copy(buffer, reader)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 
 		return buffer
@@ -78,18 +79,18 @@ func compressZlib(data []byte) []byte {
 	defer func(writer *zlib.Writer) {
 		err := writer.Close()
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	}(writer)
 
 	_, err := writer.Write(data)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	err = writer.Flush()
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	return buffer.Bytes()

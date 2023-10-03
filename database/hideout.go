@@ -1,8 +1,10 @@
 package database
 
 import (
-	"MT-GO/tools"
 	"fmt"
+	"log"
+
+	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -88,7 +90,7 @@ func setHideout() {
 		var areasMap []map[string]interface{}
 		err := json.Unmarshal(areas, &areasMap)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		setHideoutAreas(areasMap)
 	}
@@ -98,7 +100,7 @@ func setHideout() {
 		var productionsMap []map[string]interface{}
 		err := json.Unmarshal(recipes, &productionsMap)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		setHideoutRecipes(productionsMap)
 	}
@@ -108,7 +110,7 @@ func setHideout() {
 		var scavcaseReturns []map[string]interface{}
 		err := json.Unmarshal(scavcase, &scavcaseReturns)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		setHideoutScavcase(scavcaseReturns)
 	}
@@ -119,7 +121,7 @@ func setHideout() {
 
 		err := json.Unmarshal(qte, &hideout.QTE)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	}
 
@@ -127,7 +129,7 @@ func setHideout() {
 		settings := tools.GetJSONRawMessage(hideoutSettingsPath)
 		err := json.Unmarshal(settings, &hideout.Settings)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	}
 }

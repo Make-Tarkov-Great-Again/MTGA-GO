@@ -15,12 +15,12 @@ func CalculateWorkers() int {
 	// Ensure a minimum number of workers (e.g., 1)
 	minWorkers := 1
 
-	max := func(a, b int) int {
+	m := func(a, b int) int {
 		if a > b {
 			return a
 		}
 		return b
 	}
 
-	return max(numCPU, minWorkers)
+	return m(numCPU, minWorkers)
 }
