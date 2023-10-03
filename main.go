@@ -166,6 +166,7 @@ func loggedIn(account *database.Account) {
 
 	fmt.Println("1. Launch Tarkov")
 	fmt.Println("2. Change Account Info")
+	fmt.Println("3. Wipe yo ass")
 	fmt.Println()
 	fmt.Println("69. Exit")
 
@@ -181,6 +182,9 @@ func loggedIn(account *database.Account) {
 		case "2":
 			fmt.Println()
 			editAccountInfo(account)
+		case "3":
+			fmt.Println()
+			wipeYoAss(account)
 		case "69":
 			fmt.Println("Adios faggot")
 			return
@@ -230,6 +234,27 @@ func editAccountInfo(account *database.Account) {
 			fmt.Println("Invalid input, retard")
 		}
 	}
+}
+
+func wipeYoAss(account *database.Account) {
+	account.Wipe = true
+	profiles := database.GetProfiles()
+
+	profiles[account.UID].Character = &database.Character{}
+	profiles[account.UID].Storage = &database.Storage{
+		Suites: []string{},
+		Builds: database.Builds{
+			EquipmentBuilds: []*database.EquipmentBuild{},
+			WeaponBuilds:    []*database.WeaponBuild{},
+		},
+		Insurance: []interface{}{},
+		Mailbox:   []*database.Notification{},
+	}
+	profiles[account.UID].Dialogue = &database.Dialogue{}
+	fmt.Println("Yo ass is clean")
+	account.SaveAccount()
+	profiles[account.UID].SaveProfile()
+	loggedIn(account)
 }
 
 //tarkovPath + ' -bC5vLmcuaS5u={"email":"' + userAccount.email + '","password":"' + userAccount.password + '","toggle":true,"timestamp":0} -token=' + sessionID + ' -config={"BackendUrl":"https://' + serverConfig.ip + ':' + serverConfig.mainPort + '","Version":"live"}'
