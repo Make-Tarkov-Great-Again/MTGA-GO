@@ -574,6 +574,27 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangeEvents[c.ID].ProfileChanges[c.ID].Items.New, &newItem)
 }
 
+type remove struct {
+	Action string `json:"Action"`
+	ItemId string `json:"item"`
+}
+
+func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	remove := new(remove)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &remove)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	inventoryCache := GetCacheByUID(c.ID).Inventory
+	toDeleteIndex := *inventoryCache.GetIndexOfItemByUID(remove.ItemId)
+	itemInInventory := &c.Inventory.Items[toDeleteIndex]
+	c.Inventory.RemoveItemFromInventoryByIndex(toDeleteIndex)
+
+	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangeEvents[c.ID].ProfileChanges[c.ID].Items.Del, itemInInventory)
+}
+
 type applyInventoryChanges struct {
 	Action       string
 	ChangedItems []interface{} `json:"changedItems"`

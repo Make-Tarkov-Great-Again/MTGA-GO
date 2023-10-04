@@ -560,6 +560,9 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 	"TradingConfirm": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.TradingConfirm(moveAction, profileChangeEvent)
 	},
+	"Remove": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.RemoveItem(moveAction, profileChangeEvent)
+	},
 }
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
