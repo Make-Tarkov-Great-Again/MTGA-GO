@@ -317,9 +317,7 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 	delete(stash.Container.FlatMap, UID)
 }
 
-func (ic *InventoryContainer) GetValidPositionForItem(height int8, width int8) []int16 {
-	var output []int16
-
+func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) []*int16 {
 	if width != 0 {
 		width--
 	}
@@ -327,13 +325,49 @@ func (ic *InventoryContainer) GetValidPositionForItem(height int8, width int8) [
 		height--
 	}
 
+	var itemID string
 	var containerMap = &ic.Stash.Container.Map
-	var containerFlatMap = &ic.Stash.Container.FlatMap
+	//var containerFlatMap = &ic.Stash.Container.FlatMap
 	var stride = int16(ic.Stash.Container.Width)
 
-	fmt.Println(containerMap, containerFlatMap, stride)
+	length := int16(len(*containerMap))
+	output := make([]*int16, 0)
+	var counter int8
 
-	return output
+columnLoop:
+	for column := int16(0); column <= length; column++ {
+		if column == 404 {
+			fmt.Println()
+		}
+		if itemID = (*containerMap)[column]; itemID != "" {
+			output = output[:0]
+			counter = 0
+			continue
+		}
+		output = append(output, &column)
+
+		var coordinate int16
+		for row := int16(1); row <= int16(height); row++ {
+			coordinate = row*stride + column
+			if itemID = (*containerMap)[coordinate]; itemID != "" {
+				output = output[:0]
+				counter = 0
+				break columnLoop
+			}
+			output = append(output, &coordinate)
+		}
+
+		counter++
+		//TODO: consider returning a proper location for the item, as well as the output
+		// because we can't just set an item we may not be able to purchase
+
+		if counter == width {
+			return output
+		}
+	}
+
+	log.Println("There are no positions available for the Item, returning nil")
+	return nil
 }
 
 // ConvertAssortItemsToInventoryItem converts AssortItem to InventoryItem, also reassigns IDs of all items
