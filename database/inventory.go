@@ -317,7 +317,13 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 	delete(stash.Container.FlatMap, UID)
 }
 
-func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) []*int16 {
+type validLocation struct {
+	MapInfo []*int16
+	X       int8
+	Y       int8
+}
+
+func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) *validLocation {
 	if width != 0 {
 		width--
 	}
@@ -331,39 +337,39 @@ func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) [
 	var stride = int16(ic.Stash.Container.Width)
 
 	length := int16(len(*containerMap))
-	output := make([]*int16, 0)
+
+	position := &validLocation{
+		MapInfo: make([]*int16, 0),
+	}
 	var counter int8
 
 columnLoop:
 	for column := int16(0); column <= length; column++ {
-		if column == 404 {
-			fmt.Println()
-		}
 		if itemID = (*containerMap)[column]; itemID != "" {
-			output = output[:0]
+			position.MapInfo = []*int16{}
 			counter = 0
 			continue
 		}
-		output = append(output, &column)
+		position.MapInfo = append(position.MapInfo, &column)
 
 		var coordinate int16
 		for row := int16(1); row <= int16(height); row++ {
 			coordinate = row*stride + column
 			if itemID = (*containerMap)[coordinate]; itemID != "" {
-				output = output[:0]
+				position.MapInfo = []*int16{}
 				counter = 0
-				break columnLoop
+				continue columnLoop
 			}
-			output = append(output, &coordinate)
+			position.MapInfo = append(position.MapInfo, &coordinate)
 		}
-
-		counter++
-		//TODO: consider returning a proper location for the item, as well as the output
-		// because we can't just set an item we may not be able to purchase
-
 		if counter == width {
-			return output
+
+			position.Y = int8(*position.MapInfo[0] / stride)
+			position.X = int8(*position.MapInfo[0] % stride)
+
+			return position
 		}
+		counter++
 	}
 
 	log.Println("There are no positions available for the Item, returning nil")

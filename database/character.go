@@ -658,28 +658,68 @@ type tradingScheme struct {
 	Count int32
 }
 
+type barter struct {
+	Item  *InventoryItem
+	Count int32
+}
+
 func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
-	tradingConfirm := new(tradingConfirm)
+	tradeConfirm := new(tradingConfirm)
 	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &tradingConfirm)
+	err := json.Unmarshal(data, &tradeConfirm)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	//TODO: Barters
+
 	invCache := GetCacheByUID(c.ID).Inventory
 
+	barters := make([]*barter, 0, len(tradeConfirm.SchemeItems))
+	for _, scheme := range tradeConfirm.SchemeItems {
+		b := new(barter)
+
+		index := invCache.GetIndexOfItemByUID(scheme.ID)
+		if index == nil {
+			log.Fatalln("Index of", scheme.ID, "does not exist in cache, killing!")
+		}
+
+		b.Item = &c.Inventory.Items[*index]
+		b.Count = scheme.Count
+		barters = append(barters, b)
+	}
+
 	// see if item can fit in inventory first
-	assortItem := GetTraderByUID(tradingConfirm.TID).GetAssortItemByID(tradingConfirm.ItemID)
+	assortItem := GetTraderByUID(tradeConfirm.TID).GetAssortItemByID(tradeConfirm.ItemID)
+	if assortItem == nil {
+		log.Fatalln("Item of", tradeConfirm.ItemID, "does not exist in trader assort, killing!")
+	}
+
 	inventoryItems := ConvertAssortItemsToInventoryItem(assortItem, &c.Inventory.Stash)
-	inventoryItems[len(inventoryItems)-1].UPD.StackObjectsCount = &tradingConfirm.Count
+	if len(inventoryItems) == 0 {
+		log.Fatalln("Converting Assort Item to Inventory Item failed, killing")
+	}
+
+	mainItem := &inventoryItems[len(inventoryItems)-1]
+
+	(*mainItem).UPD.StackObjectsCount = &tradeConfirm.Count
 	//temporary, should be handled in the conversion probably
 
 	height, width := MeasurePurchaseForInventoryMapping(inventoryItems)
-	inventoryCache := invCache.GetValidLocationForItem(height, width)
+	validLocation := invCache.GetValidLocationForItem(height, width)
+	if validLocation == nil {
+		return
+	}
 
+	(*mainItem).Location = &InventoryItemLocation{
+		IsSearched: true,
+		R:          0,
+		X:          validLocation.X,
+		Y:          validLocation.Y,
+	}
 	// iterate through schemeItems and remove items used to barter (cash/items)
 	// send proper profilesChangesEvent shit
-	fmt.Println(inventoryCache)
+	fmt.Println()
 }
 
 // #endregion
