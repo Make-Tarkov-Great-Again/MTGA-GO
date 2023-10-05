@@ -13,7 +13,7 @@ We are developing this emulator to offer an accessible experience, that is up-to
 
 ## Community
 
-Our Discord is undergoing construction and is only available to those we invite.
+[Discord](https://discord.gg/7p8hY7nsM4)
 
 ## Contribution
 
