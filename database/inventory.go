@@ -187,6 +187,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 			continue
 		}
 
+		//TODO: Set coordinates to FlatMapLookup so we can really save MS on iteration
 		for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
 			if itemID = (*containerMap)[column]; itemID != "" {
 				log.Fatalln("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[column])
@@ -308,6 +309,7 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 	var stride = int16(stash.Container.Width)
 	var itemID string
 
+	//TODO: Use coordinates in itemFlatMap to delete id's
 	for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
 		itemID = (*containerMap)[column]
 		if itemID != UID {
@@ -357,9 +359,6 @@ func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) *
 	var counter int8
 columnLoop:
 	for column := int16(0); column <= length; column++ {
-		if column == 404 {
-			fmt.Println()
-		}
 		if itemID = (*containerMap)[column]; itemID != "" {
 			position.MapInfo = []int16{}
 			counter = 0
