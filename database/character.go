@@ -590,7 +590,22 @@ func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChanges
 	inventoryCache := GetCacheByUID(c.ID).Inventory
 	toDeleteIndex := *inventoryCache.GetIndexOfItemByUID(remove.ItemId)
 	itemInInventory := &c.Inventory.Items[toDeleteIndex]
+	fmt.Println("Location of item to be deleted: ", itemInInventory.Location)
+
+	itemChildren := GetInventoryItemFamilyTreeIDs(c.Inventory.Items, remove.ItemId)
+	for index := len(itemChildren) - 1; index >= 0; index-- {
+		childrenId := itemChildren[index]
+		childrenToDeleteIndex := *inventoryCache.GetIndexOfItemByUID(childrenId)
+		childItemInInventory := &c.Inventory.Items[childrenToDeleteIndex]
+		fmt.Println("Location of child item to be deleted: ", childItemInInventory.Location)
+		//inventoryCache.ClearItemFromContainer(childrenId)
+		c.Inventory.RemoveItemFromInventoryByIndex(childrenToDeleteIndex)
+		profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangeEvents[c.ID].ProfileChanges[c.ID].Items.Del, childItemInInventory)
+	}
+
+	//inventoryCache.ClearItemFromContainer(remove.ItemId)
 	c.Inventory.RemoveItemFromInventoryByIndex(toDeleteIndex)
+	inventoryCache.SetInventoryIndex(&c.Inventory)
 
 	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangeEvents[c.ID].ProfileChanges[c.ID].Items.Del, itemInInventory)
 }
