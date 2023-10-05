@@ -737,9 +737,7 @@ func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileCha
 	}
 
 	mainItem := &inventoryItems[len(inventoryItems)-1]
-
-	(*mainItem).UPD.StackObjectsCount = &tradeConfirm.Count
-	//temporary, should be handled in the conversion probably
+	(*mainItem).UPD.StackObjectsCount = &tradeConfirm.Count //temporary, should be handled in the conversion probably
 
 	height, width := MeasurePurchaseForInventoryMapping(inventoryItems)
 	validLocation := invCache.GetValidLocationForItem(height, width)
@@ -753,9 +751,16 @@ func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileCha
 		X:          validLocation.X,
 		Y:          validLocation.Y,
 	}
-	// iterate through schemeItems and remove items used to barter (cash/items)
-	// send proper profilesChangesEvent shit
-	fmt.Println()
+
+	for _, invItem := range inventoryItems {
+		c.Inventory.Items = append(c.Inventory.Items, *invItem)
+		profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, invItem)
+	}
+
+	invCache.SetInventoryIndex(&c.Inventory)
+	invCache.SetInventoryStash(&c.Inventory)
+
+	fmt.Println("Item", tradeConfirm.ItemID, "purchased!")
 }
 
 // #endregion

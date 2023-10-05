@@ -150,7 +150,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		}
 	} else {
 		stash = ic.Stash
-		stash.Container.Map = stash.Container.Map[0:]
+		stash.Container.Map = make([]string, int(stash.Container.Height)*int(stash.Container.Width))
 		stash.Container.FlatMap = make(map[string]FlatMapLookup)
 	}
 
@@ -160,6 +160,11 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 	var itemID string
 
 	for index := range ic.Lookup.Reverse {
+
+		if index == 290 {
+			fmt.Println()
+		}
+
 		itemInInventory := inventory.Items[index]
 		if itemInInventory.ParentID == nil ||
 			*itemInInventory.ParentID != inventory.Stash ||
@@ -215,13 +220,21 @@ func (ic *InventoryContainer) CreateFlatMapLookup(inventoryItems *[]InventoryIte
 	}
 
 	isVertical := false
-	if locationR, ok := itemInInventory.Location.R.(string); ok {
-		if slices.Contains([]string{"1", "Vertical"}, locationR) {
+	if stringRotation, ok := itemInInventory.Location.R.(string); ok {
+		if slices.Contains([]string{"1", "Vertical"}, stringRotation) {
 			isVertical = true
 		}
 	} else {
-		if itemInInventory.Location.R.(float64) == 1 {
-			isVertical = true
+		if floatRotation, ok := itemInInventory.Location.R.(float64); ok {
+			if floatRotation == 1 {
+				isVertical = true
+			}
+		} else {
+			if intRotation, ok := itemInInventory.Location.R.(int8); ok {
+				if intRotation == 1 {
+					isVertical = true
+				}
+			}
 		}
 	}
 
@@ -318,9 +331,9 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 }
 
 type validLocation struct {
-	MapInfo []*int16
-	X       int8
-	Y       int8
+	MapInfo []int16
+	X       int16
+	Y       int16
 }
 
 func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) *validLocation {
@@ -333,39 +346,43 @@ func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) *
 
 	var itemID string
 	var containerMap = &ic.Stash.Container.Map
-	//var containerFlatMap = &ic.Stash.Container.FlatMap
 	var stride = int16(ic.Stash.Container.Width)
 
 	length := int16(len(*containerMap))
 
 	position := &validLocation{
-		MapInfo: make([]*int16, 0),
+		MapInfo: make([]int16, 0),
 	}
-	var counter int8
 
+	var counter int8
 columnLoop:
 	for column := int16(0); column <= length; column++ {
+		if column == 404 {
+			fmt.Println()
+		}
 		if itemID = (*containerMap)[column]; itemID != "" {
-			position.MapInfo = []*int16{}
+			position.MapInfo = []int16{}
 			counter = 0
 			continue
 		}
-		position.MapInfo = append(position.MapInfo, &column)
+
+		position.MapInfo = append(position.MapInfo, column)
 
 		var coordinate int16
 		for row := int16(1); row <= int16(height); row++ {
 			coordinate = row*stride + column
 			if itemID = (*containerMap)[coordinate]; itemID != "" {
-				position.MapInfo = []*int16{}
+				position.MapInfo = []int16{}
 				counter = 0
 				continue columnLoop
 			}
-			position.MapInfo = append(position.MapInfo, &coordinate)
+			position.MapInfo = append(position.MapInfo, coordinate)
 		}
+
 		if counter == width {
 
-			position.Y = int8(*position.MapInfo[0] / stride)
-			position.X = int8(*position.MapInfo[0] % stride)
+			position.Y = position.MapInfo[0] / stride
+			position.X = position.MapInfo[0] % stride
 
 			return position
 		}
@@ -403,7 +420,6 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 		inventoryItem.ID = newId
 
 		if *inventoryItem.SlotID == "hideout" && *inventoryItem.ParentID == "hideout" {
-			inventoryItem.SlotID = stashID
 			inventoryItem.ParentID = stashID
 
 			parent = inventoryItem
