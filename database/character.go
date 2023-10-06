@@ -145,7 +145,7 @@ func (c *Character) SaveCharacter(sessionID string) {
 }
 
 // QuestAccept updates an existing Accepted quest, or creates and appends new Accepted Quest to cache and Character
-func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
+func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesEvent) {
 
 	cachedQuests := GetQuestCacheByUID(c.ID)
 	length := len(cachedQuests.Index)
@@ -185,10 +185,9 @@ func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 		c.Quests = append(c.Quests, *quest)
 	}
 
-	changeEvent := CreateProfileChangesEvent(c)
 	if query.Rewards.Start != nil {
 		fmt.Println("There are rewards heeyrrrr!")
-		fmt.Println(changeEvent.ProfileChanges[c.ID].ID)
+		fmt.Println(profileChangesEvent.ProfileChanges[c.ID].ID)
 
 		// TODO: Apply then Get Quest rewards and then route messages from there
 		// Character.ApplyQuestRewardsToCharacter()  applies the given reward
@@ -217,11 +216,10 @@ func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 	}
 
 	//TODO: Get new player quests from database now that we've accepted one
-	changeEvent.ProfileChanges[c.ID].Quests = c.GetQuestsAvailableToPlayer()
+	profileChangesEvent.ProfileChanges[c.ID].Quests = c.GetQuestsAvailableToPlayer()
 
 	dialogue.SaveDialogue(c.ID)
 	c.SaveCharacter(c.ID)
-	return changeEvent
 }
 
 func (c *Character) ApplyQuestRewardsToCharacter(rewards *QuestRewards) {
@@ -576,13 +574,6 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 	*newItem.UPD.StackObjectsCount = split.Count
 
 	height, width := MeasurePurchaseForInventoryMapping([]*InventoryItem{&newItem})
-	if width != 0 {
-		width--
-	}
-	if height != 0 {
-		height--
-	}
-
 	itemFlatMap := invCache.CreateFlatMapLookup(height, width, &newItem)
 
 	for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {

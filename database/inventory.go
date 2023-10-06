@@ -467,14 +467,6 @@ type sizes struct {
 	SizeRight   int8
 }
 
-//TODO: figure out why this can't be apart of the function
-/*	if width != 0 {
-		width--
-	}
-	if height != 0 {
-		height--
-	}*/
-
 // MeasureItemForInventoryMapping gets the correct size of an item within the Character.Inventory for setting in
 // Stash.Container
 func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryItem, parent string) (int8, int8) {

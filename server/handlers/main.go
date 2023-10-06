@@ -528,7 +528,7 @@ func MainPrices(w http.ResponseWriter, _ *http.Request) {
 
 var actionHandlers = map[string]func(map[string]interface{}, *database.Character, *database.ProfileChangesEvent){
 	"QuestAccept": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
-		character.QuestAccept(moveAction["qid"].(string))
+		character.QuestAccept(moveAction["qid"].(string), profileChangeEvent)
 	},
 	"Examine": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.ExamineItem(moveAction)
