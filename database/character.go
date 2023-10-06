@@ -549,9 +549,9 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 		log.Fatalln(err)
 	}
 
-	inventoryCache := *GetCacheByUID(c.ID).Inventory
+	invCache := *GetCacheByUID(c.ID).Inventory
 
-	originalItem := &c.Inventory.Items[*inventoryCache.GetIndexOfItemByUID(split.SplitItem)]
+	originalItem := &c.Inventory.Items[*invCache.GetIndexOfItemByUID(split.SplitItem)]
 	*originalItem.UPD.StackObjectsCount -= split.Count
 
 	newItem := InventoryItem{
@@ -560,17 +560,42 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 		UPD: originalItem.UPD,
 		Location: &InventoryItemLocation{
 			IsSearched: split.Container.Location.IsSearched,
-			R:          split.Container.Location.R,
 			X:          split.Container.Location.X,
 			Y:          split.Container.Location.Y,
 		},
 		ParentID: &split.Container.ID,
 		SlotID:   &split.Container.Container,
 	}
+
+	if split.Container.Location.R == "Vertical" {
+		newItem.Location.R = float64(1)
+	} else {
+		newItem.Location.R = float64(0)
+	}
+
 	*newItem.UPD.StackObjectsCount = split.Count
 
+	height, width := MeasurePurchaseForInventoryMapping([]*InventoryItem{&newItem})
+	if width != 0 {
+		width--
+	}
+	if height != 0 {
+		height--
+	}
+
+	itemFlatMap := invCache.CreateFlatMapLookup(height, width, &newItem)
+
+	for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
+		itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, column)
+		for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
+			coordinate := row*int16(invCache.Stash.Container.Width) + column
+			itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, coordinate)
+		}
+	}
+
 	c.Inventory.Items = append(c.Inventory.Items, newItem)
-	//inventoryCache.AddItemToContainer(split.NewItem, &c.Inventory)
+	invCache.AddItemToContainer(split.NewItem, itemFlatMap)
+	invCache.SetInventoryIndex(&c.Inventory)
 	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &newItem)
 }
 
@@ -590,9 +615,11 @@ func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChanges
 	inventoryCache := GetCacheByUID(c.ID).Inventory
 
 	itemChildren := GetInventoryItemFamilyTreeIDs(c.Inventory.Items, remove.ItemId)
+	var itemIndex int16
 	for _, itemID := range itemChildren {
+		itemIndex = *inventoryCache.GetIndexOfItemByUID(itemID)
 		inventoryCache.ClearItemFromContainer(itemID)
-		c.Inventory.RemoveItemFromInventoryByIndex(*inventoryCache.GetIndexOfItemByUID(itemID))
+		c.Inventory.RemoveItemFromInventoryByIndex(itemIndex)
 		profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: itemID})
 	}
 	inventoryCache.SetInventoryIndex(&c.Inventory)
