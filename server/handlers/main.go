@@ -570,7 +570,7 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	length := int8(len(data)) - 1
 
 	character := database.GetCharacterByUID(services.GetSessionID(r))
-	profileChangeEvent := database.GetProfileChangeByUID(character.ID)
+	profileChangeEvent := database.CreateProfileChangesEvent(character)
 
 	for i, move := range data {
 		moveAction := move.(map[string]interface{})

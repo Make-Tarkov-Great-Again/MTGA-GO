@@ -14,23 +14,15 @@ import (
 const profilesPath string = "user/profiles/"
 
 var profiles = make(map[string]*Profile)
-var profileChangeEvents = make(map[string]*ProfileChangesEvent)
 
 // #region Profile getters
 
-func GetProfileChangeByUID(uid string) *ProfileChangesEvent {
-	if changes, ok := profileChangeEvents[uid]; ok {
-		return changes
-	}
-
-	//fmt.Println("No changes found for UID ", uid, ". Generating...")
-	character := GetCharacterByUID(uid)
-
-	profileChangeEvents[uid] = &ProfileChangesEvent{
+func CreateProfileChangesEvent(character *Character) *ProfileChangesEvent {
+	output := &ProfileChangesEvent{
 		Warnings:       []*Warning{},
 		ProfileChanges: make(map[string]*ProfileChanges),
 	}
-	profileChangeEvents[uid].ProfileChanges[uid] = &ProfileChanges{
+	output.ProfileChanges[character.ID] = &ProfileChanges{
 		ID:              character.ID,
 		Experience:      character.Info.Experience,
 		Quests:          make([]interface{}, 0),
@@ -45,7 +37,7 @@ func GetProfileChangeByUID(uid string) *ProfileChangesEvent {
 		QuestsStatus:    make([]CharacterQuest, 0),
 	}
 
-	return profileChangeEvents[uid]
+	return output
 }
 
 func GetProfiles() map[string]*Profile {

@@ -185,7 +185,7 @@ func (c *Character) QuestAccept(qid string) *ProfileChangesEvent {
 		c.Quests = append(c.Quests, *quest)
 	}
 
-	changeEvent := GetProfileChangeByUID(c.ID)
+	changeEvent := CreateProfileChangesEvent(c)
 	if query.Rewards.Start != nil {
 		fmt.Println("There are rewards heeyrrrr!")
 		fmt.Println(changeEvent.ProfileChanges[c.ID].ID)
@@ -571,7 +571,7 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 
 	c.Inventory.Items = append(c.Inventory.Items, newItem)
 	//inventoryCache.AddItemToContainer(split.NewItem, &c.Inventory)
-	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangeEvents[c.ID].ProfileChanges[c.ID].Items.New, &newItem)
+	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &newItem)
 }
 
 type remove struct {
@@ -590,20 +590,12 @@ func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChanges
 	inventoryCache := GetCacheByUID(c.ID).Inventory
 
 	itemChildren := GetInventoryItemFamilyTreeIDs(c.Inventory.Items, remove.ItemId)
-	for index := len(itemChildren) - 1; index >= 0; index-- {
-		childrenId := itemChildren[index]
-		childrenToDeleteIndex := *inventoryCache.GetIndexOfItemByUID(childrenId)
-		childItemInInventory := &c.Inventory.Items[childrenToDeleteIndex]
-		fmt.Println("Location of child item to be deleted: ", childItemInInventory.Location)
-		inventoryCache.ClearItemFromContainer(childrenId)
-		c.Inventory.RemoveItemFromInventoryByIndex(childrenToDeleteIndex)
-		profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangeEvents[c.ID].ProfileChanges[c.ID].Items.Del, childItemInInventory)
+	for _, itemID := range itemChildren {
+		inventoryCache.ClearItemFromContainer(itemID)
+		c.Inventory.RemoveItemFromInventoryByIndex(*inventoryCache.GetIndexOfItemByUID(itemID))
+		profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: itemID})
 	}
-
-	//inventoryCache.ClearItemFromContainer(remove.ItemId)
 	inventoryCache.SetInventoryIndex(&c.Inventory)
-
-	//c.Inventory.RemoveItemFromInventoryByIndex(toDeleteIndex)
 }
 
 type applyInventoryChanges struct {
