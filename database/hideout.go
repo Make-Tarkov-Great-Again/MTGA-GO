@@ -12,11 +12,11 @@ import (
 var hideout = Hideout{}
 
 const (
-	areasPath           string = hideoutPath + "areas.json"
-	productionPath      string = hideoutPath + "production.json"
-	qtePath             string = hideoutPath + "qte.json"
-	scavcasePath        string = hideoutPath + "scavcase.json"
-	hideoutSettingsPath string = hideoutPath + "settings.json"
+	areasPath           = hideoutPath + "areas.json"
+	productionPath      = hideoutPath + "production.json"
+	qtePath             = hideoutPath + "qte.json"
+	scavcasePath        = hideoutPath + "scavcase.json"
+	hideoutSettingsPath = hideoutPath + "settings.json"
 )
 
 // #region Hideout getters

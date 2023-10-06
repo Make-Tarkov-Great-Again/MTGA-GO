@@ -31,12 +31,12 @@ type Data struct {
 }
 
 func GetJSONRawMessage(path string) json.RawMessage {
-	byte, err := ReadFile(path)
+	b, err := ReadFile(path)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	rawJson := json.RawMessage(byte)
+	rawJson := json.RawMessage(b)
 	var data Data
 	if strings.Contains(string(rawJson), "\"data\"") {
 		err := json.Unmarshal(rawJson, &data)

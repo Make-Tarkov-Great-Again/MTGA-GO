@@ -305,10 +305,10 @@ type moveTo struct {
 }
 
 type moveToLocation struct {
-	X          int16  `json:"x"`
-	Y          int16  `json:"y"`
-	R          string `json:"r"`
-	IsSearched bool   `json:"isSearched"`
+	X          float64 `json:"x"`
+	Y          float64 `json:"y"`
+	R          string  `json:"r"`
+	IsSearched bool    `json:"isSearched"`
 }
 
 func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
@@ -324,8 +324,8 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileCh
 
 	if move.To.Location != nil {
 		moveToLocation := move.To.Location
-		rotation := 0
-		if moveToLocation.R == "Vertical" {
+		var rotation float64 = 0
+		if moveToLocation.R == "Vertical" || moveToLocation.R == "1" {
 			rotation++
 		}
 
@@ -368,8 +368,8 @@ func (c *Character) SwapItemInStash(moveAction map[string]interface{}, profileCh
 
 	if swap.To.Location != nil {
 		moveToLocation := swap.To.Location
-		rotation := 0
-		if moveToLocation.R == "Vertical" {
+		var rotation float64 = 0
+		if moveToLocation.R == "Vertical" || moveToLocation.R == "1" {
 			rotation++
 		}
 
@@ -393,8 +393,8 @@ func (c *Character) SwapItemInStash(moveAction map[string]interface{}, profileCh
 
 	if swap.To2.Location != nil {
 		moveToLocation := swap.To2.Location
-		rotation := 0
-		if moveToLocation.R == "Vertical" {
+		var rotation float64 = 0
+		if moveToLocation.R == "Vertical" || moveToLocation.R == "1" {
 			rotation++
 		}
 
@@ -654,7 +654,7 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 				log.Fatalln("Cannot type assert item.Location `r` property from Auto-Sort items slice")
 			}
 
-			if r == "Horizontal" {
+			if r == "Horizontal" || r == "1" {
 				itemInInventory.Location.R = float64(0)
 			} else {
 				itemInInventory.Location.R = float64(1)
@@ -743,9 +743,9 @@ func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileCha
 
 	(*mainItem).Location = &InventoryItemLocation{
 		IsSearched: true,
-		R:          0,
-		X:          validLocation.X,
-		Y:          validLocation.Y,
+		R:          float64(0),
+		X:          float64(validLocation.X),
+		Y:          float64(validLocation.Y),
 	}
 
 	for _, invItem := range inventoryItems {
@@ -753,8 +753,11 @@ func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileCha
 		profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, invItem)
 	}
 
+	itemFlatMap := invCache.CreateFlatMapLookup(height, width, *mainItem)
+	itemFlatMap.Coordinates = validLocation.MapInfo
+
+	invCache.AddItemToContainer((*mainItem).ID, itemFlatMap)
 	invCache.SetInventoryIndex(&c.Inventory)
-	invCache.SetInventoryStash(&c.Inventory)
 
 	fmt.Println("Item", tradeConfirm.ItemID, "purchased!")
 }
