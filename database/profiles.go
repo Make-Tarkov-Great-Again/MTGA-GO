@@ -33,7 +33,7 @@ func CreateProfileChangesEvent(character *Character) *ProfileChangesEvent {
 		Improvements:    make(map[string]interface{}),
 		Skills:          character.Skills,
 		Health:          character.Health,
-		TraderRelations: make([]PlayerTradersInfo, 0),
+		TraderRelations: make(map[string]PlayerTradersInfo),
 		QuestsStatus:    make([]CharacterQuest, 0),
 	}
 
@@ -268,22 +268,22 @@ type ItemLocation struct {
 }
 
 type ProfileChanges struct {
-	ID                    string                  `json:"_id"`
-	Experience            int32                   `json:"experience"`
-	Quests                []interface{}           `json:"quests"`
-	QuestsStatus          []CharacterQuest        `json:"questsStatus"`
-	RagfairOffers         []interface{}           `json:"ragFairOffers"`
-	WeaponBuilds          []interface{}           `json:"weaponBuilds"`
-	EquipmentBuilds       []interface{}           `json:"equipmentBuilds"`
-	Items                 ItemChanges             `json:"items"`
-	Production            *map[string]interface{} `json:"production"`
-	Improvements          map[string]interface{}  `json:"improvements"`
-	Skills                PlayerSkills            `json:"skills"`
-	Health                HealthInfo              `json:"health"`
-	TraderRelations       []PlayerTradersInfo     `json:"traderRelations"`
-	RepeatableQuests      *[]interface{}          `json:"repeatableQuests,omitempty"`
-	RecipeUnlocked        *map[string]bool        `json:"recipeUnlocked,omitempty"`
-	ChangedHideoutStashes *map[string]interface{} `json:"changedHideoutStashes,omitempty"`
+	ID                    string                       `json:"_id"`
+	Experience            int32                        `json:"experience"`
+	Quests                []interface{}                `json:"quests"`
+	QuestsStatus          []CharacterQuest             `json:"questsStatus"`
+	RagfairOffers         []interface{}                `json:"ragFairOffers"`
+	WeaponBuilds          []interface{}                `json:"weaponBuilds"`
+	EquipmentBuilds       []interface{}                `json:"equipmentBuilds"`
+	Items                 ItemChanges                  `json:"items"`
+	Production            *map[string]interface{}      `json:"production"`
+	Improvements          map[string]interface{}       `json:"improvements"`
+	Skills                PlayerSkills                 `json:"skills"`
+	Health                HealthInfo                   `json:"health"`
+	TraderRelations       map[string]PlayerTradersInfo `json:"traderRelations"`
+	RepeatableQuests      *[]interface{}               `json:"repeatableQuests,omitempty"`
+	RecipeUnlocked        *map[string]bool             `json:"recipeUnlocked,omitempty"`
+	ChangedHideoutStashes *map[string]interface{}      `json:"changedHideoutStashes,omitempty"`
 }
 
 // #endregion

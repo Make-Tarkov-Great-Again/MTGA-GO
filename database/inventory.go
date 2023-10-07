@@ -425,8 +425,6 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 	return output
 }
 
-// TODO: Consider refactoring AddItemToContainer
-
 // AddItemToContainer adds item, based on the UID, to the cached InventoryContainer
 func (ic *InventoryContainer) AddItemToContainer(UID string, itemFlatMap *FlatMapLookup) {
 	var stash = *ic.Stash
@@ -529,6 +527,8 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 	return height, width
 }
 
+//TODO: Figure out a better way to reset Inventory Index
+
 // SetInventoryIndex set/reset InventoryContainer.Lookup for fast Inventory.Items lookup
 func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {
 	if ic.Lookup == nil {
@@ -547,8 +547,7 @@ func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {
 	}
 }
 
-// GetIndexOfItemByUID retrieves cached index of the item in your
-// Inventory by its UID in Lookup.Forward
+// GetIndexOfItemByUID retrieves cached index of the item in your Inventory by its UID in Lookup.Forward
 func (ic *InventoryContainer) GetIndexOfItemByUID(UID string) *int16 {
 	index, ok := ic.Lookup.Forward[UID]
 	if !ok {
