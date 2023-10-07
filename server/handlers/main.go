@@ -173,7 +173,7 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		playerScav := database.GetPlayerScav()
-		playerScav.Info.RegistrationDate = int(tools.GetCurrentTimeInSeconds())
+		playerScav.Info.RegistrationDate = int32(tools.GetCurrentTimeInSeconds())
 		playerScav.AID = character.AID
 		playerScav.ID = *character.Savage
 
@@ -316,7 +316,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	pmc.Info.LowerNickname = strings.ToLower(request.Nickname)
 	pmc.Info.Voice = database.GetCustomization(request.VoiceID)["_name"].(string)
 
-	time := int(tools.GetCurrentTimeInSeconds())
+	time := int32(tools.GetCurrentTimeInSeconds())
 	pmc.Info.RegistrationDate = time
 	pmc.Health.UpdateTime = time
 

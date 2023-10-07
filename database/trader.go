@@ -38,7 +38,7 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 
 	parentItems, parentOK := t.Index.Assort.ParentItems[id]
 	if !parentOK {
-		fmt.Println("Assort Item", id, "does not exist for", t.Base["nickname"])
+		fmt.Println("Assort Item", id, "does not exist for", t.Base.Nickname)
 		return nil
 	}
 
@@ -57,7 +57,7 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 }
 
 func (t *Trader) GetStrippedAssort(character *Character) *Assort {
-	traderID := t.Base["_id"].(string)
+	traderID := t.Base.ID
 
 	cache := GetTraderCacheByUID(character.ID)
 	cachedAssort, ok := cache.Assorts[traderID]
@@ -188,8 +188,8 @@ func SetResupplyTimer() int {
 
 // GetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
 func (t *Trader) GetTraderLoyaltyLevel(character *Character) int8 {
-	loyaltyLevels := t.Base["loyaltyLevels"].([]interface{})
-	traderID := t.Base["_id"].(string)
+	loyaltyLevels := t.Base.LoyaltyLevels
+	traderID := t.Base.ID
 
 	_, ok := character.TradersInfo[traderID]
 	if !ok {
@@ -198,10 +198,10 @@ func (t *Trader) GetTraderLoyaltyLevel(character *Character) int8 {
 
 	length := len(loyaltyLevels)
 	for index := 0; index < length; index++ {
-		loyalty := loyaltyLevels[index].(map[string]interface{})
-		if character.Info.Level < int(loyalty["minLevel"].(float64)) ||
-			character.TradersInfo[traderID].SalesSum < float32(loyalty["minSalesSum"].(float64)) ||
-			character.TradersInfo[traderID].Standing < float32(loyalty["minStanding"].(float64)) {
+		loyalty := loyaltyLevels[index]
+		if character.Info.Level < loyalty.MinLevel ||
+			character.TradersInfo[traderID].SalesSum < loyalty.MinSalesSum ||
+			character.TradersInfo[traderID].Standing < loyalty.MinStanding {
 
 			return int8(index)
 		}
@@ -254,8 +254,8 @@ func setTraders() {
 	}
 }
 
-func setTraderBase(basePath string) map[string]interface{} {
-	base := map[string]interface{}{}
+func setTraderBase(basePath string) *TraderBase {
+	trader := new(TraderBase)
 
 	var dynamic map[string]interface{} //here we fucking go
 
@@ -297,12 +297,12 @@ func setTraderBase(basePath string) map[string]interface{} {
 		log.Fatalln(err)
 	}
 
-	err = json.Unmarshal(sanitized, &base)
+	err = json.Unmarshal(sanitized, trader)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	return base
+	return trader
 }
 
 func setTraderAssort(assortPath string) (*Assort, *AssortIndex) {
@@ -470,7 +470,7 @@ func setTraderSuits(dialoguesPath string) ([]TraderSuits, map[string]int8) {
 
 type Trader struct {
 	Index       TraderIndex                  `json:",omitempty"`
-	Base        map[string]interface{}       `json:",omitempty"`
+	Base        *TraderBase                  `json:",omitempty"`
 	Assort      *Assort                      `json:",omitempty"`
 	QuestAssort map[string]map[string]string `json:",omitempty"`
 	Suits       []TraderSuits                `json:",omitempty"`
@@ -485,6 +485,69 @@ type TraderIndex struct {
 type AssortIndex struct {
 	Items       map[string]int16
 	ParentItems map[string]map[string]int16 `json:",omitempty"`
+}
+
+type TraderBase struct {
+	ID                  string               `json:"_id"`
+	AvailableInRaid     bool                 `json:"availableInRaid"`
+	Avatar              string               `json:"avatar"`
+	BalanceDol          int32                `json:"balance_dol"`
+	BalanceEur          int32                `json:"balance_eur"`
+	BalanceRub          int32                `json:"balance_rub"`
+	BuyerUp             bool                 `json:"buyer_up"`
+	Currency            string               `json:"currency"`
+	CustomizationSeller bool                 `json:"customization_seller"`
+	Discount            int8                 `json:"discount"`
+	DiscountEnd         int8                 `json:"discount_end"`
+	GridHeight          int16                `json:"gridHeight"`
+	Insurance           TraderInsurance      `json:"insurance"`
+	ItemsBuy            ItemsBuy             `json:"items_buy"`
+	ItemsBuyProhibited  ItemsBuy             `json:"items_buy_prohibited"`
+	Location            string               `json:"location"`
+	LoyaltyLevels       []TraderLoyaltyLevel `json:"loyaltyLevels"`
+	Medic               bool                 `json:"medic"`
+	Name                string               `json:"name"`
+	NextResupply        int32                `json:"nextResupply"`
+	Nickname            string               `json:"nickname"`
+	Repair              TraderRepair         `json:"repair"`
+	SellCategory        []string             `json:"sell_category"`
+	Surname             string               `json:"surname"`
+	UnlockedByDefault   bool                 `json:"unlockedByDefault"`
+}
+
+type TraderInsurance struct {
+	Availability     bool     `json:"availability"`
+	ExcludedCategory []string `json:"excluded_category"`
+	MaxReturnHour    int8     `json:"max_return_hour"`
+	MaxStorageTime   int32    `json:"max_storage_time"`
+	MinPayment       float32  `json:"min_payment"`
+	MinReturnHour    int8     `json:"min_return_hour"`
+}
+
+type ItemsBuy struct {
+	Category []string `json:"category"`
+	IdList   []string `json:"id_list"`
+}
+
+type TraderLoyaltyLevel struct {
+	BuyPriceCoef       int16   `json:"buy_price_coef"`
+	ExchangePriceCoef  int16   `json:"exchange_price_coef"`
+	HealPriceCoef      int16   `json:"heal_price_coef"`
+	InsurancePriceCoef int16   `json:"insurance_price_coef"`
+	MinLevel           int8    `json:"minLevel"`
+	MinSalesSum        float32 `json:"minSalesSum"`
+	MinStanding        float32 `json:"minStanding"`
+	RepairPriceCoef    int16   `json:"repair_price_coef"`
+}
+
+type TraderRepair struct {
+	Availability        bool     `json:"availability"`
+	Currency            string   `json:"currency"`
+	CurrencyCoefficient int8     `json:"currency_coefficient"`
+	ExcludedCategory    []string `json:"excluded_category"`
+	ExcludedIdList      []string `json:"excluded_id_list"`
+	PriceRate           int8     `json:"price_rate"`
+	Quality             float32  `json:"quality"`
 }
 
 type TraderSuits struct {

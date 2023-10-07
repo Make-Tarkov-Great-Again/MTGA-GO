@@ -26,6 +26,20 @@ func GetItemByUID(uid string) *DatabaseItem {
 	return item
 }
 
+var currency = map[string]string{
+	"RUB": "5449016a4bdc2d6f028b456f",
+	"EUR": "569668774bdc2da2298b4568",
+	"DOL": "5696686a4bdc2da3298b456a",
+}
+
+func GetCurrencyByName(name string) *string {
+	currency, ok := currency[name]
+	if ok {
+		return &currency
+	}
+	return nil
+}
+
 // GetItemPrice Gets item... price...
 func (i *DatabaseItem) GetItemPrice() *int32 {
 	return GetPriceByID(i.ID)

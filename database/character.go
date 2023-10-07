@@ -287,7 +287,7 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) {
 		return
 	}
 
-	c.Info.Experience += int(experience)
+	c.Info.Experience += int32(experience)
 }
 
 type move struct {
@@ -717,6 +717,17 @@ func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileCha
 
 	invCache := GetCacheByUID(c.ID).Inventory
 
+	switch tradeConfirm.Action {
+	case "buy_from_trader":
+		c.BuyFromTrader(tradeConfirm, invCache, profileChangesEvent)
+	case "sell_to_trader":
+		c.SellToTrader(tradeConfirm, profileChangesEvent)
+	default:
+		fmt.Println("YO! ACTION", tradeConfirm.Action, "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
+	}
+}
+
+func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
 	barters := make([]*barter, 0, len(tradeConfirm.SchemeItems))
 	for _, scheme := range tradeConfirm.SchemeItems {
 		b := new(barter)
@@ -772,6 +783,14 @@ func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileCha
 	fmt.Println("Item", tradeConfirm.ItemID, "purchased!")
 }
 
+func (c *Character) SellToTrader(tradeConfirm *tradingConfirm, profileChangesEvent *ProfileChangesEvent) {
+	//trader := GetTraderByUID(tradeConfirm.TID).Base
+
+	//saleCurrency := GetCurrencyByName(trader)
+
+	fmt.Println()
+}
+
 // #endregion
 
 // #region Character structs
@@ -812,7 +831,7 @@ type PlayerTradersInfo struct {
 }
 
 type PlayerRagfairInfo struct {
-	Rating          float64       `json:"rating"`
+	Rating          float32       `json:"rating"`
 	IsRatingGrowing bool          `json:"isRatingGrowing"`
 	Offers          []interface{} `json:"offers"`
 }
@@ -886,17 +905,17 @@ type PlayerInfo struct {
 	LowerNickname          string                 `json:"LowerNickname"`
 	Side                   string                 `json:"Side"`
 	Voice                  string                 `json:"Voice"`
-	Level                  int                    `json:"Level"`
-	Experience             int                    `json:"Experience"`
-	RegistrationDate       int                    `json:"RegistrationDate"`
+	Level                  int8                   `json:"Level"`
+	Experience             int32                  `json:"Experience"`
+	RegistrationDate       int32                  `json:"RegistrationDate"`
 	GameVersion            string                 `json:"GameVersion"`
-	AccountType            int                    `json:"AccountType"`
-	MemberCategory         int                    `json:"MemberCategory"`
+	AccountType            int8                   `json:"AccountType"`
+	MemberCategory         int8                   `json:"MemberCategory"`
 	LockedMoveCommands     bool                   `json:"lockedMoveCommands"`
-	SavageLockTime         int                    `json:"SavageLockTime"`
-	LastTimePlayedAsSavage int                    `json:"LastTimePlayedAsSavage"`
+	SavageLockTime         int32                  `json:"SavageLockTime"`
+	LastTimePlayedAsSavage int32                  `json:"LastTimePlayedAsSavage"`
 	Settings               map[string]interface{} `json:"Settings"`
-	NicknameChangeDate     int                    `json:"NicknameChangeDate"`
+	NicknameChangeDate     int32                  `json:"NicknameChangeDate"`
 	NeedWipeOptions        []interface{}          `json:"NeedWipeOptions"`
 	LastCompletedWipe      struct {
 		Oid string `json:"$oid"`
@@ -905,7 +924,7 @@ type PlayerInfo struct {
 		Oid string `json:"$oid"`
 	} `json:"lastCompletedEvent"`
 	BannedState             bool          `json:"BannedState"`
-	BannedUntil             int           `json:"BannedUntil"`
+	BannedUntil             int32         `json:"BannedUntil"`
 	IsStreamerModeAvailable bool          `json:"IsStreamerModeAvailable"`
 	SquadInviteRestriction  bool          `json:"SquadInviteRestriction"`
 	Bans                    []interface{} `json:"Bans"`
@@ -914,7 +933,7 @@ type PlayerInfo struct {
 type InfoSettings struct {
 	Role            string  `json:"Role"`
 	BotDifficulty   string  `json:"BotDifficulty"`
-	Experience      int     `json:"Experience"`
+	Experience      int32   `json:"Experience"`
 	StandingForKill float32 `json:"StandingForKill"`
 	AggressorBonus  float32 `json:"AggressorBonus"`
 }
@@ -942,7 +961,7 @@ type HealthInfo struct {
 	Energy      CurrMaxHealth   `json:"Energy"`
 	Temperature CurrMaxHealth   `json:"Temperature"`
 	BodyParts   BodyPartsHealth `json:"BodyParts"`
-	UpdateTime  int             `json:"UpdateTime"`
+	UpdateTime  int32           `json:"UpdateTime"`
 }
 
 type HealthOf struct {

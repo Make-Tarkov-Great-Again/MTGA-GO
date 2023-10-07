@@ -269,7 +269,7 @@ type ItemLocation struct {
 
 type ProfileChanges struct {
 	ID                    string                  `json:"_id"`
-	Experience            int                     `json:"experience"`
+	Experience            int32                   `json:"experience"`
 	Quests                []interface{}           `json:"quests"`
 	QuestsStatus          []CharacterQuest        `json:"questsStatus"`
 	RagfairOffers         []interface{}           `json:"ragFairOffers"`

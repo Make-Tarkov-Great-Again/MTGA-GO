@@ -22,7 +22,7 @@ func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 
 func TradingTraderSettings(w http.ResponseWriter, _ *http.Request) {
 	traders := database.GetTraders()
-	data := make([]map[string]interface{}, 0, len(traders))
+	data := make([]*database.TraderBase, 0, len(traders))
 
 	for _, trader := range traders {
 		data = append(data, trader.Base)
