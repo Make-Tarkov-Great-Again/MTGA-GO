@@ -279,6 +279,10 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
+type profileCreate struct {
+	UID string `json:"uid"`
+}
+
 func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	request := new(ProfileCreateRequest)
 	body, _ := json.Marshal(services.GetParsedBody(r))
@@ -353,7 +357,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	profile.Cache = profile.SetCache()
 	profile.SaveProfile()
 
-	data := services.ApplyResponseBody(map[string]interface{}{"uid": sessionID})
+	data := services.ApplyResponseBody(&profileCreate{UID: sessionID})
 	services.ZlibJSONReply(w, data)
 }
 
