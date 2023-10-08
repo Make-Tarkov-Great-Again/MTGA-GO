@@ -21,9 +21,10 @@
 go.work
 user/profiles/
 user/cert/
-user/backup
+user/backup/
 questsDatabase.json
 *.png
 *.jpg
-*.idea
+.idea/
+vscode/
 *.xml
