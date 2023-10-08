@@ -302,7 +302,34 @@ func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *Inventor
 	ic.SetInventoryIndex(Inventory)
 }
 
+// ClearItemFromContainerMap soft-deletes Item from Container.Map by removing its entries
+// only and preserves its FlatMapLookup
+func (ic *InventoryContainer) ClearItemFromContainerMap(UID string) {
+	var stash = *ic.Stash
+	var itemFlatMap = stash.Container.FlatMap[UID]
+	var containerMap = &stash.Container.Map
+
+	for index := range itemFlatMap.Coordinates {
+		(*containerMap)[index] = ""
+	}
+}
+
+// AddItemFromContainerMap sets Item in Container.Map by adding its entries
+// from preserved FlatMapLookup
+func (ic *InventoryContainer) AddItemFromContainerMap(UID string) {
+	var stash = *ic.Stash
+	var itemFlatMap = stash.Container.FlatMap[UID]
+	var containerMap = &stash.Container.Map
+
+	for index := range itemFlatMap.Coordinates {
+		(*containerMap)[index] = UID
+	}
+}
+
 // ClearItemFromContainer wipes item, based on the UID, from the cached InventoryContainer
+//
+// Warning!
+// Only use this function if you're hard-deleting entries from Inventory.Items
 func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 	var stash = *ic.Stash
 	var itemFlatMap = stash.Container.FlatMap[UID]
@@ -379,8 +406,8 @@ columnLoop:
 
 // ConvertAssortItemsToInventoryItem converts AssortItem to InventoryItem, also reassigns IDs of all items
 // as well as their children; sets parent item to last index
-func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *string) []*InventoryItem {
-	output := make([]*InventoryItem, 0, len(assortItems))
+func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *string) []InventoryItem {
+	output := make([]InventoryItem, 0, len(assortItems))
 	convertedIDs := make(map[string]string)
 
 	var parent *InventoryItem
@@ -410,10 +437,32 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 			continue
 		}
 
-		output = append(output, inventoryItem)
+		output = append(output, *inventoryItem)
 	}
 
-	output = append(output, parent)
+	output = append(output, *parent)
+
+	for _, item := range output {
+		CID, ok := convertedIDs[*item.ParentID]
+		if !ok {
+			continue
+		}
+		item.ParentID = &CID
+	}
+	return output
+}
+
+func AssignNewIDs(inventoryItems []InventoryItem) []InventoryItem {
+	output := make([]InventoryItem, 0, len(inventoryItems))
+	convertedIDs := make(map[string]string)
+
+	for _, inventoryItem := range inventoryItems {
+		newId := tools.GenerateMongoID()
+		convertedIDs[inventoryItem.ID] = newId
+		inventoryItem.ID = newId
+
+		output = append(output, inventoryItem)
+	}
 
 	for _, item := range output {
 		CID, ok := convertedIDs[*item.ParentID]
@@ -430,7 +479,7 @@ func (ic *InventoryContainer) AddItemToContainer(UID string, itemFlatMap *FlatMa
 	var stash = *ic.Stash
 	var containerMap = &stash.Container.Map
 
-	for index := range itemFlatMap.Coordinates {
+	for _, index := range itemFlatMap.Coordinates {
 		(*containerMap)[index] = UID
 	}
 
@@ -559,7 +608,7 @@ func (ic *InventoryContainer) GetIndexOfItemByUID(UID string) *int16 {
 
 // MeasurePurchaseForInventoryMapping is the same as MeasureItemForInventoryMapping except it's exclusively
 // used for Trader/RagFair purchases; returns correct height and width based on items given
-func MeasurePurchaseForInventoryMapping(items []*InventoryItem) (int8, int8) {
+func MeasurePurchaseForInventoryMapping(items []InventoryItem) (int8, int8) {
 	parentItem := items[len(items)-1]
 	itemInDatabase := GetItemByUID(parentItem.TPL) //parent
 	height, width := itemInDatabase.GetItemSize()  //get parent as starting point

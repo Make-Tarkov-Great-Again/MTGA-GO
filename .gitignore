@@ -21,10 +21,9 @@
 go.work
 user/profiles/
 user/cert/
+user/backup
 questsDatabase.json
 *.png
 *.jpg
-.idea/vcs.xml
-.idea/MT-GO.iml
-.idea/modules.xml
+*.idea
 *.xml

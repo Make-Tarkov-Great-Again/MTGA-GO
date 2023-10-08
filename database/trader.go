@@ -160,6 +160,8 @@ func SetResupplyTimer() int {
 		return rs.NextResupplyTime
 	}
 
+	//TODO: Adjust rs.ResupplyTimeInSeconds based on a config
+
 	rs.NextResupplyTime = int(tools.GetCurrentTimeInSeconds()) + rs.ResupplyTimeInSeconds
 	rs.TimerResupplyTime = time.Duration(rs.ResupplyTimeInSeconds) * time.Second
 
@@ -331,7 +333,7 @@ func setTraderAssort(assortPath string) (*Assort, *AssortIndex) {
 		}
 
 	} else {
-		panic("Items not found")
+		log.Fatalln("Items not found")
 	}
 
 	index := &AssortIndex{}

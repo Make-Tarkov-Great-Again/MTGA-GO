@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"MT-GO/services"
@@ -317,8 +318,9 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileCh
 		log.Fatalln(err)
 	}
 
-	cache := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(move.Item)
-	itemInInventory := &c.Inventory.Items[cache]
+	cache := *GetCacheByUID(c.ID).Inventory
+	index := cache.GetIndexOfItemByUID(move.Item)
+	itemInInventory := &c.Inventory.Items[*index]
 
 	if move.To.Location != nil {
 		moveToLocation := move.To.Location
@@ -341,6 +343,16 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileCh
 
 	itemInInventory.ParentID = &move.To.ID
 	itemInInventory.SlotID = &move.To.Container
+
+	//TODO: Consider that the item does not have a FlatMapLookup
+	// It needs to be created, and we will need to create a function
+	// that quickly generates coordinates based off the location given
+
+	/*	if *itemInInventory.SlotID != "hideout" {
+			cache.ClearItemFromContainerMap(move.Item)
+		} else {
+			cache.AddItemFromContainerMap(move.Item)
+		}*/
 
 	profileChangesEvent.ProfileChanges[c.ID].Production = nil
 }
@@ -457,9 +469,8 @@ func (c *Character) ReadEncyclopedia(moveAction map[string]interface{}) {
 		log.Fatalln(err)
 	}
 
-	length := int8(len(readEncyclopedia.IDs))
-	for i := int8(0); i < length; i++ {
-		c.Encyclopedia[readEncyclopedia.IDs[i]] = true
+	for _, id := range readEncyclopedia.IDs {
+		c.Encyclopedia[id] = true
 	}
 }
 
@@ -488,20 +499,34 @@ func (c *Character) MergeItem(moveAction map[string]interface{}, profileChangesE
 	*mergeWith.UPD.StackObjectsCount += *toMerge.UPD.StackObjectsCount
 
 	inventoryCache.ClearItemFromContainer(toMerge.ID)
-	c.Inventory.RemoveItemFromInventoryByIndex(toMergeIndex)
+	c.Inventory.RemoveSingleItemFromInventoryByIndex(toMergeIndex)
 	inventoryCache.SetInventoryIndex(&c.Inventory)
 
 	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: toMerge.ID})
 }
 
-// RemoveItemFromInventoryByIndex takes the existing Inventory.Items and removes an InventoryItem at its index
+// RemoveSingleItemFromInventoryByIndex takes the existing Inventory.Items and removes an InventoryItem at its index
 // by shifting the indexes to the left
-func (inv *Inventory) RemoveItemFromInventoryByIndex(index int16) {
+func (inv *Inventory) RemoveSingleItemFromInventoryByIndex(index int16) {
 	if index < 0 || index >= int16(len(inv.Items)) {
-		log.Fatalln("[RemoveItemFromInventoryByIndex] Index out of Range")
+		log.Fatalln("[RemoveSingleItemFromInventoryByIndex] Index out of Range")
 	}
 	copy(inv.Items[index:], inv.Items[index+1:])
 	inv.Items = inv.Items[:len(inv.Items)-1]
+}
+
+// RemoveItemsFromInventoryByIndices takes the existing Inventory.Items and removes an InventoryItem at its index
+// by creating new slice to assign to Inventory.Items
+func (inv *Inventory) RemoveItemsFromInventoryByIndices(indices []int16) {
+	output := make([]InventoryItem, len(inv.Items))
+
+	for idx, item := range inv.Items {
+		if slices.Contains(indices, int16(idx)) {
+			continue
+		}
+		output = append(output, item)
+	}
+	inv.Items = output
 }
 
 type transfer struct {
@@ -573,7 +598,7 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 
 	*newItem.UPD.StackObjectsCount = split.Count
 
-	height, width := MeasurePurchaseForInventoryMapping([]*InventoryItem{&newItem})
+	height, width := MeasurePurchaseForInventoryMapping([]InventoryItem{newItem})
 	itemFlatMap := invCache.CreateFlatMapLookup(height, width, &newItem)
 
 	for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
@@ -610,7 +635,7 @@ func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChanges
 	for _, itemID := range itemChildren {
 		itemIndex = *inventoryCache.GetIndexOfItemByUID(itemID)
 		inventoryCache.ClearItemFromContainer(itemID)
-		c.Inventory.RemoveItemFromInventoryByIndex(itemIndex)
+		c.Inventory.RemoveSingleItemFromInventoryByIndex(itemIndex)
 		profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: itemID})
 	}
 	inventoryCache.SetInventoryIndex(&c.Inventory)
@@ -700,11 +725,6 @@ type tradingScheme struct {
 	Count int32
 }
 
-type barter struct {
-	Item  *InventoryItem
-	Count int32
-}
-
 func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
 	tradeConfirm := new(tradingConfirm)
 	data, _ := json.Marshal(moveAction)
@@ -717,33 +737,20 @@ func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileCha
 
 	invCache := GetCacheByUID(c.ID).Inventory
 
-	switch tradeConfirm.Action {
+	switch tradeConfirm.Type {
 	case "buy_from_trader":
 		c.BuyFromTrader(tradeConfirm, invCache, profileChangesEvent)
 	case "sell_to_trader":
-		c.SellToTrader(tradeConfirm, profileChangesEvent)
+		c.SellToTrader(tradeConfirm, invCache, profileChangesEvent)
 	default:
-		fmt.Println("YO! ACTION", tradeConfirm.Action, "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
+		fmt.Println("YO! TRADINGCONFIRM.", tradeConfirm.Type, "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
 	}
 }
 
 func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
-	barters := make([]*barter, 0, len(tradeConfirm.SchemeItems))
-	for _, scheme := range tradeConfirm.SchemeItems {
-		b := new(barter)
+	trader := GetTraderByUID(tradeConfirm.TID)
 
-		index := invCache.GetIndexOfItemByUID(scheme.ID)
-		if index == nil {
-			log.Fatalln("Index of", scheme.ID, "does not exist in cache, killing!")
-		}
-
-		b.Item = &c.Inventory.Items[*index]
-		b.Count = scheme.Count
-		barters = append(barters, b)
-	}
-
-	// see if item can fit in inventory first
-	assortItem := GetTraderByUID(tradeConfirm.TID).GetAssortItemByID(tradeConfirm.ItemID)
+	assortItem := trader.GetAssortItemByID(tradeConfirm.ItemID)
 	if assortItem == nil {
 		log.Fatalln("Item of", tradeConfirm.ItemID, "does not exist in trader assort, killing!")
 	}
@@ -753,37 +760,161 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 		log.Fatalln("Converting Assort Item to Inventory Item failed, killing")
 	}
 
-	mainItem := &inventoryItems[len(inventoryItems)-1]
-	(*mainItem).UPD.StackObjectsCount = &tradeConfirm.Count //temporary, should be handled in the conversion probably
+	// TODO: Make this a helper function
+	var stackMaxSize int32
+	if size, ok := GetItemByUID(inventoryItems[len(inventoryItems)-1].TPL).Props["StackMaxSize"].(float64); ok {
+		stackMaxSize = int32(size)
+	}
+
+	howManyItems := tradeConfirm.Count / stackMaxSize
+	remainder := tradeConfirm.Count % stackMaxSize
+	var stackSlice []int32
+	if remainder != 0 {
+		stackSlice = make([]int32, 0, howManyItems+1)
+		for i := int32(0); i < howManyItems; i++ {
+			stackSlice = append(stackSlice, stackMaxSize)
+		}
+		stackSlice = append(stackSlice, remainder)
+	} else {
+		stackSlice = make([]int32, 0, howManyItems)
+		for i := int32(0); i < howManyItems; i++ {
+			stackSlice = append(stackSlice, stackMaxSize)
+		}
+	} // Basically gets the correct amount of items to be created, based on StackSize
+
+	//Create copy-of Character.Inventory.Items for modification in the case of any failures to assign later
+	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items)+len(stackSlice))
+	copyOfItems = append(copyOfItems, c.Inventory.Items...)
+	//Create copy-of invCache.Stash.Container for modification in the case of any failures to assign later
+	copyOfMap := invCache.Stash.Container
+
+	toAdd := make([]InventoryItem, 0, len(stackSlice))
+	toDelete := make(map[string]int16)
+	traderRelations := c.TradersInfo[tradeConfirm.TID]
 
 	height, width := MeasurePurchaseForInventoryMapping(inventoryItems)
-	validLocation := invCache.GetValidLocationForItem(height, width)
-	if validLocation == nil {
-		return
+
+	for _, stack := range stackSlice {
+		copyOfInventoryItems := AssignNewIDs(inventoryItems)
+		//copyOfInventoryItems := make([]InventoryItem, len(inventoryItems))
+		//copy(copyOfInventoryItems, inventoryItems)
+
+		mainItem := &copyOfInventoryItems[len(copyOfInventoryItems)-1]
+
+		validLocation := invCache.GetValidLocationForItem(height, width)
+		if validLocation == nil {
+			fmt.Println("Item", tradeConfirm.ItemID, "was not purchased due to error!")
+			invCache.Stash.Container = copyOfMap //if failure, assign old map
+			return
+		}
+
+		//TODO: Deal with stacks of items so they do not overflow; i.e: bullets
+		mainItem.UPD.StackObjectsCount = &stack //temporary, should be handled in the conversion probably
+		mainItem.Location = &InventoryItemLocation{
+			IsSearched: true,
+			R:          float64(0),
+			X:          float64(validLocation.X),
+			Y:          float64(validLocation.Y),
+		}
+
+		itemFlatMap := invCache.CreateFlatMapLookup(height, width, mainItem)
+		itemFlatMap.Coordinates = validLocation.MapInfo
+		invCache.AddItemToContainer(mainItem.ID, itemFlatMap)
+
+		toAdd = append(toAdd, copyOfInventoryItems...)
 	}
 
-	(*mainItem).Location = &InventoryItemLocation{
-		IsSearched: true,
-		R:          float64(0),
-		X:          float64(validLocation.X),
-		Y:          float64(validLocation.Y),
+	// end block
+
+	for _, scheme := range tradeConfirm.SchemeItems {
+		index := invCache.GetIndexOfItemByUID(scheme.ID)
+		if index == nil {
+			log.Fatalln("Index of", scheme.ID, "does not exist in cache, killing!")
+		}
+
+		itemInInventory := copyOfItems[*index]
+		currency := GetCurrencyByName(trader.Base.Currency)
+		if currency != nil && *currency == itemInInventory.TPL {
+			traderRelations.SalesSum += float32(scheme.Count)
+		}
+
+		if itemInInventory.UPD != nil && itemInInventory.UPD.StackObjectsCount != nil {
+			var remainingBalance = scheme.Count
+
+			if *itemInInventory.UPD.StackObjectsCount > remainingBalance {
+				*itemInInventory.UPD.StackObjectsCount -= remainingBalance
+
+				profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, &itemInInventory)
+			} else {
+				remainingBalance -= *itemInInventory.UPD.StackObjectsCount
+
+				toDelete[itemInInventory.ID] = *index
+
+				//TODO: Consider creating a look-up cache for mergable Inventory.Items
+				var toChange []*InventoryItem
+				for idx, item := range copyOfItems {
+					if _, ok := toDelete[item.ID]; ok || item.TPL != *currency {
+						continue
+					}
+
+					change := *item.UPD.StackObjectsCount - remainingBalance
+					if change > 0 {
+						remainingBalance -= *item.UPD.StackObjectsCount
+						toDelete[item.ID] = int16(idx)
+						continue
+					} else if change == 0 {
+						remainingBalance -= *item.UPD.StackObjectsCount
+						toDelete[item.ID] = int16(idx)
+						break
+					}
+
+					*item.UPD.StackObjectsCount = change
+					toChange = append(toChange, &item)
+					break
+				}
+				if remainingBalance > 0 {
+					fmt.Println("Insufficient funds to purchase item, returning")
+					invCache.Stash.Container = copyOfMap
+					return
+				}
+
+				profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, toChange...)
+			}
+		} else {
+			toDelete[itemInInventory.ID] = *index
+		}
 	}
 
-	for _, invItem := range inventoryItems {
-		c.Inventory.Items = append(c.Inventory.Items, *invItem)
-		profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, invItem)
+	// Add all items from toAdd to Copy of Inventory.Items
+	for _, invItem := range toAdd {
+		copyOfItems = append(copyOfItems, invItem)
+		profileChangeItem := invItem //assign to variable to be pointed too for profileChangeEvents
+		profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &profileChangeItem)
 	}
 
-	itemFlatMap := invCache.CreateFlatMapLookup(height, width, *mainItem)
-	itemFlatMap.Coordinates = validLocation.MapInfo
+	//Assign copy-of Character.Inventory.Items to original Character.Inventory.Items
+	c.Inventory.Items = copyOfItems
 
-	invCache.AddItemToContainer((*mainItem).ID, itemFlatMap)
+	if len(toDelete) != 0 {
+		indices := make([]int16, len(toDelete))
+		for id, idx := range toDelete {
+			invCache.ClearItemFromContainer(id)
+			indices = append(indices, idx)
+
+			//TODO: Check if this is necessary
+			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: id})
+		}
+		c.Inventory.RemoveItemsFromInventoryByIndices(indices)
+	}
 	invCache.SetInventoryIndex(&c.Inventory)
 
-	fmt.Println("Item", tradeConfirm.ItemID, "purchased!")
+	profileChangesEvent.ProfileChanges[c.ID].TraderRelations[tradeConfirm.TID] = traderRelations
+	c.TradersInfo[tradeConfirm.TID] = traderRelations
+
+	fmt.Println(len(toAdd), "of Item", tradeConfirm.ItemID, "purchased!")
 }
 
-func (c *Character) SellToTrader(tradeConfirm *tradingConfirm, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) SellToTrader(tradeConfirm *tradingConfirm, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
 	//trader := GetTraderByUID(tradeConfirm.TID).Base
 
 	//saleCurrency := GetCurrencyByName(trader)
