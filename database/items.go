@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"math"
 
 	"MT-GO/tools"
 
@@ -26,18 +27,34 @@ func GetItemByUID(uid string) *DatabaseItem {
 	return item
 }
 
-var currency = map[string]string{
+var currencyName = map[string]string{
 	"RUB": "5449016a4bdc2d6f028b456f",
 	"EUR": "569668774bdc2da2298b4568",
 	"DOL": "5696686a4bdc2da3298b456a",
 }
 
+var currencyByID = map[string]struct{}{
+	"5449016a4bdc2d6f028b456f": {}, //RUB
+	"569668774bdc2da2298b4568": {}, //EUR
+	"5696686a4bdc2da3298b456a": {}, //DOL
+}
+
+func IsCurrencyByUID(UID string) bool {
+	_, ok := currencyByID[UID]
+	return ok
+}
+
 func GetCurrencyByName(name string) *string {
-	currency, ok := currency[name]
+	currency, ok := currencyName[name]
 	if ok {
 		return &currency
 	}
 	return nil
+}
+
+func ConvertToRoubles(amount int32, currency string) float64 {
+	price := *GetPriceByID(currency)
+	return math.Round(float64(amount * price))
 }
 
 // GetItemPrice Gets item... price...

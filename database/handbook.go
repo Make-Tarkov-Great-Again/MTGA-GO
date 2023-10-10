@@ -10,7 +10,7 @@ import (
 )
 
 var handbook = Handbook{}
-var prices = Prices{}
+var prices = make(map[string]int32)
 
 // #region Handbook getters
 
@@ -19,7 +19,7 @@ func GetHandbook() *Handbook {
 }
 
 // GetPrices Get prices of all items
-func GetPrices() *Prices {
+func GetPrices() *map[string]int32 {
 	return &prices
 }
 
@@ -30,7 +30,7 @@ func GetPriceByID(id string) *int32 {
 		fmt.Println("Price of ", id, " not found, returning -1")
 		return nil
 	}
-	return price
+	return &price
 }
 
 // #endregion
@@ -45,7 +45,7 @@ func setHandbook() {
 	}
 
 	for _, v := range handbook.Items {
-		prices[v.Id] = &v.Price
+		prices[v.Id] = v.Price
 	}
 }
 
@@ -72,6 +72,6 @@ type HandbookItem struct {
 	Price    int32  `json:"Price"`
 }
 
-type Prices map[string]*int32
+type Prices map[string]int32
 
 // #endregion

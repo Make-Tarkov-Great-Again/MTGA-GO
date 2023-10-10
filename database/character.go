@@ -348,11 +348,13 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileCh
 	// It needs to be created, and we will need to create a function
 	// that quickly generates coordinates based off the location given
 
-	/*	if *itemInInventory.SlotID != "hideout" {
-			cache.ClearItemFromContainerMap(move.Item)
-		} else {
-			cache.AddItemFromContainerMap(move.Item)
-		}*/
+	cache.UpdateItemFlatMapLookup([]InventoryItem{*itemInInventory})
+	if *itemInInventory.SlotID != "hideout" {
+		cache.ClearItemFromContainerMap(move.Item)
+	} else {
+		cache.AddItemFromContainerMap(move.Item)
+	}
+	cache.SetInventoryIndex(&c.Inventory)
 
 	profileChangesEvent.ProfileChanges[c.ID].Production = nil
 }
@@ -577,7 +579,7 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 	originalItem := &c.Inventory.Items[*invCache.GetIndexOfItemByUID(split.SplitItem)]
 	*originalItem.UPD.StackObjectsCount -= split.Count
 
-	newItem := InventoryItem{
+	newItem := &InventoryItem{
 		ID:  split.NewItem,
 		TPL: originalItem.TPL,
 		UPD: originalItem.UPD,
@@ -598,21 +600,14 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 
 	*newItem.UPD.StackObjectsCount = split.Count
 
-	height, width := MeasurePurchaseForInventoryMapping([]InventoryItem{newItem})
-	itemFlatMap := invCache.CreateFlatMapLookup(height, width, &newItem)
-
-	for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
-		itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, column)
-		for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
-			coordinate := row*int16(invCache.Stash.Container.Width) + column
-			itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, coordinate)
-		}
-	}
-
-	c.Inventory.Items = append(c.Inventory.Items, newItem)
+	height, width := MeasurePurchaseForInventoryMapping([]InventoryItem{*newItem})
+	itemFlatMap := invCache.CreateFlatMapLookup(height, width, newItem)
+	itemFlatMap.Coordinates = invCache.GenerateCoordinatesFromLocation(*itemFlatMap)
 	invCache.AddItemToContainer(split.NewItem, itemFlatMap)
+
+	c.Inventory.Items = append(c.Inventory.Items, *newItem)
 	invCache.SetInventoryIndex(&c.Inventory)
-	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &newItem)
+	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
 }
 
 type remove struct {
@@ -629,16 +624,21 @@ func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChanges
 	}
 
 	inventoryCache := GetCacheByUID(c.ID).Inventory
-
 	itemChildren := GetInventoryItemFamilyTreeIDs(c.Inventory.Items, remove.ItemId)
+
 	var itemIndex int16
+	toDelete := make([]int16, 0, len(itemChildren))
 	for _, itemID := range itemChildren {
 		itemIndex = *inventoryCache.GetIndexOfItemByUID(itemID)
-		inventoryCache.ClearItemFromContainer(itemID)
-		c.Inventory.RemoveSingleItemFromInventoryByIndex(itemIndex)
-		profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: itemID})
+		toDelete = append(toDelete, itemIndex)
 	}
+
+	inventoryCache.ClearItemFromContainer(remove.ItemId)
+	c.Inventory.RemoveItemsFromInventoryByIndices(toDelete)
 	inventoryCache.SetInventoryIndex(&c.Inventory)
+
+	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: remove.ItemId})
+
 }
 
 type applyInventoryChanges struct {
@@ -766,6 +766,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 		stackMaxSize = int32(size)
 	}
 
+	// check why that fuckin tracker didn't purchase
 	howManyItems := tradeConfirm.Count / stackMaxSize
 	remainder := tradeConfirm.Count % stackMaxSize
 	var stackSlice []int32
@@ -833,9 +834,13 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 		}
 
 		itemInInventory := copyOfItems[*index]
-		currency := GetCurrencyByName(trader.Base.Currency)
+
+		currency := GetCurrencyByName("RUB")
 		if currency != nil && *currency == itemInInventory.TPL {
 			traderRelations.SalesSum += float32(scheme.Count)
+		} else if IsCurrencyByUID(itemInInventory.TPL) {
+			conversion := ConvertToRoubles(scheme.Count, itemInInventory.TPL)
+			traderRelations.SalesSum += float32(conversion)
 		}
 
 		if itemInInventory.UPD != nil && itemInInventory.UPD.StackObjectsCount != nil {

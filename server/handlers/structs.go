@@ -7,15 +7,15 @@ type QuestAccept struct{}
 // #endregion
 
 type SupplyData struct {
-	SupplyNextTime  int               `json:"supplyNextTime"`
-	Prices          map[string]*int32 `json:"prices"`
-	CurrencyCourses CurrencyCourses   `json:"currencyCourses"`
+	SupplyNextTime  int              `json:"supplyNextTime"`
+	Prices          map[string]int32 `json:"prices"`
+	CurrencyCourses CurrencyCourses  `json:"currencyCourses"`
 }
 
 type CurrencyCourses struct {
-	RUB *int32 `json:"5449016a4bdc2d6f028b456f"`
-	EUR *int32 `json:"569668774bdc2da2298b4568"`
-	DOL *int32 `json:"5696686a4bdc2da3298b456a"`
+	RUB int32 `json:"5449016a4bdc2d6f028b456f"`
+	EUR int32 `json:"569668774bdc2da2298b4568"`
+	DOL int32 `json:"5696686a4bdc2da3298b456a"`
 }
 
 type Version struct {

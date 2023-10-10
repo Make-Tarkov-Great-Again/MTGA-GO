@@ -152,9 +152,9 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		stash = ic.Stash
 	}
 
-	var containerMap = &stash.Container.Map
-	var containerFlatMap = &stash.Container.FlatMap
-	var stride = int16(stash.Container.Width)
+	var containerMap = ic.Stash.Container.Map
+	var containerFlatMap = ic.Stash.Container.FlatMap
+	var stride = int16(ic.Stash.Container.Width)
 	var itemID string
 
 	for index := range ic.Lookup.Reverse {
@@ -175,42 +175,39 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		itemFlatMap := *ic.CreateFlatMapLookup(height, width, &itemInInventory)
 
 		if itemFlatMap.Height == 0 && itemFlatMap.Width == 0 {
-			if itemID = (*containerMap)[itemFlatMap.StartX]; itemID != "" {
+			if itemID = containerMap[itemFlatMap.StartX]; itemID != "" {
 				log.Fatalln("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[itemFlatMap.StartX])
 			}
-			(*containerMap)[itemFlatMap.StartX] = itemInInventory.ID
+			containerMap[itemFlatMap.StartX] = itemInInventory.ID
 			itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, itemFlatMap.StartX)
-			(*containerFlatMap)[itemInInventory.ID] = itemFlatMap
+			containerFlatMap[itemInInventory.ID] = itemFlatMap
 
 			continue
 		}
 
-		//TODO: Set coordinates to FlatMapLookup so we can really save MS on iteration
 		for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
-			if itemID = (*containerMap)[column]; itemID != "" {
+			if itemID = containerMap[column]; itemID != "" {
 				log.Fatalln("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[column])
 			}
-			(*containerMap)[column] = itemInInventory.ID
+			containerMap[column] = itemInInventory.ID
 			itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, column)
 
 			for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
 				var coordinate = row*stride + column
-				if itemID = (*containerMap)[coordinate]; itemID != "" {
+				if itemID = containerMap[coordinate]; itemID != "" {
 					log.Fatalln("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[coordinate])
 				}
-				(*containerMap)[coordinate] = itemInInventory.ID
+				containerMap[coordinate] = itemInInventory.ID
 				itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, coordinate)
 			}
 		}
 
-		(*containerFlatMap)[itemInInventory.ID] = itemFlatMap
+		containerFlatMap[itemInInventory.ID] = itemFlatMap
 	}
 }
 
 func (ic *InventoryContainer) CreateFlatMapLookup(height int8, width int8, itemInInventory *InventoryItem) *FlatMapLookup {
-	output := &FlatMapLookup{
-		Coordinates: make([]int16, 0, height+width),
-	}
+	output := new(FlatMapLookup)
 
 	if width != 0 {
 		width--
@@ -302,6 +299,29 @@ func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *Inventor
 	ic.SetInventoryIndex(Inventory)
 }
 
+func (ic *InventoryContainer) GenerateCoordinatesFromLocation(flatMap FlatMapLookup) []int16 {
+	output := make([]int16, 0, flatMap.Height+flatMap.Width)
+
+	for c := flatMap.StartX; c <= flatMap.EndX; c++ {
+		output = append(output, c)
+
+		for r := int16(1); r <= int16(flatMap.Height); r++ {
+			coordinate := r*int16(ic.Stash.Container.Width) + c
+			output = append(output, coordinate)
+		}
+	}
+
+	return output
+}
+
+func (ic *InventoryContainer) UpdateItemFlatMapLookup(items []InventoryItem) {
+	height, width := MeasurePurchaseForInventoryMapping(items)
+	itemInInventory := items[len(items)-1]
+	flatMap := *ic.CreateFlatMapLookup(height, width, &itemInInventory)
+	flatMap.Coordinates = ic.GenerateCoordinatesFromLocation(flatMap)
+	ic.Stash.Container.FlatMap[itemInInventory.ID] = flatMap
+}
+
 // ClearItemFromContainerMap soft-deletes Item from Container.Map by removing its entries
 // only and preserves its FlatMapLookup
 func (ic *InventoryContainer) ClearItemFromContainerMap(UID string) {
@@ -309,7 +329,7 @@ func (ic *InventoryContainer) ClearItemFromContainerMap(UID string) {
 	var itemFlatMap = stash.Container.FlatMap[UID]
 	var containerMap = &stash.Container.Map
 
-	for index := range itemFlatMap.Coordinates {
+	for _, index := range itemFlatMap.Coordinates {
 		(*containerMap)[index] = ""
 	}
 }
@@ -317,12 +337,11 @@ func (ic *InventoryContainer) ClearItemFromContainerMap(UID string) {
 // AddItemFromContainerMap sets Item in Container.Map by adding its entries
 // from preserved FlatMapLookup
 func (ic *InventoryContainer) AddItemFromContainerMap(UID string) {
-	var stash = *ic.Stash
-	var itemFlatMap = stash.Container.FlatMap[UID]
-	var containerMap = &stash.Container.Map
+	var itemFlatMap = ic.Stash.Container.FlatMap[UID]
+	var containerMap = ic.Stash.Container.Map
 
-	for index := range itemFlatMap.Coordinates {
-		(*containerMap)[index] = UID
+	for _, index := range itemFlatMap.Coordinates {
+		containerMap[index] = UID
 	}
 }
 
@@ -331,17 +350,16 @@ func (ic *InventoryContainer) AddItemFromContainerMap(UID string) {
 // Warning!
 // Only use this function if you're hard-deleting entries from Inventory.Items
 func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
-	var stash = *ic.Stash
-	var itemFlatMap = stash.Container.FlatMap[UID]
-	var containerMap = &stash.Container.Map
+	var itemFlatMap = ic.Stash.Container.FlatMap[UID]
+	var containerMap = ic.Stash.Container.Map
 
-	for index := range itemFlatMap.Coordinates {
-		(*containerMap)[index] = ""
+	for _, index := range itemFlatMap.Coordinates {
+		containerMap[index] = ""
 	}
 
 	delete(ic.Lookup.Reverse, ic.Lookup.Forward[UID])
 	delete(ic.Lookup.Forward, UID)
-	delete(stash.Container.FlatMap, UID)
+	delete(ic.Stash.Container.FlatMap, UID)
 }
 
 type ValidLocation struct {
@@ -359,10 +377,10 @@ func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) *
 	}
 
 	var itemID string
-	var containerMap = &ic.Stash.Container.Map
+	var containerMap = ic.Stash.Container.Map
 	var stride = int16(ic.Stash.Container.Width)
 
-	length := int16(len(*containerMap))
+	length := int16(len(containerMap))
 
 	position := &ValidLocation{
 		MapInfo: make([]int16, 0),
@@ -371,7 +389,7 @@ func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) *
 	var counter int8
 columnLoop:
 	for column := int16(0); column <= length; column++ {
-		if itemID = (*containerMap)[column]; itemID != "" {
+		if itemID = containerMap[column]; itemID != "" {
 			position.MapInfo = []int16{}
 			counter = 0
 			continue
@@ -382,7 +400,7 @@ columnLoop:
 		var coordinate int16
 		for row := int16(1); row <= int16(height); row++ {
 			coordinate = row*stride + column
-			if itemID = (*containerMap)[coordinate]; itemID != "" {
+			if itemID = containerMap[coordinate]; itemID != "" {
 				position.MapInfo = []int16{}
 				counter = 0
 				continue columnLoop
@@ -476,14 +494,13 @@ func AssignNewIDs(inventoryItems []InventoryItem) []InventoryItem {
 
 // AddItemToContainer adds item, based on the UID, to the cached InventoryContainer
 func (ic *InventoryContainer) AddItemToContainer(UID string, itemFlatMap *FlatMapLookup) {
-	var stash = *ic.Stash
-	var containerMap = &stash.Container.Map
+	var containerMap = ic.Stash.Container.Map
 
 	for _, index := range itemFlatMap.Coordinates {
-		(*containerMap)[index] = UID
+		containerMap[index] = UID
 	}
 
-	stash.Container.FlatMap[UID] = *itemFlatMap
+	ic.Stash.Container.FlatMap[UID] = *itemFlatMap
 }
 
 func GetInventoryItemFamilyTreeIDs(items []InventoryItem, parent string) []string {
@@ -581,11 +598,10 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 // SetInventoryIndex set/reset InventoryContainer.Lookup for fast Inventory.Items lookup
 func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {
 	if ic.Lookup == nil {
-		ic.Lookup = &Lookup{
-			Forward: make(map[string]int16),
-			Reverse: make(map[int16]string),
-		}
+		ic.Lookup = new(Lookup)
 	}
+	ic.Lookup.Forward = make(map[string]int16)
+	ic.Lookup.Reverse = make(map[int16]string)
 
 	var pos int16
 	for idx, item := range inventory.Items {
