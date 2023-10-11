@@ -53,7 +53,7 @@ func InitializeDatabase() {
 		{"Languages", setLanguages},
 		{"Handbook", setHandbook},
 		{"Traders", setTraders},
-		{"Locations", setLocations},
+		{"Locations", setLocationsMaster},
 		{"Quests", setQuests},
 		{"Hideout", setHideout},
 		{"Weather", setWeather},

@@ -591,3 +591,42 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	character.SaveCharacter(character.ID)
 	services.ZlibJSONReply(w, services.ApplyResponseBody(profileChangeEvent))
 }
+
+func ExitFromMenu(w http.ResponseWriter, _ *http.Request) {
+	//TODO: IDK WHAT SIT NEEDS HERE
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, body)
+}
+
+type localLoot struct {
+	LocationID string `json:"locationId"`
+	VariantID  int8   `json:"variantId"`
+}
+
+func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
+	localloot := new(localLoot)
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = json.Unmarshal(data, localloot)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	loot := database.GetLocalLootByNameAndIndex(localloot.LocationID, localloot.VariantID)
+	body := services.ApplyResponseBody(loot)
+	services.ZlibJSONReply(w, body)
+}
+
+func RaidConfiguration(w http.ResponseWriter, _ *http.Request) {
+	/*
+		TODO: Pre-raid nonsense that we might need to do
+		AKI does some shit with setting difficulties to bots or something? IDK
+		IDC
+		IM THE GREATEST
+	*/
+
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, body)
+}

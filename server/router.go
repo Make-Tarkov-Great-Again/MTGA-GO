@@ -53,6 +53,10 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/files/": services.ServeFiles,
 
 	"/client/game/profile/items/moving": handlers.MainItemsMoving,
+
+	"/client/match/group/exit_from_menu": handlers.ExitFromMenu,
+	"/client/location/getLocalloot":      handlers.GetLocalLoot,
+	"/client/raid/configuration":         handlers.RaidConfiguration,
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {
