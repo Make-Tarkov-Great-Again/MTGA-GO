@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -628,5 +629,127 @@ func RaidConfiguration(w http.ResponseWriter, _ *http.Request) {
 	*/
 
 	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, body)
+}
+
+type insuranceList struct {
+	Traders []string `json:"traders"`
+	Items   []string `json:"items"`
+}
+
+type traderInsuranceInfo struct {
+	LoyaltyLevel int8
+	PriceCoef    int16
+}
+
+func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
+	insuranceListCost := new(insuranceList)
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = json.Unmarshal(data, insuranceListCost)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	sessionID := services.GetSessionID(r)
+	output := make(map[string]map[string]int32)
+	character := database.GetCharacterByUID(sessionID)
+	invCache := database.GetCacheByUID(sessionID).Inventory
+
+	Traders := make(map[string]traderInsuranceInfo)
+	for _, TID := range insuranceListCost.Traders {
+		trader := database.GetTraderByUID(TID)
+		loyaltyLevel := trader.GetTraderLoyaltyLevel(character)
+
+		Traders[TID] = traderInsuranceInfo{
+			LoyaltyLevel: loyaltyLevel,
+			PriceCoef:    trader.Base.LoyaltyLevels[loyaltyLevel].InsurancePriceCoef,
+		}
+
+		output[TID] = make(map[string]int32)
+	}
+
+	for _, itemID := range insuranceListCost.Items {
+		itemInInventory := character.Inventory.Items[*invCache.GetIndexOfItemByUID(itemID)]
+		itemPrice := *database.GetPriceByID(itemInInventory.TPL)
+
+		for key, insuranceInfo := range Traders {
+			insuranceCost := int32(math.Round(float64(itemPrice) * 0.3))
+			if insuranceInfo.PriceCoef > 0 {
+				insuranceCost *= int32(1 - insuranceInfo.PriceCoef/100)
+			}
+
+			output[key][itemInInventory.TPL] = insuranceCost
+		}
+	}
+
+	body := services.ApplyResponseBody(output)
+	services.ZlibJSONReply(w, body)
+}
+
+func InviteCancelAll(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, body)
+}
+
+func MatchAvailable(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(false)
+	services.ZlibJSONReply(w, body)
+}
+
+func RaidNotReady(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(map[string]interface{}{})
+	services.ZlibJSONReply(w, body)
+}
+
+func RaidReady(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(map[string]interface{}{})
+	services.ZlibJSONReply(w, body)
+}
+
+type groupStatus struct {
+	Players []interface{} `json:"players"`
+	Invite  []interface{} `json:"invite"`
+	Group   []interface{} `json:"group"`
+}
+
+var groupStatusOutput = groupStatus{
+	Players: make([]interface{}, 0),
+	Invite:  make([]interface{}, 0),
+	Group:   make([]interface{}, 0),
+}
+
+func GroupStatus(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(groupStatusOutput)
+	services.ZlibJSONReply(w, body)
+}
+
+func CoopServerStatus(w http.ResponseWriter, r *http.Request) {
+	log.Println("Getting Coop Server Match Status")
+	services.ZlibReply(w, "")
+}
+
+type coopInvites struct {
+	Players []map[string]interface{} `json:"players"`
+	Invite  []interface{}            `json:"invite"`
+	Group   []interface{}            `json:"group"`
+}
+
+var coopStatusOutput = coopInvites{
+	Players: make([]map[string]interface{}, 0),
+	Invite:  make([]interface{}, 0),
+	Group:   make([]interface{}, 0),
+}
+
+func CoopGetInvites(w http.ResponseWriter, r *http.Request) {
+	log.Println("Getting Coop Server Invites")
+	services.ZlibJSONReply(w, coopStatusOutput)
+}
+
+func CoopServerDelete(w http.ResponseWriter, r *http.Request) {
+	log.Println("Deleting Coop Server")
+	body := services.ApplyResponseBody(map[string]string{"response": "OK"})
 	services.ZlibJSONReply(w, body)
 }

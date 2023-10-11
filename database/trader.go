@@ -188,6 +188,8 @@ func SetResupplyTimer() int {
 	return rs.NextResupplyTime
 }
 
+//TODO: Store this information somewhere
+
 // GetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
 func (t *Trader) GetTraderLoyaltyLevel(character *Character) int8 {
 	loyaltyLevels := t.Base.LoyaltyLevels

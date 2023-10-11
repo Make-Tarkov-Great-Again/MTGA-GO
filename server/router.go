@@ -46,17 +46,38 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/checkVersion":                        handlers.MainCheckVersion,
 	"/client/game/logout":                         handlers.MainLogout,
 	"/client/items/prices/":                       handlers.MainPrices,
+	"/client/notifier/channel/create":             handlers.MainChannelCreate,
 
-	"/client/notifier/channel/create": handlers.MainChannelCreate,
-
-	//Incoming [GET] Request URL: [/files/quest/icon/59689e1c86f7740d14064725.jpg] on [:8080]
 	"/files/": services.ServeFiles,
 
 	"/client/game/profile/items/moving": handlers.MainItemsMoving,
 
-	"/client/match/group/exit_from_menu": handlers.ExitFromMenu,
-	"/client/location/getLocalloot":      handlers.GetLocalLoot,
-	"/client/raid/configuration":         handlers.RaidConfiguration,
+	"/client/match/group/exit_from_menu":    handlers.ExitFromMenu,
+	"/client/match/group/invite/cancel-all": handlers.InviteCancelAll,
+	"/client/match/available":               handlers.MatchAvailable,
+	"/client/match/raid/not-ready":          handlers.RaidNotReady,
+	"/client/match/raid/ready":              handlers.RaidReady,
+	"/client/match/group/status":            handlers.GroupStatus,
+
+	//"/client/raid/createFriendlyAI": handlers.CreateFriendlyAI,
+	//"/client/raid/person/killed": handlers.PersonKilled,
+	"/client/raid/configuration": handlers.RaidConfiguration,
+
+	"/coop/server-status": handlers.CoopServerStatus,
+	"/coop/get-invites":   handlers.CoopGetInvites,
+	"/coop/server/delete": handlers.CoopServerDelete,
+	//"/coop/server/update": handlers.CoopServerUpdate,
+	//"/coop/server/read/players": handlers.CoopServerReadPlayers,
+	//"/coop/server/join": handlers.CoopServerJoin,
+	//"/coop/server/exist": handlers.CoopServerExists,
+	//"/coop/server/create": handlers.CoopServerCreate,
+	//"/coop/server/getAllForLocation": handlers.CoopServerGetAllForLocation,
+	//"/coop/server/friendlyAI": handlers.CoopServerFriendlyAI,
+	//"/coop/server/spawnPoint": handlers.CoopServerSpawnPoint,
+	//"/coop/connect": handlers.CoopConnect,
+
+	"/client/location/getLocalloot":     handlers.GetLocalLoot,
+	"/client/insurance/items/list/cost": handlers.InsuranceListCost,
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {
