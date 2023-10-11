@@ -726,6 +726,16 @@ func GroupStatus(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
+func LookingForGroupStart(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, body)
+}
+
+func LookingForGroupStop(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, body)
+}
+
 func CoopServerStatus(w http.ResponseWriter, r *http.Request) {
 	log.Println("Getting Coop Server Match Status")
 	services.ZlibReply(w, "")
@@ -751,5 +761,10 @@ func CoopGetInvites(w http.ResponseWriter, r *http.Request) {
 func CoopServerDelete(w http.ResponseWriter, r *http.Request) {
 	log.Println("Deleting Coop Server")
 	body := services.ApplyResponseBody(map[string]string{"response": "OK"})
+	services.ZlibJSONReply(w, body)
+}
+
+func CoopConnect(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(map[string]interface{}{})
 	services.ZlibJSONReply(w, body)
 }
