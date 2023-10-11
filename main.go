@@ -305,6 +305,6 @@ func launchTarkov(account *database.Account) {
 	if err != nil {
 		fmt.Println("Client has been closed")
 		//database.GetProfileByUID(account.UID).SaveProfile()
-		os.Exit(0)
+		//os.Exit(0)
 	}
 }

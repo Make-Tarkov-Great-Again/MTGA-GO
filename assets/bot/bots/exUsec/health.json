@@ -1,21 +1,15 @@
 {
     "BodyParts": {
-        "Head": {
-            "Health": {
-                "Current": 40,
-                "Maximum": 40
-            }
-        },
         "Chest": {
             "Health": {
                 "Current": 180,
                 "Maximum": 180
             }
         },
-        "Stomach": {
+      "Head": {
             "Health": {
-                "Current": 130,
-                "Maximum": 130
+              "Current": 40,
+              "Maximum": 40
             }
         },
         "LeftArm": {
@@ -24,13 +18,13 @@
                 "Maximum": 105
             }
         },
-        "RightArm": {
-            "Health": {
-                "Current": 105,
-                "Maximum": 105
-            }
-        },
         "LeftLeg": {
+          "Health": {
+            "Current": 110,
+            "Maximum": 110
+          }
+        },
+      "RightArm": {
             "Health": {
                 "Current": 105,
                 "Maximum": 105
@@ -38,9 +32,15 @@
         },
         "RightLeg": {
             "Health": {
-                "Current": 105,
-                "Maximum": 105
+              "Current": 110,
+              "Maximum": 110
             }
+        },
+      "Stomach": {
+        "Health": {
+          "Current": 130,
+          "Maximum": 130
         }
+      }
     }
 }
