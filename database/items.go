@@ -190,6 +190,14 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 	return output
 }
 
+func (i *DatabaseItem) GetStackMaxSize() *int32 {
+	if size, ok := i.Props["StackMaxSize"].(float64); ok {
+		value := int32(size)
+		return &value
+	}
+	return nil
+}
+
 // #endregion
 
 // #region Item setters
