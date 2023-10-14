@@ -67,7 +67,11 @@ func GetLobbyAddress() string {
 	return coreServerData.LobbyAddress
 }
 func GetWebSocketAddress() string {
-	return coreServerData.WSSAddress
+	if coreServerData.HTTPS != nil {
+		return coreServerData.HTTPS.WSSAddress
+	}
+	return coreServerData.HTTP.WSAddress
+
 }
 
 func GetMainIPandPort() string {
@@ -148,17 +152,21 @@ func setMainSettings() *MainSettings {
 	return &data
 }
 
+const (
+	WSSTemplate   = "wss://%s"
+	HTTPSTemplate = "https://%s"
+	WSTemplate    = "ws://%s"
+	HTTPTemplate  = "http://%s"
+)
+
 func setServerConfig() *ServerConfig {
 	raw := tools.GetJSONRawMessage(serverConfigPath)
 
-	var data ServerConfig
+	data := new(ServerConfig)
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	coreServerData.HTTPSTemplate = "https://%s"
-	coreServerData.WSSTemplate = "wss://%s"
 
 	coreServerData.MainIPandPort = net.JoinHostPort(data.IP, data.Ports.Main)
 	coreServerData.MessagingIPandPort = net.JoinHostPort(data.IP, data.Ports.Messaging)
@@ -166,18 +174,31 @@ func setServerConfig() *ServerConfig {
 	coreServerData.RagFairIPandPort = net.JoinHostPort(data.IP, data.Ports.Flea)
 	coreServerData.LobbyIPandPort = net.JoinHostPort(data.IP, data.Ports.Lobby)
 
-	coreServerData.WSSAddress = fmt.Sprintf(coreServerData.WSSTemplate, coreServerData.LobbyIPandPort)
-	coreServerData.MainAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.MainIPandPort)
+	if data.Secure {
+		coreServerData.HTTPS = new(serverDataHTTPS)
 
-	coreServerData.MessageAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.MessagingIPandPort)
+		coreServerData.HTTPS.HTTPSAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.MainIPandPort)
+		coreServerData.HTTPS.WSSAddress = fmt.Sprintf(WSSTemplate, coreServerData.LobbyIPandPort)
 
-	coreServerData.TradingAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.TradingIPandPort)
+		coreServerData.MainAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.MainIPandPort)
+		coreServerData.MessageAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.MessagingIPandPort)
+		coreServerData.TradingAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.TradingIPandPort)
+		coreServerData.RagFairAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.RagFairIPandPort)
+		coreServerData.LobbyAddress = fmt.Sprintf("wss://%s/sws", coreServerData.LobbyIPandPort)
+	} else {
+		coreServerData.HTTP = new(serverDataHTTP)
 
-	coreServerData.RagFairAddress = fmt.Sprintf(coreServerData.HTTPSTemplate, coreServerData.RagFairIPandPort)
+		coreServerData.HTTP.HTTPAddress = fmt.Sprintf(HTTPTemplate, coreServerData.LobbyIPandPort)
+		coreServerData.HTTP.WSAddress = fmt.Sprintf(WSTemplate, coreServerData.LobbyIPandPort)
 
-	coreServerData.LobbyAddress = fmt.Sprintf("wss://%s/sws", coreServerData.LobbyIPandPort)
+		coreServerData.MainAddress = fmt.Sprintf(HTTPTemplate, coreServerData.MainIPandPort)
+		coreServerData.MessageAddress = fmt.Sprintf(HTTPTemplate, coreServerData.MessagingIPandPort)
+		coreServerData.TradingAddress = fmt.Sprintf(HTTPTemplate, coreServerData.TradingIPandPort)
+		coreServerData.RagFairAddress = fmt.Sprintf(HTTPTemplate, coreServerData.RagFairIPandPort)
+		coreServerData.LobbyAddress = fmt.Sprintf("ws://%s/sws", coreServerData.LobbyIPandPort)
+	}
 
-	return &data
+	return data
 }
 
 func setMatchMetrics() *MatchMetrics {
@@ -208,9 +229,8 @@ func setGlobals() *Globals {
 // #region Core structs
 
 type serverData struct {
-	HTTPSTemplate string
-	WSSTemplate   string
-	WSSAddress    string
+	HTTPS *serverDataHTTPS
+	HTTP  *serverDataHTTP
 
 	MainIPandPort string
 	MainAddress   string
@@ -226,6 +246,16 @@ type serverData struct {
 
 	LobbyIPandPort string
 	LobbyAddress   string
+}
+
+type serverDataHTTPS struct {
+	HTTPSAddress string
+	WSSAddress   string
+}
+
+type serverDataHTTP struct {
+	HTTPAddress string
+	WSAddress   string
 }
 
 type Core struct {
@@ -332,9 +362,8 @@ type ServerConfig struct {
 	IP       string      `json:"ip"`
 	Hostname string      `json:"hostname"`
 	Name     string      `json:"name"`
-	Discord  string      `json:"discord"`
-	Website  string      `json:"website"`
 	Version  string      `json:"version"`
+	Secure   bool        `json:"secure"`
 	Ports    ServerPorts `json:"ports"`
 }
 

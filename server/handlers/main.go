@@ -20,7 +20,8 @@ const routeNotImplemented = "Route is not implemented yet, using empty values in
 // GetBundleList returns a list of custom bundles to the client
 func GetBundleList(w http.ResponseWriter, _ *http.Request) {
 	fmt.Println(routeNotImplemented)
-	services.ZlibJSONReply(w, []string{})
+	output := make([]string, 0)
+	services.ZlibJSONReply(w, output)
 }
 
 /* func GetWebSocketAddress(w http.ResponseWriter, r *http.Request) {
