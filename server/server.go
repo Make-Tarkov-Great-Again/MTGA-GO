@@ -109,6 +109,23 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, 
 	}
 }
 
+func startHTTPServer(serverReady chan<- struct{}, mux *muxt) {
+	mux.initRoutes(mux.mux)
+
+	httpsServer := &http.Server{
+		Addr:    mux.address,
+		Handler: logAndDecompress(mux.mux),
+	}
+
+	fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
+	serverReady <- struct{}{}
+
+	err := httpsServer.ListenAndServe()
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
 type muxt struct {
 	mux        *http.ServeMux
 	address    string
@@ -116,17 +133,8 @@ type muxt struct {
 	initRoutes func(mux *http.ServeMux)
 }
 
-func SetHTTPSServer() {
+func SetServer() {
 	srv := database.GetServerConfig()
-
-	cert := services.GetCertificate(srv.IP)
-	certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	cert.Certificate = certs
-
-	fmt.Println()
 
 	// serve static content
 	mainServeMux := http.NewServeMux()
@@ -135,30 +143,43 @@ func SetHTTPSServer() {
 	muxers := []*muxt{
 		{
 			mux: mainServeMux, address: database.GetMainIPandPort(),
-			serverName: "Main", initRoutes: setMainRoutes, // Embed the route initialization function
+			serverName: "Main", initRoutes: setMainRoutes,
 		},
 		{
 			mux: http.NewServeMux(), address: database.GetTradingIPandPort(),
-			serverName: "Trading", initRoutes: setTradingRoutes, // Embed the route initialization function
+			serverName: "Trading", initRoutes: setTradingRoutes,
 		},
 		{
 			mux: http.NewServeMux(), address: database.GetMessagingIPandPort(),
-			serverName: "Messaging", initRoutes: setMessagingRoutes, // Embed the route initialization function
+			serverName: "Messaging", initRoutes: setMessagingRoutes,
 		},
 		{
 			mux: http.NewServeMux(), address: database.GetRagFairIPandPort(),
-			serverName: "RagFair", initRoutes: setRagfairRoutes, // Embed the route initialization function
+			serverName: "RagFair", initRoutes: setRagfairRoutes,
 		},
 		{
 			mux: http.NewServeMux(), address: database.GetLobbyIPandPort(),
-			serverName: "Lobby", initRoutes: setLobbyRoutes, // Embed the route initialization function
+			serverName: "Lobby", initRoutes: setLobbyRoutes,
 		},
 	}
 
 	serverReady := make(chan struct{})
 
-	for _, muxData := range muxers {
-		go startHTTPSServer(serverReady, cert, muxData)
+	if srv.Secure {
+		cert := services.GetCertificate(srv.IP)
+		certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		cert.Certificate = certs
+
+		for _, muxData := range muxers {
+			go startHTTPSServer(serverReady, cert, muxData)
+		}
+	} else {
+		for _, muxData := range muxers {
+			go startHTTPServer(serverReady, muxData)
+		}
 	}
 
 	for range muxers {

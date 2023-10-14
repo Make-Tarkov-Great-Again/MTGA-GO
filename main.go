@@ -2,6 +2,7 @@
 package main
 
 import (
+	"MT-GO/server"
 	"fmt"
 	"log"
 	"os"
@@ -9,14 +10,13 @@ import (
 	"path/filepath"
 
 	"MT-GO/database"
-	"MT-GO/server"
 	"MT-GO/tools"
 )
 
 func main() {
 	database.InitializeDatabase()
 	// server goroutines
-	server.SetHTTPSServer()
+	server.SetServer()
 	// trick : CLI prevents return of main()
 	startHome()
 }
