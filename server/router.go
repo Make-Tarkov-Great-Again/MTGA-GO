@@ -52,7 +52,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 
 	"/client/game/profile/items/moving": handlers.MainItemsMoving,
 
-	//"/client/match/offline/end": handlers.OfflineMatchEnd,
+	"/client/match/offline/end": handlers.OfflineMatchEnd,
 	//"/client/match/available": handlers.MatchAvailable,
 	//"/client/match/updatePing": handlers.MatchUpdatePing,
 	//"/client/match/exit": handlers.MatchExit,

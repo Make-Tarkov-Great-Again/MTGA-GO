@@ -18,6 +18,30 @@ func GetBots() *Bots {
 	return &bots
 }
 
+func GetBotTypeByName(name string) *BotType {
+	botType, ok := bots.BotTypes[name]
+	if !ok {
+		log.Println("Bot of Type Name", name, "does not exist, returning nil!")
+		return nil
+	}
+	return botType
+}
+
+func GetBotTypeDifficultyByName(name string, diff string) interface{} {
+	botType := GetBotTypeByName(name)
+	if botType == nil {
+		return nil
+	}
+
+	difficulty, ok := botType.Difficulties[diff]
+	if !ok {
+		log.Println("Difficulty", diff, "does not exist on Bot Type", name, ",returning nil!")
+		return nil
+	}
+
+	return difficulty
+}
+
 // #endregion
 
 // #region Bot setters
