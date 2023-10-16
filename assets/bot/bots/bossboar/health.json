@@ -1,46 +1,46 @@
 {
-  "BodyParts": {
-    "Chest": {
-      "Health": {
-        "Current": 355,
-        "Maximum": 355
-      }
-    },
-    "Head": {
-      "Health": {
-        "Current": 85,
-        "Maximum": 85
-      }
-    },
-    "LeftArm": {
-      "Health": {
-        "Current": 150,
-        "Maximum": 150
-      }
-    },
-    "LeftLeg": {
-      "Health": {
-        "Current": 150,
-        "Maximum": 150
-      }
-    },
-    "RightArm": {
-      "Health": {
-        "Current": 150,
-        "Maximum": 150
-      }
-    },
-    "RightLeg": {
-      "Health": {
-        "Current": 150,
-        "Maximum": 150
-      }
-    },
-    "Stomach": {
-      "Health": {
-        "Current": 260,
-        "Maximum": 260
-      }
+    "BodyParts": {
+        "Chest": {
+            "Health": {
+                "Current": 355,
+                "Maximum": 355
+            }
+        },
+        "Head": {
+            "Health": {
+                "Current": 85,
+                "Maximum": 85
+            }
+        },
+        "LeftArm": {
+            "Health": {
+                "Current": 150,
+                "Maximum": 150
+            }
+        },
+        "LeftLeg": {
+            "Health": {
+                "Current": 150,
+                "Maximum": 150
+            }
+        },
+        "RightArm": {
+            "Health": {
+                "Current": 150,
+                "Maximum": 150
+            }
+        },
+        "RightLeg": {
+            "Health": {
+                "Current": 150,
+                "Maximum": 150
+            }
+        },
+        "Stomach": {
+            "Health": {
+                "Current": 260,
+                "Maximum": 260
+            }
+        }
     }
-  }
 }

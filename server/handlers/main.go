@@ -764,13 +764,42 @@ func CoopConnect(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
-	parsedBody := services.GetParsedBody(r)
-	fmt.Println(parsedBody)
-	//services.ZlibJSONReply(w, body)
+	difficulties := strings.Split(strings.TrimPrefix(r.RequestURI, "/singleplayer/settings/bot/difficulty/"), "/")
+	difficulty := database.GetBotTypeDifficultyByName(strings.ToLower(difficulties[0]), difficulties[1])
+
+	body := services.ApplyResponseBody(difficulty)
+	services.ZlibJSONReply(w, body)
+}
+
+type botConditions struct {
+	Conditions []botCondition `json:"conditions"`
+}
+type botCondition struct {
+	Role       string
+	Limit      int8
+	Difficulty string
 }
 
 func BotGenerate(w http.ResponseWriter, r *http.Request) {
 	parsedBody := services.GetParsedBody(r)
+
+	conditions := new(botConditions)
+	data, err := json.Marshal(parsedBody)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = json.Unmarshal(data, &conditions)
+	if err != nil {
+		fmt.Println(err)
+	}
+	//TODO: Send bots lol
+	body := services.ApplyResponseBody([]interface{}{})
+	services.ZlibJSONReply(w, body)
+}
+
+func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
+	parsedBody := services.GetParsedBody(r)
 	fmt.Println(parsedBody)
-	services.ZlibJSONReply(w, []interface{}{})
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, body)
 }
