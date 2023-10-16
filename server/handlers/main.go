@@ -189,20 +189,7 @@ func MainAccountCustomization(w http.ResponseWriter, _ *http.Request) {
 	customization := database.GetCustomizations()
 	var output []string
 	for id, c := range customization {
-		custom, ok := c.(map[string]interface{})
-		if !ok {
-			panic("customization is not a map[string]interface{}")
-		}
-		props, ok := custom["_props"].(map[string]interface{})
-		if !ok {
-			panic("customization properties are not map[string]interface{}")
-		}
-		side, ok := props["Side"].([]interface{})
-		if !ok {
-			continue
-		}
-
-		if len(side) > 0 {
+		if c.Props.Side != nil && len(*c.Props.Side) > 0 {
 			output = append(output, id)
 		}
 	}
@@ -320,7 +307,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	pmc.Info.Nickname = request.Nickname
 
 	pmc.Info.LowerNickname = strings.ToLower(request.Nickname)
-	pmc.Info.Voice = database.GetCustomization(request.VoiceID)["_name"].(string)
+	pmc.Info.Voice = database.GetCustomization(request.VoiceID).Name
 
 	time := int32(tools.GetCurrentTimeInSeconds())
 	pmc.Info.RegistrationDate = time
@@ -569,6 +556,12 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 	"Remove": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.RemoveItem(moveAction, profileChangeEvent)
 	},
+	"CustomizationBuy": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.CustomizationBuy(moveAction, profileChangeEvent)
+	},
+	"CustomizationWear": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.CustomizationWear(moveAction)
+	},
 }
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
@@ -768,4 +761,16 @@ func CoopServerDelete(w http.ResponseWriter, r *http.Request) {
 func CoopConnect(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(map[string]interface{}{})
 	services.ZlibJSONReply(w, body)
+}
+
+func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
+	parsedBody := services.GetParsedBody(r)
+	fmt.Println(parsedBody)
+	//services.ZlibJSONReply(w, body)
+}
+
+func BotGenerate(w http.ResponseWriter, r *http.Request) {
+	parsedBody := services.GetParsedBody(r)
+	fmt.Println(parsedBody)
+	services.ZlibJSONReply(w, []interface{}{})
 }

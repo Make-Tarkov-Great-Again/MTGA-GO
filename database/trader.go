@@ -26,10 +26,47 @@ func GetTraderByUID(UID string) *Trader {
 	if ok {
 		return trader
 	}
+	log.Println("Trader with UID", UID, "does not exist, returning nil")
 	return nil
 }
 
-// GetAssortItemByID returns entire item from assort (to get parent item use [0] when calling)
+var tradersByName = map[string]string{
+	"Prapor":           "54cb50c76803fa8b248b4571",
+	"Therapist":        "54cb57776803fa99248b456e",
+	"Fence":            "579dc571d53a0658a154fbec",
+	"Skier":            "58330581ace78e27b8b10cee",
+	"PeaceKeeper":      "5935c25fb3acc3127c3d8cd9",
+	"Mechanic":         "5a7c2eca46aef81a7ca2145d",
+	"Ragman":           "5ac3b934156ae10c4430e83c",
+	"Jaeger":           "5c0647fdd443bc2504c2d371",
+	"LighthouseKeeper": "638f541a29ffd1183d187f57",
+}
+
+// GetTraderIDByName returns the TID by their name
+//
+// Prapor, Therapist, Fence, Skier, PeaceKeeper, Mechanic, Ragman, Jaeger, LighthouseKeeper
+func GetTraderIDByName(name string) *string {
+	tid, ok := tradersByName[name]
+	if !ok {
+		log.Println("Trader with name", name, "does not exist, returning nil")
+		return nil
+	}
+	return &tid
+}
+
+// GetTraderByName returns Trader by their name
+//
+// Prapor, Therapist, Fence, Skier, PeaceKeeper, Mechanic, Ragman, Jaeger, LighthouseKeeper
+func GetTraderByName(name string) *Trader {
+	tid, ok := tradersByName[name]
+	if !ok {
+		log.Println("Trader with name", name, "does not exist, returning nil")
+		return nil
+	}
+	return traders[tid]
+}
+
+// GetAssortItemByID returns entire item from assort as a slice (to get parent item use [0] when calling)
 func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 	item, ok := t.Index.Assort.Items[id]
 	if ok {

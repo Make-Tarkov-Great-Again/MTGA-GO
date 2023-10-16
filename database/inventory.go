@@ -296,7 +296,9 @@ func (ic *InventoryContainer) ResetItemSizeInContainer(itemInInventory *Inventor
 	}
 
 	stash.Container.FlatMap[itemInInventory.ID] = newItemFlatMap
-	ic.SetInventoryIndex(Inventory)
+	if _, exist := ic.Lookup.Forward[itemInInventory.ID]; !exist {
+		ic.SetInventoryIndex(Inventory)
+	}
 }
 
 func (ic *InventoryContainer) GenerateCoordinatesFromLocation(flatMap FlatMapLookup) []int16 {
@@ -591,6 +593,12 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 	width += sizes.SizeLeft + sizes.SizeRight + sizes.ForcedRight + sizes.ForcedLeft
 
 	return height, width
+}
+
+// SetSingleInventoryIndex sets new item to Lookup based on their index and their item.id
+func (ic *InventoryContainer) SetSingleInventoryIndex(UID string, index int16) {
+	ic.Lookup.Forward[UID] = index
+	ic.Lookup.Reverse[index] = UID
 }
 
 //TODO: Figure out a better way to reset Inventory Index

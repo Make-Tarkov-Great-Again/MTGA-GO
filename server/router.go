@@ -94,6 +94,9 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 
 	"/client/location/getLocalloot":     handlers.GetLocalLoot,
 	"/client/insurance/items/list/cost": handlers.InsuranceListCost,
+
+	"/singleplayer/settings/bot/difficulty/": handlers.GetBotDifficulty,
+	"/client/game/bot/generate":              handlers.BotGenerate,
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {

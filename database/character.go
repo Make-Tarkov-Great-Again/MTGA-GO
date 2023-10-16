@@ -344,17 +344,13 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileCh
 	itemInInventory.ParentID = &move.To.ID
 	itemInInventory.SlotID = &move.To.Container
 
-	//TODO: Consider that the item does not have a FlatMapLookup
-	// It needs to be created, and we will need to create a function
-	// that quickly generates coordinates based off the location given
-
 	cache.UpdateItemFlatMapLookup([]InventoryItem{*itemInInventory})
 	if *itemInInventory.SlotID != "hideout" {
 		cache.ClearItemFromContainerMap(move.Item)
 	} else {
 		cache.AddItemFromContainerMap(move.Item)
 	}
-	cache.SetInventoryIndex(&c.Inventory)
+	//cache.SetInventoryIndex(&c.Inventory)
 
 	profileChangesEvent.ProfileChanges[c.ID].Production = nil
 }
@@ -606,7 +602,8 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 	invCache.AddItemToContainer(split.NewItem, itemFlatMap)
 
 	c.Inventory.Items = append(c.Inventory.Items, *newItem)
-	invCache.SetInventoryIndex(&c.Inventory)
+	invCache.SetSingleInventoryIndex(newItem.ID, int16(len(c.Inventory.Items)-1))
+
 	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
 }
 
@@ -645,6 +642,8 @@ type applyInventoryChanges struct {
 	Action       string
 	ChangedItems []interface{} `json:"changedItems"`
 }
+
+//TODO: Make ApplyInventoryChanges not look like shit
 
 func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 	applyInventoryChanges := new(applyInventoryChanges)
@@ -760,28 +759,9 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 		log.Fatalln("Converting Assort Item to Inventory Item failed, killing")
 	}
 
-	// TODO: Make this a helper function
-	var stackMaxSize int32
-	if size, ok := GetItemByUID(inventoryItems[len(inventoryItems)-1].TPL).Props["StackMaxSize"].(float64); ok {
-		stackMaxSize = int32(size)
-	}
-
-	// check why that fuckin tracker didn't purchase
-	howManyItems := tradeConfirm.Count / stackMaxSize
-	remainder := tradeConfirm.Count % stackMaxSize
-	var stackSlice []int32
-	if remainder != 0 {
-		stackSlice = make([]int32, 0, howManyItems+1)
-		for i := int32(0); i < howManyItems; i++ {
-			stackSlice = append(stackSlice, stackMaxSize)
-		}
-		stackSlice = append(stackSlice, remainder)
-	} else {
-		stackSlice = make([]int32, 0, howManyItems)
-		for i := int32(0); i < howManyItems; i++ {
-			stackSlice = append(stackSlice, stackMaxSize)
-		}
-	} // Basically gets the correct amount of items to be created, based on StackSize
+	var stackMaxSize = *GetItemByUID(inventoryItems[len(inventoryItems)-1].TPL).GetStackMaxSize()
+	var stackSlice = services.GetCorrectAmountOfItemsPurchased(tradeConfirm.Count, stackMaxSize)
+	// Basically gets the correct amount of items to be created, based on StackSize
 
 	//Create copy-of Character.Inventory.Items for modification in the case of any failures to assign later
 	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items)+len(stackSlice))
@@ -797,8 +777,6 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 
 	for _, stack := range stackSlice {
 		copyOfInventoryItems := AssignNewIDs(inventoryItems)
-		//copyOfInventoryItems := make([]InventoryItem, len(inventoryItems))
-		//copy(copyOfInventoryItems, inventoryItems)
 
 		mainItem := &copyOfInventoryItems[len(copyOfInventoryItems)-1]
 
@@ -809,8 +787,8 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 			return
 		}
 
-		//TODO: Deal with stacks of items so they do not overflow; i.e: bullets
-		mainItem.UPD.StackObjectsCount = &stack //temporary, should be handled in the conversion probably
+		stackObjectsCount := stack
+		mainItem.UPD.StackObjectsCount = &stackObjectsCount
 		mainItem.Location = &InventoryItemLocation{
 			IsSearched: true,
 			R:          float64(0),
@@ -824,8 +802,6 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 
 		toAdd = append(toAdd, copyOfInventoryItems...)
 	}
-
-	// end block
 
 	for _, scheme := range tradeConfirm.SchemeItems {
 		index := invCache.GetIndexOfItemByUID(scheme.ID)
@@ -906,7 +882,6 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 			invCache.ClearItemFromContainer(id)
 			indices = append(indices, idx)
 
-			//TODO: Check if this is necessary
 			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: id})
 		}
 		c.Inventory.RemoveItemsFromInventoryByIndices(indices)
@@ -925,6 +900,73 @@ func (c *Character) SellToTrader(tradeConfirm *tradingConfirm, invCache *Invento
 	//saleCurrency := GetCurrencyByName(trader)
 
 	fmt.Println()
+}
+
+type buyCustomization struct {
+	Action string                   `json:"Action"`
+	Offer  string                   `json:"offer"`
+	Items  []map[string]interface{} `json:"items"`
+}
+
+func (c *Character) CustomizationBuy(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	customizationBuy := new(buyCustomization)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &customizationBuy)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	trader := GetTraderByName("Ragman")
+	suitsIndex := trader.Index.Suits[customizationBuy.Offer]
+	suitID := trader.Suits[suitsIndex].SuiteID
+
+	storage := GetStorageByUID(c.ID)
+	if !slices.Contains(storage.Suites, suitID) {
+		//TODO: Pay for suite before appending to profile
+		if len(customizationBuy.Items) == 0 {
+			storage.Suites = append(storage.Suites, suitID)
+			storage.SaveStorage(c.ID)
+			return
+		}
+		log.Println("Cannot purchase clothing because I haven't implemented it yet lol")
+		return
+	}
+	log.Println("Clothing was already purchased")
+}
+
+type wearCustomization struct {
+	Action string   `json:"Action"`
+	Suites []string `json:"suites"`
+}
+
+const (
+	lowerParentID = "5cd944d01388ce000a659df9"
+	upperParentID = "5cd944ca1388ce03a44dc2a4"
+)
+
+func (c *Character) CustomizationWear(moveAction map[string]interface{}) {
+	customizationWear := new(wearCustomization)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &customizationWear)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for _, SID := range customizationWear.Suites {
+		customization := GetCustomization(SID)
+		parentID := customization.Parent
+
+		if parentID == lowerParentID {
+			c.Customization.Feet = *customization.Props.Feet
+			continue
+		}
+
+		if parentID == upperParentID {
+			c.Customization.Body = *customization.Props.Body
+			c.Customization.Hands = *customization.Props.Hands
+			continue
+		}
+	}
 }
 
 // #endregion
