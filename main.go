@@ -11,10 +11,12 @@ import (
 
 	"MT-GO/database"
 	"MT-GO/tools"
+	"MT-GO/user/mods"
 )
 
 func main() {
 	database.InitializeDatabase()
+	mods.Init()
 	// server goroutines
 	server.SetServer()
 	// trick : CLI prevents return of main()
