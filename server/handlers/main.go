@@ -803,3 +803,10 @@ func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(nil)
 	services.ZlibJSONReply(w, body)
 }
+
+func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
+	parsedBody := services.GetParsedBody(r)
+	fmt.Println(parsedBody)
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, body)
+}

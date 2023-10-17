@@ -97,6 +97,8 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 
 	"/singleplayer/settings/bot/difficulty/": handlers.GetBotDifficulty,
 	"/client/game/bot/generate":              handlers.BotGenerate,
+	"/client/raid/profile/save":              handlers.RaidProfileSave,
+	//"/singleplayer/airdrop/config":           handlers.AirdropConfig,
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {
