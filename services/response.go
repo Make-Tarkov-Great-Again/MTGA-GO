@@ -31,6 +31,7 @@ const (
 	phpsessIDHeader string = "PHPSESSID="
 )
 
+// GetSessionID returns current sessionID from the header, if available
 func GetSessionID(r *http.Request) string {
 	var sessionID = ""
 
@@ -48,6 +49,7 @@ func GetSessionID(r *http.Request) string {
 	return sessionID
 }
 
+// ApplyCRCResponseBody appends data to CRCResponseBody and returns it
 func ApplyCRCResponseBody(data interface{}, crc *uint32) *CRCResponseBody {
 	body := &CRCResponseBody{}
 	body.Data = data
@@ -55,25 +57,23 @@ func ApplyCRCResponseBody(data interface{}, crc *uint32) *CRCResponseBody {
 	return body
 }
 
-// ApplyResponseBody applies the response body necessary to parse the response
+// ApplyResponseBody appends data to ResponseBody and returns it
 func ApplyResponseBody(data interface{}) *ResponseBody {
 	body := &ResponseBody{}
 	body.Data = data
 	return body
 }
 
-var cachedCRC = map[string]*uint32{}
-
-var cachableRoutes = map[string]struct{}{
-	"/client/settings":      {},
-	"/client/customization": {},
-	"/client/locale/":       {},
-	"/client/items":         {},
-	"/client/globals":       {},
-	"/client/locations":     {},
-	"/client/game/config":   {},
-	"/client/languages":     {},
-	"/client/menu/locale/":  {},
+var cachedCRC = map[string]*uint32{
+	"/client/settings":      nil,
+	"/client/customization": nil,
+	"/client/locale/":       nil,
+	"/client/items":         nil,
+	"/client/globals":       nil,
+	"/client/locations":     nil,
+	"/client/game/config":   nil,
+	"/client/languages":     nil,
+	"/client/menu/locale/":  nil,
 	//"/client/location/getLocalloot": {}, don't fully understand why this would be cached
 }
 
@@ -184,21 +184,29 @@ func ServeFile(w http.ResponseWriter, imagePath, mime string) {
 }
 
 func CheckIfResponseCanBeCached(string string) bool {
-	_, ok := cachableRoutes[string]
+	_, ok := cachedCRC[string]
 	if ok {
 		fmt.Println("Response for", string, "can be cached!")
+		return ok
 	}
 	return ok
 }
 
 func CheckIfResponseIsCached(key string) bool {
-	_, ok := cachedCRC[key]
-	return ok
+	value, _ := cachedCRC[key]
+	if value != nil {
+		return true
+	}
+	return false
 }
 
 func GetCachedCRC(key string) *uint32 {
 	crc, ok := cachedCRC[key]
 	if !ok {
+		log.Println("Key does not exist in CRC Cache, returning nil")
+		return nil
+	}
+	if crc == nil {
 		cachedCRC[key] = CalculateCRC32(key)
 		return cachedCRC[key]
 	}

@@ -143,10 +143,16 @@ func setTradingRoutes(mux *http.ServeMux) {
 	}
 }
 
+var ragfairRouteHandlers = map[string]http.HandlerFunc{
+	//"/client/ragfair/offer/findbyid"
+	//"/client/ragfair/itemMarketPrice"
+	"/client/ragfair/find": handlers.RagfairFind,
+}
+
 func setRagfairRoutes(mux *http.ServeMux) {
-	/* 	 "/client/ragfair/offer/findbyid"
-	   	 "/client/ragfair/itemMarketPrice"
-	   	 "/client/ragfair/find" */
+	for route, handler := range ragfairRouteHandlers {
+		mux.HandleFunc(route, handler)
+	}
 }
 
 var messagingRouteHandlers = map[string]http.HandlerFunc{

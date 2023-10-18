@@ -97,11 +97,8 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 const itemsRoute string = "/client/items"
 
 func MainItems(w http.ResponseWriter, _ *http.Request) {
-	ok := services.CheckIfResponseCanBeCached(itemsRoute)
-	if ok {
-
-		ok = services.CheckIfResponseIsCached(itemsRoute)
-		if ok {
+	if services.CheckIfResponseCanBeCached(itemsRoute) {
+		if services.CheckIfResponseIsCached(itemsRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(itemsRoute))
 			services.ZlibJSONReply(w, body)
 		} else {
@@ -116,11 +113,8 @@ func MainItems(w http.ResponseWriter, _ *http.Request) {
 const customizationRoute string = "/client/customization"
 
 func MainCustomization(w http.ResponseWriter, _ *http.Request) {
-	ok := services.CheckIfResponseCanBeCached(customizationRoute)
-	if ok {
-
-		ok = services.CheckIfResponseIsCached(customizationRoute)
-		if ok {
+	if services.CheckIfResponseCanBeCached(customizationRoute) {
+		if services.CheckIfResponseIsCached(customizationRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(customizationRoute))
 			services.ZlibJSONReply(w, body)
 		} else {
@@ -133,11 +127,8 @@ func MainCustomization(w http.ResponseWriter, _ *http.Request) {
 const globalsRoute string = "/client/globals"
 
 func MainGlobals(w http.ResponseWriter, _ *http.Request) {
-	ok := services.CheckIfResponseCanBeCached(globalsRoute)
-	if ok {
-
-		ok = services.CheckIfResponseIsCached(globalsRoute)
-		if ok {
+	if services.CheckIfResponseCanBeCached(globalsRoute) {
+		if services.CheckIfResponseIsCached(globalsRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(globalsRoute))
 			services.ZlibJSONReply(w, body)
 		} else {
@@ -150,10 +141,8 @@ func MainGlobals(w http.ResponseWriter, _ *http.Request) {
 const MainSettingsRoute string = "/client/settings"
 
 func MainSettings(w http.ResponseWriter, _ *http.Request) {
-	ok := services.CheckIfResponseCanBeCached(MainSettingsRoute)
-	if ok {
-		ok = services.CheckIfResponseIsCached(MainSettingsRoute)
-		if ok {
+	if services.CheckIfResponseCanBeCached(MainSettingsRoute) {
+		if services.CheckIfResponseIsCached(MainSettingsRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainSettingsRoute))
 			services.ZlibJSONReply(w, body)
 		} else {
@@ -203,11 +192,8 @@ const MainLocaleRoute string = "/client/locale/"
 func MainLocale(w http.ResponseWriter, r *http.Request) {
 	lang := strings.TrimPrefix(r.URL.Path, MainLocaleRoute)
 
-	ok := services.CheckIfResponseCanBeCached(MainLocaleRoute)
-	if ok {
-
-		ok = services.CheckIfResponseIsCached(r.URL.Path)
-		if ok {
+	if services.CheckIfResponseCanBeCached(MainLocaleRoute) {
+		if services.CheckIfResponseIsCached(r.URL.Path) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainLocaleRoute))
 			services.ZlibJSONReply(w, body)
 		} else {
@@ -797,16 +783,33 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, body)
 }
 
+type offlineMatchEnd struct {
+	ExitName    string  `json:"exitName"`
+	ExitStatus  string  `json:"exitStatus"`
+	RaidSeconds float64 `json:"raidSeconds"`
+}
+
 func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
-	parsedBody := services.GetParsedBody(r)
-	fmt.Println(parsedBody)
+	matchEnd := new(offlineMatchEnd)
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = json.Unmarshal(data, &matchEnd)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("ExitName:", matchEnd.ExitName, "\nExitStatus:", matchEnd.ExitStatus, "\nRaidSeconds:", matchEnd.RaidSeconds)
+	fmt.Println()
 	body := services.ApplyResponseBody(nil)
 	services.ZlibJSONReply(w, body)
 }
 
 func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
-	parsedBody := services.GetParsedBody(r)
-	fmt.Println(parsedBody)
+	//parsedBody := services.GetParsedBody(r)
+	//TODO: Raid Profile Save
+	fmt.Println("Raid Profile Save not implemented yet!")
 	body := services.ApplyResponseBody(nil)
 	services.ZlibJSONReply(w, body)
 }
