@@ -1,8 +1,8 @@
 // Pog :)
-package EscapeFromHell
+package EscapeFromSmell
 
 import (
-	items "MT-GO/user/mods/EFHDev/mod"
+	items "MT-GO/user/mods/EFHLev/mod"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -12,9 +12,10 @@ import (
 var passed ModInfo
 
 func Mod() {
-	fmt.Println("Loading Escape from Hell....")
+	fmt.Println("Loading Escape from Smell....")
 	items.Modify(passed)
-	defer fmt.Println("Loaded mod Escape From hell lol.")
+	items.AmmoStacks()
+	defer fmt.Println("Loaded mod Escape From Smell lol.")
 
 }
 
@@ -52,7 +53,6 @@ func GetRouter(mux *http.ServeMux) {
 	}
 	if config.Advanced.CustomRoutes {
 		Router = mux
-		items.Routes(*mux)
 		return
 	}
 }

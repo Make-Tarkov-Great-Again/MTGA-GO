@@ -1,0 +1,10 @@
+{
+  "NameSpace": "EFHLev",
+  "ModNameNoSpaces": "EscapeFromSmell",
+  "Advanced": {
+    "CustomRoutes": false
+  },
+  "Config": {
+    "Debug": false
+  }
+}

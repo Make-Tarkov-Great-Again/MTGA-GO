@@ -1,4 +1,10 @@
 {
   "NameSpace": "EFHDev",
-  "ModNameNoSpaces": "EscapeFromHell"
+  "ModNameNoSpaces": "EscapeFromHell",
+  "Advanced": {
+    "CustomRoutes": true
+  },
+  "Config": {
+    "Debug": false
+  }
 }
