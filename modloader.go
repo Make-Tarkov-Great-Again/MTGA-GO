@@ -22,6 +22,12 @@ type Game struct {
 
 //var usesRoutes bool
 
+const (
+	MTGO_USER_MODS = "%s\"MT-GO/user/mods/%s\""
+	MTGO_SERVER    = "\"MT-GO/server\""
+	MODNAME_MOD    = "%s.Mod()"
+)
+
 func main() {
 	// Get the path of the "mods" folder in the same directory as the executable.
 
@@ -44,8 +50,6 @@ func main() {
 	//var modAdvanced []string
 	var modConfig *Game
 
-	// If there are no mods, add "fmt" and "time" to the imports.
-
 	if len(modSubDirs) == 0 {
 		modCalls = append(modCalls, "fmt.Println(\"Found 0 mods. Canceling\")")
 	} else {
@@ -54,40 +58,40 @@ func main() {
 
 			// Check if there's a "mod-info.json" file in the subdirectory.
 			ModInfoPath := filepath.Join(modDir, name, "mod-info.json")
-			if _, err := os.Stat(ModInfoPath); err == nil {
-				fmt.Println("Found 'mod-info.json' in:", name)
-
-				// Read and parse the mod-info.json file.
-				data := tools.GetJSONRawMessage(ModInfoPath)
-
-				if err := json.Unmarshal(data, &modConfig); err != nil {
-					fmt.Printf("Error parsing mod-info.json in %s: %v\n", name, err)
-					continue
-				}
-				fmt.Printf(modConfig.ModNameNoSpaces)
-				fmt.Printf(modConfig.NameSpace)
-
-				// Construct the mod import and function call with alias.
-				modImport := fmt.Sprintf("%s\"MT-GO/user/mods/%s\"", modConfig.ModNameNoSpaces, modConfig.NameSpace)
-				modCall := fmt.Sprintf("    %s.Mod()", modConfig.ModNameNoSpaces)
-
-				fmt.Println("Added imports:", modImport)
-				fmt.Println("Added function calls:", modCall)
-
-				// Append the import and function call to the arrays.
-				modImports = append(modImports, modImport)
-				modCalls = append(modCalls, modCall)
-
-				if modConfig.Advanced.CustomRoutes {
-					modAdvanced := make([]string, 0)
-					modAdvancedIns := fmt.Sprintf("routes := %s.GetRoutes()\nfor route, handler := range routes {\n    server.AddMainRoute(route, handler)\n}", modConfig.ModNameNoSpaces)
-
-					modAdvanced = append(modAdvanced, modAdvancedIns)
-					modImports = append(modImports, "\"MT-GO/server\"")
-
-					fmt.Println("Added Advanced calls:", modAdvancedIns)
-				}
+			if !tools.FileExist(ModInfoPath) {
+				fmt.Println("Did not find 'mod-info.json' in:", name, ", continuing...")
+				continue
 			}
+
+			// Read and parse the mod-info.json file.
+			data := tools.GetJSONRawMessage(ModInfoPath)
+
+			if err := json.Unmarshal(data, &modConfig); err != nil {
+				fmt.Printf("Error parsing mod-info.json in %s: %v\n", name, err)
+				continue
+			}
+
+			// Construct the mod import and function call with alias.
+			modImport := fmt.Sprintf(MTGO_USER_MODS, modConfig.ModNameNoSpaces, modConfig.NameSpace)
+			modCall := fmt.Sprintf(MODNAME_MOD, modConfig.ModNameNoSpaces)
+
+			fmt.Println("Added imports:", modImport)
+			fmt.Println("Added function calls:", modCall)
+
+			// Append the import and function call to the arrays.
+			modImports = append(modImports, modImport)
+			modCalls = append(modCalls, modCall)
+
+			if modConfig.Advanced.CustomRoutes {
+				modAdvanced := make([]string, 0)
+				modAdvancedIns := fmt.Sprintf("routes := %s.GetRoutes()\nfor route, handler := range routes {\n    server.AddMainRoute(route, handler)\n}", modConfig.ModNameNoSpaces)
+
+				modAdvanced = append(modAdvanced, modAdvancedIns)
+				modImports = append(modImports, MTGO_SERVER)
+
+				fmt.Println("Added Advanced calls:", modAdvancedIns)
+			}
+
 		}
 	}
 
@@ -148,16 +152,15 @@ func updateModsFile(filePath string, imports []string, calls []string) error {
 
     func Init() {
         startTime = time.Now()
-        fmt.Println("    -ModLoader-\n Initializing...")
+        fmt.Println("\n\nInitializing ModLoader...")
         defer main()
     }
 
     func main() {
-    %s
+    	%s
         endTime := time.Now()
-        defer fmt.Printf("Done! Finished loading mods in %%s \n    -Bye Bye!-\n", endTime.Sub(startTime))
-    }
-    `,
+        fmt.Printf("Done! Finished loading mods in %%s\n\n", endTime.Sub(startTime))
+    }`,
 		strings.Join(imports, "\n"),
 		strings.Join(calls, "\n"),
 	))

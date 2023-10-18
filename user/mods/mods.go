@@ -12,7 +12,7 @@ var startTime time.Time
 
 func Init() {
 	startTime = time.Now()
-	fmt.Println("    -ModLoader-\n Initializing...")
+	fmt.Println("\n\nInitializing ModLoader...")
 	defer main()
 }
 
@@ -20,5 +20,5 @@ func main() {
 	EscapeFromHell.Mod()
 	EscapeFromSmell.Mod()
 	endTime := time.Now()
-	defer fmt.Printf("Done! Finished loading mods in %s \n    -Bye Bye!-\n", endTime.Sub(startTime))
+	fmt.Printf("Done! Finished loading mods in %s\n\n", endTime.Sub(startTime))
 }
