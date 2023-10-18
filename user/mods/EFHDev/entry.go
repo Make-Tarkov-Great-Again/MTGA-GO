@@ -14,8 +14,7 @@ var passed ModInfo
 func Mod() {
 	fmt.Println("Loading Escape from Hell....")
 	items.Modify(passed)
-	defer fmt.Println("Loaded mod Escape From hell lol.")
-
+	fmt.Println("Loaded mod Escape From hell lol.")
 }
 
 /* ---------------------- Boring mod bindings below lol --------------------- */
@@ -43,18 +42,16 @@ type ModInfo struct {
 	Config map[string]interface{}
 }
 
-var Router *http.ServeMux
-
-func GetRouter(mux *http.ServeMux) {
+func GetRoutes() map[string]http.HandlerFunc {
 	config, err := GetModConfig()
 	if err != nil {
 		fmt.Errorf("Error setting router for %s: %s", config.ModNameNoSpaces, err)
+		return nil
 	}
 	if config.Advanced.CustomRoutes {
-		Router = mux
-		items.Routes(*mux)
-		return
+		return items.Routes
 	}
+	return nil
 }
 
 //go:embed mod-info.json

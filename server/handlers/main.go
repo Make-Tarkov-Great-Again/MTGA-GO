@@ -543,7 +543,7 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 		character.RemoveItem(moveAction, profileChangeEvent)
 	},
 	"CustomizationBuy": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
-		character.CustomizationBuy(moveAction, profileChangeEvent)
+		character.CustomizationBuy(moveAction)
 	},
 	"CustomizationWear": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.CustomizationWear(moveAction)

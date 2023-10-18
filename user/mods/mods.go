@@ -3,14 +3,9 @@ package mods
 
 import (
 	EscapeFromHell "MT-GO/user/mods/EFHDev"
-
 	EscapeFromSmell "MT-GO/user/mods/EFHLev"
-
 	"fmt"
-
 	"time"
-
-	"net/http"
 )
 
 var startTime time.Time
@@ -23,13 +18,11 @@ func Init() {
 
 func main() {
 	EscapeFromHell.Mod()
-
 	EscapeFromSmell.Mod()
-
 	endTime := time.Now()
 	defer fmt.Printf("Done! Finished loading mods in %s \n    -Bye Bye!-\n", endTime.Sub(startTime))
 }
 
-func PassRouter(mux *http.ServeMux) {
-	EscapeFromHell.GetRouter(mux)
+func PassRouter() {
+
 }

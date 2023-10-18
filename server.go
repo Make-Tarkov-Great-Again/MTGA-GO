@@ -42,7 +42,7 @@ func startHome() {
 			login()
 		case "69":
 			fmt.Println("Adios fella")
-			return
+			os.Exit(1)
 		default:
 			fmt.Println("Invalid input, intellectually less able fella")
 		}

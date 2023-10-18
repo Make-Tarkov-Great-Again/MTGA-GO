@@ -4,7 +4,6 @@ package server
 import (
 	"MT-GO/server/handlers"
 	"MT-GO/services"
-	"MT-GO/user/mods"
 	"fmt"
 	"net/http"
 )
@@ -113,7 +112,6 @@ func AddMainRoute(route string, handler http.HandlerFunc) {
 }
 
 func setMainRoutes(mux *http.ServeMux) {
-	mods.PassRouter(mux)
 	for route, handler := range mainRouteHandlers {
 		mux.HandleFunc(route, handler)
 	}

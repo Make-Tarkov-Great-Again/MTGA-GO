@@ -908,7 +908,7 @@ type buyCustomization struct {
 	Items  []map[string]interface{} `json:"items"`
 }
 
-func (c *Character) CustomizationBuy(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) CustomizationBuy(moveAction map[string]interface{}) {
 	customizationBuy := new(buyCustomization)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &customizationBuy)
