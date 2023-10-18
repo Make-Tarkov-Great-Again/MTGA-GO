@@ -2,7 +2,7 @@
   "NameSpace": "EFHDev",
   "ModNameNoSpaces": "EscapeFromHell",
   "Advanced": {
-    "CustomRoutes": true
+    "CustomRoutes": false
   },
   "Config": {
     "Debug": false

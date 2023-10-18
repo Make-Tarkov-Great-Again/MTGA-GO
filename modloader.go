@@ -157,7 +157,6 @@ func updateModsFile(filePath string, imports []string, calls []string) error {
         endTime := time.Now()
         defer fmt.Printf("Done! Finished loading mods in %%s \n    -Bye Bye!-\n", endTime.Sub(startTime))
     }
-    %s
     `,
 		strings.Join(imports, "\n"),
 		strings.Join(calls, "\n"),

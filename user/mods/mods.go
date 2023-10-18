@@ -22,7 +22,3 @@ func main() {
 	endTime := time.Now()
 	defer fmt.Printf("Done! Finished loading mods in %s \n    -Bye Bye!-\n", endTime.Sub(startTime))
 }
-
-func PassRouter() {
-
-}
