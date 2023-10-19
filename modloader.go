@@ -1,6 +1,7 @@
 package main
 
 import (
+	"MT-GO/database"
 	"MT-GO/tools"
 	"fmt"
 	"os"
@@ -48,7 +49,7 @@ func main() {
 	modCalls := make([]string, 0)
 
 	//var modAdvanced []string
-	var modConfig *Game
+	var modConfig *database.ModInfo
 
 	if len(modSubDirs) == 0 {
 		modCalls = append(modCalls, "fmt.Println(\"Found 0 mods. Canceling\")")
@@ -151,14 +152,15 @@ func updateModsFile(filePath string, imports []string, calls []string) error {
     var startTime time.Time
 
     func Init() {
-        startTime = time.Now()
         fmt.Println("\n\nInitializing ModLoader...")
-        defer main()
+        startTime = time.Now()
+        main()
     }
 
     func main() {
     	%s
-        endTime := time.Now()
+        
+		endTime := time.Now()
         fmt.Printf("Done! Finished loading mods in %%s\n\n", endTime.Sub(startTime))
     }`,
 		strings.Join(imports, "\n"),

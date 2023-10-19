@@ -3,7 +3,6 @@ package mods
 
 import (
 	EscapeFromHell "MT-GO/user/mods/EFHDev"
-	EscapeFromSmell "MT-GO/user/mods/EFHLev"
 	"fmt"
 	"time"
 )
@@ -11,14 +10,14 @@ import (
 var startTime time.Time
 
 func Init() {
-	startTime = time.Now()
 	fmt.Println("\n\nInitializing ModLoader...")
-	defer main()
+	startTime = time.Now()
+	main()
 }
 
 func main() {
 	EscapeFromHell.Mod()
-	EscapeFromSmell.Mod()
+
 	endTime := time.Now()
 	fmt.Printf("Done! Finished loading mods in %s\n\n", endTime.Sub(startTime))
 }

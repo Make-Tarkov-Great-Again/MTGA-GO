@@ -2,61 +2,42 @@
 package EscapeFromHell
 
 import (
+	"MT-GO/database"
+	"MT-GO/tools"
 	items "MT-GO/user/mods/EFHDev/mod"
-	"embed"
-	"encoding/json"
 	"fmt"
-	"net/http"
+	"github.com/goccy/go-json"
+	"path/filepath"
+	"runtime"
 )
 
-var passed ModInfo
+var modInfo = SetModConfig()
 
 func Mod() {
 	fmt.Println("Loading Escape from Hell....")
-	items.Modify(passed)
+
+	items.Modify(&modInfo)
+
 	fmt.Println("Loaded mod Escape From hell lol.")
 }
 
 /* ---------------------- Boring mod bindings below lol --------------------- */
+//TODO: Save directory path to reduce imports
 
-func GetModConfig() (*ModInfo, error) {
-	data, err := config.ReadFile("mod-info.json")
+func SetModConfig() database.ModInfo {
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		panic(fmt.Errorf("failed to get the current file's path"))
+	}
+	readFile, err := tools.ReadFile(filepath.Join(filepath.Dir(filename), "mod-info.json"))
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	var modInfo ModInfo
-	if err := json.Unmarshal(data, &modInfo); err != nil {
-		return nil, err
-	}
-	passed = modInfo
-	return &modInfo, nil
-}
-
-type ModInfo struct {
-	NameSpace       string
-	ModNameNoSpaces string
-	Advanced        struct {
-		CustomRoutes bool
-	}
-	Config map[string]interface{}
-}
-
-func GetRoutes() map[string]http.HandlerFunc {
-	config, err := GetModConfig()
+	config := new(database.ModInfo)
+	err = json.Unmarshal(readFile, &config)
 	if err != nil {
-		fmt.Errorf("Error setting router for %s: %s", config.ModNameNoSpaces, err)
-		return nil
+		panic(err)
 	}
-	if config.Advanced.CustomRoutes {
-		return items.Routes
-	}
-	return nil
-}
-
-//go:embed mod-info.json
-var config embed.FS
-
-func (m ModInfo) GetConfig() map[string]interface{} {
-	return m.Config
+	return *config
 }

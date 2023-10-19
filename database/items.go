@@ -38,16 +38,8 @@ func GetItemByUID(uid string) *DatabaseItem {
 	return item
 }
 
-func SetItemByUID(uid string, ItemMod *DatabaseItem) error {
-	if ItemMod == nil {
-		return fmt.Errorf("Modified item with ID: %s is nil", ItemMod.ID)
-	}
-	_, ok := items[uid]
-	if !ok {
-		return fmt.Errorf("item getting modified with id %s not found", uid)
-	}
-	items[uid] = ItemMod
-	return nil
+func (item *DatabaseItem) SetNew(newItem *DatabaseItem) {
+	item = newItem
 }
 
 var currencyName = map[string]string{
