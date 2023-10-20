@@ -47,13 +47,14 @@ func GetBotTypeDifficultyByName(name string, diff string) interface{} {
 // #region Bot setters
 
 func setBots() {
+
 	bots.BotTypes = setBotTypes()
 	bots.BotAppearance = setBotAppearance()
 	bots.BotNames = setBotNames()
 }
 
 func setBotTypes() map[string]*BotType {
-	directory, err := tools.GetDirectoriesFrom(botsDirectory)
+	directory, err := tools.GetDirectoriesFrom(botsMainDir)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -61,9 +62,9 @@ func setBotTypes() map[string]*BotType {
 	// Create a channel to collect the results
 	resultChan := make(chan map[string]*BotType, len(directory))
 
-	for _, directory := range directory {
+	for directory := range directory {
 		go func(dir string) {
-			botType := setBotType(dir)
+			botType := setBotType(filepath.Join(botsMainDir, dir))
 			resultChan <- map[string]*BotType{dir: botType}
 		}(directory)
 	}
@@ -82,9 +83,8 @@ func setBotTypes() map[string]*BotType {
 	return botTypes
 }
 
-func setBotType(directory string) *BotType {
+func setBotType(dirPath string) *BotType {
 	botType := new(BotType)
-	var dirPath = filepath.Join(botsDirectory, directory)
 
 	var diffPath = filepath.Join(dirPath, "difficulties")
 	files, err := tools.GetFilesFrom(diffPath)
@@ -94,7 +94,7 @@ func setBotType(directory string) *BotType {
 
 	difficulties := make(map[string]json.RawMessage)
 	botDifficulty := map[string]interface{}{}
-	for _, difficulty := range files {
+	for difficulty := range files {
 		difficultyPath := filepath.Join(diffPath, difficulty)
 		raw := tools.GetJSONRawMessage(difficultyPath)
 		name := strings.TrimSuffix(difficulty, ".json")
@@ -140,7 +140,7 @@ func setBotType(directory string) *BotType {
 func setBotAppearance() map[string]*BotAppearance {
 	botAppearance := make(map[string]*BotAppearance)
 
-	raw := tools.GetJSONRawMessage(filepath.Join(botsPath, "appearance.json"))
+	raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "appearance.json"))
 	err := json.Unmarshal(raw, &botAppearance)
 	if err != nil {
 		log.Fatalln(err)
@@ -151,7 +151,7 @@ func setBotAppearance() map[string]*BotAppearance {
 func setBotNames() *BotNames {
 	names := new(BotNames)
 
-	raw := tools.GetJSONRawMessage(filepath.Join(botsPath, "names.json"))
+	raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "names.json"))
 	err := json.Unmarshal(raw, names)
 	if err != nil {
 		log.Fatalln(err)

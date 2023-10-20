@@ -3,22 +3,56 @@ package main
 
 import (
 	"MT-GO/server"
+	"MT-GO/user/mods"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"MT-GO/database"
 	"MT-GO/tools"
 )
 
 func main() {
-	database.InitializeDatabase()
-	// server goroutines
+	startTime := time.Now()
+
+	setRequiredFolders()
+
+	//TODO: Squeeze MS where possible, investigate TraderIndex if possible
+
+	database.SetDatabase()
+	mods.Init()
+	database.SetBundleManifests()
+	database.SetTraderIndex()
+	database.SetProfiles()
+
 	server.SetServer()
-	// trick : CLI prevents return of main()
+
+	endTime := time.Now()
+	fmt.Printf("\nDatabase initialized in %s\n\n", endTime.Sub(startTime))
+
 	startHome()
+}
+
+func setRequiredFolders() {
+	var user = "user"
+
+	if !tools.FileExist(user) {
+		err := os.Mkdir(user, 0755)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	profilesPath := filepath.Join(user, "profiles")
+	if !tools.FileExist(profilesPath) {
+		err := os.Mkdir(profilesPath, 0755)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
 }
 
 func startHome() {
@@ -40,7 +74,7 @@ func startHome() {
 			login()
 		case "69":
 			fmt.Println("Adios fella")
-			return
+			os.Exit(1)
 		default:
 			fmt.Println("Invalid input, intellectually less able fella")
 		}

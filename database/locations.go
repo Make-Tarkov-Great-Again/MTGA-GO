@@ -60,7 +60,7 @@ func setLocalLoot() {
 		fmt.Println(err)
 	}
 
-	for _, file := range files {
+	for file := range files {
 		fileNameSplit := strings.Split(file, ".")
 		name := fileNameSplit[0][:len(fileNameSplit[0])-1]
 

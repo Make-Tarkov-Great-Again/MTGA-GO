@@ -210,6 +210,10 @@ func setItems() {
 	}
 }
 
+func SetNewItem(entry DatabaseItem) {
+	items[entry.ID] = &entry
+}
+
 // #endregion
 
 // #region Item structs

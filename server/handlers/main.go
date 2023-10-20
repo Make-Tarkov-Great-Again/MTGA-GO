@@ -19,17 +19,16 @@ const routeNotImplemented = "Route is not implemented yet, using empty values in
 
 // GetBundleList returns a list of custom bundles to the client
 func GetBundleList(w http.ResponseWriter, _ *http.Request) {
-	fmt.Println(routeNotImplemented)
-	output := make([]string, 0)
+	defer database.ClearBundleManifests()
+	output := make([]*database.Manifest, 0)
+
+	manifests := database.GetBundleManifests()
+	if len(manifests) != 0 {
+		output = manifests
+	}
+
 	services.ZlibJSONReply(w, output)
 }
-
-/* func GetWebSocketAddress(w http.ResponseWriter, r *http.Request) {
-	sessionID := services.GetSessionID(r)
-	database.SetWebSocketAddress(sessionID)
-	websocketURL := database.GetWebSocketAddress()
-	services.ZlibReply(w, websocketURL)
-} */
 
 func ShowPersonKilledMessage(w http.ResponseWriter, _ *http.Request) {
 	services.ZlibJSONReply(w, "true")
@@ -543,7 +542,7 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 		character.RemoveItem(moveAction, profileChangeEvent)
 	},
 	"CustomizationBuy": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
-		character.CustomizationBuy(moveAction, profileChangeEvent)
+		character.CustomizationBuy(moveAction)
 	},
 	"CustomizationWear": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.CustomizationWear(moveAction)

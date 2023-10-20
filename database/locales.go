@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"MT-GO/tools"
 
@@ -55,11 +56,13 @@ func setLanguages() {
 
 // #region Locale getters
 
-func GetLocales() *Locale {
-	return locales
+func GetLocales() map[string]*LocaleData {
+	return localeMap
 }
 
-func GetLocaleByName(name string) *LocaleData {
+func GetLocaleByName(input string) *LocaleData {
+	name := strings.ToLower(input)
+
 	if locale, ok := localeMap[name]; ok {
 		return locale
 	}
@@ -96,7 +99,7 @@ func setLocales() {
 	structure := make(map[string]*LocaleData)
 	localeFiles := [2]string{"locale.json", "menu.json"}
 
-	for _, dir := range directories {
+	for dir := range directories {
 		localeData := &LocaleData{}
 		dirPath := filepath.Join(localesPath, dir)
 

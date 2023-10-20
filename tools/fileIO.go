@@ -95,7 +95,7 @@ func ReadFile(filePath string) ([]byte, error) {
 }
 
 // GetDirectoriesFrom returns a list of directories from a file path
-func GetDirectoriesFrom(filePath string) ([]string, error) {
+func GetDirectoriesFrom(filePath string) (map[string]*struct{}, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
 		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
@@ -106,17 +106,17 @@ func GetDirectoriesFrom(filePath string) ([]string, error) {
 		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_DIRECTORY, filePath, err)
 	}
 
-	files := make([]string, 0, len(directory))
+	files := make(map[string]*struct{})
 	for _, file := range directory {
 		if file.IsDir() {
-			files = append(files, file.Name())
+			files[file.Name()] = nil
 		}
 	}
 	return files, nil
 }
 
 // GetFilesFrom returns a list of files from a file path
-func GetFilesFrom(filePath string) ([]string, error) {
+func GetFilesFrom(filePath string) (map[string]*struct{}, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
 		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
@@ -127,10 +127,10 @@ func GetFilesFrom(filePath string) ([]string, error) {
 		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_DIRECTORY, filePath, err)
 	}
 
-	files := make([]string, 0, len(directory))
+	files := make(map[string]*struct{})
 	for _, file := range directory {
 		if !file.IsDir() {
-			files = append(files, file.Name())
+			files[file.Name()] = nil
 		}
 	}
 	return files, nil

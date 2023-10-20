@@ -66,16 +66,16 @@ func GetStorageByUID(uid string) *Storage {
 
 // #region Profile setters
 
-func setProfiles() map[string]*Profile {
+func SetProfiles() {
 	users, err := tools.GetDirectoriesFrom(profilesPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	if len(users) == 0 {
-		return profiles
+		return
 	}
-	for _, user := range users {
+	for user := range users {
 		profile := &Profile{}
 		userPath := filepath.Join(profilesPath, user)
 
@@ -88,8 +88,11 @@ func setProfiles() map[string]*Profile {
 		if tools.FileExist(path) {
 			profile.Character = setCharacter(path)
 			if profile.Character.Info.Nickname != "" {
-				Nicknames[profile.Character.Info.Nickname] = struct{}{}
+				Nicknames[profile.Character.Info.Nickname] = nil
 			}
+
+			profile.Character.Inventory.CleanInventoryOfDeletedItemMods()
+
 		} else {
 			profile.Character = &Character{}
 		}
@@ -120,7 +123,6 @@ func setProfiles() map[string]*Profile {
 
 		profiles[user] = profile
 	}
-	return profiles
 }
 
 func setAccount(path string) *Account {
@@ -206,7 +208,7 @@ type Profile struct {
 
 type Dialogue map[string]*Dialog
 
-var Nicknames = make(map[string]struct{})
+var Nicknames = make(map[string]*struct{})
 
 type Storage struct {
 	//ID        string                 `json:"_id"`

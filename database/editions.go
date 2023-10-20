@@ -33,7 +33,7 @@ func setEditions() {
 		log.Fatalln(err)
 	}
 
-	for _, directory := range directories {
+	for directory := range directories {
 		setEdition(directory, editionsDirPath)
 	}
 }
@@ -47,7 +47,7 @@ func setEdition(directory string, editionsDirPath string) {
 
 	edition := new(Edition)
 
-	for _, file := range files {
+	for file := range files {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, file))
 		removeJSON := strings.TrimSuffix(file, ".json")
 
