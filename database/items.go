@@ -18,17 +18,6 @@ func GetItems() map[string]*DatabaseItem {
 	return items
 }
 
-// for cases you need to itterate over entire database to change ALOT of things.
-func SetItems(itemsMod []byte) error {
-	var m map[string]*DatabaseItem
-	err := json.Unmarshal(itemsMod, &m)
-	if err != nil {
-		return fmt.Errorf("error unmarshalling items: %w", err)
-	}
-	items = m
-	return nil
-}
-
 func GetItemByUID(uid string) *DatabaseItem {
 	item, ok := items[uid]
 	if !ok {
@@ -36,10 +25,6 @@ func GetItemByUID(uid string) *DatabaseItem {
 		return nil
 	}
 	return item
-}
-
-func (item *DatabaseItem) SetNew(newItem *DatabaseItem) {
-	item = newItem
 }
 
 var currencyName = map[string]string{
@@ -223,6 +208,10 @@ func setItems() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func SetNewItem(entry DatabaseItem) {
+	items[entry.ID] = &entry
 }
 
 // #endregion

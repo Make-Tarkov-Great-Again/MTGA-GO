@@ -251,6 +251,24 @@ func (t *Trader) GetTraderLoyaltyLevel(character *Character) int8 {
 	return int8(length)
 }
 
+/*
+GetItemFamilyTree returns the family of an item based on parentID if it and the family exists
+*/
+func GetItemFamilyTree(items []*AssortItem, parent string) []string {
+	var list []string
+
+	for _, childItem := range items {
+		child := childItem
+
+		if child.ParentID == parent {
+			list = append(list, GetItemFamilyTree(items, child.ID)...)
+		}
+	}
+
+	list = append(list, parent) // required
+	return list
+}
+
 // #endregion
 
 // #region Trader setters
@@ -261,7 +279,7 @@ func setTraders() {
 		log.Fatalln(err)
 	}
 
-	for _, dir := range directory {
+	for dir := range directory {
 		trader := &Trader{}
 
 		currentTraderPath := filepath.Join(traderPath, dir)
@@ -273,7 +291,7 @@ func setTraders() {
 
 		assortPath := filepath.Join(currentTraderPath, "assort.json")
 		if tools.FileExist(assortPath) {
-			trader.Assort, trader.Index.Assort = setTraderAssort(assortPath)
+			trader.Assort = setTraderAssort(assortPath)
 		}
 
 		questsPath := filepath.Join(currentTraderPath, "questassort.json")
@@ -346,7 +364,57 @@ func setTraderBase(basePath string) *TraderBase {
 	return trader
 }
 
-func setTraderAssort(assortPath string) (*Assort, *AssortIndex) {
+func SetTraderIndex() {
+	traders := GetTraders()
+
+	for _, trader := range traders {
+		if trader.Assort == nil {
+			continue
+		}
+
+		trader.Index.Assort = &AssortIndex{}
+		parentItems := make(map[string]map[string]int16)
+		childlessItems := make(map[string]int16)
+
+		for index, item := range trader.Assort.Items {
+
+			_, ok := childlessItems[item.ID]
+			if ok {
+				continue
+			}
+
+			_, ok = parentItems[item.ID]
+			if ok {
+				continue
+			}
+
+			itemChildren := GetItemFamilyTree(trader.Assort.Items, item.ID)
+			if len(itemChildren) == 1 {
+				childlessItems[item.ID] = int16(index)
+				continue
+			}
+
+			family := make(map[string]int16)
+			for _, child := range itemChildren {
+				for k, v := range trader.Assort.Items {
+					if child != v.ID {
+						continue
+					}
+
+					family[child] = int16(k)
+					break
+				}
+			}
+			parentItems[item.ID] = family
+		}
+
+		trader.Index.Assort.ParentItems = parentItems
+		trader.Index.Assort.Items = childlessItems
+	}
+
+}
+
+func setTraderAssort(assortPath string) *Assort {
 	var dynamic map[string]interface{}
 	raw := tools.GetJSONRawMessage(assortPath)
 
@@ -374,45 +442,6 @@ func setTraderAssort(assortPath string) (*Assort, *AssortIndex) {
 	} else {
 		log.Fatalln("Items not found")
 	}
-
-	index := &AssortIndex{}
-
-	parentItems := make(map[string]map[string]int16)
-	childlessItems := make(map[string]int16)
-
-	for index, item := range assort.Items {
-		_, ok := childlessItems[item.ID]
-		if ok {
-			continue
-		}
-
-		_, ok = parentItems[item.ID]
-		if ok {
-			continue
-		}
-
-		itemChildren := tools.GetItemFamilyTree(items, item.ID)
-		if len(itemChildren) == 1 {
-			childlessItems[item.ID] = int16(index)
-			continue
-		}
-
-		family := make(map[string]int16)
-		for _, child := range itemChildren {
-			for k, v := range assort.Items {
-				if child != v.ID {
-					continue
-				}
-
-				family[child] = int16(k)
-				break
-			}
-		}
-		parentItems[item.ID] = family
-	}
-
-	index.ParentItems = parentItems
-	index.Items = childlessItems
 
 	barterSchemes, ok := dynamic["barter_scheme"].(map[string]interface{})
 	if ok {
@@ -446,7 +475,7 @@ func setTraderAssort(assortPath string) (*Assort, *AssortIndex) {
 		log.Fatalln(err)
 	}
 
-	return assort, index
+	return assort
 }
 
 func setTraderQuestAssort(questsPath string) map[string]map[string]string {

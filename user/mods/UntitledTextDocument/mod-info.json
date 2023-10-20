@@ -1,0 +1,10 @@
+{
+  "PackageName": "UntitledTextDocument",
+  "PackageAlias": "UTD",
+  "Advanced": {
+    "CustomRoutes": false
+  },
+  "Config": {
+    "Debug": false
+  }
+}

@@ -2,14 +2,8 @@
 package database
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"path/filepath"
-	"sync"
-	"time"
-
 	"MT-GO/tools"
+	"sync"
 )
 
 const (
@@ -32,14 +26,14 @@ const (
 	hideoutPath           = databaseLibPath + "/hideout/"
 	weatherPath           = databaseLibPath + "/weather.json"
 	customizationPath     = databaseLibPath + "/customization.json"
-	botsPath              = databaseLibPath + "/bot/"
-	botsDirectory         = botsPath + "bots/"
+	botMainDir            = databaseLibPath + "/bot/"
+	botsMainDir           = botMainDir + "bots/"
 )
 
-// InitializeDatabase initializes the database
-func InitializeDatabase() {
-	setRequiredFolders()
+// SetDatabase initializes the database
+//var db *Database
 
+func SetDatabase() {
 	var wg sync.WaitGroup
 	completionCh := make(chan struct{})
 
@@ -67,7 +61,6 @@ func InitializeDatabase() {
 
 	workerCh := make(chan struct{}, numWorkers)
 
-	startTime := time.Now()
 	for _, task := range tasks {
 		wg.Add(1)
 		go func(taskName string, taskFunc func()) {
@@ -87,36 +80,15 @@ func InitializeDatabase() {
 	for range tasks {
 		<-completionCh
 	}
-
-	setProfiles()
-	endTime := time.Now()
-	fmt.Printf("\n\nDatabase initialized in %s with %d workers\n", endTime.Sub(startTime), numWorkers)
 }
 
 // #region Database setters
 
-func setRequiredFolders() {
-	var users string = "user"
-
-	if !tools.FileExist(users) {
-		err := os.Mkdir(users, 0755)
-		if err != nil {
-			log.Fatalln(err)
-		}
-	}
-
-	profilesPath := filepath.Join(users, "profiles")
-	if !tools.FileExist(profilesPath) {
-		err := os.Mkdir(profilesPath, 0755)
-		if err != nil {
-			log.Fatalln(err)
-		}
-	}
-}
-
 // #endregion
 
 // #region Database structs
+
+//TODO: Maybe link everything into the Database struct
 
 type Database struct {
 	Core *Core

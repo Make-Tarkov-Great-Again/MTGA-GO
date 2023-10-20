@@ -66,7 +66,7 @@ func GetStorageByUID(uid string) *Storage {
 
 // #region Profile setters
 
-func setProfiles() map[string]*Profile {
+func SetProfiles() map[string]*Profile {
 	users, err := tools.GetDirectoriesFrom(profilesPath)
 	if err != nil {
 		log.Fatalln(err)
@@ -75,7 +75,7 @@ func setProfiles() map[string]*Profile {
 	if len(users) == 0 {
 		return profiles
 	}
-	for _, user := range users {
+	for user := range users {
 		profile := &Profile{}
 		userPath := filepath.Join(profilesPath, user)
 

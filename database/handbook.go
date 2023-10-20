@@ -49,6 +49,10 @@ func setHandbook() {
 	}
 }
 
+func SetHandbookItemEntry(entry HandbookItem) {
+	handbook.Items = append(handbook.Items, entry)
+}
+
 // #endregion
 
 // #region Handbook structs

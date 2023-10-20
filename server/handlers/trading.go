@@ -41,10 +41,11 @@ func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
 }
 
 func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
-	trader := database.GetTraderByUID(r.URL.Path[36:])
+	tid := r.URL.Path[36:]
+	trader := database.GetTraderByUID(tid)
 	character := database.GetCharacterByUID(services.GetSessionID(r))
-
 	var assort = trader.GetStrippedAssort(character)
+
 	body := services.ApplyResponseBody(assort)
 	services.ZlibJSONReply(w, body)
 }

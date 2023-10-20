@@ -1,4 +1,0 @@
-{
-  "NameSpace": "EFHDev", //The dir name of your mod
-  "ModNameNoSpaces": "EscapeFromHell"  //Your entry.go's package name
-}

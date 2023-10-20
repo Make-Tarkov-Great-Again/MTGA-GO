@@ -19,17 +19,10 @@ const routeNotImplemented = "Route is not implemented yet, using empty values in
 
 // GetBundleList returns a list of custom bundles to the client
 func GetBundleList(w http.ResponseWriter, _ *http.Request) {
-	fmt.Println(routeNotImplemented)
-	output := make([]string, 0)
+	defer database.ClearBundleManifests()
+	output := database.GetBundleManifests()
 	services.ZlibJSONReply(w, output)
 }
-
-/* func GetWebSocketAddress(w http.ResponseWriter, r *http.Request) {
-	sessionID := services.GetSessionID(r)
-	database.SetWebSocketAddress(sessionID)
-	websocketURL := database.GetWebSocketAddress()
-	services.ZlibReply(w, websocketURL)
-} */
 
 func ShowPersonKilledMessage(w http.ResponseWriter, _ *http.Request) {
 	services.ZlibJSONReply(w, "true")
