@@ -43,9 +43,7 @@ func main() {
 	//var modAdvanced []string
 	var modConfig *database.ModInfo
 
-	if len(modSubDirs) == 0 {
-		calls = append(calls, "\t\fmt.Println(\"Found 0 mods. Canceling\")")
-	} else {
+	if len(modSubDirs) != 0 {
 		for name := range modSubDirs {
 			fmt.Println("Checking directory:", name)
 
@@ -138,7 +136,7 @@ import (
 %s
 
 func Init() {
-	startTime = time.Now()
+	startTime := time.Now()
 	fmt.Printf("\n[MODLOADER : BEGIN]\n")
 
 	%s
