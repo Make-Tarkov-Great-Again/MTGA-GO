@@ -135,6 +135,21 @@ func (c *Character) CompletedPreviousQuestCheck(quests map[string]*QuestConditio
 
 // #region Character functions
 
+func (inv *Inventory) CleanInventoryItemsOfModdedItems() {
+	allItems := GetItems()
+
+	newItems := make([]InventoryItem, 0, len(inv.Items))
+
+	for _, item := range inv.Items {
+		if _, ok := allItems[item.TPL]; !ok {
+			continue
+		}
+		newItems = append(newItems, item)
+	}
+
+	inv.Items = newItems
+}
+
 func (c *Character) SaveCharacter(sessionID string) {
 	characterFilePath := filepath.Join(profilesPath, sessionID, "character.json")
 
