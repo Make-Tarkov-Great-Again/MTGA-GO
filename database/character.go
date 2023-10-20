@@ -142,6 +142,7 @@ func (inv *Inventory) CleanInventoryItemsOfModdedItems() {
 
 	for _, item := range inv.Items {
 		if _, ok := allItems[item.TPL]; !ok {
+			fmt.Println("Removed modded item ", item.TPL, "from Inventory")
 			continue
 		}
 		newItems = append(newItems, item)
