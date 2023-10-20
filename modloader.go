@@ -73,7 +73,6 @@ func main() {
 			modImport := fmt.Sprintf(MTGOUserMods, modConfig.PackageAlias, modConfig.PackageName)
 			modCall := fmt.Sprintf(ModNameMod, modConfig.PackageAlias)
 
-			variables = append(variables, `var startTime time.Time`)
 			imports = append(imports, modImport)
 			calls = append(calls, modCall)
 		}
