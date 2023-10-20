@@ -135,7 +135,7 @@ func (c *Character) CompletedPreviousQuestCheck(quests map[string]*QuestConditio
 
 // #region Character functions
 
-func (inv *Inventory) CleanInventoryItemsOfModdedItems() {
+func (inv *Inventory) CleanInventoryOfDeletedItemMods() {
 	allItems := GetItems()
 
 	newItems := make([]InventoryItem, 0, len(inv.Items))
