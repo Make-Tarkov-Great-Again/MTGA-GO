@@ -59,9 +59,9 @@ type CustomizationProperties struct {
 	Prefab              interface{} `json:"Prefab,omitempty"`
 	ShortName           *string     `json:"ShortName,omitempty"`
 	Side                *[]string   `json:"Side,omitempty"`
-	WatchPosition       *XYZ        `json:"WatchPosition,omitempty"`
+	WatchPosition       *Vector3    `json:"WatchPosition,omitempty"`
 	WatchPrefab         *Prefab     `json:"WatchPrefab,omitempty"`
-	WatchRotation       *XYZ        `json:"WatchRotation,omitempty"`
+	WatchRotation       *Vector3    `json:"WatchRotation,omitempty"`
 	Feet                *string     `json:"Feet,omitempty"`
 	Body                *string     `json:"Body,omitempty"`
 	Hands               *string     `json:"Hands,omitempty"`

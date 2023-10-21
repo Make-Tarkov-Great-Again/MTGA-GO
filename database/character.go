@@ -725,7 +725,7 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 	}
 }
 
-type tradingConfirm struct {
+type buyFromTrader struct {
 	Action      string
 	Type        string          `json:"type"`
 	TID         string          `json:"tid"`
@@ -740,29 +740,50 @@ type tradingScheme struct {
 	Count int32
 }
 
-func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
-	tradeConfirm := new(tradingConfirm)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &tradeConfirm)
-	if err != nil {
-		log.Fatalln(err)
-	}
+type sellToTrader struct {
+	Action string
+	Type   string      `json:"type"`
+	TID    string      `json:"tid"`
+	Items  []soldItems `json:"items"`
+	Price  int32       `json:"price"`
+}
 
+type soldItems struct {
+	ID       string `json:"id"`
+	Count    int32  `json:"count"`
+	SchemeID int8   `json:"scheme_id"`
+}
+
+func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
 	//TODO: Make everything purchased NOT free lol
 
 	invCache := GetCacheByUID(c.ID).Inventory
 
-	switch tradeConfirm.Type {
+	switch moveAction["type"] {
 	case "buy_from_trader":
-		c.BuyFromTrader(tradeConfirm, invCache, profileChangesEvent)
+		buy := new(buyFromTrader)
+		data, _ := json.Marshal(moveAction)
+		err := json.Unmarshal(data, &buy)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		c.BuyFromTrader(buy, invCache, profileChangesEvent)
 	case "sell_to_trader":
-		c.SellToTrader(tradeConfirm, invCache, profileChangesEvent)
+		sell := new(sellToTrader)
+		data, _ := json.Marshal(moveAction)
+		err := json.Unmarshal(data, &sell)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		c.SellToTrader(sell, invCache, profileChangesEvent)
 	default:
-		fmt.Println("YO! TRADINGCONFIRM.", tradeConfirm.Type, "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
+		fmt.Println("YO! TRADINGCONFIRM.", moveAction["type"], "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
 	}
 }
 
-func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
 	trader := GetTraderByUID(tradeConfirm.TID)
 
 	assortItem := trader.GetAssortItemByID(tradeConfirm.ItemID)
@@ -798,7 +819,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 
 		validLocation := invCache.GetValidLocationForItem(height, width)
 		if validLocation == nil {
-			fmt.Println("Item", tradeConfirm.ItemID, "was not purchased due to error!")
+			fmt.Println("Item", tradeConfirm.ItemID, "was not purchased because we could not find a position in your inventory!!")
 			invCache.Stash.Container = copyOfMap //if failure, assign old map
 			return
 		}
@@ -848,6 +869,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 				toDelete[itemInInventory.ID] = *index
 
 				//TODO: Consider creating a look-up cache for mergable Inventory.Items
+
 				var toChange []*InventoryItem
 				for idx, item := range copyOfItems {
 					if _, ok := toDelete[item.ID]; ok || item.TPL != *currency {
@@ -910,12 +932,113 @@ func (c *Character) BuyFromTrader(tradeConfirm *tradingConfirm, invCache *Invent
 	fmt.Println(len(toAdd), "of Item", tradeConfirm.ItemID, "purchased!")
 }
 
-func (c *Character) SellToTrader(tradeConfirm *tradingConfirm, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
-	//trader := GetTraderByUID(tradeConfirm.TID).Base
+func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
 
-	//saleCurrency := GetCurrencyByName(trader)
+	trader := GetTraderByUID(tradeConfirm.TID).Base
+	saleCurrency := *GetCurrencyByName(trader.Currency)
 
-	fmt.Println()
+	var remainingBalance = tradeConfirm.Price
+	stackMaxSize := *GetItemByUID(saleCurrency).GetStackMaxSize()
+
+	cache := GetCacheByUID(c.ID).Inventory
+	copyOfMap := invCache.Stash.Container
+	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items))
+	copyOfItems = append(copyOfItems, c.Inventory.Items...)
+
+	toDelete := make(map[string]int16)
+	for _, item := range tradeConfirm.Items {
+		index := *cache.GetIndexOfItemByUID(item.ID)
+		toDelete[item.ID] = index
+	}
+
+	toChange := make([]*InventoryItem, 0)
+	for _, item := range copyOfItems {
+		if remainingBalance == 0 {
+			break
+		}
+
+		if item.TPL != saleCurrency || *item.UPD.StackObjectsCount == stackMaxSize {
+			continue
+		}
+
+		if *item.UPD.StackObjectsCount+remainingBalance > stackMaxSize {
+			remainingBalance -= stackMaxSize - *item.UPD.StackObjectsCount
+			*item.UPD.StackObjectsCount = stackMaxSize
+
+			toChange = append(toChange, &item)
+			continue
+		} else {
+			*item.UPD.StackObjectsCount += remainingBalance
+			remainingBalance = 0
+			toChange = append(toChange, &item)
+			break
+		}
+	}
+
+	if remainingBalance != 0 {
+		var toAdd []InventoryItem
+
+		fmt.Println("If a new stack isn't made, we cry")
+
+		stackSlice := services.GetCorrectAmountOfItemsPurchased(remainingBalance, stackMaxSize)
+		item := []InventoryItem{*CreateNewItem(saleCurrency, c.Inventory.Stash)}
+		// since it's one item, just get the height and width once
+		height, width := MeasurePurchaseForInventoryMapping(item)
+
+		for _, stack := range stackSlice {
+			mainItem := AssignNewIDs(item)[0]
+
+			validLocation := invCache.GetValidLocationForItem(height, width)
+			if validLocation == nil {
+				fmt.Println("Item", mainItem.ID, "was not created because we could not find a position in your inventory!")
+				invCache.Stash.Container = copyOfMap //if failure, assign old map
+				return
+			}
+
+			stackObjectsCount := stack
+			mainItem.UPD.StackObjectsCount = &stackObjectsCount
+			mainItem.Location = &InventoryItemLocation{
+				IsSearched: true,
+				R:          float64(0),
+				X:          float64(validLocation.X),
+				Y:          float64(validLocation.Y),
+			}
+
+			itemFlatMap := invCache.CreateFlatMapLookup(height, width, &mainItem)
+			itemFlatMap.Coordinates = validLocation.MapInfo
+			invCache.AddItemToContainer(mainItem.ID, itemFlatMap)
+
+			toAdd = append(toAdd, mainItem)
+		}
+
+		for _, invItem := range toAdd {
+			copyOfItems = append(copyOfItems, invItem)
+			profileChangeItem := invItem //assign to variable to be pointed too for profileChangeEvents
+			profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &profileChangeItem)
+		}
+
+	}
+
+	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, toChange...)
+	c.Inventory.Items = copyOfItems
+
+	if len(toDelete) != 0 {
+		indices := make([]int16, len(toDelete))
+		for id, idx := range toDelete {
+			invCache.ClearItemFromContainer(id)
+			indices = append(indices, idx)
+
+			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: id})
+		}
+		c.Inventory.RemoveItemsFromInventoryByIndices(indices)
+	}
+	invCache.SetInventoryIndex(&c.Inventory)
+
+	traderRelations := c.TradersInfo[tradeConfirm.TID]
+	traderRelations.SalesSum += float32(tradeConfirm.Price)
+
+	profileChangesEvent.ProfileChanges[c.ID].TraderRelations[tradeConfirm.TID] = traderRelations
+	c.TradersInfo[tradeConfirm.TID] = traderRelations
 }
 
 type buyCustomization struct {

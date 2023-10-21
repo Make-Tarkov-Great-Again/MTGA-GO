@@ -30,7 +30,7 @@ func GetItemByUID(uid string) *DatabaseItem {
 var currencyName = map[string]string{
 	"RUB": "5449016a4bdc2d6f028b456f",
 	"EUR": "569668774bdc2da2298b4568",
-	"DOL": "5696686a4bdc2da3298b456a",
+	"USD": "5696686a4bdc2da3298b456a",
 }
 
 var currencyByID = map[string]struct{}{

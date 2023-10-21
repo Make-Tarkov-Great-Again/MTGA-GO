@@ -30,17 +30,6 @@ const (
 	botsMainDir           = botMainDir + "bots/"
 )
 
-type XYZ struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
-	Z float64 `json:"z"`
-}
-
-type Prefab struct {
-	Path string `json:"path"`
-	Rcid string `json:"rcid"`
-}
-
 // SetDatabase initializes the database
 //var db *Database
 
@@ -121,6 +110,17 @@ type Database struct {
 	Bot           *Bots
 	Profiles      map[string]*Profile
 	//bundles  []map[string]interface{}
+}
+
+type Vector3 struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+	Z float64 `json:"z"`
+}
+
+type Prefab struct {
+	Path string `json:"path"`
+	Rcid string `json:"rcid"`
 }
 
 // #endregion

@@ -145,7 +145,7 @@ type BossSupport struct {
 
 type SpawnPointParam struct {
 	Id                 string         `json:"Id"`
-	Position           XYZ            `json:"Position"`
+	Position           Vector3        `json:"Position"`
 	Rotation           float32        `json:"Rotation"`
 	Sides              []string       `json:"Sides"`
 	Categories         []string       `json:"Categories"`
@@ -161,8 +161,8 @@ type ColliderParams struct {
 }
 
 type ColliderParamProps struct {
-	Center XYZ     `json:"Center"`
-	Size   XYZ     `json:"Size,omitempty"`
+	Center Vector3 `json:"Center"`
+	Size   Vector3 `json:"Size,omitempty"`
 	Radius float32 `json:"Radius,omitempty"`
 }
 
@@ -184,8 +184,8 @@ type LootSpawn struct {
 	IsContainer     bool                         `json:"IsContainer"`
 	UseGravity      bool                         `json:"useGravity"`     //used for loose loot
 	RandomRotation  bool                         `json:"randomRotation"` //used for loose loot
-	Position        XYZ                          `json:"Position"`
-	Rotation        XYZ                          `json:"Rotation"`
+	Position        Vector3                      `json:"Position"`
+	Rotation        Vector3                      `json:"Rotation"`
 	IsGroupPosition bool                         `json:"IsGroupPosition"` //dynamic container
 	GroupPositions  []*WeightedLootSpawnPosition `json:"GroupPositions"`  //dynamic container spawn positions
 	IsAlwaysSpawn   bool                         `json:"IsAlwaysSpawn"`
@@ -194,10 +194,10 @@ type LootSpawn struct {
 }
 
 type WeightedLootSpawnPosition struct {
-	Name     string `json:"Name"` //string.Format("groupPoint[{0}]", this._groupPositions.Count)
-	Weight   int8   `json:"Weight"`
-	Position XYZ    `json:"Position"`
-	Rotation XYZ    `json:"Rotation"`
+	Name     string  `json:"Name"` //string.Format("groupPoint[{0}]", this._groupPositions.Count)
+	Weight   int8    `json:"Weight"`
+	Position Vector3 `json:"Position"`
+	Rotation Vector3 `json:"Rotation"`
 }
 
 type Banner struct {

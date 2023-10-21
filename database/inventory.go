@@ -115,6 +115,16 @@ type FlatMapLookup struct {
 	Coordinates []int16
 }
 
+func CreateNewItem(TPL string, parent string) *InventoryItem {
+	item := new(InventoryItem)
+
+	item.ID = tools.GenerateMongoID()
+	item.ParentID = &parent
+	item.TPL = TPL
+
+	return item
+}
+
 func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
 	output := &InventoryContainer{}
 
