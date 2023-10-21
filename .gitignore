@@ -20,6 +20,7 @@ go.work
 user/profiles/
 user/cert/
 user/backup/
+user/mods/
 questsDatabase.json
 *.png
 *.jpg
