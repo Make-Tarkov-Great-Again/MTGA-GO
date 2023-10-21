@@ -51,31 +51,20 @@ type Customization struct {
 }
 
 type CustomizationProperties struct {
-	BodyPart            *string              `json:"BodyPart,omitempty"`
-	Description         *string              `json:"Description,omitempty"`
-	AvailableAsDefault  *bool                `json:"AvailableAsDefault,omitempty"`
-	IntegratedArmorVest *bool                `json:"IntegratedArmorVest,omitempty"`
-	Name                *string              `json:"Name,omitempty"`
-	Prefab              interface{}          `json:"Prefab,omitempty"`
-	ShortName           *string              `json:"ShortName,omitempty"`
-	Side                *[]string            `json:"Side,omitempty"`
-	WatchPosition       *WatchPosition       `json:"WatchPosition,omitempty"`
-	WatchPrefab         *CustomizationPrefab `json:"WatchPrefab,omitempty"`
-	WatchRotation       *WatchPosition       `json:"WatchRotation,omitempty"`
-	Feet                *string              `json:"Feet,omitempty"`
-	Body                *string              `json:"Body,omitempty"`
-	Hands               *string              `json:"Hands,omitempty"`
-}
-
-type WatchPosition struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
-	Z float64 `json:"z"`
-}
-
-type CustomizationPrefab struct {
-	Path string `json:"path"`
-	Rcid string `json:"rcid"`
+	BodyPart            *string     `json:"BodyPart,omitempty"`
+	Description         *string     `json:"Description,omitempty"`
+	AvailableAsDefault  *bool       `json:"AvailableAsDefault,omitempty"`
+	IntegratedArmorVest *bool       `json:"IntegratedArmorVest,omitempty"`
+	Name                *string     `json:"Name,omitempty"`
+	Prefab              interface{} `json:"Prefab,omitempty"`
+	ShortName           *string     `json:"ShortName,omitempty"`
+	Side                *[]string   `json:"Side,omitempty"`
+	WatchPosition       *XYZ        `json:"WatchPosition,omitempty"`
+	WatchPrefab         *Prefab     `json:"WatchPrefab,omitempty"`
+	WatchRotation       *XYZ        `json:"WatchRotation,omitempty"`
+	Feet                *string     `json:"Feet,omitempty"`
+	Body                *string     `json:"Body,omitempty"`
+	Hands               *string     `json:"Hands,omitempty"`
 }
 
 // #endregion

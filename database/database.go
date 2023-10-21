@@ -30,6 +30,17 @@ const (
 	botsMainDir           = botMainDir + "bots/"
 )
 
+type XYZ struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+	Z float64 `json:"z"`
+}
+
+type Prefab struct {
+	Path string `json:"path"`
+	Rcid string `json:"rcid"`
+}
+
 // SetDatabase initializes the database
 //var db *Database
 
