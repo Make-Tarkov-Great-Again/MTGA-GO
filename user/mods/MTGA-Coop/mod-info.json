@@ -1,0 +1,8 @@
+{
+    "PackageName": "MTGA-Coop",
+    "PackageAlias": "MTGACoop",
+    "Advanced": {},
+    "Config": {
+      "Debug": false
+    }
+  }

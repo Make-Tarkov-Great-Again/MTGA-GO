@@ -6,8 +6,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"strings"
+	"sync/atomic"
 
 	"MT-GO/database"
 	"MT-GO/services"
@@ -92,7 +94,8 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, 
 	mux.initRoutes(mux.mux)
 
 	httpsServer := &http.Server{
-		Addr: mux.address,
+		Addr:      mux.address,
+		ConnState: CW.OnStateChange,
 		TLSConfig: &tls.Config{
 			RootCAs:      nil,
 			Certificates: []tls.Certificate{certs.Certificate},
@@ -187,4 +190,27 @@ func SetServer() {
 
 	close(serverReady)
 	fmt.Println()
+}
+
+var CW *ConnectionWatcher
+
+type ConnectionWatcher struct {
+	n int64
+}
+
+func (cw *ConnectionWatcher) OnStateChange(conn net.Conn, state http.ConnState) {
+	switch state {
+	case http.StateNew: //Conection open
+		cw.Add(1)
+	case http.StateHijacked, http.StateClosed: //Conenction Closed
+		cw.Add(-1)
+	}
+}
+
+func (cw *ConnectionWatcher) Count() int {
+	return int(atomic.LoadInt64(&cw.n))
+}
+
+func (cw *ConnectionWatcher) Add(c int64) {
+	atomic.AddInt64(&cw.n, c)
 }
