@@ -138,7 +138,6 @@ func SetServer() {
 
 	// serve static content
 	mainServeMux := http.NewServeMux()
-	ServeStaticMux(mainServeMux)
 
 	muxers := []*muxt{
 		{

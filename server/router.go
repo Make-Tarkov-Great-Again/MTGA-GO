@@ -208,7 +208,3 @@ func setLobbyRoutes(mux *http.ServeMux) {
 		mux.HandleFunc(route, handler)
 	}
 }
-
-func ServeStaticMux(mux *http.ServeMux) {
-	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("./web"))))
-}
