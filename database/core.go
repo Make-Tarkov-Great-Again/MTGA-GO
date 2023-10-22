@@ -27,6 +27,10 @@ func GetMainSettings() *MainSettings {
 	return core.MainSettings
 }
 
+func GetAirdropParameters() *AirdropParameters {
+	return core.AirdropParameters
+}
+
 func GetMatchMetrics() *MatchMetrics {
 	return core.MatchMetrics
 }
@@ -106,6 +110,18 @@ func setCore() {
 	core.Globals = setGlobals()
 	core.GlobalBotSettings = setGlobalBotSettings()
 	core.MatchMetrics = setMatchMetrics()
+	core.AirdropParameters = setGetAirdropSettings()
+}
+
+func setGetAirdropSettings() *AirdropParameters {
+	raw := tools.GetJSONRawMessage(airdropFilePath)
+
+	airDropParameters := new(AirdropParameters)
+	err := json.Unmarshal(raw, &airDropParameters)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return airDropParameters
 }
 
 func setGlobalBotSettings() *map[string]interface{} {
@@ -267,7 +283,29 @@ type Core struct {
 	GlobalBotSettings *map[string]interface{}
 	//gameplay        map[string]interface{}
 	//blacklist       []interface{}
-	MatchMetrics *MatchMetrics
+	MatchMetrics      *MatchMetrics
+	AirdropParameters *AirdropParameters
+}
+
+type AirdropParameters struct {
+	AirdropChancePercent       airDropChance `json:"airdropChancePercent"`
+	AirdropMinStartTimeSeconds int16         `json:"airdropMinStartTimeSeconds"`
+	AirdropMaxStartTimeSeconds int16         `json:"airdropMaxStartTimeSeconds"`
+	PlaneMinFlyHeight          int16         `json:"planeMinFlyHeight"`
+	PlaneMaxFlyHeight          int16         `json:"planeMaxFlyHeight"`
+	PlaneVolume                float32       `json:"planeVolume"`
+	PlaneSpeed                 int16         `json:"planeSpeed"`
+	CrateFallSpeed             int16         `json:"crateFallSpeed"`
+}
+
+type airDropChance struct {
+	Bigmap        int8 `json:"bigmap"`
+	Woods         int8 `json:"woods"`
+	Lighthouse    int8 `json:"lighthouse"`
+	Shoreline     int8 `json:"shoreline"`
+	Interchange   int8 `json:"interchange"`
+	Reserve       int8 `json:"reserve"`
+	TarkovStreets int8 `json:"tarkovStreets"`
 }
 
 type Scav struct {

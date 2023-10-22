@@ -9,6 +9,7 @@ import (
 const (
 	databaseLibPath       = "assets"
 	coreFilePath          = databaseLibPath + "/core"
+	airdropFilePath       = coreFilePath + "/airdrop.json"
 	botTemplateFilePath   = coreFilePath + "/botTemplate.json"
 	playerScavPath        = coreFilePath + "/playerScav.json"
 	MainSettingsPath      = coreFilePath + "/client.settings.json"

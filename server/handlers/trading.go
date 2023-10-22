@@ -17,10 +17,10 @@ func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := services.ApplyResponseBody(storage)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func TradingTraderSettings(w http.ResponseWriter, _ *http.Request) {
+func TradingTraderSettings(w http.ResponseWriter, r *http.Request) {
 	traders := database.GetTraders()
 	data := make([]*database.TraderBase, 0, len(traders))
 
@@ -29,7 +29,7 @@ func TradingTraderSettings(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	body := services.ApplyResponseBody(&data)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +37,7 @@ func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
 
 	suits := database.GetTraders()[traderId].Suits
 	body := services.ApplyResponseBody(suits)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
@@ -47,5 +47,5 @@ func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
 	var assort = trader.GetStrippedAssort(character)
 
 	body := services.ApplyResponseBody(assort)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }

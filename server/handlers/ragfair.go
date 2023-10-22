@@ -21,5 +21,5 @@ func RagfairFind(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(routeNotImplemented)
 	body := services.ApplyResponseBody(output)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }

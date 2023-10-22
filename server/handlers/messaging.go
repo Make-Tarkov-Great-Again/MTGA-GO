@@ -11,7 +11,7 @@ import (
 func MessagingFriendList(w http.ResponseWriter, r *http.Request) {
 	friends := database.GetAccountByUID(services.GetSessionID(r)).Friends
 	body := services.ApplyResponseBody(friends)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +25,7 @@ func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := services.ApplyResponseBody(data)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingFriendRequestInbox(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +33,7 @@ func MessagingFriendRequestInbox(w http.ResponseWriter, r *http.Request) {
 	body := &FriendRequestMailbox{
 		Data: friends,
 	}
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingFriendRequestOutbox(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +41,7 @@ func MessagingFriendRequestOutbox(w http.ResponseWriter, r *http.Request) {
 	body := &FriendRequestMailbox{
 		Data: friends,
 	}
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +58,7 @@ func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
 	dialogInfo := dialog.CreateQuestDialogueInfo()
 
 	body := services.ApplyResponseBody(dialogInfo)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +82,7 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 		data.HasMessageWithRewards = false
 
 		body := services.ApplyResponseBody(data)
-		services.ZlibJSONReply(w, body)
+		services.ZlibJSONReply(w, r.RequestURI, body)
 		return
 	}
 
@@ -104,7 +104,7 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := services.ApplyResponseBody(data)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 	if dialog.New != 0 {
 		dialog.New = 0
 		dialog.AttachmentsNew = dialog.GetUnreadMessagesWithAttachments()
@@ -127,7 +127,7 @@ func MessagingMailDialogPin(w http.ResponseWriter, r *http.Request) {
 	dialogues.SaveDialogue(sessionID)
 
 	body := services.ApplyResponseBody([]struct{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingMailDialogUnpin(w http.ResponseWriter, r *http.Request) {
@@ -147,7 +147,7 @@ func MessagingMailDialogUnpin(w http.ResponseWriter, r *http.Request) {
 	dialogues.SaveDialogue(sessionID)
 
 	body := services.ApplyResponseBody([]struct{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingMailDialogRemove(w http.ResponseWriter, r *http.Request) {
@@ -162,10 +162,10 @@ func MessagingMailDialogRemove(w http.ResponseWriter, r *http.Request) {
 	dialogues.SaveDialogue(sessionID)
 
 	body := services.ApplyResponseBody([]struct{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingMailDialogClear(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody([]struct{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }

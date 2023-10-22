@@ -11,13 +11,26 @@ import (
 	"github.com/goccy/go-json"
 )
 
-func ZlibReply(w http.ResponseWriter, data interface{}) {
-	zlibDeflate(w, data)
+var cachedZlib = map[string][]byte{
+	"/client/settings":      nil,
+	"/client/customization": nil,
+	"/client/locale/":       nil,
+	"/client/items":         nil,
+	"/client/globals":       nil,
+	"/client/locations":     nil,
+	"/client/game/config":   nil,
+	"/client/languages":     nil,
+	"/client/menu/locale/":  nil,
+	//"/client/location/getLocalloot": {}, don't fully understand why this would be cached
 }
 
-func ZlibJSONReply(w http.ResponseWriter, data interface{}) {
+func ZlibReply(w http.ResponseWriter, path string, data interface{}) {
+	zlibDeflate(w, path, data)
+}
+
+func ZlibJSONReply(w http.ResponseWriter, path string, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	zlibDeflate(w, data)
+	zlibDeflate(w, path, data)
 }
 
 func ZlibInflate(r *http.Request) *bytes.Buffer {
@@ -49,7 +62,18 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 	return nil
 }
 
-func zlibDeflate(w http.ResponseWriter, data interface{}) {
+func zlibDeflate(w http.ResponseWriter, path string, data interface{}) {
+	cached, ok := cachedZlib[path]
+	if ok && cached != nil {
+		w.WriteHeader(http.StatusOK)
+
+		_, err := w.Write(cached)
+		if err != nil {
+			http.Error(w, "Failed to write compressed data", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 
 	// Convert data to JSON bytes
 	bites, err := json.Marshal(data)
@@ -59,13 +83,16 @@ func zlibDeflate(w http.ResponseWriter, data interface{}) {
 	}
 
 	// Compress the JSON bytes
-	compressedBytes := compressZlib(bites)
+	compressed := compressZlib(bites)
+	if ok {
+		cachedZlib[path] = compressed
+	}
 
 	// Set appropriate response headers
 	w.WriteHeader(http.StatusOK)
 
 	// Write the compressed data to the response
-	_, err = w.Write(compressedBytes)
+	_, err = w.Write(compressed)
 	if err != nil {
 		http.Error(w, "Failed to write compressed data", http.StatusInternalServerError)
 		return

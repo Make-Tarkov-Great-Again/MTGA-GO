@@ -18,7 +18,7 @@ import (
 const routeNotImplemented = "Route is not implemented yet, using empty values instead"
 
 // GetBundleList returns a list of custom bundles to the client
-func GetBundleList(w http.ResponseWriter, _ *http.Request) {
+func GetBundleList(w http.ResponseWriter, r *http.Request) {
 	defer database.ClearBundleManifests()
 	output := make([]*database.Manifest, 0)
 
@@ -27,39 +27,39 @@ func GetBundleList(w http.ResponseWriter, _ *http.Request) {
 		output = manifests
 	}
 
-	services.ZlibJSONReply(w, output)
+	services.ZlibJSONReply(w, r.RequestURI, output)
 }
 
-func ShowPersonKilledMessage(w http.ResponseWriter, _ *http.Request) {
-	services.ZlibJSONReply(w, "true")
+func ShowPersonKilledMessage(w http.ResponseWriter, r *http.Request) {
+	services.ZlibJSONReply(w, r.RequestURI, "true")
 }
 
-func MainGameStart(w http.ResponseWriter, _ *http.Request) {
+func MainGameStart(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"utc_time": tools.GetCurrentTimeInSeconds(),
 	}
 
 	start := services.ApplyResponseBody(data)
-	services.ZlibJSONReply(w, start)
+	services.ZlibJSONReply(w, r.RequestURI, start)
 }
 
-func MainPutMetrics(w http.ResponseWriter, _ *http.Request) {
-	services.ZlibJSONReply(w, services.ApplyResponseBody(nil))
+func MainPutMetrics(w http.ResponseWriter, r *http.Request) {
+	services.ZlibJSONReply(w, r.RequestURI, services.ApplyResponseBody(nil))
 }
 
 func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
 	lang := strings.TrimPrefix(r.URL.Path, "/client/menu/locale/")
 	menu := services.ApplyResponseBody(database.GetLocalesMenuByName(lang))
-	services.ZlibJSONReply(w, menu)
+	services.ZlibJSONReply(w, r.RequestURI, menu)
 }
 
-func MainVersionValidate(w http.ResponseWriter, _ *http.Request) {
-	services.ZlibJSONReply(w, services.ApplyResponseBody(nil))
+func MainVersionValidate(w http.ResponseWriter, r *http.Request) {
+	services.ZlibJSONReply(w, r.RequestURI, services.ApplyResponseBody(nil))
 }
 
-func MainLanguages(w http.ResponseWriter, _ *http.Request) {
+func MainLanguages(w http.ResponseWriter, r *http.Request) {
 	languages := services.ApplyResponseBody(database.GetLanguages())
-	services.ZlibJSONReply(w, languages)
+	services.ZlibJSONReply(w, r.RequestURI, languages)
 }
 
 func MainGameConfig(w http.ResponseWriter, r *http.Request) {
@@ -90,19 +90,19 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 		TwitchEventMember: false,
 	})
 
-	services.ZlibJSONReply(w, gameConfig)
+	services.ZlibJSONReply(w, r.RequestURI, gameConfig)
 }
 
 const itemsRoute string = "/client/items"
 
-func MainItems(w http.ResponseWriter, _ *http.Request) {
+func MainItems(w http.ResponseWriter, r *http.Request) {
 	if services.CheckIfResponseCanBeCached(itemsRoute) {
 		if services.CheckIfResponseIsCached(itemsRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(itemsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
 			body := services.ApplyCRCResponseBody(database.GetItems(), services.GetCachedCRC(itemsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 
@@ -111,42 +111,42 @@ func MainItems(w http.ResponseWriter, _ *http.Request) {
 
 const customizationRoute string = "/client/customization"
 
-func MainCustomization(w http.ResponseWriter, _ *http.Request) {
+func MainCustomization(w http.ResponseWriter, r *http.Request) {
 	if services.CheckIfResponseCanBeCached(customizationRoute) {
 		if services.CheckIfResponseIsCached(customizationRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(customizationRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
 			body := services.ApplyCRCResponseBody(database.GetCustomizations(), services.GetCachedCRC(customizationRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 }
 
 const globalsRoute string = "/client/globals"
 
-func MainGlobals(w http.ResponseWriter, _ *http.Request) {
+func MainGlobals(w http.ResponseWriter, r *http.Request) {
 	if services.CheckIfResponseCanBeCached(globalsRoute) {
 		if services.CheckIfResponseIsCached(globalsRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(globalsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
 			body := services.ApplyCRCResponseBody(database.GetGlobals(), services.GetCachedCRC(globalsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 }
 
 const MainSettingsRoute string = "/client/settings"
 
-func MainSettings(w http.ResponseWriter, _ *http.Request) {
+func MainSettings(w http.ResponseWriter, r *http.Request) {
 	if services.CheckIfResponseCanBeCached(MainSettingsRoute) {
 		if services.CheckIfResponseIsCached(MainSettingsRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainSettingsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
 			body := services.ApplyCRCResponseBody(database.GetMainSettings(), services.GetCachedCRC(MainSettingsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 }
@@ -158,7 +158,7 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 
 	if character == nil || character.ID == "" {
 		profiles := services.ApplyResponseBody([]interface{}{})
-		services.ZlibJSONReply(w, profiles)
+		services.ZlibJSONReply(w, r.RequestURI, profiles)
 		fmt.Println("Character doesn't exist, begin creation")
 	} else {
 
@@ -169,11 +169,11 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 
 		slice := []interface{}{*playerScav, *character}
 		body := services.ApplyResponseBody(slice)
-		services.ZlibJSONReply(w, body)
+		services.ZlibJSONReply(w, r.RequestURI, body)
 	}
 }
 
-func MainAccountCustomization(w http.ResponseWriter, _ *http.Request) {
+func MainAccountCustomization(w http.ResponseWriter, r *http.Request) {
 	customization := database.GetCustomizations()
 	var output []string
 	for id, c := range customization {
@@ -183,7 +183,7 @@ func MainAccountCustomization(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	custom := services.ApplyResponseBody(output)
-	services.ZlibJSONReply(w, custom)
+	services.ZlibJSONReply(w, r.RequestURI, custom)
 }
 
 const MainLocaleRoute string = "/client/locale/"
@@ -194,10 +194,10 @@ func MainLocale(w http.ResponseWriter, r *http.Request) {
 	if services.CheckIfResponseCanBeCached(MainLocaleRoute) {
 		if services.CheckIfResponseIsCached(r.URL.Path) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainLocaleRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
 			body := services.ApplyCRCResponseBody(database.GetLocalesLocaleByName(lang), services.GetCachedCRC(MainLocaleRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 }
@@ -207,16 +207,16 @@ var keepAlive = &KeepAlive{
 	UtcTime: 0,
 }
 
-func MainKeepAlive(w http.ResponseWriter, _ *http.Request) {
+func MainKeepAlive(w http.ResponseWriter, r *http.Request) {
 	keepAlive.UtcTime = tools.GetCurrentTimeInSeconds()
 
 	body := services.ApplyResponseBody(keepAlive)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainNicknameReserved(w http.ResponseWriter, _ *http.Request) {
+func MainNicknameReserved(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody("")
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
@@ -232,7 +232,7 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 		body.Err = 226
 		body.Errmsg = "226 - "
 
-		services.ZlibJSONReply(w, body)
+		services.ZlibJSONReply(w, r.RequestURI, body)
 		return
 	}
 
@@ -242,7 +242,7 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 		body.Err = 225
 		body.Errmsg = "225 - "
 
-		services.ZlibJSONReply(w, body)
+		services.ZlibJSONReply(w, r.RequestURI, body)
 		return
 	}
 
@@ -250,7 +250,7 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 		Status: "ok",
 	}
 	body := services.ApplyResponseBody(status)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 type profileCreate struct {
@@ -332,14 +332,14 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	profile.SaveProfile()
 
 	data := services.ApplyResponseBody(&profileCreate{UID: sessionID})
-	services.ZlibJSONReply(w, data)
+	services.ZlibJSONReply(w, r.RequestURI, data)
 }
 
 var channel = &Channel{}
 
-func MainChannelCreate(w http.ResponseWriter, _ *http.Request) {
+func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(channel.Notifier)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
@@ -357,7 +357,7 @@ func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 	Notifier.WS = wssServer
 
 	body := services.ApplyResponseBody(channel)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
@@ -379,84 +379,84 @@ func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := services.ApplyResponseBody(statuses)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainWeather(w http.ResponseWriter, _ *http.Request) {
+func MainWeather(w http.ResponseWriter, r *http.Request) {
 	weather := database.GetWeather()
 	body := services.ApplyResponseBody(weather)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainLocations(w http.ResponseWriter, _ *http.Request) {
+func MainLocations(w http.ResponseWriter, r *http.Request) {
 	locations := database.GetLocations()
 	body := services.ApplyResponseBody(locations)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainTemplates(w http.ResponseWriter, _ *http.Request) {
+func MainTemplates(w http.ResponseWriter, r *http.Request) {
 	templates := database.GetHandbook()
 	body := services.ApplyResponseBody(templates)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainHideoutAreas(w http.ResponseWriter, _ *http.Request) {
+func MainHideoutAreas(w http.ResponseWriter, r *http.Request) {
 	areas := database.GetHideout().Areas
 	body := services.ApplyResponseBody(areas)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainHideoutQTE(w http.ResponseWriter, _ *http.Request) {
+func MainHideoutQTE(w http.ResponseWriter, r *http.Request) {
 	qte := database.GetHideout().QTE
 	body := services.ApplyResponseBody(qte)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainHideoutSettings(w http.ResponseWriter, _ *http.Request) {
+func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
 	settings := database.GetHideout().Settings
 	body := services.ApplyResponseBody(settings)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainHideoutRecipes(w http.ResponseWriter, _ *http.Request) {
+func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
 	recipes := database.GetHideout().Recipes
 	body := services.ApplyResponseBody(recipes)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainHideoutScavRecipes(w http.ResponseWriter, _ *http.Request) {
+func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
 	scavCaseRecipes := database.GetHideout().ScavCase
 	body := services.ApplyResponseBody(scavCaseRecipes)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 	builds := database.GetProfileByUID(services.GetSessionID(r)).Storage.Builds
 	body := services.ApplyResponseBody(builds)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	quests := database.GetCharacterByUID(sessionID).GetQuestsAvailableToPlayer()
 	body := services.ApplyResponseBody(quests)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainCurrentGroup(w http.ResponseWriter, _ *http.Request) {
+func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
 	group := &CurrentGroup{
 		Squad: []interface{}{},
 	}
 	body := services.ApplyResponseBody(group)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainRepeatableQuests(w http.ResponseWriter, _ *http.Request) {
+func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody([]interface{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainServerList(w http.ResponseWriter, _ *http.Request) {
+func MainServerList(w http.ResponseWriter, r *http.Request) {
 	var serverListings []ServerListing
 	port, _ := strconv.Atoi(database.GetServerConfig().Ports.Main)
 
@@ -466,7 +466,7 @@ func MainServerList(w http.ResponseWriter, _ *http.Request) {
 	})
 
 	body := services.ApplyResponseBody(serverListings)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
@@ -476,17 +476,17 @@ func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
 		LatestVersion: check,
 	}
 	body := services.ApplyResponseBody(version)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainLogout(w http.ResponseWriter, r *http.Request) {
 	database.GetProfileByUID(services.GetSessionID(r)).SaveProfile()
 
 	body := services.ApplyResponseBody(map[string]interface{}{"status": "ok"})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainPrices(w http.ResponseWriter, _ *http.Request) {
+func MainPrices(w http.ResponseWriter, r *http.Request) {
 	prices := *database.GetPrices()
 	nextResupply := database.SetResupplyTimer()
 
@@ -501,7 +501,7 @@ func MainPrices(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	body := services.ApplyResponseBody(supplyData)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 var actionHandlers = map[string]func(map[string]interface{}, *database.Character, *database.ProfileChangesEvent){
@@ -569,13 +569,13 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	}
 
 	character.SaveCharacter(character.ID)
-	services.ZlibJSONReply(w, services.ApplyResponseBody(profileChangeEvent))
+	services.ZlibJSONReply(w, r.RequestURI, services.ApplyResponseBody(profileChangeEvent))
 }
 
-func ExitFromMenu(w http.ResponseWriter, _ *http.Request) {
+func ExitFromMenu(w http.ResponseWriter, r *http.Request) {
 	//TODO: IDK WHAT SIT NEEDS HERE
 	body := services.ApplyResponseBody(nil)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 type localLoot struct {
@@ -596,10 +596,10 @@ func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 
 	loot := database.GetLocalLootByNameAndIndex(localloot.LocationID, localloot.VariantID)
 	body := services.ApplyResponseBody(loot)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func RaidConfiguration(w http.ResponseWriter, _ *http.Request) {
+func RaidConfiguration(w http.ResponseWriter, r *http.Request) {
 	/*
 		TODO: Pre-raid nonsense that we might need to do
 		AKI does some shit with setting difficulties to bots or something? IDK
@@ -608,7 +608,7 @@ func RaidConfiguration(w http.ResponseWriter, _ *http.Request) {
 	*/
 
 	body := services.ApplyResponseBody(nil)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 type insuranceList struct {
@@ -665,27 +665,27 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := services.ApplyResponseBody(output)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func InviteCancelAll(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(nil)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MatchAvailable(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(false)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func RaidNotReady(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(map[string]interface{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func RaidReady(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(map[string]interface{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 type groupStatus struct {
@@ -702,22 +702,22 @@ var groupStatusOutput = groupStatus{
 
 func GroupStatus(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(groupStatusOutput)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func LookingForGroupStart(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(nil)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func LookingForGroupStop(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(nil)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func CoopServerStatus(w http.ResponseWriter, r *http.Request) {
 	log.Println("Getting Coop Server Match Status")
-	services.ZlibReply(w, "")
+	services.ZlibReply(w, r.RequestURI, "")
 }
 
 type coopInvites struct {
@@ -734,18 +734,18 @@ var coopStatusOutput = coopInvites{
 
 func CoopGetInvites(w http.ResponseWriter, r *http.Request) {
 	log.Println("Getting Coop Server Invites")
-	services.ZlibJSONReply(w, coopStatusOutput)
+	services.ZlibJSONReply(w, r.RequestURI, coopStatusOutput)
 }
 
 func CoopServerDelete(w http.ResponseWriter, r *http.Request) {
 	log.Println("Deleting Coop Server")
 	body := services.ApplyResponseBody(map[string]string{"response": "OK"})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func CoopConnect(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(map[string]interface{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
@@ -753,7 +753,7 @@ func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
 	difficulty := database.GetBotTypeDifficultyByName(strings.ToLower(difficulties[0]), difficulties[1])
 
 	body := services.ApplyResponseBody(difficulty)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 type botConditions struct {
@@ -779,7 +779,7 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 	}
 	//TODO: Send bots lol
 	body := services.ApplyResponseBody([]interface{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 type offlineMatchEnd struct {
@@ -802,7 +802,7 @@ func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("\n:::::::::::: Offline Match Status ::::::::::::\nExitName:", matchEnd.ExitName, "\nExitStatus:", matchEnd.ExitStatus, "\nRaidSeconds:", matchEnd.RaidSeconds)
 	fmt.Println()
 	body := services.ApplyResponseBody(nil)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
@@ -810,5 +810,10 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	//TODO: Raid Profile Save
 	fmt.Println("Raid Profile Save not implemented yet!")
 	body := services.ApplyResponseBody(nil)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+func AirdropConfig(w http.ResponseWriter, r *http.Request) {
+	airdropParams := database.GetAirdropParameters()
+	services.ZlibJSONReply(w, r.RequestURI, airdropParams)
 }
