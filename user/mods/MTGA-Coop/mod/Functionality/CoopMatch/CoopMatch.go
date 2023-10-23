@@ -21,13 +21,19 @@ func Init(instance *common.WebSocketHandler) {
 	ci = instance
 }
 
+type Player struct {
+	AccountId string
+	IsDead    bool `json:",omitempty"`
+	IsOnline  bool `json:",omitempty"`
+}
+
 type CoopMatch struct {
 	CreatedDateTime             time.Time
 	LastUpdateDateTime          time.Time
 	ExpectedNumberOfPlayers     int
-	ConnectedPlayers            []ConnectedPlayer
-	Characters                  []Character
-	LastDataByAccountId         map[int]map[string]interface{}
+	ConnectedPlayers            []ConnectedPlayer              //map[string]Player              //TODO: Show me, but also these can be combined AND we should consider not using a fucking array/slice
+	Characters                  []Character                    //map[string]Player                    //Some of the functions right now, wont work, as they "Arent the same struct" despite being the exact same
+	LastDataByAccountId         map[int]map[string]interface{} // Ight let me remember which one it was
 	LastDataReceivedByAccountId map[int]map[string]interface{}
 	LastData                    map[string]interface{}
 	LastMoves                   map[string]interface{}
@@ -105,17 +111,20 @@ func NewCoopMatch(inData map[string]interface{}) *CoopMatch {
 
 	cm.CheckStillRunningInterval = time.AfterFunc(
 		time.Duration(config.Instance.WebSocketTimeoutCheckStartSeconds)*time.Second,
-		func() {
+		//Common is there as a medium to prevent cyclidic errors
+		//Websocket relies on CoopMatches, and vice versa, and both of these are nesscary functions for the mod, 
+		//Best work around i could come up with // Tried converting, threw "Cannot convert to type common.ConnectedPlayers"
+		func() { //so you've got all this websocket shit in common... why even do a websocket.go then if it's all in common
 			if !ci.AreThereAnyWebSocketsOpen(cm.ConnectedPlayers) { //This makes me want to shoot myself
-				cm.EndSession(HostTimeoutMessage)
-			}
+				cm.EndSession(HostTimeoutMessage) //For some reason ^^ unlike everything else this wants a specific.
+			} //common.ConnectedPlayers
 		},
 	)
 
 	return cm
 }
 
-func (cm *CoopMatch) ProcessData(info map[string]interface{}) {
+func (cm *CoopMatch) ProcessData(info map[string]interface{}) { //This is fucked i feel like lmfao 
 	if info == nil {
 		return
 	}
@@ -224,7 +233,7 @@ func (cm *CoopMatch) Ping(accountId, timestamp int) {
 func (cm *CoopMatch) EndSession(reason string) {
 	fmt.Printf("COOP SESSION %d HAS BEEN ENDED reason: %s\n", cm.ServerId, reason)
 	ci.SendToWebSockets(cm.ConnectedPlayers, json.Marshal(map[string]interface{}{"endSession": true, "reason": reason}))
-	cm.Status = Complete
+	cm.Status = Complete //So this needs websocket right? We go to websocket, 
 	cm.CheckStillRunningInterval.Stop()
 	cm.SendLastDataInterval.Stop()
 	delete(CoopMatch.CoopMatches, cm.ServerId)

@@ -1,0 +1,8 @@
+{
+    "protocol": "http",
+    "externalIP": "127.0.0.1",
+    "webSocketPort": 6970,
+    "useExternalIPFinder": false,
+    "webSocketTimeoutSeconds": 15,
+    "webSocketTimeoutCheckStartSeconds": 120
+}
