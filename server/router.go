@@ -9,7 +9,9 @@ import (
 )
 
 var mainRouteHandlers = map[string]http.HandlerFunc{
-	"/getBundleList":                              handlers.GetBundleList,
+	"/getBundleList":        handlers.GetBundleList,
+	"/singleplayer/bundles": handlers.GetBundleList,
+
 	"/client/raid/person/killed/showMessage":      handlers.ShowPersonKilledMessage,
 	"/client/game/start":                          handlers.MainGameStart,
 	"/client/putMetrics":                          handlers.MainPutMetrics,
