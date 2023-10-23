@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	common "MT-GO/user/mods/MTGA-Coop/mod/Common"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,6 +11,12 @@ import (
 
 	"github.com/gorilla/websocket"
 )
+
+var ci *common.WebSocketHandler
+
+func Init(instance *common.WebSocketHandler) {
+	ci = instance
+}
 
 type WebSocketHandler struct {
 	webSockets map[string]*websocket.Conn
@@ -185,20 +192,6 @@ func (h *WebSocketHandler) sendToWebSockets(sessions []string, data map[string]i
 			}
 		}
 	}
-}
-
-func (h *WebSocketHandler) areThereAnyWebSocketsOpen(sessions []string) bool {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
-	for _, session := range sessions {
-		conn, ok := h.webSockets[session]
-		if ok && conn.WriteMessage(websocket.PingMessage, nil) == nil {
-			return true
-		}
-	}
-
-	return false
 }
 
 func getSessionIDFromRequestURL(url string) string {

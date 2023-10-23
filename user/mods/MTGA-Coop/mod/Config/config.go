@@ -1,8 +1,10 @@
 package config
 
 import (
+	"MT-GO/tools"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -28,25 +30,40 @@ func NewCoopConfig() *CoopConfig {
 		WebSocketTimeoutCheckStartSeconds: 120,
 	}
 
-	configFilePath := filepath.Join(filepath.Dir(os.Args[0]), "config")
-	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
-		os.MkdirAll(configFilePath, os.ModePerm)
+	configFilePath := tools.GetAbsolutePathFrom(filepath.Join(filepath.Dir(os.Args[0]), "config"))
+	if !tools.FileExist(configFilePath) {
+		if err := tools.CreateDirectory(configFilePath); err != nil {
+			log.Fatal(err)
+		}
+
 		fmt.Println("[COOP] Loading config")
 		coopConfigFilePath := filepath.Join(configFilePath, "coopConfig.json")
-		if _, err := os.Stat(coopConfigFilePath); os.IsNotExist(err) {
+
+		if !tools.FileExist(coopConfigFilePath) {
 			fmt.Println("[COOP] No config found. Defaulting...")
 			fmt.Println("[COOP] External IP finder is active. Your config won't affect it.")
 			coopcfgString, _ := json.MarshalIndent(coopConfig, "", "    ")
-			os.WriteFile(coopConfigFilePath, coopcfgString, os.ModePerm)
+			if err := tools.WriteToFile(coopConfigFilePath, coopcfgString); err != nil {
+				log.Fatal(err)
+			}
 		} else {
-			configData, _ := os.ReadFile(coopConfigFilePath)
-			json.Unmarshal(configData, coopConfig)
+			configData, err := tools.ReadFile(coopConfigFilePath)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			err = json.Unmarshal(configData, coopConfig)
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			fmt.Println("[COOP] Config loaded")
 			if coopConfig.UseExternalIPFinder {
 				fmt.Println("[COOP] External IP finder is active. Your config won't affect it.")
 			}
 		}
 	}
+
 	Instance = coopConfig
 	return coopConfig
 }
