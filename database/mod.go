@@ -58,7 +58,7 @@ func SetBundleManifests() {
 		modBundleDirPaths = nil
 	}()
 
-	isLocal := GetServerConfig().Hostname == "localhost"
+	isLocal := GetServerConfig().IP == "127.0.0.1"
 	var mainAddress string
 	if !isLocal {
 		mainAddress = GetMainAddress()
