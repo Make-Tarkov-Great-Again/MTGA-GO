@@ -17,9 +17,9 @@ var coopRoutes = map[string]http.HandlerFunc{
 	//"/coop/server/update": handlers.CoopServerUpdate,
 	"/coop/server/read/players": coopServerReadPlayers,
 	//"/coop/server/join": handlers.CoopServerJoin,
-	"/coop/server/exist":  coopServerExist,
-	"/coop/server/create": coopServerCreate,
-	//"/coop/server/getAllForLocation": handlers.CoopServerGetAllForLocation,
+	"/coop/server/exist":             coopServerExist,
+	"/coop/server/create":            coopServerCreate,
+	"/coop/server/getAllForLocation": coopServerGetAllForLocation,
 	//"/coop/server/friendlyAI": handlers.CoopServerFriendlyAI,
 	//"/coop/server/spawnPoint": handlers.CoopServerSpawnPoint,
 }
@@ -155,4 +155,34 @@ func coopServerReadPlayers(w http.ResponseWriter, r *http.Request) {
 
 	//body := services.ApplyResponseBody(output)
 	services.ZlibJSONReply(w, r.RequestURI, output)
+}
+
+type matchResponse struct {
+	HostProfileId string
+	HostName      string
+	Settings      interface{}
+	RaidTime      string
+	Location      string
+	PlayerCount   int16
+}
+
+func coopServerGetAllForLocation(w http.ResponseWriter, r *http.Request) {
+	matchResponses := make([]matchResponse, 0, len(coopMatches))
+	for mid, match := range coopMatches {
+		conPlayers := int16(len(match.ConnectedPlayers))
+		if conPlayers == 0 {
+			continue
+		}
+
+		response := matchResponse{
+			HostProfileId: mid,
+			HostName:      match.Name,
+			Settings:      match.Settings,
+			PlayerCount:   conPlayers,
+			Location:      match.Location,
+		}
+		matchResponses = append(matchResponses, response)
+	}
+
+	services.ZlibJSONReply(w, r.RequestURI, matchResponses)
 }
