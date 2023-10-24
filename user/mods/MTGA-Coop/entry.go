@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 )
 
 var coopConfig = getCoopConfig()
@@ -23,6 +23,19 @@ func init() {
 
 	if coopConfig.UseExternalIPFinder {
 		coopConfig.ExternalIP = getExternalIP()
+		serverConfig.IP = coopConfig.ExternalIP
+	}
+
+	switch coopConfig.ProtocolConfiguration {
+	case "http":
+		serverConfig.Secure = false
+		break
+	case "https":
+		serverConfig.Secure = true
+		break
+	default:
+		log.Fatalln(coopConfig.ProtocolConfiguration, "is not a proper protocol, adjust in your coopConfig.json")
+		return
 	}
 }
 
@@ -37,8 +50,8 @@ type MTGACoop struct {
 }
 
 func getModConfig() *database.ModInfo {
-	path := filepath.Join("/user/mods/MTGA-Coop", "mod-info.json")
-	data, err := tools.ReadFile(path)
+	//path := filepath.Join("/user/mods/MTGA-Coop", "mod-info.json")
+	data, err := tools.ReadFile("mod-info.json")
 	if err != nil {
 		panic(err)
 	}
@@ -80,27 +93,17 @@ func getCoopConfig() *coopConfigs {
 
 func Load() {}
 
-type IP struct {
-	Query string
-}
-
 func getExternalIP() string {
-	req, err := http.Get("http://ip-api.com/json/")
+	resp, err := http.Get("https://api.ipify.org?format=text")
 	if err != nil {
-		return err.Error() //lmfao im trying to figure out what os has that reads all now
+		return err.Error()
 	}
-	defer req.Body.Close() //bam VV
+	defer resp.Body.Close()
 
-	body, err := io.ReadAll(req.Body)
+	ip, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err.Error()
 	}
 
-	var ip IP
-	err = json.Unmarshal(body, &ip)
-	if err != nil {
-		return ""
-	}
-
-	return ip.Query
+	return string(ip)
 }
