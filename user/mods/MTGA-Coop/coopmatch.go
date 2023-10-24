@@ -60,6 +60,7 @@ func getCoopMatch(sessionID string) *coopMatch {
 	return match
 }
 
+// enums are kind of gay
 type status int8
 
 const (

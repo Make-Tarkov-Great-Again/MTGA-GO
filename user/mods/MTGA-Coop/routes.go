@@ -82,32 +82,45 @@ func coopServerCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func coopServerExist(w http.ResponseWriter, r *http.Request) {
-	info := new(raidSettings)
-	data, err := json.Marshal(services.GetParsedBody(r))
-	if err != nil {
-		log.Fatalln(err)
-	}
-	err = json.Unmarshal(data, &info)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	for sid, match := range coopMatches {
-		if match.Location != info.LocationId ||
-			match.Time != info.TimeVariant ||
-			match.Status != complete ||
-			match.LastUpdateDateTime < (tools.GetCurrentTimeInSeconds()-5) {
-			continue
+	parsedBody := services.GetParsedBody(r).(map[string]interface{})
+	sid, ok := parsedBody["serverId"].(string)
+	if !ok { //then it has raid settings
+		info := new(raidSettings)
+		data, err := json.Marshal(parsedBody)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		err = json.Unmarshal(data, &info)
+		if err != nil {
+			log.Fatalln(err)
 		}
 
-		//body := services.ApplyResponseBody(map[string]string{"ServerId": sid})
-		fmt.Println("Match exists!")
-		services.ZlibJSONReply(w, r.RequestURI, map[string]string{"ServerId": sid})
+		for _, match := range coopMatches {
+			if match.Location != info.LocationId ||
+				match.Time != info.TimeVariant ||
+				match.Status != complete ||
+				match.LastUpdateDateTime < (tools.GetCurrentTimeInSeconds()-5) {
+				continue
+			}
+
+			//body := services.ApplyResponseBody("hell yeah brother")
+			fmt.Println("Match exists!")
+			services.ZlibJSONReply(w, r.RequestURI, "hell yeah brother")
+			return
+		}
+
+		fmt.Println("Match does not exist!")
+		//body := services.ApplyResponseBody(nil)
+		services.ZlibJSONReply(w, r.RequestURI, nil)
 		return
 	}
 
+	if checkIfMatchExists(sid) {
+		fmt.Println("Match exists!")
+		services.ZlibJSONReply(w, r.RequestURI, "hell yeah brother")
+		return
+	}
 	fmt.Println("Match does not exist!")
-	//body := services.ApplyResponseBody(nil)
 	services.ZlibJSONReply(w, r.RequestURI, nil)
 }
 
