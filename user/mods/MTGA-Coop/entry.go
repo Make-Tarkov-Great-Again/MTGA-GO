@@ -3,7 +3,6 @@ package MTGACoop
 import (
 	"MT-GO/database"
 	"MT-GO/tools"
-	"MT-GO/user/mods/MTGA-Coop/mod"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,23 +11,24 @@ import (
 	"path/filepath"
 )
 
-var config *coopConfig
+var coopConfig = getCoopConfig()
+var serverConfig = database.GetServerConfig()
+var modConfig = getModConfig()
+var coop = MTGACoop{}
+
+//var webSocketHandler struct{}
 
 func init() {
-	initializeVariables()
-	//Cert shit but fuck you we ignore it for now and use my cert
-	mod.AddRoutes()
+	//mod.AddRoutes()
 
-	// if config.UseExternalIPFinder {
-	//     config.ExternalIP = getExternalIP()
-	// }
+	if coopConfig.UseExternalIPFinder {
+		coopConfig.ExternalIP = getExternalIP()
+	}
 }
 
 func Mod() {
 	Load()
 }
-
-var coop = MTGACoop{}
 
 type MTGACoop struct {
 	LocationData  map[string]interface{}
@@ -36,28 +36,9 @@ type MTGACoop struct {
 	//Traders       []interface{}
 }
 
-// takes sessionID which is a string
-func GetCoopMatch(sessionID string) string {
-	if sessionID == "" {
-		fmt.Println("YO SHIT IS BROKE.")
-		return ""
-	}
-	// TODO: Return coop match via key of sessionID
-	if true {
-		return "GOD"
-	} else {
-		return ""
-	}
-} // Just so it doesn't bug us, ignore it
-
-var serverConfig = database.GetServerConfig()
-
-var modConfig = getModConfig()
-
 func getModConfig() *database.ModInfo {
-	filepath := filepath.Join("/user/mods/MTGA-Coop", "mod-info.json")
-
-	data, err := tools.ReadFile(filepath)
+	path := filepath.Join("/user/mods/MTGA-Coop", "mod-info.json")
+	data, err := tools.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
@@ -69,9 +50,6 @@ func getModConfig() *database.ModInfo {
 	}
 	return config
 }
-
-var coopConfig = getCoopConfig()
-var webSocketHandler struct{}
 
 type coopConfigs struct {
 	ProtocolConfiguration             string `json:"protocol"`
@@ -100,12 +78,7 @@ func getCoopConfig() *coopConfigs {
 	return output
 }
 
-func initializeVariables() {
-}
-
 func Load() {}
-
-/* ---------------------- Boring mod bindings below lol --------------------- */
 
 type IP struct {
 	Query string
@@ -124,7 +97,10 @@ func getExternalIP() string {
 	}
 
 	var ip IP
-	json.Unmarshal(body, &ip)
+	err = json.Unmarshal(body, &ip)
+	if err != nil {
+		return ""
+	}
 
 	return ip.Query
 }
