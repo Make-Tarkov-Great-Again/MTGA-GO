@@ -4,9 +4,10 @@ import (
 	"MT-GO/services"
 	"MT-GO/tools"
 	"fmt"
-	"github.com/goccy/go-json"
 	"log"
 	"net/http"
+
+	"github.com/goccy/go-json"
 )
 
 var coopRoutes = map[string]http.HandlerFunc{
@@ -14,7 +15,7 @@ var coopRoutes = map[string]http.HandlerFunc{
 	"/coop/server-status": coopServerStatus,
 	"/coop/get-invites":   coopGetInvites,
 	"/coop/server/delete": coopServerDelete,
-	//"/coop/server/update": handlers.CoopServerUpdate,
+	//"/coop/server/update":       coopServerUpdate,
 	"/coop/server/read/players": coopServerReadPlayers,
 	//"/coop/server/join": handlers.CoopServerJoin,
 	"/coop/server/exist":             coopServerExist,
@@ -185,4 +186,87 @@ func coopServerGetAllForLocation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	services.ZlibJSONReply(w, r.RequestURI, matchResponses)
+}
+
+type updateWeatherSettings struct {
+	Type           string `json:"m"`
+	ServerId       string `json:"serverId"`
+	CloudinessType int8   `json:"ct"`
+	//Clear = 0, PartlyCloud = 1, Cloudy = 2, CloudyWithGaps = 3, HeavyCloudCover = 4, Thundercloud = 5
+	RainType int8 `json:"rt"`
+	//NoRain = 0, Drizzling = 1, Rain = 2, Heavy = 3, Shower = 4
+	WindType int8 `json:"wt"`
+	//Light = 0, Moderate = 1, Strong = 2, VeryStrong = 3, Hurricane = 4
+	FogType int8 `json:"ft"`
+	//NoFog = 0, Faint = 1, Fog = 2, Heavy = 3, Continuous = 4
+	TimeFlowType int8 `json:"tft"`
+	//x0 = 0, x0_14 = 1, x0_25 = 2, x0_5 = 3, x1 = 4, x2 = 5, x4 = 6, x8 = 7
+	HourOfDay int8 `json:"hod"`
+}
+
+type spawnPointForCoop struct {
+	Type     string  `json:"m"`
+	ServerId string  `json:"serverId"`
+	X        float64 `json:"x"`
+	Y        float64 `json:"y"`
+	Z        float64 `json:"Z"`
+}
+
+func coopServerUpdate(w http.ResponseWriter, r *http.Request) {
+	parsedData := services.GetParsedBody(r).(map[string]interface{})
+
+	switch parsedData["m"].(string) {
+	case "timeAndWeather":
+		data, err := json.Marshal(parsedData)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		timeAndWeather := new(updateWeatherSettings)
+		err = json.Unmarshal(data, &timeAndWeather)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		coopMatch := getCoopMatch(timeAndWeather.ServerId)
+		if coopMatch == nil {
+			log.Fatal("no coop match found")
+			return
+		}
+		ws := &coopMatch.TimeAndWeatherSettings
+
+		ws.CloudinessType = timeAndWeather.CloudinessType
+		ws.FogType = timeAndWeather.FogType
+		ws.HourOfDay = timeAndWeather.HourOfDay
+		ws.RainType = timeAndWeather.RainType
+		ws.TimeFlowType = timeAndWeather.TimeFlowType
+		ws.WindType = timeAndWeather.WindType
+
+		fmt.Println("timeAndWeather updated")
+	case "SpawnPointForCoop":
+		data, err := json.Marshal(parsedData)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		spawnPoint := new(spawnPointForCoop)
+		err = json.Unmarshal(data, &spawnPoint)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		coopMatch := getCoopMatch(spawnPoint.ServerId)
+		if coopMatch == nil {
+			log.Fatal("no coop match found")
+			return
+		}
+		coopMatch.SpawnPoint.X = spawnPoint.X
+		coopMatch.SpawnPoint.Y = spawnPoint.Y
+		coopMatch.SpawnPoint.Z = spawnPoint.Z
+
+		fmt.Println("SpawnPointForCoop updated")
+
+	default:
+		fmt.Println("Case:", parsedData["m"].(string), "not handled")
+	}
 }

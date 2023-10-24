@@ -3,6 +3,7 @@ package MTGACoop
 import (
 	"MT-GO/database"
 	"MT-GO/tools"
+	"encoding/json"
 	"fmt"
 )
 
@@ -60,6 +61,113 @@ func getCoopMatch(sessionID string) *coopMatch {
 	return match
 }
 
+// Fired when a new player joins the game...
+func (cm *coopMatch) PlayerJoined(accountId string) {
+	_, ok := cm.ConnectedPlayers[accountId]
+	if !ok {
+		cm.ConnectedPlayers[accountId] = struct{}{}
+		fmt.Printf("this nigga %s: %s has joined", cm.ServerId, accountId)
+	}
+}
+
+// Host has left
+func (cm *coopMatch) KillMyself() {
+	delete(coopMatches, cm.ServerId)
+}
+
+// Fired when a player leaves
+func (cm *coopMatch) PlayerLeft(accountId string) {
+	if accountId == cm.ServerId {
+		fmt.Printf("Host nigga rage quit LOL")
+		cm.KillMyself()
+	}
+
+	_, ok := cm.ConnectedPlayers[accountId]
+	if ok {
+		delete(cm.ConnectedPlayers, accountId)
+		fmt.Printf("this nigga %s: %s has DIED", cm.ServerId, accountId)
+	}
+
+}
+
+// Ping is used in /coop/server/update and wsOnConnection in `ProcessData` //mhm
+func (cm *coopMatch) Ping(accountId string, timestamp int64) {
+	pm := map[string]interface{}{ //ITS FINE ITS DOESNT MATTER MANE
+		"pong": timestamp,
+	}
+	messageJson, err := json.Marshal(pm)
+	if err != nil {
+		fmt.Printf("Failed to ping %s %s", accountId, messageJson)
+		return
+	}
+	//fucking websocoket thing here
+	//sendtowebsockets shit
+}
+
+// # Status Codes:
+//
+// Loading: 	0
+//
+// InGame:  	1
+//
+// Complete:	2
+func (cm *coopMatch) UpdateStatus(status status /*int8*/) {
+	cm.Status = status
+}
+
+// End the session
+//
+// reason(string)
+func (cm *coopMatch) EndSession(reason string) {
+	fmt.Printf("[Coop] Session %s has ended with reason: %s\n", cm.ServerId, reason)
+	//Websocket.SendMessageToWebsocket()
+	cm.KillMyself()
+}
+
+func processWebsocketMessage(websocketMessage string) {
+
+}
+
+// async processMessage(msg) {
+//         const msgStr = msg.toString();
+//         this.processMessageString(msgStr);
+//     }
+//     async processMessageString(msgStr) {
+//         // If is SIT serialized string -- This is NEVER stored.
+//         if (msgStr.startsWith("MTC")) {
+//             const messageWithoutSITPrefix = msgStr.substring(3, msgStr.length);
+//             const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
+//             const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(24, messageWithoutSITPrefix.length);
+//             const match = CoopMatch_1.CoopMatch.CoopMatches[serverId];
+//             if (match !== undefined) {
+//                 match.ProcessData(messageWithoutSITPrefixes, this.logger);
+//             }
+//             return;
+//         }
+//         var jsonArray = this.TryParseJsonArray(msgStr);
+//         if (jsonArray !== undefined) {
+//             for (const key in jsonArray) {
+//                 this.processObject(jsonArray[key]);
+//             }
+//         }
+//         if (msgStr.charAt(0) !== '{')
+//             return;
+//         var jsonObject = JSON.parse(msgStr);
+//         this.processObject(jsonObject);
+//     }
+//     async processObject(jsonObject) {
+//         const match = CoopMatch_1.CoopMatch.CoopMatches[jsonObject["serverId"]];
+//         if (match !== undefined) {
+//             if (jsonObject["connect"] == true) {
+//                 match.PlayerJoined(jsonObject["accountId"]);
+//             }
+//             else {
+//                 match.ProcessData(jsonObject, this.logger);
+//             }
+//         }
+//         this.sendToAllWebSockets(JSON.stringify(jsonObject));
+//     }
+
 // enums are kind of gay
 type status int8
 
@@ -77,25 +185,25 @@ type coopMatch struct {
 	JoinCode           string
 	CreatedDateTime    int64
 	LastUpdateDateTime int64
-	ConnectedPlayers   map[string]struct{}    //[]string
+	ConnectedPlayers   map[string]struct{}    // []string
 	Characters         map[string]interface{} // []interface{}
 	//State any
 	//Ip any
 	//Port any
-	ExpectedPlayers             int16
-	LastDataByAccountId         interface{}
-	LastDataReceivedByAccountId interface{}
-	LastData                    interface{}
-	LastMoves                   interface{}
-	LastRotates                 interface{}
-	DamageArray                 []interface{}
-	Status                      status // Loading = 0, InGame = 1, Complete = 2
-	Settings                    interface{}
-	Loot                        interface{}
-	Location                    string
-	Time                        int8
-	TimeAndWeatherSettings      timeAndWeatherSettings
-	SpawnPoint                  database.Vector3
+	ExpectedPlayers     int16
+	LastDataByAccountId interface{}
+	//LastDataReceivedByAccountId interface{}
+	//LastData                    interface{}
+	//LastMoves                   interface{}
+	//LastRotates                 interface{}
+	//DamageArray                 []interface{}
+	Status                 status // Loading = 0, InGame = 1, Complete = 2
+	Settings               interface{}
+	Loot                   interface{}
+	Location               string
+	Time                   int8
+	TimeAndWeatherSettings timeAndWeatherSettings
+	SpawnPoint             database.Vector3
 
 	//sendLastDataInterval      interface{} //these are apparently private
 	//checkStillRunningInterval interface{}

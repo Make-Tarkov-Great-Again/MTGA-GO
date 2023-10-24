@@ -94,7 +94,7 @@ func getCoopConfig() *coopConfigs {
 func Load() {}
 
 func getExternalIP() string {
-	resp, err := http.Get("https://api.ipify.org?format=text")
+	resp, err := http.Get("https://api.ipify.org?format=text") //MY FUNCTION!!
 	if err != nil {
 		return err.Error()
 	}
