@@ -52,6 +52,14 @@ func coopGetInvites(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, r.RequestURI, coopStatusOutput)
 }
 
+func coopServerJoin(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func coopServerFriendlyAI(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func coopServerDelete(w http.ResponseWriter, r *http.Request) {
 	log.Println("Deleting Coop Server")
 	//body := services.ApplyResponseBody(map[string]string{"response": "OK"})

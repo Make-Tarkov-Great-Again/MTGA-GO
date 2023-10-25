@@ -2,6 +2,8 @@ package MTGACoop
 
 import (
 	"fmt"
+	"github.com/goccy/go-json"
+	"log"
 	"net/http"
 	"strings"
 
@@ -196,6 +198,7 @@ func handlePacket(packet interface{}) {
 		fmt.Println("God is a mean kid with a magnifying glass")
 		return
 	}
+	//we will handle each specific packet individually
 
 	var method string
 	if m, ok := packetMap["m"].(string); ok {
@@ -212,10 +215,10 @@ func handlePacket(packet interface{}) {
 	} else {
 		fmt.Println("Unknown condition")
 	}
-}
+} //Yeah
 
 func setWebSocketHandler() {
-	ws = webSocketHandler{
+	wsHandler = webSocketHandler{
 		connections: make(map[string]*websocket.Conn), //mmmmmmmmmmmm this is annoying
 	}
 }
@@ -249,5 +252,18 @@ func (wsh *webSocketHandler) wsOnConnection(w http.ResponseWriter, r *http.Reque
 	fmt.Printf("%s connected to die again to a cheater lol", sessionId)
 
 	wsh.connections[sessionId] = ws
+
+	packet := new(interface{})
+	for {
+		_, msg, err := ws.ReadMessage()
+		if err != nil {
+			break
+		}
+		if err := json.Unmarshal(msg, &packet); err != nil {
+			log.Fatalln(err)
+		}
+
+		handlePacket(packet)
+	}
 
 }

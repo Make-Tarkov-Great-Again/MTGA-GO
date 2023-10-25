@@ -5,6 +5,8 @@ import (
 	"MT-GO/tools"
 	"encoding/json"
 	"fmt"
+	"log"
+	"time"
 )
 
 //TODO: [COOP MATCHES] key is accountId/sessionId of player that created the match
@@ -38,7 +40,7 @@ func createCoopMatch(info *serverInfo) {
 
 	coopMatches[info.ServerId] = match
 
-	//TODO: Figure out how to implement this nonsense later
+	//DONE: Figure out how to implement this nonsense later
 	// Reference trader.go/SetResupplyTimer() for how it's potentially being done
 	/*
 		setTimeout(() => {
@@ -50,6 +52,53 @@ func createCoopMatch(info *serverInfo) {
 		}, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);
 	*/
 
+}
+
+type updateData struct { //predictive text is based
+	Name        string `json:"name"`
+	ServerId    string `json:"serverId"`
+	Location    string `json:"location"`
+	PlayerCount int    `json:"playerCount"`
+	Password    string `json:"password"`
+	State       status `json:"state"`
+}
+
+const timerDuration = time.Duration(5) * time.Second
+
+func initializeCoopMatch() {
+	go func() {
+		timer := time.NewTimer(timerDuration)
+		for {
+			<-timer.C
+			for sessionId, match := range coopMatches {
+				if match.Private {
+					continue //coffee done 1 sex
+				}
+
+				dataToSend := &updateData{
+					Name:        match.Name,
+					ServerId:    match.ServerId,
+					Location:    match.Location,
+					PlayerCount: len(match.ConnectedPlayers),
+					Password: func() string {
+						if match.Password != "" {
+							return "Yes"
+						}
+						return "No"
+					}(),
+					State: match.Status,
+				}
+
+				data, err := json.Marshal(dataToSend)
+				if err != nil {
+					log.Fatalln(err)
+				}
+
+				wsHandler.sendToWebSocket(sessionId, data)
+			}
+			timer.Reset(timerDuration)
+		}
+	}()
 }
 
 func getCoopMatch(sessionID string) *coopMatch {
