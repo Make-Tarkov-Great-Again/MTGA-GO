@@ -8,17 +8,15 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
+	"path/filepath"
 )
 
 var coopConfig = getCoopConfig()
-var serverConfig = database.GetServerConfig()
 var modConfig = getModConfig()
 var coop = MTGACoop{}
 
-//var webSocketHandler struct{}
-
-func init() {
+func Mod() {
+	serverConfig := database.GetServerConfig()
 	//mod.AddRoutes()
 
 	if coopConfig.UseExternalIPFinder {
@@ -39,19 +37,17 @@ func init() {
 	}
 }
 
-func Mod() {
-	Load()
-}
-
 type MTGACoop struct {
 	LocationData  map[string]interface{}
 	LocationData2 map[string]interface{}
 	//Traders       []interface{}
 }
 
+const mainDir string = "/user/mods/MTGA-Coop"
+
 func getModConfig() *database.ModInfo {
-	//path := filepath.Join("/user/mods/MTGA-Coop", "mod-info.json")
-	data, err := tools.ReadFile("mod-info.json")
+	path := filepath.Join(mainDir, "mod-info.json")
+	data, err := tools.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +72,7 @@ type coopConfigs struct {
 func getCoopConfig() *coopConfigs {
 	output := new(coopConfigs)
 
-	data, err := os.ReadFile("coopConfig.json")
+	data, err := tools.ReadFile(filepath.Join(mainDir, "coopConfig.json"))
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -90,8 +86,6 @@ func getCoopConfig() *coopConfigs {
 
 	return output
 }
-
-func Load() {}
 
 func getExternalIP() string {
 	resp, err := http.Get("https://api.ipify.org?format=text") //MY FUNCTION!!

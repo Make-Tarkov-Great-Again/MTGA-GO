@@ -91,7 +91,9 @@ func SetProfiles() {
 				Nicknames[profile.Character.Info.Nickname] = nil
 			}
 
-			profile.Character.Inventory.CleanInventoryOfDeletedItemMods()
+			if profile.Character.Inventory.CleanInventoryOfDeletedItemMods() {
+				profile.Character.SaveCharacter(profile.Character.ID)
+			}
 
 		} else {
 			profile.Character = &Character{}

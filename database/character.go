@@ -135,20 +135,27 @@ func (c *Character) CompletedPreviousQuestCheck(quests map[string]*QuestConditio
 
 // #region Character functions
 
-func (inv *Inventory) CleanInventoryOfDeletedItemMods() {
+func (inv *Inventory) CleanInventoryOfDeletedItemMods() bool {
 	allItems := GetItems()
 
 	newItems := make([]InventoryItem, 0, len(inv.Items))
 
+	cleaned := 0
 	for _, item := range inv.Items {
 		if _, ok := allItems[item.TPL]; !ok {
-			fmt.Println("Removed modded item ", item.TPL, "from Inventory")
+			cleaned++
 			continue
 		}
 		newItems = append(newItems, item)
 	}
 
-	inv.Items = newItems
+	if cleaned != 0 {
+		fmt.Println("Removed", cleaned, "modded item(s) from your inventory")
+		inv.Items = newItems
+		return true
+	}
+	return false
+
 }
 
 func (c *Character) SaveCharacter(sessionID string) {

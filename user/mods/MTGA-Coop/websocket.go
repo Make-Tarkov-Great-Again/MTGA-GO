@@ -101,7 +101,84 @@ type triggerPressed struct {
 	RY        float64 `json:"rY"`
 }
 
-//SendDataToPool -> ToggleLauncher
+type toggleLauncher struct {
+	Method string //ToggleLauncher
+	Time   string
+}
+
+type EDamageType int
+
+const (
+	Undefined EDamageType = 1 << iota
+	Fall
+	Explosion
+	Barbed
+	Flame
+	GrenadeFragment
+	Impact
+	Existence
+	Medicine
+	Bullet
+	Melee
+	Landmine
+	Sniper
+	Blunt
+	LightBleeding
+	HeavyBleeding
+	Dehydration
+	Exhaustion
+	RadExposure
+	Stimulator
+	Poison
+	LethalToxin
+)
+
+type kill struct {
+	AccountId  string
+	Method     string //Kill
+	DamageType EDamageType
+}
+
+type EBodyPart int8
+
+const (
+	Head EBodyPart = iota
+	Chest
+	Stomach
+	LeftArm
+	RightArm
+	LeftLeg
+	RightLeg
+	Common
+)
+
+type removeNegativeEffects struct {
+	AccountId string
+	Method    string //RemoveNegativeEffects
+	BodyPart  EBodyPart
+}
+
+type restoreBodyPart struct {
+	AccountId     string
+	Method        string //"RestoreBodyPart"
+	BodyPart      EBodyPart
+	HealthPenalty float64
+}
+
+type localPlayer struct {
+	AccountId  string `json:"accountId"`
+	ServerId   string `json:"serverId"`
+	Time       string `json:"t"`
+	ProfileId  string `json:"profileId"`
+	ProfileId2 string `json:"pId"`
+}
+
+type worldInteractiveObject struct {
+	Method string      `json:"m"` //WIO_Interact
+	Time   interface{} `json:"t"`
+	DoorId string      `json:"doorId"`
+	Type   string      `json:"type"`
+}
 
 var packetJumpTable = map[string]func(map[string]interface{}){
 	"SetTriggerPressed": func(packet map[string]interface{}) {
