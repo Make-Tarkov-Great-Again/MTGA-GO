@@ -1,6 +1,7 @@
 package MTGACoop
 
 import (
+	"MT-GO/server"
 	"MT-GO/services"
 	"MT-GO/tools"
 	"fmt"
@@ -11,21 +12,25 @@ import (
 )
 
 var coopRoutes = map[string]http.HandlerFunc{
-	"/coop/connect":       coopConnect,
-	"/coop/server-status": coopServerStatus,
-	"/coop/get-invites":   coopGetInvites,
-	"/coop/server/delete": coopServerDelete,
-	//"/coop/server/update":       coopServerUpdate,
+	"/coop/connect":                       coopConnect,
+	"/coop/server-status":                 coopServerStatus,
+	"/coop/get-invites":                   coopGetInvites,
+	"/coop/server/delete":                 coopServerDelete,
 	"/coop/server/update/weatherSettings": coopServerUpdateWeather,
 	"/coop/server/update/spawnPoint":      coopServerUpdateSpawnPoint,
 	"/coop/server/read/players":           coopServerReadPlayers,
-	//"/coop/server/join": handlers.CoopServerJoin,
+	//	"/coop/server/join":                   coopServerJoin, //This doesnt exist, join is handled on the ws end i believe
 	"/coop/server/exist":             coopServerExist,
 	"/coop/server/state":             coopServerState,
 	"/coop/server/create":            coopServerCreate,
 	"/coop/server/getAllForLocation": coopServerGetAllForLocation,
-	//"/coop/server/friendlyAI": handlers.CoopServerFriendlyAI,
-	//"/coop/server/spawnPoint": handlers.CoopServerSpawnPoint,
+	"/coop/server/friendlyAI":        coopServerFriendlyAI,
+}
+
+func addRoutesToBackend() {
+	for route, handler := range coopRoutes {
+		server.AddMainRoute(route, handler)
+	}
 }
 
 func coopServerStatus(w http.ResponseWriter, r *http.Request) {

@@ -17,7 +17,6 @@ var coop = MTGACoop{}
 
 func Mod() {
 	serverConfig := database.GetServerConfig()
-	//mod.AddRoutes()
 
 	if coopConfig.UseExternalIPFinder {
 		coopConfig.ExternalIP = getExternalIP()
@@ -35,6 +34,10 @@ func Mod() {
 		log.Fatalln(coopConfig.ProtocolConfiguration, "is not a proper protocol, adjust in your coopConfig.json")
 		return
 	}
+
+	addRoutesToBackend()
+	initializeCoopMatch()
+	fmt.Println("Coop Initialized FAGGOT")
 }
 
 type MTGACoop struct {

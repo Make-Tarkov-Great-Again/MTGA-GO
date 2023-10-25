@@ -141,10 +141,7 @@ func (cm *coopMatch) PlayerLeft(accountId string) {
 
 // Ping is used in /coop/server/update and wsOnConnection in `ProcessData` //mhm
 func (cm *coopMatch) Ping(accountId string, timestamp int64) {
-	pm := map[string]interface{}{ //ITS FINE ITS DOESNT MATTER MANE
-		"pong": timestamp,
-	}
-	messageJson, err := json.Marshal(pm)
+	messageJson, err := json.Marshal(map[string]int64{"pong": timestamp})
 	if err != nil {
 		fmt.Printf("Failed to ping %s %s", accountId, messageJson)
 		return
@@ -153,14 +150,7 @@ func (cm *coopMatch) Ping(accountId string, timestamp int64) {
 	//sendtowebsockets shit
 }
 
-// # Status Codes:
-//
-// Loading: 	0
-//
-// InGame:  	1
-//
-// Complete:	2
-func (cm *coopMatch) UpdateStatus(status status /*int8*/) {
+func (cm *coopMatch) UpdateStatus(status status) {
 	cm.Status = status
 }
 
@@ -172,50 +162,6 @@ func (cm *coopMatch) EndSession(reason string) {
 	//Websocket.SendMessageToWebsocket()
 	cm.KillMyself()
 }
-
-func processWebsocketMessage(websocketMessage string) {
-
-}
-
-// async processMessage(msg) {
-//         const msgStr = msg.toString();
-//         this.processMessageString(msgStr);
-//     }
-//     async processMessageString(msgStr) {
-//         // If is SIT serialized string -- This is NEVER stored.
-//         if (msgStr.startsWith("MTC")) {
-//             const messageWithoutSITPrefix = msgStr.substring(3, msgStr.length);
-//             const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
-//             const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(24, messageWithoutSITPrefix.length);
-//             const match = CoopMatch_1.CoopMatch.CoopMatches[serverId];
-//             if (match !== undefined) {
-//                 match.ProcessData(messageWithoutSITPrefixes, this.logger);
-//             }
-//             return;
-//         }
-//         var jsonArray = this.TryParseJsonArray(msgStr);
-//         if (jsonArray !== undefined) {
-//             for (const key in jsonArray) {
-//                 this.processObject(jsonArray[key]);
-//             }
-//         }
-//         if (msgStr.charAt(0) !== '{')
-//             return;
-//         var jsonObject = JSON.parse(msgStr);
-//         this.processObject(jsonObject);
-//     }
-//     async processObject(jsonObject) {
-//         const match = CoopMatch_1.CoopMatch.CoopMatches[jsonObject["serverId"]];
-//         if (match !== undefined) {
-//             if (jsonObject["connect"] == true) {
-//                 match.PlayerJoined(jsonObject["accountId"]);
-//             }
-//             else {
-//                 match.ProcessData(jsonObject, this.logger);
-//             }
-//         }
-//         this.sendToAllWebSockets(JSON.stringify(jsonObject));
-//     }
 
 // enums are kind of gay
 type status int8

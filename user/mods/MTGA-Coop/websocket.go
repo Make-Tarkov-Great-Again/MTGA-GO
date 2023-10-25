@@ -15,7 +15,7 @@ type webSocketHandler struct {
 	connections map[string]*websocket.Conn
 }
 
-var ws webSocketHandler
+var wsHandler webSocketHandler
 
 //BackendCommunication.Instance.SendDataToPool("{ \"HostPing\": " + DateTime.Now.Ticks + " }");
 //BackendCommunication.Instance.SendDataToPool("{ \"RaidTimer\": " + GameTimer.SessionTime.Value.Ticks + " }");
@@ -89,7 +89,7 @@ type pickUp struct {
 
 type lightState struct {
 	AccountId string
-	Method    string //"PlayerInventoryController_UnloadMagazine"
+	Method    string //"SetLightsState"
 	Id        string
 	IsActive  bool
 	LightMode int
@@ -186,11 +186,55 @@ var packetJumpTable = map[string]func(map[string]interface{}){
 	"SetTriggerPressed": func(packet map[string]interface{}) {
 		printMethod(packet["Method"].(string))
 	},
+	"WIO_Interact": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"RestoreBodyPart": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"RemoveNegativeEffects": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"Kill": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"ToggleLauncher": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"SetLightsState": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"FCPickup": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"PlayerInventoryController_ToggleItem": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"PlayerInventoryController_ThrowItem": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"PlayerInventoryController_UnloadMagazine": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"PlayerInventoryController_LoadMagazine": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"Move": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"Jump": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+	"IC_MOVE": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
 }
 
 func printMethod(method string) {
 	fmt.Println(method)
 }
+
+//TODO: Debug handlePacket until my eyes and fingers bleed, hell yeah brother
 
 func handlePacket(packet interface{}) {
 	packetMap, ok := packet.(map[string]interface{})
@@ -266,4 +310,31 @@ func (wsh *webSocketHandler) wsOnConnection(w http.ResponseWriter, r *http.Reque
 		handlePacket(packet)
 	}
 
+}
+
+func (wsh *webSocketHandler) sendToAllAvailableWebSockets(data []byte) {
+	for sessionID, ws := range wsh.connections {
+		if ws == nil {
+			fmt.Println("Websocket Connection for", sessionID, "is invalid, deleting")
+			delete(wsh.connections, sessionID)
+			continue
+		}
+
+		if err := ws.WriteMessage(websocket.TextMessage, data); err != nil {
+			fmt.Println("Could not write message to websocket:", err)
+			delete(wsh.connections, sessionID)
+			continue
+		}
+	}
+}
+
+func (wsh *webSocketHandler) sendToWebSocket(socketId string, data []byte) {
+	ws, ok := wsh.connections[socketId]
+	if !ok || ws == nil {
+		log.Fatalln("Websocket doesn't exist or is invalid, idc")
+	}
+
+	if err := ws.WriteMessage(websocket.TextMessage, data); err != nil {
+		log.Fatalln(err)
+	}
 }
