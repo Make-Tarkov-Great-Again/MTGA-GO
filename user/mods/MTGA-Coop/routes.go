@@ -16,9 +16,12 @@ var coopRoutes = map[string]http.HandlerFunc{
 	"/coop/get-invites":   coopGetInvites,
 	"/coop/server/delete": coopServerDelete,
 	//"/coop/server/update":       coopServerUpdate,
-	"/coop/server/read/players": coopServerReadPlayers,
+	"/coop/server/update/weatherSettings": coopServerUpdateWeather,
+	"/coop/server/update/spawnPoint":      coopServerUpdateSpawnPoint,
+	"/coop/server/read/players":           coopServerReadPlayers,
 	//"/coop/server/join": handlers.CoopServerJoin,
 	"/coop/server/exist":             coopServerExist,
+	"/coop/server/state":             coopServerState,
 	"/coop/server/create":            coopServerCreate,
 	"/coop/server/getAllForLocation": coopServerGetAllForLocation,
 	//"/coop/server/friendlyAI": handlers.CoopServerFriendlyAI,
@@ -82,38 +85,44 @@ func coopServerCreate(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, r.RequestURI, output)
 }
 
+func coopServerState(w http.ResponseWriter, r *http.Request) {
+	info := new(raidSettings)
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = json.Unmarshal(data, &info)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	match := getCoopMatch(info.KeyId)
+	if match == nil {
+		fmt.Println("Match does not exist")
+		services.ZlibJSONReply(w, r.RequestURI, nil)
+		return
+	}
+
+	if match.Location != info.LocationId ||
+		match.Time != info.TimeVariant ||
+		match.Status == complete ||
+		match.LastUpdateDateTime < (tools.GetCurrentTimeInSeconds()-5) {
+
+		fmt.Println("Match is over")
+		services.ZlibJSONReply(w, r.RequestURI, nil)
+		return
+	}
+
+	//body := services.ApplyResponseBody("hell yeah brother")
+	fmt.Println("Match is alive")
+	services.ZlibJSONReply(w, r.RequestURI, "hell yeah brother")
+}
+
 func coopServerExist(w http.ResponseWriter, r *http.Request) {
 	parsedBody := services.GetParsedBody(r).(map[string]interface{})
 	sid, ok := parsedBody["serverId"].(string)
-	if !ok { //then it has raid settings
-		info := new(raidSettings)
-		data, err := json.Marshal(parsedBody)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		err = json.Unmarshal(data, &info)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		for _, match := range coopMatches {
-			if match.Location != info.LocationId ||
-				match.Time != info.TimeVariant ||
-				match.Status != complete ||
-				match.LastUpdateDateTime < (tools.GetCurrentTimeInSeconds()-5) {
-				continue
-			}
-
-			//body := services.ApplyResponseBody("hell yeah brother")
-			fmt.Println("Match exists!")
-			services.ZlibJSONReply(w, r.RequestURI, "hell yeah brother")
-			return
-		}
-
-		fmt.Println("Match does not exist!")
-		//body := services.ApplyResponseBody(nil)
-		services.ZlibJSONReply(w, r.RequestURI, nil)
-		return
+	if !ok {
+		fmt.Println("Server does not exist")
 	}
 
 	if checkIfMatchExists(sid) {
@@ -121,6 +130,7 @@ func coopServerExist(w http.ResponseWriter, r *http.Request) {
 		services.ZlibJSONReply(w, r.RequestURI, "hell yeah brother")
 		return
 	}
+
 	fmt.Println("Match does not exist!")
 	services.ZlibJSONReply(w, r.RequestURI, nil)
 }
@@ -204,6 +214,33 @@ type updateWeatherSettings struct {
 	HourOfDay int8 `json:"hod"`
 }
 
+func coopServerUpdateWeather(w http.ResponseWriter, r *http.Request) {
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	timeAndWeather := new(updateWeatherSettings)
+	err = json.Unmarshal(data, &timeAndWeather)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	coopMatch := getCoopMatch(timeAndWeather.ServerId)
+	if coopMatch == nil {
+		log.Fatal("no coop match found")
+		return
+	}
+	ws := &coopMatch.TimeAndWeatherSettings
+
+	ws.CloudinessType = timeAndWeather.CloudinessType
+	ws.FogType = timeAndWeather.FogType
+	ws.HourOfDay = timeAndWeather.HourOfDay
+	ws.RainType = timeAndWeather.RainType
+	ws.TimeFlowType = timeAndWeather.TimeFlowType
+	ws.WindType = timeAndWeather.WindType
+}
+
 type spawnPointForCoop struct {
 	Type     string  `json:"m"`
 	ServerId string  `json:"serverId"`
@@ -212,61 +249,26 @@ type spawnPointForCoop struct {
 	Z        float64 `json:"Z"`
 }
 
-func coopServerUpdate(w http.ResponseWriter, r *http.Request) {
-	parsedData := services.GetParsedBody(r).(map[string]interface{})
-
-	switch parsedData["m"].(string) {
-	case "timeAndWeather":
-		data, err := json.Marshal(parsedData)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		timeAndWeather := new(updateWeatherSettings)
-		err = json.Unmarshal(data, &timeAndWeather)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		coopMatch := getCoopMatch(timeAndWeather.ServerId)
-		if coopMatch == nil {
-			log.Fatal("no coop match found")
-			return
-		}
-		ws := &coopMatch.TimeAndWeatherSettings
-
-		ws.CloudinessType = timeAndWeather.CloudinessType
-		ws.FogType = timeAndWeather.FogType
-		ws.HourOfDay = timeAndWeather.HourOfDay
-		ws.RainType = timeAndWeather.RainType
-		ws.TimeFlowType = timeAndWeather.TimeFlowType
-		ws.WindType = timeAndWeather.WindType
-
-		fmt.Println("timeAndWeather updated")
-	case "SpawnPointForCoop":
-		data, err := json.Marshal(parsedData)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		spawnPoint := new(spawnPointForCoop)
-		err = json.Unmarshal(data, &spawnPoint)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		coopMatch := getCoopMatch(spawnPoint.ServerId)
-		if coopMatch == nil {
-			log.Fatal("no coop match found")
-			return
-		}
-		coopMatch.SpawnPoint.X = spawnPoint.X
-		coopMatch.SpawnPoint.Y = spawnPoint.Y
-		coopMatch.SpawnPoint.Z = spawnPoint.Z
-
-		fmt.Println("SpawnPointForCoop updated")
-
-	default:
-		fmt.Println("Case:", parsedData["m"].(string), "not handled")
+func coopServerUpdateSpawnPoint(w http.ResponseWriter, r *http.Request) {
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	spawnPoint := new(spawnPointForCoop)
+	err = json.Unmarshal(data, &spawnPoint)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	coopMatch := getCoopMatch(spawnPoint.ServerId)
+	if coopMatch == nil {
+		log.Fatal("no coop match found")
+		return
+	}
+	coopMatch.SpawnPoint.X = spawnPoint.X
+	coopMatch.SpawnPoint.Y = spawnPoint.Y
+	coopMatch.SpawnPoint.Z = spawnPoint.Z
+
+	fmt.Println("SpawnPointForCoop updated")
 }

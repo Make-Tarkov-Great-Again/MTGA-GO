@@ -19,24 +19,25 @@ var ws webSocketHandler
 //BackendCommunication.Instance.SendDataToPool("{ \"RaidTimer\": " + GameTimer.SessionTime.Value.Ticks + " }");
 
 type itemController struct {
-	Type                    string      `json:"m"` //"IC_MOVE"
-	Time                    string      `json:"t"`
+	Method                  string //"IC_MOVE"
+	Time                    string
 	GridItem                interface{} `json:"grad"`
 	SlotItem                interface{} `json:"sitad"`
 	StackSlotItem           interface{} `json:"ssad"`
-	Id                      string      `json:"id"`
-	Tpl                     string      `json:"tpl"`
-	ItemControllerId        string      `json:"icId"`
-	ItemControllerCurrentId string      `json:"icCId"`
+	Id                      string
+	Tpl                     string
+	ItemControllerId        string `json:"icId"`
+	ItemControllerCurrentId string `json:"icCId"`
 }
 
 type playerJump struct {
-	Method    string `json:"Method"`
+	Method    string `json:"Method"` //"Jump"
 	AccountId string `json:"AccountId"`
 }
 
 type playerMove struct {
 	AccountId string      `json:"AccountId"`
+	Method    string      //"Move"
 	PosX      float64     `json:"pX"`
 	PosY      float64     `json:"pY"`
 	PosZ      float64     `json:"pZ"`
@@ -56,6 +57,13 @@ type loadMagazine struct {
 	IgnoreRestrictions bool
 }
 
+type unloadMagainze struct {
+	AccountId          string
+	Method             string //"PlayerInventoryController_UnloadMagazine"
+	MagazineId         string
+	MagazineTemplateId string
+}
+
 type throwItem struct {
 	AccountId  string
 	Method     string //"PlayerInventoryController_ThrowItem"
@@ -71,7 +79,63 @@ type toggleItem struct {
 	ParentId   string
 }
 
-//SendDataToPool -> UnloadMagazine
+type pickUp struct {
+	AccountId string
+	Method    string //FCPickup
+	Pickup    bool
+}
+
+type lightState struct {
+	AccountId string
+	Method    string //"PlayerInventoryController_UnloadMagazine"
+	Id        string
+	IsActive  bool
+	LightMode int
+}
+
+type triggerPressed struct {
+	AccountId string
+	Method    string  //"SetTriggerPressed"
+	Pressed   bool    `json:"pr"`
+	RX        float64 `json:"rX"`
+	RY        float64 `json:"rY"`
+}
+
+//SendDataToPool -> ToggleLauncher
+
+var packetJumpTable = map[string]func(map[string]interface{}){
+	"SetTriggerPressed": func(packet map[string]interface{}) {
+		printMethod(packet["Method"].(string))
+	},
+}
+
+func printMethod(method string) {
+	fmt.Println(method)
+}
+
+func handlePacket(packet interface{}) {
+	packetMap, ok := packet.(map[string]interface{})
+	if !ok {
+		fmt.Println("God is a mean kid with a magnifying glass")
+		return
+	}
+
+	var method string
+	if m, ok := packetMap["m"].(string); ok {
+		method = m
+	} else if meth, ok := packetMap["Method"].(string); ok {
+		method = meth
+	} else {
+		fmt.Println("God is a mean kid with a magnifying glass")
+		return
+	}
+
+	if jumpFunc, found := packetJumpTable[method]; found {
+		jumpFunc(packetMap)
+	} else {
+		fmt.Println("Unknown condition")
+	}
+}
 
 func setWebSocketHandler() {
 	ws = webSocketHandler{
