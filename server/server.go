@@ -42,7 +42,7 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
-			log.Println(err)
+			database.DeleteConnection(sessionID)
 			return
 		}
 		err = conn.WriteMessage(messageType, p)

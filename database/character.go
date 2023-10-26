@@ -1115,6 +1115,46 @@ func (c *Character) CustomizationWear(moveAction map[string]interface{}) {
 	}
 }
 
+type hideoutUpgrade struct {
+	Action    string
+	AreaType  int8            `json:"areaType"`
+	Items     []tradingScheme `json:"items"`
+	TimeStamp float64         `json:"timeStamp"`
+}
+
+func (c *Character) HideoutUpgrade(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	fmt.Println("HideoutUpgrade")
+	upgrade := new(hideoutUpgrade)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &upgrade)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	hideoutArea := GetHideoutAreaByAreaType(upgrade.AreaType)
+
+	fmt.Println(hideoutArea)
+	fmt.Println()
+}
+
+type hideoutUpgradeComplete struct {
+	Action    string
+	AreaType  int8    `json:"areaType"`
+	TimeStamp float64 `json:"timeStamp"`
+}
+
+func (c *Character) HideoutUpgradeComplete(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+	fmt.Println("HideoutUpgradeComplete")
+	upgradeComplete := new(hideoutUpgradeComplete)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &upgradeComplete)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println(upgradeComplete)
+	fmt.Println()
+}
+
 // #endregion
 
 // #region Character structs

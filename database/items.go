@@ -53,19 +53,30 @@ func GetCurrencyByName(name string) *string {
 }
 
 func ItemClone(item string) *DatabaseItem {
-	originalItem := GetItemByUID(item)
+	input := GetItemByUID(item)
+	clone := new(DatabaseItem)
 
-	jsonBytes, err := json.Marshal(originalItem)
-	if err != nil {
-		log.Fatal(err)
-	}
+	clone.ID = input.ID
+	clone.Name = input.Name
+	clone.Parent = input.Parent
+	clone.Type = input.Type
+	clone.Props = input.Props
+	clone.Proto = input.Proto
 
-	newItem := DatabaseItem{}
-	err = json.Unmarshal(jsonBytes, &newItem)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return &newItem
+	return clone
+}
+
+func (db *DatabaseItem) Clone() *DatabaseItem {
+	clone := new(DatabaseItem)
+
+	clone.ID = db.ID
+	clone.Name = db.Name
+	clone.Parent = db.Parent
+	clone.Type = db.Type
+	clone.Props = db.Props
+	clone.Proto = db.Proto
+
+	return clone
 }
 
 func ConvertToRoubles(amount int32, currency string) float64 {

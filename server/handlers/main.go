@@ -547,6 +547,13 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 	"CustomizationWear": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.CustomizationWear(moveAction)
 	},
+	"HideoutUpgrade": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.HideoutUpgrade(moveAction, profileChangeEvent)
+	},
+	//HideoutUpgradeComplete
+	"HideoutUpgradeComplete": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.HideoutUpgradeComplete(moveAction, profileChangeEvent)
+	},
 }
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
