@@ -47,6 +47,7 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 		}
 		err = conn.WriteMessage(messageType, p)
 		if err != nil {
+
 			log.Println(err)
 			return
 		}
@@ -58,7 +59,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 		// Log the incoming request URL
 		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + strings.TrimPrefix(r.Host, "127.0.0.1") + "]")
 
-		if r.Header.Get("Connection") == "Upgrade" && r.Header.Get("Upgrade") == "websocket" {
+		if websocket.IsWebSocketUpgrade(r) {
 			upgradeToWebsocket(w, r)
 		} else {
 			buffer := &bytes.Buffer{}
@@ -81,6 +82,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 				return
 			}
 
+			//TODO: Consider saving []byte data
 			/// Store the parsed data in the request's context
 			ctx := context.WithValue(r.Context(), services.ParsedBodyKey, parsedData)
 			r = r.WithContext(ctx)
