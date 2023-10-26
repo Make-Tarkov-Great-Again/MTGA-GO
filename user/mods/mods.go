@@ -8,10 +8,14 @@ import (
 	"time"
 )
 
+
+
 func Init() {
 	startTime := time.Now()
 	fmt.Printf("\n[MODLOADER : BEGIN]\n")
 
+	
+        
 	endTime := time.Now()
 	fmt.Printf("[MODLOADER : COMPLETE] %s\n\n", endTime.Sub(startTime))
 }
