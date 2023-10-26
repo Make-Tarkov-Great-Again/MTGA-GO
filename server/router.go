@@ -9,7 +9,9 @@ import (
 )
 
 var mainRouteHandlers = map[string]http.HandlerFunc{
-	"/getBundleList":                              handlers.GetBundleList,
+	"/getBundleList":        handlers.GetBundleList,
+	"/singleplayer/bundles": handlers.GetBundleList,
+
 	"/client/raid/person/killed/showMessage":      handlers.ShowPersonKilledMessage,
 	"/client/game/start":                          handlers.MainGameStart,
 	"/client/putMetrics":                          handlers.MainPutMetrics,
@@ -79,26 +81,15 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	//"/client/raid/person/killed": handlers.PersonKilled,
 	"/client/raid/configuration": handlers.RaidConfiguration,
 
-	"/coop/server-status": handlers.CoopServerStatus,
-	"/coop/get-invites":   handlers.CoopGetInvites,
-	"/coop/server/delete": handlers.CoopServerDelete,
-	//"/coop/server/update": handlers.CoopServerUpdate,
-	//"/coop/server/read/players": handlers.CoopServerReadPlayers,
-	//"/coop/server/join": handlers.CoopServerJoin,
-	//"/coop/server/exist": handlers.CoopServerExists,
-	//"/coop/server/create": handlers.CoopServerCreate,
-	//"/coop/server/getAllForLocation": handlers.CoopServerGetAllForLocation,
-	//"/coop/server/friendlyAI": handlers.CoopServerFriendlyAI,
-	//"/coop/server/spawnPoint": handlers.CoopServerSpawnPoint,
-	"/coop/connect": handlers.CoopConnect,
-
 	"/client/location/getLocalloot":     handlers.GetLocalLoot,
 	"/client/insurance/items/list/cost": handlers.InsuranceListCost,
 
 	"/singleplayer/settings/bot/difficulty/": handlers.GetBotDifficulty,
 	"/client/game/bot/generate":              handlers.BotGenerate,
-	"/client/raid/profile/save":              handlers.RaidProfileSave,
-	"/singleplayer/airdrop/config":           handlers.AirdropConfig,
+
+	"/raid/profile/save":           handlers.RaidProfileSave,
+	"/client/raid/profile/save":    handlers.RaidProfileSave,
+	"/singleplayer/airdrop/config": handlers.AirdropConfig,
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {

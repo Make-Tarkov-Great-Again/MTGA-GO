@@ -547,6 +547,13 @@ var actionHandlers = map[string]func(map[string]interface{}, *database.Character
 	"CustomizationWear": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.CustomizationWear(moveAction)
 	},
+	"HideoutUpgrade": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.HideoutUpgrade(moveAction, profileChangeEvent)
+	},
+	//HideoutUpgradeComplete
+	"HideoutUpgradeComplete": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.HideoutUpgradeComplete(moveAction, profileChangeEvent)
+	},
 }
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
@@ -712,39 +719,6 @@ func LookingForGroupStart(w http.ResponseWriter, r *http.Request) {
 
 func LookingForGroupStop(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(nil)
-	services.ZlibJSONReply(w, r.RequestURI, body)
-}
-
-func CoopServerStatus(w http.ResponseWriter, r *http.Request) {
-	log.Println("Getting Coop Server Match Status")
-	services.ZlibReply(w, r.RequestURI, "")
-}
-
-type coopInvites struct {
-	Players []map[string]interface{} `json:"players"`
-	Invite  []interface{}            `json:"invite"`
-	Group   []interface{}            `json:"group"`
-}
-
-var coopStatusOutput = coopInvites{
-	Players: make([]map[string]interface{}, 0),
-	Invite:  make([]interface{}, 0),
-	Group:   make([]interface{}, 0),
-}
-
-func CoopGetInvites(w http.ResponseWriter, r *http.Request) {
-	log.Println("Getting Coop Server Invites")
-	services.ZlibJSONReply(w, r.RequestURI, coopStatusOutput)
-}
-
-func CoopServerDelete(w http.ResponseWriter, r *http.Request) {
-	log.Println("Deleting Coop Server")
-	body := services.ApplyResponseBody(map[string]string{"response": "OK"})
-	services.ZlibJSONReply(w, r.RequestURI, body)
-}
-
-func CoopConnect(w http.ResponseWriter, r *http.Request) {
-	body := services.ApplyResponseBody(map[string]interface{}{})
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 

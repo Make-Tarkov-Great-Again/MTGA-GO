@@ -20,7 +20,7 @@ go.work
 user/profiles/
 user/cert/
 user/backup/
-user/mods/
+user/mods/MTGA-Coop/JS
 questsDatabase.json
 *.png
 *.jpg

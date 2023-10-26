@@ -6,8 +6,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"strings"
+	"sync/atomic"
 
 	"MT-GO/database"
 	"MT-GO/services"
@@ -40,11 +42,12 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
-			log.Println(err)
+			database.DeleteConnection(sessionID)
 			return
 		}
 		err = conn.WriteMessage(messageType, p)
 		if err != nil {
+
 			log.Println(err)
 			return
 		}
@@ -56,7 +59,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 		// Log the incoming request URL
 		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + strings.TrimPrefix(r.Host, "127.0.0.1") + "]")
 
-		if r.Header.Get("Connection") == "Upgrade" && r.Header.Get("Upgrade") == "websocket" {
+		if websocket.IsWebSocketUpgrade(r) {
 			upgradeToWebsocket(w, r)
 		} else {
 			buffer := &bytes.Buffer{}
@@ -79,6 +82,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 				return
 			}
 
+			//TODO: Consider saving []byte data
 			/// Store the parsed data in the request's context
 			ctx := context.WithValue(r.Context(), services.ParsedBodyKey, parsedData)
 			r = r.WithContext(ctx)
@@ -92,7 +96,8 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, 
 	mux.initRoutes(mux.mux)
 
 	httpsServer := &http.Server{
-		Addr: mux.address,
+		Addr:      mux.address,
+		ConnState: CW.OnStateChange,
 		TLSConfig: &tls.Config{
 			RootCAs:      nil,
 			Certificates: []tls.Certificate{certs.Certificate},
@@ -187,4 +192,27 @@ func SetServer() {
 
 	close(serverReady)
 	fmt.Println()
+}
+
+var CW *ConnectionWatcher
+
+type ConnectionWatcher struct {
+	n int64
+}
+
+func (cw *ConnectionWatcher) OnStateChange(conn net.Conn, state http.ConnState) {
+	switch state {
+	case http.StateNew: //Conection open
+		cw.Add(1)
+	case http.StateHijacked, http.StateClosed: //Conenction Closed
+		cw.Add(-1)
+	}
+}
+
+func (cw *ConnectionWatcher) Count() int {
+	return int(atomic.LoadInt64(&cw.n))
+}
+
+func (cw *ConnectionWatcher) Add(c int64) {
+	atomic.AddInt64(&cw.n, c)
 }

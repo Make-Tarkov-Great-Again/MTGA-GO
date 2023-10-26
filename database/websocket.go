@@ -13,6 +13,17 @@ type Connect struct {
 	*websocket.Conn
 }
 
+func DeleteConnection(sessionID string) {
+	_, ok := connections[sessionID]
+	if ok {
+		log.Println("Connection deleted")
+		delete(connections, sessionID)
+		return
+	}
+	log.Println("Connection does not exist to delete")
+	return
+}
+
 func SetConnection(sessionID string, conn *websocket.Conn) {
 	_, ok := connections[sessionID]
 	if ok {
