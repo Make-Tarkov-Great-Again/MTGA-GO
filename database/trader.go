@@ -665,6 +665,13 @@ type AssortItemUpd struct {
 	UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
 	FireMode              *FireMode   `json:"FireMode,omitempty"`
 	Foldable              *Foldable   `json:"Foldable,omitempty"`
+	Resource              *Resource   `json:"Resource,omitempty"`
+	FoodDrink             *FoodDrink  `json:"FoodDrink,omitempty"`
+	Repairable            *Repairable `json:"Repairable,omitempty"`
+	Sight                 *Sight      `json:"Sight,omitempty"`
+	RepairKit             *RepairKit  `json:"RepairKit,omitempty"`
+	Light                 *Light      `json:"Light,omitempty"`
+	MedKit                *MedicalKit `json:"MedKit,omitempty"`
 }
 
 type Scheme struct {

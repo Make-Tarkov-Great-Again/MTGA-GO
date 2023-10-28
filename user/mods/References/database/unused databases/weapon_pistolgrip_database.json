@@ -1,0 +1,34 @@
+{
+    "overwrite_me": {
+        "modifier": "none",
+        "basedOn": "5649ad3f4bdc2df8348b4585",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "item": {},
+        "translation": {
+            "english": {
+                "Name": "overwrite_me",
+                "ShortName": "overwrite_me",
+                "Description": "overwrite_me"
+            },
+            "french": {
+                "Name": "overwrite_me",
+                "ShortName": "overwrite_me",
+                "Description": "overwrite_me"
+            },
+            "german": {
+                "Name": "overwrite_me",
+                "ShortName": "overwrite_me",
+                "Description": "overwrite_me"
+            },
+            "russian": {
+                "Name": "overwrite_me",
+                "ShortName": "overwrite_me",
+                "Description": "overwrite_me"
+            }
+        }
+    }
+}

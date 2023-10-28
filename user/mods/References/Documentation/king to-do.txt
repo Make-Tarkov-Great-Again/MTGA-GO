@@ -1,0 +1,125 @@
+11.6.21
+[`] => Completed
+
+Create new Item Slot, for Belts to work as Pockets ()
+Make Insurance more live like
+
+`Fix Suits/Customization
+
+Fix Bundles (*potentially make fucking manifests) for:
+	Upper:
+		`Khaki Crye AC Upper, [Missing Texture]
+		`Black Crye AC Upper, [Missing Texture]
+		`Multicam Black Crye AC Upper, [Missing Texture]
+		`Multicam Arid Crye AC Upper, [Missing Texture]
+		`Multicam Crye AC Upper, [Missing Texture]
+		`Multicap Tropic AC Upper, [Missing Texture]
+		`Ranger Green Crye AC Upper, [Missing Texture]
+		`Flektarn PCS Upper, [Missing Texture]
+		`MTP PCS Upper [Missing Texture]
+		[Removed] USEC Aggressor TAC - [Missing Texture] KMC
+
+	Lower:
+		Black Tactical Pants, [Missing 2D Icon]
+		`CEC Bear Pants, [Missing Texture]
+		`EMR Gorka Pants, [Missing Texture] emr_pants_security_gorka4.bundle
+		`BRZK Gorka Pants SSO, [White Block] brzk_pants_bear_gorkasso.bundle
+		`BRZK Gorka Pants [White Block] brzk_pants_security_gorka4.bundle
+		Crye-Precision Pants (Swedish) 
+			\Crye_G3_Gaiter_M90.bundle / Crye_G3_M90.bundle
+
+
+
+10.22.21 ++:
+[`] => Completed
+
+Redo QoL for 12.11
+Complete Locales for items missed
+
+
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+10.16.21:
+
+[`] => Completed
+
+make database for:
+	`L85A2
+	`Vepr-12
+
+make database entries for:
+	`L85A2
+	`Vepr-12
+		-locales need to be done
+
+
+
+	maybe make cachemod that allows you to reduce camera recoil by 0-100 percent
+
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+10.14.21:
+
+[`] => Completed
+
+make database for:
+	`pk_as_database
+
+make database entries for:
+	`scope_all_belomo_pk_as
+	`scope_dovetail_belomo_pk_as
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+10.13.21:
+
+[`] => Completed
+
+make database for:
+	`punisher_database
+	`benelli_m1014_database
+
+make database entries for:
+
+	`punisher_slick
+	`punisher_mask
+	`benelli_m1014 (all bundles added w/ database entries)
+
+bundle issues:
+	mp5_xps (needs to be aligned and textured)
+	stock_mp5_pdw (`stock_mp5_dpw_stock`) (missing texture and needs to be aligned)
+	stock_mp5k_adapter (missing texture)
+	stock_mp5_tele (needs to be aligned)
+
+
+
+{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+10.11.21:
+
+[`] => Completed
+
+make database for:
+	`weapon_handguard_database
+	`weapon_stockadapter_database
+
+make database entries for:
+	`handguard_mp5k_midwest
+
+	`handguard_mp5_moe
+	`handguard_mp5_xrs (mp5_xps)
+
+	`stock_mp5k_adapter (missing texture)
+
+	`stock_mp5_pdw_adapter
+	`stock_mp5_dsarms_lock
+
+	`stock_mp5k_krissfolding
+	`stock_mp5k_ump
+
+	`stock_mp5_ds_arms (`stock_mp5_ds_arms_stock`)
+	`stock_mp5_fabdef
+	`stock_mp5_maxim
+	`stock_mp5_mpx
+	`stock_mp5_para_folding
+	`stock_mp5_pdw (`stock_mp5_dpw_stock`) (missing texture)
+	`stock_mp5_slim_folding
+	`stock_mp5_tele

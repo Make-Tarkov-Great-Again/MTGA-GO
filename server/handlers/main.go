@@ -487,16 +487,16 @@ func MainLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainPrices(w http.ResponseWriter, r *http.Request) {
-	prices := *database.GetPrices()
+	prices := database.GetPrices()
 	nextResupply := database.SetResupplyTimer()
 
 	supplyData := &SupplyData{
 		SupplyNextTime: nextResupply,
 		Prices:         prices,
 		CurrencyCourses: CurrencyCourses{
-			RUB: prices["5449016a4bdc2d6f028b456f"],
-			EUR: prices["569668774bdc2da2298b4568"],
-			DOL: prices["5696686a4bdc2da3298b456a"],
+			RUB: *prices["5449016a4bdc2d6f028b456f"],
+			EUR: *prices["569668774bdc2da2298b4568"],
+			DOL: *prices["5696686a4bdc2da3298b456a"],
 		},
 	}
 

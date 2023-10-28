@@ -1,0 +1,94 @@
+TEMPORARILY DISABLED PRESETLOADER.JS FROM MOD CONFIG DUE TO ERROR:
+
+[ERROR][55.15s] [Server]:1.2.0 v16
+[ERROR][55.15s] [Trace]:
+TypeError: Cannot use 'in' operator to search for '5a7828548dc32e5a9c28b516' in undefined
+    at ItemPresets.hasPreset (C:\Users\upd4t\Desktop\ServerTestBuild_v16_for_12.11\user\mods\FireEqual-StructureOverhaul-1.0.0\src\Presets\preset.js:27:27)
+    at createOffer (C:\Users\upd4t\Desktop\ServerTestBuild_v16_for_12.11\user\mods\FireEqual-StructureOverhaul-1.0.0\src\FleaLock\ragfair.js:428:40)
+    at Object.getOffers (C:\Users\upd4t\Desktop\ServerTestBuild_v16_for_12.11\user\mods\FireEqual-StructureOverhaul-1.0.0\src\FleaLock\ragfair.js:230:32)
+    at Object.clientRagfairFind [as /client/ragfair/find] (C:\Users\upd4t\Desktop\ServerTestBuild_v16_for_12.11\src\functions\response.js:581:41)
+    at Router.getResponse (C:\Users\upd4t\Desktop\ServerTestBuild_v16_for_12.11\core\server\router.js:6:307)
+    at Server.sendResponse (C:\Users\upd4t\Desktop\ServerTestBuild_v16_for_12.11\core\server\server.js:15:496)
+    at Inflate.cb (C:\Users\upd4t\Desktop\ServerTestBuild_v16_for_12.11\core\server\server.js:18:348)
+    at Inflate.zlibBufferOnEnd (zlib.js:139:10)
+    at Inflate.emit (events.js:228:7)
+    at endReadableNT (_stream_readable.js:1185:12)
+
+
+
+[bots.js]
+    generateWeapon
+        if (!bots_f.generator.isWeaponValid(weaponMods))
+
+        Original:
+            for (const [presetId, presetObj] of Object.entries(global._database.globals.ItemPresets))
+        Edited:
+            for (const [presetId, presetObj] of Object.entries(global.db.base.Presets))
+
+
+[move.js]
+    Original:
+        function addItem(pmcData, body, sessionID, foundInRaid = false) {
+            for (let baseItem of body.items) {
+                if (baseItem.item_id in global._database.globals.ItemPresets) {
+                    const presetItems = helper_f.clone(global._database.globals.ItemPresets[baseItem.item_id]._items);
+
+    Edited:
+        function addItem(pmcData, body, sessionID, foundInRaid = false) {
+            for (let baseItem of body.items) {
+                if (baseItem.item_id in global.db.base.Presets) {
+                    const presetItems = helper_f.clone(global.db.base.Presets[baseItem.item_id]._items);
+
+
+
+[preset.js]
+    Original:
+        class ItemPresets {
+            initialize() {         
+                const presets = Object.values(global.db.base.Presets);
+
+    Edited:
+        class ItemPresets {
+            initialize() {
+                global.db.base.Presets = fileIO.readParsed("./db/base/Presets.json")
+                const presets = Object.values(global.db.base.Presets);
+
+    global._database.globals.ItemPresets => global.db.base.Presets
+
+
+
+[helper.js]
+    Original:
+        function getPreset(id) {
+        let itmPreset = global._database.globals.ItemPresets[id];
+        if (typeof itmPreset == "undefined") {
+            /* this was causing an error where preset id couldnt be found on the client and caused client stop loading map...
+                for(let itemP in global._database.globals.ItemPresets){
+                    if(global._database.globals.ItemPresets[itemP]._items[0]._tpl == id){
+                        itmPreset = global._database.globals.ItemPresets[itemP];
+                        break;
+                    }
+                }*/
+            if (typeof itmPreset == "undefined") {
+            logger.logWarning("Preset of id: " + id + " not found on a list (this warning is not important)");
+            return null;
+            }
+        }
+        return itmPreset;
+        }
+
+
+    Edited:
+        // Searching for first item template ID and for preset ID
+        function getPreset(id) {
+        let itmPreset = global.db.base.Presets[id];
+        if (typeof itmPreset == "undefined") {
+            logger.logWarning(
+            "Preset of id: " +
+                id +
+                " not found on a list (this warning is not important)"
+            );
+            return null;
+        }
+        return itmPreset;
+        }

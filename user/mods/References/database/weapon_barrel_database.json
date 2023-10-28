@@ -1,0 +1,138 @@
+{
+  "barrel_ump_threaded": {
+    "modifier": "none",
+    "basedOn": "5fc3e4a27283c4046c5814ab",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5fc3e4a27283c4046c5814ab"] },
+    "item": {
+      "_id": "barrel_ump_threaded",
+      "_name": "barrel_ump_200mm_1143x23",
+      "_parent": "555ef6e44bdc2de9068b457e",
+      "_type": "Item",
+      "_props": {
+        "Name": "Ствол 260мм для AR-15 и совместимых 5.56х45",
+        "ShortName": "260мм AR-15 5.56х45",
+        "Description": "Ствол для оружия на базе AR-15 под патрон 5.56х45 NATO длинной 260мм. Соответствует стандартному стволу для M4 CQBR.\n",
+        "Weight": 0.401,
+        "BackgroundColor": "blue",
+        "Width": 2,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Rare",
+        "SpawnChance": 3,
+        "CreditsPrice": 9100,
+        "ItemSound": "mod",
+        "Prefab": {
+          "path": "alteredescape/items/mods/barrels/barrel_ump_threaded.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": false,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 20,
+        "ExamineExperience": 6,
+        "HideEntrails": false,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": true,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": [],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "Grids": [],
+        "Slots": [
+          {
+            "_name": "mod_muzzle",
+            "_id": "ump_muzzle",
+            "_parent": "barrel_ump_threaded",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": [
+                    "5fb65424956329274326f316",
+                    "5fc4b992187fea44d52edaa9",
+                    "5fb6548dd1409e5ca04b54f9"
+                  ]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          }
+        ],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "Durability": 100,
+        "Accuracy": 0,
+        "Recoil": -3,
+        "Loudness": 0,
+        "EffectiveDistance": 0,
+        "Ergonomics": -6,
+        "Velocity": -13.31,
+        "RaidModdable": false,
+        "ToolModdable": true,
+        "BlocksFolding": false,
+        "BlocksCollapsible": false,
+        "IsAnimated": false,
+        "HasShoulderContact": false,
+        "SightingRange": 0,
+        "CenterOfImpact": 0.16,
+        "ShotgunDispersion": 1,
+        "IsSilencer": false
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "HK UMP .45 ACP 8\" barrel (Threaded)",
+        "ShortName": "8\" UMP .45 ACP (T)",
+        "Description": "A barrel for HK UMP SMG, chambered in .45 ACP ammo, 8 inch (200mm) long with threads for muzzle attachments."
+      },
+      "russian": {
+        "Name": "HK UMP .45 ACP, ствол 8 дюймов (с резьбой)",
+        "ShortName": "8\" UMP .45 ACP (T)",
+        "Description": "Ствол для пистолета-пулемета HK UMP под патрон .45 ACP, длина 8 дюймов (200 мм) с резьбой для дульных насадок."
+      },
+      "french": {
+        "Name": "Canon HK UMP .45 ACP 8 pouces (fileté)",
+        "ShortName": "8\" UMP .45 ACP (T)",
+        "Description": "Un canon pour HK UMP SMG, chambré dans des munitions .45 ACP, 8 pouces (200 mm) de long avec des filetages pour les fixations de bouche."
+      },
+      "german": {
+        "Name": "HK UMP .45 ACP 8 Zoll Lauf (Gewinde)",
+        "ShortName": "8\" UMP .45 ACP (T)",
+        "Description": "Ein Lauf für HK UMP SMG, gekammert in .45 ACP Munition, 8 Zoll (200 mm) lang mit Gewinden für Mündungsbefestigungen."
+      }
+    }
+  }
+}

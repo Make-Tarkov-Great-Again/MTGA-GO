@@ -1,0 +1,1314 @@
+{
+  "ATS_WAR": {
+    "modifier": "none",
+    "basedOn": "5af99e9186f7747c447120b8",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+
+    "item": {
+      "_id": "ATS_WAR",
+      "_name": "ATS_WAR",
+      "_parent": "557596e64bdc2dc2118b4571",
+      "_type": "Item",
+      "_props": {
+        "Name": "ATS_WAR",
+        "ShortName": "ATS_WAR",
+        "Description": "ATS_WAR",
+        "Weight": 0.87,
+        "BackgroundColor": "violet",
+        "Width": 3,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Rare",
+        "SpawnChance": 50,
+        "CreditsPrice": 5230,
+        "ItemSound": "generic",
+        "Prefab": {
+          "path": "ATS_WAR.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": true,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 20,
+        "ExamineExperience": 10,
+        "HideEntrails": true,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": false,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": ["55d72a274bdc2de3098b456c"],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "IsAlwaysAvailableForInsurance": false,
+        "Grids": [
+          {
+            "_name": "pocket1",
+            "_id": "ATS_WAR_1",
+            "_parent": "ATS_WAR",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket2",
+            "_id": "ATS_WAR_2",
+            "_parent": "ATS_WAR",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket3",
+            "_id": "ATS_WAR_3",
+            "_parent": "ATS_WAR",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket4",
+            "_id": "ATS_WAR_4",
+            "_parent": "ATS_WAR",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket5",
+            "_id": "ATS_WAR_5",
+            "_parent": "ATS_WAR",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          }
+        ],
+        "Slots": [],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "SearchSound": "looting_body_extended",
+        "BlocksArmorVest": false
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "ATS Tactical Gear War Belt",
+        "ShortName": "ATS Warbelt",
+        "Description": "The ATS War Belt offers a fresh perspective on the padded first line belt. Great for mounting pouches, rigs, and other equipment that can't mount onto an ordinary belt."
+      },
+      "french": {
+        "Name": "Ceinture de guerre ATS Tactical Gear",
+        "ShortName": "ATS Warbelt",
+        "Description": "La ceinture de guerre ATS offre une nouvelle perspective sur la ceinture rembourrée de première ligne. Idéal pour le montage de pochettes, de plates-formes et d'autres équipements qui ne peuvent pas être montés sur une ceinture ordinaire."
+      },
+      "german": {
+        "Name": "ATS Taktischer Ausrüstungs-Kriegsgürtel",
+        "ShortName": "ATS Warbelt",
+        "Description": "Der ATS War Belt bietet eine neue Perspektive auf den gepolsterten First-Line-Gürtel. Ideal für die Montage von Taschen, Rigs und anderen Geräten, die nicht an einem normalen Gürtel befestigt werden können."
+      },
+      "russian": {
+        "Name": "Военный пояс ATS Tactical Gear",
+        "ShortName": "ATS Warbelt",
+        "Description": "Пояс ATS War Belt по-новому взглянул на мягкий пояс первой линии. Отлично подходит для крепления сумок, буровых установок и другого оборудования, которое нельзя установить на обычный ремень."
+      }
+    }
+  },
+  "KSK_FLECTARN": {
+    "modifier": "none",
+    "basedOn": "5af99e9186f7747c447120b8",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+
+    "item": {
+      "_id": "KSK_FLECTARN",
+      "_name": "KSK_FLECTARN",
+      "_parent": "557596e64bdc2dc2118b4571",
+      "_type": "Item",
+      "_props": {
+        "Name": "KSK_FLECTARN",
+        "ShortName": "KSK_FLECTARN",
+        "Description": "KSK_FLECTARN",
+        "Weight": 0.6,
+        "BackgroundColor": "blue",
+        "Width": 3,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Rare",
+        "SpawnChance": 50,
+        "CreditsPrice": 3400,
+        "ItemSound": "generic",
+        "Prefab": {
+          "path": "KSK_FLECTARN.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": true,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 20,
+        "ExamineExperience": 10,
+        "HideEntrails": true,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": false,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": ["55d72a274bdc2de3098b456c"],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "IsAlwaysAvailableForInsurance": false,
+        "Grids": [
+          {
+            "_name": "pocket1",
+            "_id": "KSK_FLECTARN_1",
+            "_parent": "KSK_FLECTARN",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket2",
+            "_id": "KSK_FLECTARN_2",
+            "_parent": "KSK_FLECTARN",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 3,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket3",
+            "_id": "KSK_FLECTARN_3",
+            "_parent": "KSK_FLECTARN",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          }
+        ],
+        "Slots": [],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "SearchSound": "looting_body_extended",
+        "BlocksArmorVest": false
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "KSK Flektarn Tactical Belt",
+        "ShortName": "TacBelt KSK",
+        "Description": "Additional storage in the form of a Tactical Belt in Flectarn."
+      },
+      "french": {
+        "Name": "Ceinture tactique KSK Flektarn",
+        "ShortName": "TacBelt KSK",
+        "Description": "Stockage supplémentaire sous la forme d'une ceinture tactique à Flectarn."
+      },
+      "german": {
+        "Name": "KSK Flektarn Taktischer Gürtel",
+        "ShortName": "TacBelt KSK",
+        "Description": "Zusätzlicher Stauraum in Form eines Taktischen Gürtels in Flectarn."
+      },
+      "russian": {
+        "Name": "Тактический пояс KSK Flektarn",
+        "ShortName": "TacBelt KSK",
+        "Description": "Дополнительное хранилище в виде тактического пояса во Флектарне."
+      }
+    }
+  },
+  "VTAC": {
+    "modifier": "none",
+    "basedOn": "5af99e9186f7747c447120b8",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+
+    "item": {
+      "_id": "VTAC",
+      "_name": "VTAC",
+      "_parent": "557596e64bdc2dc2118b4571",
+      "_type": "Item",
+      "_props": {
+        "Name": "VTAC",
+        "ShortName": "VTAC",
+        "Description": "VTAC",
+        "Weight": 0.34,
+        "BackgroundColor": "blue",
+        "Width": 3,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Rare",
+        "SpawnChance": 50,
+        "CreditsPrice": 4600,
+        "ItemSound": "generic",
+        "Prefab": {
+          "path": "VTAC.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": true,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 20,
+        "ExamineExperience": 10,
+        "HideEntrails": true,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": false,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": ["55d72a274bdc2de3098b456c"],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "IsAlwaysAvailableForInsurance": false,
+        "Grids": [
+          {
+            "_name": "pocket1",
+            "_id": "VTAC_1",
+            "_parent": "VTAC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket2",
+            "_id": "VTAC_2",
+            "_parent": "VTAC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 3,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket3",
+            "_id": "VTAC_3",
+            "_parent": "VTAC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          }
+        ],
+        "Slots": [],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "SearchSound": "looting_body_extended",
+        "BlocksArmorVest": false
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "VTAC Battle Belt",
+        "ShortName": "Battle Belt",
+        "Description": "Lightweight, comfortable, and adaptable to a wide range of holsters and accessory pouches, the VTAC Battle Belt is made by Warriors, for Warriors."
+      },
+      "french": {
+        "Name": "Ceinture de combat VTAC",
+        "ShortName": "Battle Belt",
+        "Description": "Légère, confortable et adaptable à une large gamme d'étuis et de pochettes d'accessoires, la ceinture de combat VTAC est fabriquée par Warriors, pour les Warriors."
+      },
+      "german": {
+        "Name": "VTAC-Kampfgürtel",
+        "ShortName": "Battle Belt",
+        "Description": "Der VTAC Battle Belt ist leicht, bequem und an eine Vielzahl von Holstern und Zubehörtaschen anpassbar und wird von Warriors für Warriors hergestellt."
+      },
+      "russian": {
+        "Name": "Боевой пояс VTAC",
+        "ShortName": "Battle Belt",
+        "Description": "Легкий, удобный и адаптируемый к широкому спектру кобур и подсумков для аксессуаров, боевой пояс VTAC сделан Warriors для Warriors."
+      }
+    }
+  },
+  "TAC_BLACK": {
+    "modifier": "none",
+    "basedOn": "5af99e9186f7747c447120b8",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+
+    "item": {
+      "_id": "TAC_BLACK",
+      "_name": "TAC_BLACK",
+      "_parent": "557596e64bdc2dc2118b4571",
+      "_type": "Item",
+      "_props": {
+        "Name": "TAC_BLACK",
+        "ShortName": "TAC_BLACK",
+        "Description": "TAC_BLACK",
+        "Weight": 0.8,
+        "BackgroundColor": "blue",
+        "Width": 3,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Rare",
+        "SpawnChance": 50,
+        "CreditsPrice": 4300,
+        "ItemSound": "generic",
+        "Prefab": {
+          "path": "TAC_BLACK.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": true,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 20,
+        "ExamineExperience": 10,
+        "HideEntrails": true,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": false,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": ["55d72a274bdc2de3098b456c"],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "IsAlwaysAvailableForInsurance": false,
+        "Grids": [
+          {
+            "_name": "pocket1",
+            "_id": "TAC_BLACK_1",
+            "_parent": "TAC_BLACK",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket2",
+            "_id": "TAC_BLACK_2",
+            "_parent": "TAC_BLACK",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket3",
+            "_id": "TAC_BLACK_3",
+            "_parent": "TAC_BLACK",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket4",
+            "_id": "TAC_BLACK_4",
+            "_parent": "TAC_BLACK",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket5",
+            "_id": "TAC_BLACK_5",
+            "_parent": "TAC_BLACK",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          }
+        ],
+        "Slots": [],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "SearchSound": "looting_body_extended",
+        "BlocksArmorVest": false
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Tactical Belt (Black)",
+        "ShortName": "TacBelt Black",
+        "Description": "Additional storage in the form of a Tactical Belt in Black."
+      },
+      "french": {
+        "Name": "Ceinture tactique (Noir)",
+        "ShortName": "TacBelt Black",
+        "Description": "Rangement supplémentaire sous la forme d'une ceinture tactique en noir."
+      },
+      "german": {
+        "Name": "Taktischer Gürtel (Schwarz)",
+        "ShortName": "TacBelt Black",
+        "Description": "Zusätzlicher Stauraum in Form eines Taktischen Gürtels in Schwarz."
+      },
+      "russian": {
+        "Name": "Тактический пояс (черный)",
+        "ShortName": "TacBelt Black",
+        "Description": "Дополнительное хранилище в виде тактического пояса черного цвета."
+      }
+    }
+  },
+  "UC_TAC": {
+    "modifier": "none",
+    "basedOn": "5af99e9186f7747c447120b8",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+
+    "item": {
+      "_id": "UC_TAC",
+      "_name": "UC_TAC",
+      "_parent": "557596e64bdc2dc2118b4571",
+      "_type": "Item",
+      "_props": {
+        "Name": "UC_TAC",
+        "ShortName": "UC_TAC",
+        "Description": "UC_TAC",
+        "Weight": 0.8,
+        "BackgroundColor": "blue",
+        "Width": 3,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Rare",
+        "SpawnChance": 50,
+        "CreditsPrice": 4300,
+        "ItemSound": "generic",
+        "Prefab": {
+          "path": "UC_TAC.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": true,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 20,
+        "ExamineExperience": 10,
+        "HideEntrails": true,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": false,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": ["55d72a274bdc2de3098b456c"],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "IsAlwaysAvailableForInsurance": false,
+        "Grids": [
+          {
+            "_name": "pocket1",
+            "_id": "UC_TAC_1",
+            "_parent": "UC_TAC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket2",
+            "_id": "UC_TAC_2",
+            "_parent": "UC_TAC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 2,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket3",
+            "_id": "UC_TAC_3",
+            "_parent": "UC_TAC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 2,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket4",
+            "_id": "UC_TAC_4",
+            "_parent": "UC_TAC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 2,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          }
+        ],
+        "Slots": [],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "SearchSound": "looting_body_extended",
+        "BlocksArmorVest": false
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Umbrella Corps Load Bearing Tactical Belt",
+        "ShortName": "UC TacBelt",
+        "Description": "Standard-Issue, Umbrella Corps Load Bearing Tactical Belt."
+      },
+      "french": {
+        "Name": "Ceinture tactique portante Umbrella Corps",
+        "ShortName": "UC TacBelt",
+        "Description": "Ceinture tactique portante Umbrella Corps de série standard."
+      },
+      "german": {
+        "Name": "Umbrella Corps tragender taktischer Gürtel",
+        "ShortName": "UC TacBelt",
+        "Description": "Standard-Ausgabe, Umbrella Corps tragender taktischer Gürtel."
+      },
+      "russian": {
+        "Name": "Тактический пояс с опорой на корпус зонта",
+        "ShortName": "UC TacBelt",
+        "Description": "Стандартное исполнение, тактический несущий пояс зонтичного корпуса."
+      }
+    }
+  },
+  "TAC_MC": {
+    "modifier": "none",
+    "basedOn": "5af99e9186f7747c447120b8",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+
+    "item": {
+      "_id": "TAC_MC",
+      "_name": "TAC_MC",
+      "_parent": "557596e64bdc2dc2118b4571",
+      "_type": "Item",
+      "_props": {
+        "Name": "TAC_MC",
+        "ShortName": "TAC_MC",
+        "Description": "TAC_MC",
+        "Weight": 0.8,
+        "BackgroundColor": "blue",
+        "Width": 3,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Rare",
+        "SpawnChance": 50,
+        "CreditsPrice": 4300,
+        "ItemSound": "generic",
+        "Prefab": {
+          "path": "TAC_MC.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": true,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 20,
+        "ExamineExperience": 10,
+        "HideEntrails": true,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": false,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": ["55d72a274bdc2de3098b456c"],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "IsAlwaysAvailableForInsurance": false,
+        "Grids": [
+          {
+            "_name": "pocket1",
+            "_id": "TAC_MC_1",
+            "_parent": "TAC_MC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket2",
+            "_id": "TAC_MC_2",
+            "_parent": "TAC_MC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket3",
+            "_id": "TAC_MC_3",
+            "_parent": "TAC_MC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket4",
+            "_id": "TAC_MC_4",
+            "_parent": "TAC_MC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          },
+          {
+            "_name": "pocket5",
+            "_id": "TAC_MC_5",
+            "_parent": "TAC_MC",
+            "_props": {
+              "filters": [
+                {
+                  "Filter": ["54009119af1c881c07000029"],
+                  "ExcludedFilter": [
+                    "5448bf274bdc2dfc2f8b456a",
+                    "ATS_WAR",
+                    "TAC_BLACK",
+                    "TAC_MC",
+                    "KSK_FLECTARN",
+                    "VTAC",
+                    "UC_TAC"
+                  ]
+                }
+              ],
+              "cellsH": 1,
+              "cellsV": 1,
+              "minCount": 0,
+              "maxCount": 0,
+              "maxWeight": 0,
+              "isSortingTable": false
+            },
+            "_proto": "55d329c24bdc2d892f8b4567"
+          }
+        ],
+        "Slots": [],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "SearchSound": "looting_body_extended",
+        "BlocksArmorVest": false
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Tactical Belt (Multicam)",
+        "ShortName": "TacBelt MC",
+        "Description": "Additional storage in the form of a Tactical Belt in Multicam."
+      },
+      "french": {
+        "Name": "Ceinture tactique (Multicam)",
+        "ShortName": "TacBelt MC",
+        "Description": "Rangement supplémentaire sous forme de ceinture tactique en Multicam."
+      },
+      "german": {
+        "Name": "Taktischer Gürtel (Multicam)",
+        "ShortName": "TacBelt MC",
+        "Description": "Zusätzlicher Stauraum in Form eines Taktischen Gürtels in Multicam."
+      },
+      "russian": {
+        "Name": "Тактический пояс (Multicam)",
+        "ShortName": "TacBelt MC",
+        "Description": "Дополнительное хранилище в виде тактического пояса в Multicam."
+      }
+    }
+  }
+}

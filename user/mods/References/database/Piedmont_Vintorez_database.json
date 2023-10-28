@@ -1,0 +1,867 @@
+{
+    "weapon_piedmont_vintorez": {
+        "modifier": "none",
+        "basedOn": "5447a9cd4bdc2dbd208b4567",
+        "addToTrader": {
+            "traderName": [
+                "Therapist"
+            ],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "item": {
+            "_id": "weapon_piedmont_vintorez",
+            "_name": "weapon_piedmont_vintorez",
+            "_parent": "5447b5f14bdc2d61278b4567",
+            "_type": "Item",
+            "_props": {
+                "Name": "weapon_piedmont_vintorez",
+                "ShortName": "weapon_piedmont_vintorez",
+                "Description": "weapon_piedmont_vintorez",
+                "Weight": 0.4,
+                "BackgroundColor": "black",
+                "Width": 1,
+                "Height": 1,
+                "StackMaxSize": 0.4,
+                "Rarity": "Superrare",
+                "SpawnChance": 15,
+                "CreditsPrice": 13450,
+                "ItemSound": "weap_ar",
+                "Prefab": {
+                    "path": "assets/content/weapons/vintorez/weapon_colt_m4a1_556x45_container.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 30,
+                "ExamineExperience": 8,
+                "HideEntrails": false,
+                "RepairCost": 600,
+                "RepairSpeed": 15,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 0,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "Grids": [],
+                "Slots": [
+                    {
+                        "_name": "mod_pistol_grip",
+                        "_id": "5c07c60e0db8340023300521",
+                        "_parent": "5c07c60e0db834002330051f",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "5c0e2ff6d174af02a1659d4a",
+                                        "5a33e75ac4a2826c6e06d759",
+                                        "55d4b9964bdc2d1d4e8b456e",
+                                        "571659bb2459771fb2755a12",
+                                        "602e71bd53a60014f9705bfa",
+                                        "5cc9bcaed7f00c011c04e179",
+                                        "5bb20e18d4351e00320205d5",
+                                        "5bb20e0ed4351e3bac1212dc",
+                                        "5d025cc1d7ad1a53845279ef",
+                                        "5c6d7b3d2e221600114c9b7d",
+                                        "57c55efc2459772d2c6271e7",
+                                        "57af48872459771f0b2ebf11",
+                                        "57c55f092459772d291a8463",
+                                        "57c55f112459772d28133310",
+                                        "57c55f172459772d27602381",
+                                        "5a339805c4a2826c6e06d73d",
+                                        "55802f5d4bdc2dac148b458f",
+                                        "5d15cf3bd7ad1a67e71518b2",
+                                        "59db3a1d86f77429e05b4e92",
+                                        "5fbcbd6c187fea44d52eda14",
+                                        "59db3acc86f7742a2c4ab912",
+                                        "59db3b0886f77429d72fb895",
+                                        "5b07db875acfc40dc528a5f6"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": true,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    },
+                    {
+                        "_name": "mod_magazine",
+                        "_id": "5c07c60e0db8340023300522",
+                        "_parent": "5c07c60e0db834002330051f",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "AnimationIndex": -1,
+                                    "Filter": [
+                                        "vintorez_mag10",
+                                        "vintorez_mag20",
+                                        "vintorez_mag30",
+                                        "pmag_d-60_9x39"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": false,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c394bdc2dae468b4577"
+                    },
+                    {
+                        "_name": "mod_reciever",
+                        "_id": "5c07c60e0db8340023300523",
+                        "_parent": "5c07c60e0db834002330051f",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "receiver_piedmont_vintorez"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": true,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    },
+                    {
+                        "_name": "mod_stock",
+                        "_id": "5c07c60e0db8340023300524",
+                        "_parent": "5c07c60e0db834002330051f",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "5a33ca0fc4a282000d72292f",
+                                        "5c0faeddd174af02a962601f",
+                                        "5649be884bdc2d79388b4577",
+                                        "5d120a10d7ad1a4e1026ba85",
+                                        "5b0800175acfc400153aebd4",
+                                        "5947e98b86f774778f1448bc",
+                                        "5947eab886f77475961d96c5",
+                                        "602e3f1254072b51b239f713",
+                                        "5c793fb92e221644f31bfb64",
+                                        "5c793fc42e221600114ca25d",
+                                        "591aef7986f774139d495f03",
+                                        "591af10186f774139d495f0e"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": true,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    },
+                    {
+                        "_name": "mod_charge",
+                        "_id": "5c07c60e0db8340023300525",
+                        "_parent": "5c07c60e0db834002330051f",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "5c0faf68d174af02a96260b8",
+                                        "56ea7165d2720b6e518b4583",
+                                        "55d44fd14bdc2d962f8b456e",
+                                        "5ea16d4d5aad6446a939753d",
+                                        "5bb20dbcd4351e44f824c04e",
+                                        "6033749e88382f4fab3fd2c5",
+                                        "5b2240bf5acfc40dc528af69",
+                                        "5d44334ba4b9362b346d1948",
+                                        "5f633ff5c444ce7e3c30a006"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": true,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    }
+                ],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "weapClass": "assaultRifle",
+                "weapUseType": "primary",
+                "ammoCaliber": "Caliber9x39",
+                "Durability": 100,
+                "MaxDurability": 100,
+                "OperatingResource": 3000,
+                "RepairComplexity": 0,
+                "durabSpawnMin": 25,
+                "durabSpawnMax": 75,
+                "isFastReload": true,
+                "RecoilForceUp": 161,
+                "RecoilForceBack": 392,
+                "Convergence": 1.5,
+                "RecoilAngle": 90,
+                "weapFireType": [
+                    "single",
+                    "fullauto"
+                ],
+                "RecolDispersion": 25,
+                "bFirerate": 750,
+                "Ergonomics": 48,
+                "Velocity": 0,
+                "bEffDist": 500,
+                "bHearDist": 80,
+                "isChamberLoad": true,
+                "chamberAmmoCount": 1,
+                "isBoltCatch": true,
+                "defMagType": "55d4887d4bdc2d962f8b4570",
+                "defAmmo": "57a0dfb82459774d3078b56c",
+                "shotgunDispersion": 0,
+                "Chambers": [
+                    {
+                        "_name": "patron_in_weapon",
+                        "_id": "5c07c60e0db8340023300526",
+                        "_parent": "5c07c60e0db834002330051f",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Filter": [
+                                        "57a0dfb82459774d3078b56c",
+                                        "57a0e5022459774d1673f889",
+                                        "5c0d668f86f7747ccb7f13b2",
+                                        "5c0d688c86f77413ae3407b2"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": false,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d4af244bdc2d962f8b4571"
+                    }
+                ],
+                "CameraRecoil": 0.2,
+                "CameraSnap": 3.5,
+                "ReloadMode": "ExternalMagazine",
+                "CenterOfImpact": 0.01,
+                "AimPlane": 0.16,
+                "DeviationCurve": 1,
+                "DeviationMax": 100,
+                "Foldable": false,
+                "Retractable": false,
+                "TacticalReloadStiffnes": {
+                    "x": 0.95,
+                    "y": 0.33,
+                    "z": 0.95
+                },
+                "TacticalReloadFixation": 0.95,
+                "RecoilCenter": {
+                    "x": 0,
+                    "y": -0.24,
+                    "z": 0
+                },
+                "RotationCenter": {
+                    "x": 0,
+                    "y": -0.1,
+                    "z": 0
+                },
+                "RotationCenterNoStock": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "SizeReduceRight": 0,
+                "FoldedSlot": "",
+                "CompactHandling": true,
+                "SightingRange": 100,
+                "MinRepairDegradation": 0,
+                "MaxRepairDegradation": 0.01,
+                "IronSightRange": 100,
+                "MustBoltBeOpennedForExternalReload": false,
+                "MustBoltBeOpennedForInternalReload": false,
+                "BoltAction": false,
+                "HipAccuracyRestorationDelay": 0.2,
+                "HipAccuracyRestorationSpeed": 7,
+                "HipInnaccuracyGain": 0.16,
+                "ManualBoltCatch": false,
+                "AimSensitivity": 0.65,
+                "BurstShotsCount": 3
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "Piedmont Cartridge Vintorez Armalite Rifle",
+                "ShortName": "Vintorez AR",
+                "Description": "From the innovative minds of Piedmont Cartridge comes the industry's first 9x39mm fully integrated suppressed rifle system! Built to send a heavy slug down range accurately while keeping sound levels hearing safe, the Vintorez AR rifle system is guaranteed to offer quiet superior performance in even the most adverse conditions!"
+            },
+            "french": {
+                "Name": "Piedmont Cartridge Vintorez Armalite Rifle",
+                "ShortName": "Vintorez AR",
+                "Description": "From the innovative minds of Piedmont Cartridge comes the industry's first 9x39mm fully integrated suppressed rifle system! Built to send a heavy slug down range accurately while keeping sound levels hearing safe, the Vintorez AR rifle system is guaranteed to offer quiet superior performance in even the most adverse conditions!"
+            },
+            "german": {
+                "Name": "Piedmont Cartridge Vintorez Armalite Rifle",
+                "ShortName": "Vintorez AR",
+                "Description": "From the innovative minds of Piedmont Cartridge comes the industry's first 9x39mm fully integrated suppressed rifle system! Built to send a heavy slug down range accurately while keeping sound levels hearing safe, the Vintorez AR rifle system is guaranteed to offer quiet superior performance in even the most adverse conditions!"
+            },
+            "russian": {
+                "Name": "Piedmont Cartridge Vintorez Armalite Rifle",
+                "ShortName": "Vintorez AR",
+                "Description": "From the innovative minds of Piedmont Cartridge comes the industry's first 9x39mm fully integrated suppressed rifle system! Built to send a heavy slug down range accurately while keeping sound levels hearing safe, the Vintorez AR rifle system is guaranteed to offer quiet superior performance in even the most adverse conditions!"
+            }
+        }
+    },
+    "receiver_piedmont_vintorez": {
+        "modifier": "none",
+        "basedOn": "55d355e64bdc2d962f8b4569",
+        "addToTrader": {
+            "traderName": [
+                "Therapist"
+            ],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "item": {
+            "_id": "receiver_piedmont_vintorez",
+            "_name": "receiver_piedmont_vintorez",
+            "_parent": "55818a304bdc2db5418b457d",
+            "_type": "Item",
+            "_props": {
+                "Name": "receiver_piedmont_vintorez",
+                "ShortName": "receiver_piedmont_vintorez",
+                "Description": "receiver_piedmont_vintorez",
+                "Weight": 0.212,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Superrare",
+                "SpawnChance": 3,
+                "CreditsPrice": 31542,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "assets/content/items/mods/recievers/vint_upper.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 0,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "Grids": [],
+                "Slots": [
+                    {
+                        "_name": "mod_scope",
+                        "_id": "5c07a8770db8340023300452",
+                        "_parent": "5c07a8770db8340023300450",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "57ac965c24597706be5f975c",
+                                        "57aca93d2459771f2c7e26db",
+                                        "544a3a774bdc2d3a388b4567",
+                                        "5d2dc3e548f035404a1a4798",
+                                        "57adff4f24597737f373b6e6",
+                                        "5c0517910db83400232ffee5",
+                                        "591c4efa86f7741030027726",
+                                        "570fd79bd2720bc7458b4583",
+                                        "570fd6c2d2720bc6458b457f",
+                                        "558022b54bdc2dac148b458d",
+                                        "5c07dd120db834001c39092d",
+                                        "5c0a2cec0db834001b7ce47d",
+                                        "58491f3324597764bc48fa02",
+                                        "584924ec24597768f12ae244",
+                                        "5b30b0dc5acfc400153b7124",
+                                        "60a23797a37c940de7062d02",
+                                        "5d2da1e948f035477b1ce2ba",
+                                        "5c0505e00db834001b735073",
+                                        "609a63b6e2ff132951242d09",
+                                        "584984812459776a704a82a6",
+                                        "59f9d81586f7744c7506ee62",
+                                        "570fd721d2720bc5458b4596",
+                                        "57ae0171245977343c27bfcf",
+                                        "5dfe6104585a0c3e995c7b82",
+                                        "5d1b5e94d7ad1a2b865a96b0",
+                                        "609bab8b455afd752b2e6138",
+                                        "58d39d3d86f77445bb794ae7",
+                                        "5c7d55f52e221644f31bff6a",
+                                        "5b3b6dc75acfc47a8773fb1e",
+                                        "5b2389515acfc4771e1be0c0",
+                                        "577d128124597739d65d0e56",
+                                        "5c86592b2e2216000e69e77c",
+                                        "5a37ca54c4a282000d72296a",
+                                        "5d0a29fed7ad1a002769ad08",
+                                        "5c064c400db834001d23f468",
+                                        "58d2664f86f7747fec5834f6",
+                                        "57c69dd424597774c03b7bbc",
+                                        "5b3b99265acfc4704b4a1afb",
+                                        "5aa66a9be5b5b0214e506e89",
+                                        "5aa66c72e5b5b00016327c93",
+                                        "5c1cdd302e221602b3137250",
+                                        "5b31163c5acfc400153b71cb",
+                                        "5a33b652c4a28232996e407c",
+                                        "5a33b2c9c4a282000c5a9511",
+                                        "59db7eed86f77461f8380365",
+                                        "5a1ead28fcdbcb001912fa9f",
+                                        "5dff77c759400025ea5150cf"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": false,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    },
+                    {
+                        "_name": "mod_barrel",
+                        "_id": "5c07a8770db8340023300453",
+                        "_parent": "5c07a8770db8340023300450",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "barrel_vintorez_406"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": true,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    },
+                    {
+                        "_name": "mod_handguard",
+                        "_id": "5c07a8770db8340023300454",
+                        "_parent": "5c07a8770db8340023300450",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "5c0e2f5cd174af02a012cfc9",
+                                        "5b2cfa535acfc432ff4db7a0",
+                                        "5ae30db85acfc408fb139a05",
+                                        "5c9a25172e2216000f20314e",
+                                        "55f84c3c4bdc2d5f408b4576",
+                                        "588b56d02459771481110ae2",
+                                        "5c9a26332e2216001219ea70",
+                                        "5ea16ada09aa976f2e7a51be",
+                                        "5ea16acdfadf1d18c87b0784",
+                                        "5a329052c4a28200741e22d3",
+                                        "55d459824bdc2d892f8b4573",
+                                        "5d122e7bd7ad1a07102d6d7f",
+                                        "5d123102d7ad1a004e475fe5",
+                                        "5d4405f0a4b9361e6a4e6bd9",
+                                        "5c78f2792e221600106f4683",
+                                        "5c78f26f2e221601da3581d1",
+                                        "5c78f2492e221600114c9f04",
+                                        "5c78f2612e221600114c9f0d",
+                                        "6034e3e20ddce744014cb878",
+                                        "6034e3d953a60014f970617b",
+                                        "6034e3cb0ddce744014cb870",
+                                        "5c6d5d8b2e221644fc630b39",
+                                        "5d00e0cbd7ad1a6c6566a42d",
+                                        "5d00f63bd7ad1a59283b1c1e",
+                                        "6087e0336d0bd7580617bb7a",
+                                        "595cfa8b86f77427437e845b",
+                                        "595cf16b86f77427440c32e2"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": true,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    },
+                    {
+                        "_name": "mod_sight_rear",
+                        "_id": "5c07a8770db8340023300455",
+                        "_parent": "5c07a8770db8340023300450",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "5bb20e49d4351e3bac1212de",
+                                        "5ba26b17d4351e00367f9bdd",
+                                        "5dfa3d7ac41b2312ea33362a",
+                                        "5c1780312e221602b66cc189",
+                                        "5fb6564947ce63734e3fa1da",
+                                        "5bc09a18d4351e003562b68e",
+                                        "5c18b9192e2216398b5a8104",
+                                        "5fc0fa957283c4046c58147e",
+                                        "5894a81786f77427140b8347",
+                                        "55d5f46a4bdc2d1b198b4567",
+                                        "5ae30bad5acfc400185c2dc4"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": false,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    }
+                ],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -2,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 13,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": false,
+                "SightingRange": 0
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "Piedmont Cartridge Vintorez Upper Reciever",
+                "ShortName": "Vintorez Upper",
+                "Description": "Upper Reciever for Piedmont Cartridge Vintorez Armalite Rifle."
+            },
+            "french": {
+                "Name": "Piedmont Cartridge Vintorez Upper Reciever",
+                "ShortName": "Vintorez Upper",
+                "Description": "Upper Reciever for Piedmont Cartridge Vintorez Armalite Rifle."
+            },
+            "german": {
+                "Name": "Piedmont Cartridge Vintorez Upper Reciever",
+                "ShortName": "Vintorez Upper",
+                "Description": "Upper Reciever for Piedmont Cartridge Vintorez Armalite Rifle."
+            },
+            "russian": {
+                "Name": "Piedmont Cartridge Vintorez Upper Reciever",
+                "ShortName": "Vintorez Upper",
+                "Description": "Upper Reciever for Piedmont Cartridge Vintorez Armalite Rifle."
+            }
+        }
+    },
+    "barrel_vintorez_406": {
+        "modifier": "useBase",
+        "basedOn": "5c0e2f94d174af029f650d56",
+        "addToTrader": {
+            "traderName": [
+                "Therapist"
+            ],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "item": {
+            "_id": "barrel_vintorez_406",
+            "_name": "barrel_vintorez_406",
+            "_parent": "555ef6e44bdc2de9068b457e",
+            "_type": "Item",
+            "_props": {
+                "Name": "barrel_vintorez_406",
+                "ShortName": "barrel_vintorez_406",
+                "Description": "barrel_vintorez_406",
+                "Weight": 0.18,
+                "BackgroundColor": "blue",
+                "Width": 3,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 3,
+                "CreditsPrice": 4255,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/barrel/vintorez/barrel_vintorez_406.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 20,
+                "ExamineExperience": 6,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 1,
+                "ExtraSizeRight": 0,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -2,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": -3,
+                "Velocity": -16.31,
+                "RaidModdable": false,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": false,
+                "SightingRange": 0,
+                "CenterOfImpact": 0.18,
+                "ShotgunDispersion": 1,
+                "IsSilencer": true
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "Integrally Suppressed barrel for Piedmont Vintorez Armalite Rifle",
+                "ShortName": "Vintorez ISb",
+                "Description": "An integrally suppressed barrel for the Piedmont Vintorez."
+            },
+            "french": {
+                "Name": "Integrally Suppressed barrel for Piedmont Vintorez Armalite Rifle",
+                "ShortName": "Vintorez ISb",
+                "Description": "An integrally suppressed barrel for the Piedmont Vintorez."
+            },
+            "german": {
+                "Name": "Integrally Suppressed barrel for Piedmont Vintorez Armalite Rifle",
+                "ShortName": "Vintorez ISb",
+                "Description": "An integrally suppressed barrel for the Piedmont Vintorez."
+            },
+            "russian": {
+                "Name": "Integrally Suppressed barrel for Piedmont Vintorez Armalite Rifle",
+                "ShortName": "Vintorez ISb",
+                "Description": "An integrally suppressed barrel for the Piedmont Vintorez."
+            }
+        }
+    },
+    "pmag_d-60_9x39": {
+        "modifier": "none",
+        "basedOn": "55802d5f4bdc2dac148b458e",
+        "addMods": {
+            "mod_magazine": [
+                "57c44b372459772d2b39b8ce",
+                "57838ad32459774a17445cd2"
+            ]
+        },
+        "addToTrader": {
+            "traderName": [
+                "Therapist"
+            ],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "item": {
+            "_id": "pmag_d-60_9x39",
+            "_name": "mag_stanag_magpul_pmag_d-60_556x45_60",
+            "_parent": "5448bc234bdc2d3c308b4569",
+            "_type": "Item",
+            "_props": {
+                "Name": "mag_stanag_magpul_pmag_d-60_556x45_60",
+                "ShortName": "mag_stanag_magpul_pmag_d-60_556x45_60",
+                "Description": "mag_stanag_magpul_pmag_d-60_556x45_60",
+                "Weight": 0.58,
+                "BackgroundColor": "yellow",
+                "Width": 1,
+                "Height": 2,
+                "StackMaxSize": 1,
+                "Rarity": "Superrare",
+                "SpawnChance": 4,
+                "CreditsPrice": 15413,
+                "ItemSound": "mag_plastic",
+                "Prefab": {
+                    "path": "assets/content/items/mods/magazines/pmag_d-60_9x39.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 20,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 0,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 1,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": 0,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": -16,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": false,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": false,
+                "SightingRange": 0,
+                "magAnimationIndex": 5,
+                "Cartridges": [
+                    {
+                        "_name": "cartridges",
+                        "_id": "59c1383d86f774290a37e0cb",
+                        "_parent": "pmag_d-60_9x39",
+                        "_max_count": 60,
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Filter": [
+                                        "5c0d688c86f77413ae3407b2",
+                                        "57a0dfb82459774d3078b56c",
+                                        "57a0e5022459774d1673f889",
+                                        "5c0d668f86f7747ccb7f13b2"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_proto": "5748538b2459770af276a261"
+                    }
+                ],
+                "CanFast": true,
+                "CanHit": false,
+                "CanAdmin": false,
+                "LoadUnloadModifier": 60,
+                "CheckTimeModifier": 20,
+                "CheckOverride": 0,
+                "ReloadMagType": "ExternalMagazine",
+                "VisibleAmmoRangesString": "1-3"
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "BASED 9x39 Magpul PMAG D-69 60-round magazine",
+                "ShortName": "BASED 60",
+                "Description": "The PMAG D-69 60-round polymer Magpul magazine for 9x39 rounds."
+            },
+            "french": {
+                "Name": "BASED 9x39 Magpul PMAG D-69 60-round magazine",
+                "ShortName": "BASED 60",
+                "Description": "The PMAG D-69 60-round polymer Magpul magazine for 9x39 rounds."
+            },
+            "german": {
+                "Name": "BASED 9x39 Magpul PMAG D-69 60-round magazine",
+                "ShortName": "BASED 60",
+                "Description": "The PMAG D-69 60-round polymer Magpul magazine for 9x39 rounds."
+            },
+            "russian": {
+                "Name": "BASED 9x39 Magpul PMAG D-69 60-round magazine",
+                "ShortName": "BASED 60",
+                "Description": "The PMAG D-69 60-round polymer Magpul magazine for 9x39 rounds."
+            }
+        }
+    }
+}

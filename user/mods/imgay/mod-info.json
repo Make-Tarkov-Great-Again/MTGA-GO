@@ -1,0 +1,8 @@
+{
+  "PackageName": "imgay",
+  "PackageAlias": "imgay",
+  "MTGA_Version": "1.0.0",
+  "Parameters": {
+    "CustomItems": true
+  }
+}

@@ -1,0 +1,391 @@
+{
+  "trade_token": {
+    "modifier": "none",
+    "basedOn": "573474f924597738002c6174",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "item": {
+      "_id": "trade_token",
+      "_name": "item_barter_valuable_gp",
+      "_parent": "57864a3d24597754843f8721",
+      "_type": "Item",
+      "_props": {
+        "Name": "item_barter_valuable_gp",
+        "ShortName": "item_barter_valuable_gp",
+        "Description": "item_barter_valuable_gp",
+        "Weight": 0.01,
+        "BackgroundColor": "violet",
+        "Width": 1,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Common",
+        "SpawnChance": 22,
+        "CreditsPrice": 55420,
+        "ItemSound": "jewelry",
+        "Prefab": {
+          "path": "assets/content/items/barter/item_barter_valuable_gp/trade_token.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": false,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 100,
+        "ExamineExperience": 10,
+        "HideEntrails": false,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": false,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": [],
+        "FixedPrice": true,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "MaxResource": 0,
+        "Resource": 0
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Silver GP Coin",
+        "ShortName": "Silver GP",
+        "Description": "Aдmnh, hаknhь ГПwek is written on this silver coin, which, according to rumors, was actively used as a means of payment for PMC services during the Contract Wars."
+      },
+      "russian": {
+        "Name": "Серебряная монета GP",
+        "ShortName": "Silver GP",
+        "Description": "На этой серебряной монете, которая, по слухам, активно использовалась как средство оплаты услуг ЧВК во время Контрактных войн, написано \"Админ, накинь ГПшек\"."
+      },
+      "french": {
+        "Name": "Pièce d'argent GP",
+        "ShortName": "Silver GP",
+        "Description": "Amnh, haknhь swek est écrit sur cette pièce d'argent, qui, selon les rumeurs, a été activement utilisée comme moyen de paiement pour les services PMC pendant les guerres des contrats."
+      },
+      "german": {
+        "Name": "Silberne GP-Münze",
+        "ShortName": "Silver GP",
+        "Description": "Aдmnh, haknhь ГПwek steht auf dieser Silbermünze, die Gerüchten zufolge während der Vertragskriege aktiv als Zahlungsmittel für PMC-Dienste verwendet wurde."
+      }
+    }
+  },
+  "mystery_box": {
+    "modifier": "none",
+    "basedOn": "573477e124597737dd42e191",
+    "addToTrader": {
+      "traderName": ["Therapist"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "item": {
+      "_id": "mystery_box",
+      "_name": "mystery_box",
+      "_parent": "5448ecbe4bdc2d60728b4568",
+      "_type": "Item",
+      "_props": {
+        "Name": "quest_package",
+        "ShortName": "quest_package",
+        "Description": "quest_package",
+        "Weight": 1.2,
+        "BackgroundColor": "yellow",
+        "Width": 1,
+        "Height": 2,
+        "StackMaxSize": 1,
+        "Rarity": "Not_exist",
+        "SpawnChance": 1,
+        "CreditsPrice": 50000,
+        "ItemSound": "gear_goggles",
+        "Prefab": {
+          "path": "assets/content/items/quest/item_quest_parcel/mystery_box.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": false,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 150,
+        "ExamineExperience": 45,
+        "HideEntrails": false,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": false,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": [],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Mystery Loot Box",
+        "ShortName": "Loot Box",
+        "Description": "A box that could have anything inside"
+      },
+      "russian": {
+        "Name": "Таинственный ящик с добычей",
+        "ShortName": "Loot Box",
+        "Description": "Коробка, внутри которой может быть что угодно"
+      },
+      "french": {
+        "Name": "Boîte de butin mystère",
+        "ShortName": "Loot Box",
+        "Description": "Une boîte qui pourrait avoir n'importe quoi à l'intérieur"
+      },
+      "german": {
+        "Name": "Mysteriöse Lootbox",
+        "ShortName": "Loot Box",
+        "Description": "Eine Kiste, in der alles drin sein könnte"
+      }
+    }
+  },
+  "basedMount": {
+    "modifier": "useBase",
+    "basedOn": "58d39d3d86f77445bb794ae7",
+    "addToTrader": {
+      "traderName": ["Therapist"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": {
+      "allCompatible": ["5894a81786f77427140b8347"]
+    },
+    "item": {
+      "_id": "basedMount",
+      "_name": "basedMount",
+      "_props": {
+        "Name": "basedMount",
+        "ShortName": "basedMount",
+        "Description": "basedMount",
+        "Weight": 0.017,
+        "CreditsPrice": 1648,
+        "Prefab": {
+          "path": "assets/content/items/mods/mounts/king_multi_mount.bundle",
+          "rcid": ""
+        }
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "BASED King Multi-Mount",
+        "ShortName": "BASED",
+        "Description": "The based multi-mount for rear sight mounting of all scopes. Consumers say: \"it's nice to be able to put things in your rear\"."
+      },
+      "russian": {
+        "Name": "BASED King Multi-Mount",
+        "ShortName": "BASED",
+        "Description": "Основанное мульти-крепление для установки на задний прицел всех оптических прицелов. Потребители говорят: \"Приятно, когда можно установить что-то в зад\"."
+      },
+      "french": {
+        "Name": "BASED King Multi-Mount",
+        "ShortName": "BASED",
+        "Description": "Le multi-montage de base pour le montage du viseur arrière de toutes les lunettes de visée. Les consommateurs le disent : \"C'est agréable de pouvoir mettre des choses à l'arrière\"."
+      },
+      "german": {
+        "Name": "BASED King Multi-Mount",
+        "ShortName": "BASED",
+        "Description": "Die zugrundeliegende Multimontage für die Kimmenmontage aller Zielfernrohre. Die Verbraucher sagen: \"Es ist schön, Dinge in die Kimme stecken zu können\"."
+      }
+    }
+  },
+  "5649a2464bdc2d91118b45a8": {
+    "modifier": "edit",
+    "addMods": {
+      "mod_scope": ["basedMount"]
+    }
+  },
+  "REVAN_VOORHEES": {
+    "modifier": "none",
+    "basedOn": "5bd071d786f7747e707b93a3",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": {
+      "Headwear": ["55d7217a4bdc2d86028b456d"]
+    },
+    "item": {
+      "_id": "REVAN_VOORHEES",
+      "_name": "REVAN_VOORHEES",
+      "_parent": "5d21f59b6dbe99052b54ef83",
+      "_type": "Item",
+      "_props": {
+        "Name": "REVAN_VOORHEES",
+        "ShortName": "REVAN_VOORHEES",
+        "Description": "REVAN_VOORHEES\n",
+        "Weight": 0.92,
+        "BackgroundColor": "default",
+        "Width": 2,
+        "Height": 2,
+        "StackMaxSize": 1,
+        "Rarity": "Not_exist",
+        "SpawnChance": 1,
+        "CreditsPrice": 480000,
+        "ItemSound": "gear_goggles",
+        "Prefab": {
+          "path": "REVAN_VOORHEES.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": false,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 20,
+        "ExamineExperience": 10,
+        "HideEntrails": false,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": false,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": [
+          "5a341c4686f77469e155819e",
+          "5448e5724bdc2ddf718b4568"
+        ],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "IsAlwaysAvailableForInsurance": false,
+        "Grids": [],
+        "Slots": [],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "Durability": 100,
+        "Accuracy": 0,
+        "Recoil": 0,
+        "Loudness": 0,
+        "EffectiveDistance": 0,
+        "Ergonomics": 0,
+        "Velocity": 0,
+        "RaidModdable": true,
+        "ToolModdable": false,
+        "BlocksFolding": false,
+        "BlocksCollapsible": false,
+        "IsAnimated": false,
+        "HasShoulderContact": false,
+        "SightingRange": 0,
+        "CustomAimPlane": "",
+        "sightModType": "iron",
+        "aimingSensitivity": 0.2,
+        "SightModesCount": 1,
+        "OpticCalibrationDistances": [50, 100, 150, 200],
+        "ScopesCount": 1,
+        "AimSensitivity": [[0.2]],
+        "ModesCount": [1],
+        "Zooms": [[1]],
+        "CalibrationDistances": [[50, 100, 150, 200]],
+        "RampPalette": "Fusion",
+        "DepthFade": 0.03,
+        "RoughnessCoef": 0.04,
+        "SpecularCoef": 0.14,
+        "MainTexColorCoef": 2,
+        "MinimumTemperatureValue": 0,
+        "RampShift": 0.02,
+        "HeatMin": 0.2,
+        "ColdMax": 0.15,
+        "IsNoisy": false,
+        "NoiseIntensity": 0.07,
+        "IsFpsStuck": false,
+        "IsGlitch": false,
+        "IsMotionBlurred": false,
+        "Mask": "Binocular",
+        "MaskSize": 1.75,
+        "IsPixelated": false,
+        "PixelationBlockCount": 1024
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "REVAN_VOORHEES",
+        "ShortName": "REVAN_VOORHEES",
+        "Description": "REVAN_VOORHEES"
+      },
+      "french": {
+        "Name": "REVAN_VOORHEES",
+        "ShortName": "REVAN_VOORHEES",
+        "Description": "REVAN_VOORHEES"
+      },
+      "german": {
+        "Name": "REVAN_VOORHEES",
+        "ShortName": "REVAN_VOORHEES",
+        "Description": "REVAN_VOORHEES"
+      },
+      "russian": {
+        "Name": "REVAN_VOORHEES",
+        "ShortName": "REVAN_VOORHEES",
+        "Description": "REVAN_VOORHEES"
+      }
+    }
+  }
+}

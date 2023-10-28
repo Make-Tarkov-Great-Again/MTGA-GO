@@ -1,0 +1,292 @@
+{
+  "HEAVY_TROOPER_BLACK": {
+    "modifier": "useBase",
+    "basedOn": "5ea058e01dbce517f324b3e2",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5ea058e01dbce517f324b3e2"] },
+    "item": {
+      "_id": "HEAVY_TROOPER_BLACK",
+      "_name": "HEAVY_TROOPER_BLACK",
+      "_parent": "57bef4c42459772e8d35a53b",
+      "_type": "Item",
+      "_props": {
+        "Name": "HEAVY_TROOPER_BLACK",
+        "ShortName": "HEAVY_TROOPER_BLACK",
+        "Description": "HEAVY_TROOPER_BLACK",
+        "Weight": 1.2,
+        "BackgroundColor": "black",
+        "SpawnChance": 1,
+        "CreditsPrice": 381000,
+        "ItemSound": "gear_helmet",
+        "Prefab": {
+          "path": "heavyblack.bundle",
+          "rcid": ""
+        },
+        "Durability": 160,
+        "MaxDurability": 160,
+        "armorClass": "8",
+        "speedPenaltyPercent": 0,
+        "mousePenalty": -2,
+        "weaponErgonomicPenalty": -2
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Heavy Trooper Black",
+        "ShortName": "Hvy Black",
+        "Description": "Reinforced Heavy Trooper mask made of classified ballistic material, painted in black."
+      },
+      "french": {
+        "Name": "Heavy Trooper Noir",
+        "ShortName": "Hvy Black",
+        "Description": "Masque renforcé de soldat lourd en matériau balistique classé, peint en noir."
+      },
+      "german": {
+        "Name": "Schwerer Soldat Schwarz",
+        "ShortName": "Hvy Black",
+        "Description": "Verstärkte Heavy Trooper Maske aus klassifiziertem ballistischem Material, schwarz lackiert."
+      },
+      "russian": {
+        "Name": "Heavy Trooper Black",
+        "ShortName": "Hvy Black",
+        "Description": "Усиленная маска Heavy Trooper из классифицированного баллистического материала, окрашенная в черный цвет."
+      }
+    }
+  },
+  "HEAVY_TROOPER_COYOTE": {
+    "modifier": "useBase",
+    "basedOn": "5ea058e01dbce517f324b3e2",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5ea058e01dbce517f324b3e2"] },
+    "item": {
+      "_id": "HEAVY_TROOPER_COYOTE",
+      "_name": "HEAVY_TROOPER_COYOTE",
+      "_parent": "57bef4c42459772e8d35a53b",
+      "_type": "Item",
+      "_props": {
+        "Name": "HEAVY_TROOPER_COYOTE",
+        "ShortName": "HEAVY_TROOPER_COYOTE",
+        "Description": "HEAVY_TROOPER_COYOTE",
+        "Weight": 1.2,
+        "BackgroundColor": "black",
+        "SpawnChance": 1,
+        "CreditsPrice": 381000,
+        "ItemSound": "gear_helmet",
+        "Prefab": {
+          "path": "heavycoyote.bundle",
+          "rcid": ""
+        },
+        "Durability": 160,
+        "MaxDurability": 160,
+        "armorClass": "8",
+        "speedPenaltyPercent": 0,
+        "mousePenalty": -2,
+        "weaponErgonomicPenalty": -2
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Heavy Trooper Coyote",
+        "ShortName": "Hvy Coyoto",
+        "Description": "Reinforced Heavy Trooper mask made of classified ballistic material, painted in coyote tan."
+      },
+      "french": {
+        "Name": "Heavy Trooper Coyote",
+        "ShortName": "Hvy Coyoto",
+        "Description": "Masque renforcé de soldat lourd en matériau balistique classé, peint en beige coyote."
+      },
+      "german": {
+        "Name": "Schwerer Soldat Coyote",
+        "ShortName": "Hvy Coyoto",
+        "Description": "Verstärkte Heavy Trooper Maske aus klassifiziertem ballistischem Material, lackiert in coyote tan."
+      },
+      "russian": {
+        "Name": "Тяжелый десантник Койотe",
+        "ShortName": "Hvy Coyoto",
+        "Description": "Усиленная маска Heavy Trooper из классифицированного баллистического материала, окрашенная в цвет койота."
+      }
+    }
+  },
+  "HEAVY_TROOPER_TAN": {
+    "modifier": "useBase",
+    "basedOn": "5ea058e01dbce517f324b3e2",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5ea058e01dbce517f324b3e2"] },
+    "item": {
+      "_id": "HEAVY_TROOPER_TAN",
+      "_name": "HEAVY_TROOPER_TAN",
+      "_parent": "57bef4c42459772e8d35a53b",
+      "_type": "Item",
+      "_props": {
+        "Name": "HEAVY_TROOPER_TAN",
+        "ShortName": "HEAVY_TROOPER_TAN",
+        "Description": "HEAVY_TROOPER_TAN",
+        "Weight": 1.2,
+        "BackgroundColor": "black",
+        "SpawnChance": 1,
+        "CreditsPrice": 381000,
+        "ItemSound": "gear_helmet",
+        "Prefab": {
+          "path": "heavytan.bundle",
+          "rcid": ""
+        },
+        "Durability": 160,
+        "MaxDurability": 160,
+        "armorClass": "8",
+        "speedPenaltyPercent": 0,
+        "mousePenalty": -2,
+        "weaponErgonomicPenalty": -2
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Heavy Trooper Tan",
+        "ShortName": "Hvy Tan",
+        "Description": "Reinforced Heavy Trooper mask made of classified ballistic material, painted in tan."
+      },
+      "french": {
+        "Name": "Heavy Trooper Tan",
+        "ShortName": "Hvy Tan",
+        "Description": "Masque renforcé de soldat lourd en matériau balistique classé, peint en beige."
+      },
+      "german": {
+        "Name": "Schwerer Soldat Tan",
+        "ShortName": "Hvy Tan",
+        "Description": "Verstärkte Heavy Trooper-Maske aus klassifiziertem ballistischem Material, lackiert in Tan."
+      },
+      "russian": {
+        "Name": "Маска тяжелого десанта",
+        "ShortName": "Hvy Tan",
+        "Description": "Усиленная маска Heavy Trooper из классифицированного баллистического материала, окрашенная в цвет загара."
+      }
+    }
+  },
+  "HEAVY_TROOPER_WOLF": {
+    "modifier": "useBase",
+    "basedOn": "5ea058e01dbce517f324b3e2",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5ea058e01dbce517f324b3e2"] },
+    "item": {
+      "_id": "HEAVY_TROOPER_WOLF",
+      "_name": "HEAVY_TROOPER_WOLF",
+      "_parent": "57bef4c42459772e8d35a53b",
+      "_type": "Item",
+      "_props": {
+        "Name": "HEAVY_TROOPER_WOLF",
+        "ShortName": "HEAVY_TROOPER_WOLF",
+        "Description": "HEAVY_TROOPER_WOLF",
+        "Weight": 1.2,
+        "BackgroundColor": "black",
+        "SpawnChance": 1,
+        "CreditsPrice": 381000,
+        "ItemSound": "gear_helmet",
+        "Prefab": {
+          "path": "heavywolf.bundle",
+          "rcid": ""
+        },
+        "Durability": 160,
+        "MaxDurability": 160,
+        "armorClass": "8",
+        "speedPenaltyPercent": 0,
+        "mousePenalty": -2,
+        "weaponErgonomicPenalty": -2
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Heavy Trooper Wolf",
+        "ShortName": "Hvy Wolf",
+        "Description": "Reinforced Heavy Trooper mask made of classified ballistic material, painted to resemble a wolf."
+      },
+      "french": {
+        "Name": "Loup de soldat lourd",
+        "ShortName": "Hvy Wolf",
+        "Description": "Masque renforcé de soldat lourd en matériau balistique classé, peint pour ressembler à un loup."
+      },
+      "german": {
+        "Name": "Schwerer Soldat Wolf",
+        "ShortName": "Hvy Wolf",
+        "Description": "Verstärkte Maske eines schweren Soldaten aus klassifiziertem ballistischem Material, bemalt in Form eines Wolfs."
+      },
+      "russian": {
+        "Name": "Тяжелый десантник Волк",
+        "ShortName": "Hvy Wolf",
+        "Description": "Усиленная маска тяжелого десантника из классифицированного баллистического материала, раскрашенная под волка."
+      }
+    }
+  },
+  "HEAVY_TROOPER_SUPER": {
+    "modifier": "useBase",
+    "basedOn": "5ea058e01dbce517f324b3e2",
+    "addToTrader": {
+      "traderName": ["Ragman"],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5ea058e01dbce517f324b3e2"] },
+    "item": {
+      "_id": "HEAVY_TROOPER_SUPER",
+      "_name": "HEAVY_TROOPER_SUPER",
+      "_parent": "57bef4c42459772e8d35a53b",
+      "_type": "Item",
+      "_props": {
+        "Name": "HEAVY_TROOPER_SUPER",
+        "ShortName": "HEAVY_TROOPER_SUPER",
+        "Description": "HEAVY_TROOPER_SUPER",
+        "Weight": 1.2,
+        "BackgroundColor": "black",
+        "SpawnChance": 1,
+        "CreditsPrice": 381000,
+        "ItemSound": "gear_helmet",
+        "Prefab": {
+          "path": "supertrooper.bundle",
+          "rcid": ""
+        },
+        "Durability": 160,
+        "MaxDurability": 160,
+        "armorClass": "8",
+        "speedPenaltyPercent": 0,
+        "mousePenalty": -2,
+        "weaponErgonomicPenalty": -2
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Heavy Trooper",
+        "ShortName": "Hvy",
+        "Description": "Reinforced Heavy Trooper mask made of classified ballistic material."
+      },
+      "french": {
+        "Name": "Soldat lourd",
+        "ShortName": "Hvy",
+        "Description": "Masque renforcé de soldat lourd en matériau balistique classé."
+      },
+      "german": {
+        "Name": "Schwerer Soldat",
+        "ShortName": "Hvy",
+        "Description": "Verstärkte Heavy Trooper-Maske aus klassifiziertem ballistischem Material."
+      },
+      "russian": {
+        "Name": "Тяжелый десант",
+        "ShortName": "Hvy",
+        "Description": "Усиленная маска Heavy Trooper из классифицированного баллистического материала."
+      }
+    }
+  }
+}

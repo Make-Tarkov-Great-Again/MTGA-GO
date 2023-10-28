@@ -102,6 +102,16 @@ func AddMainRoute(route string, handler http.HandlerFunc) {
 	mainRouteHandlers[route] = handler
 }
 
+func OverrideMainRoute(route string, handler http.HandlerFunc) {
+	if _, ok := mainRouteHandlers[route]; !ok {
+		fmt.Println("URL doesn't exist")
+		return
+	}
+
+	fmt.Println("URL override for", route, "registered")
+	mainRouteHandlers[route] = handler
+}
+
 func setMainRoutes(mux *http.ServeMux) {
 	for route, handler := range mainRouteHandlers {
 		mux.HandleFunc(route, handler)
@@ -126,6 +136,16 @@ func AddTradingRoute(route string, handler http.HandlerFunc) {
 	tradingRouteHandlers[route] = handler
 }
 
+func OverrideTradingRoute(route string, handler http.HandlerFunc) {
+	if _, ok := tradingRouteHandlers[route]; !ok {
+		fmt.Println("URL doesn't exist")
+		return
+	}
+
+	fmt.Println("URL override for", route, "registered")
+	tradingRouteHandlers[route] = handler
+}
+
 func setTradingRoutes(mux *http.ServeMux) {
 	for route, handler := range tradingRouteHandlers {
 		mux.HandleFunc(route, handler)
@@ -142,6 +162,16 @@ func setRagfairRoutes(mux *http.ServeMux) {
 	for route, handler := range ragfairRouteHandlers {
 		mux.HandleFunc(route, handler)
 	}
+}
+
+func OverrideRagfairRoute(route string, handler http.HandlerFunc) {
+	if _, ok := ragfairRouteHandlers[route]; !ok {
+		fmt.Println("URL doesn't exist")
+		return
+	}
+
+	fmt.Println("URL override for", route, "registered")
+	ragfairRouteHandlers[route] = handler
 }
 
 var messagingRouteHandlers = map[string]http.HandlerFunc{
@@ -189,6 +219,16 @@ func setMessagingRoutes(mux *http.ServeMux) {
 
 }
 
+func OverrideMessagingRoute(route string, handler http.HandlerFunc) {
+	if _, ok := messagingRouteHandlers[route]; !ok {
+		fmt.Println("URL doesn't exist")
+		return
+	}
+
+	fmt.Println("URL override for", route, "registered")
+	messagingRouteHandlers[route] = handler
+}
+
 var lobbyRouteHandlers = map[string]http.HandlerFunc{
 	"/push/notifier/get/":          handlers.LobbyPushNotifier,
 	"/push/notifier/getwebsocket/": handlers.LobbyGetWebSocket,
@@ -198,4 +238,14 @@ func setLobbyRoutes(mux *http.ServeMux) {
 	for route, handler := range lobbyRouteHandlers {
 		mux.HandleFunc(route, handler)
 	}
+}
+
+func OverrideLobbyRoute(route string, handler http.HandlerFunc) {
+	if _, ok := lobbyRouteHandlers[route]; !ok {
+		fmt.Println("URL doesn't exist")
+		return
+	}
+
+	fmt.Println("URL override for", route, "registered")
+	lobbyRouteHandlers[route] = handler
 }

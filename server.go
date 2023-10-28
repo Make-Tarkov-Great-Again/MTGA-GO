@@ -25,6 +25,7 @@ func main() {
 	database.SetDatabase()
 	mods.Init()
 	database.SetBundleManifests()
+	database.ProcessCustomItems()
 	database.SetTraderIndex()
 	database.SetProfiles()
 

@@ -66,15 +66,15 @@ func ItemClone(item string) *DatabaseItem {
 	return clone
 }
 
-func (db *DatabaseItem) Clone() *DatabaseItem {
+func (i *DatabaseItem) Clone() *DatabaseItem {
 	clone := new(DatabaseItem)
 
-	clone.ID = db.ID
-	clone.Name = db.Name
-	clone.Parent = db.Parent
-	clone.Type = db.Type
-	clone.Props = db.Props
-	clone.Proto = db.Proto
+	clone.ID = i.ID
+	clone.Name = i.Name
+	clone.Parent = i.Parent
+	clone.Type = i.Type
+	clone.Props = i.Props
+	clone.Proto = i.Proto
 
 	return clone
 }
@@ -239,6 +239,166 @@ func setItems() {
 
 func SetNewItem(entry DatabaseItem) {
 	items[entry.ID] = &entry
+}
+
+func (i *DatabaseItem) GenerateNewUPD() *AssortItemUpd {
+
+	itemUpd := new(AssortItemUpd)
+	switch i.Parent {
+	case "590c745b86f7743cc433c5f2":
+		resource, ok := i.Props["Resource"].(float64)
+		if !ok {
+			fmt.Println("ballsack")
+			return nil
+		}
+		itemUpd.Resource = new(Resource)
+		itemUpd.Resource.Value = int16(resource)
+		return itemUpd
+	case "5448f3ac4bdc2dce718b4569":
+		resource, ok := i.Props["MaxHpResource"].(float64)
+		if !ok {
+			fmt.Println("ballsack")
+			return nil
+		}
+
+		itemUpd.MedKit = new(MedicalKit)
+		itemUpd.MedKit.HpResource = int(resource)
+		return itemUpd
+
+	case "5448e8d04bdc2ddf718b4569", "5448e8d64bdc2dce718b4568":
+		{
+			resource, ok := i.Props["MaxResource"].(float64)
+			if !ok {
+				fmt.Println("ballsack")
+				return nil
+			}
+
+			itemUpd.FoodDrink = new(FoodDrink)
+			itemUpd.FoodDrink.HpPercent = int16(resource)
+			return itemUpd
+		}
+	case "5a341c4086f77401f2541505", "5448e5284bdc2dcb718b4567",
+		"57bef4c42459772e8d35a53b", "5a341c4686f77469e155819e",
+		"5447e1d04bdc2dff2f8b4567", "5448e54d4bdc2dcc718b4568",
+		"5448e5724bdc2ddf718b4568":
+		{
+			maxDurability, ok := i.Props["MaxDurability"].(float64)
+			if !ok {
+				fmt.Println("ballsack")
+				return nil
+			}
+
+			durability, ok := i.Props["Durability"].(float64)
+			if !ok {
+				fmt.Println("ballsack")
+				return nil
+			}
+
+			itemUpd.Repairable = new(Repairable)
+			itemUpd.Repairable.MaxDurability = int(maxDurability)
+			itemUpd.Repairable.Durability = int(durability)
+			return itemUpd
+		}
+	case "55818ae44bdc2dde698b456c", "55818ac54bdc2d5b648b456e",
+		"55818acf4bdc2dde698b456b", "55818ad54bdc2ddc698b4569",
+		"55818add4bdc2d5b648b456f", "55818aeb4bdc2ddc698b456a":
+		{
+
+			itemUpd.Sight = new(Sight)
+			itemUpd.Sight.ScopesCurrentCalibPointIndexes = []int{0}
+			itemUpd.Sight.ScopesSelectedModes = []int{0}
+			itemUpd.Sight.SelectedScope = 0
+
+			return itemUpd
+		}
+	case "5447bee84bdc2dc3278b4569", "5447bedf4bdc2d87278b4568",
+		"5447bed64bdc2d97278b4568", "5447b6254bdc2dc3278b4568",
+		"5447b6194bdc2d67278b4567", "5447b6094bdc2dc3278b4567",
+		"5447b5fc4bdc2d87278b4567", "5447b5f14bdc2d61278b4567",
+		"5447b5e04bdc2d62278b4567", "617f1ef5e8b54b0998387733":
+		{
+			maxDurability, ok := i.Props["MaxDurability"].(float64)
+			if !ok {
+				fmt.Println("ballsack")
+				return nil
+			}
+
+			durability, ok := i.Props["Durability"].(float64)
+			if !ok {
+				fmt.Println("ballsack")
+				return nil
+			}
+
+			itemUpd.Repairable = new(Repairable)
+			itemUpd.Foldable = new(Foldable)
+			itemUpd.FireMode = new(FireMode)
+
+			itemUpd.Repairable.MaxDurability = int(maxDurability)
+			itemUpd.Repairable.Durability = int(durability)
+			itemUpd.Foldable.Folded = false
+			itemUpd.FireMode.FireMode = "single"
+
+			return itemUpd
+		}
+
+	case "5447b5cf4bdc2d65278b4567":
+		{
+			maxDurability, ok := i.Props["MaxDurability"].(float64)
+			if !ok {
+				fmt.Println("ballsack")
+				return nil
+			}
+
+			durability, ok := i.Props["Durability"].(float64)
+			if !ok {
+				fmt.Println("ballsack")
+				return nil
+			}
+
+			itemUpd.Repairable = new(Repairable)
+			itemUpd.FireMode = new(FireMode)
+
+			itemUpd.Repairable.MaxDurability = int(maxDurability)
+			itemUpd.Repairable.Durability = int(durability)
+			itemUpd.FireMode.FireMode = "single"
+
+			return itemUpd
+		}
+	case "616eb7aea207f41933308f46":
+		{
+			maxRepairResource, ok := i.Props["MaxRepairResource"].(float64)
+			if !ok {
+				fmt.Println("ballsack")
+				return nil
+			}
+
+			itemUpd.RepairKit = new(RepairKit)
+			itemUpd.RepairKit.Resource = int16(maxRepairResource)
+			return itemUpd
+		}
+	case "5485a8684bdc2da71d8b4567":
+		{
+			stackMaxSize, ok := i.Props["StackMaxSize"].(float64)
+			if !ok {
+				fmt.Println("ballsack")
+				return nil
+			}
+
+			itemUpd.StackObjectsCount = int(stackMaxSize)
+			return itemUpd
+		}
+	case "55818b084bdc2d5b648b4571", "55818b164bdc2ddc698b456c":
+		{
+			itemUpd.Light = new(Light)
+
+			itemUpd.Light.IsActive = false
+			itemUpd.Light.SelectedMode = 0
+			return itemUpd
+		}
+	default:
+		log.Println(i.Parent, "does not require a UPD")
+		return nil
+	}
 }
 
 // #endregion

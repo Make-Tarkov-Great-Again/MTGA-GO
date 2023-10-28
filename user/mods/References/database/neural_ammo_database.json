@@ -1,0 +1,1032 @@
+{
+	"5efb0cabfb3e451d70735af5": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.017,
+			"InitialSpeed": 275,
+			"Rarity": "Rare",
+			"SpawnChance": 28,
+			"CreditsPrice": 49,
+			"Damage": 60,
+			"ammoAccr": 0,
+			"ammoRec": -6,
+			"PenetrationPower": 15,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.269,
+			"RicochetChance": 0.16,
+			"FragmentationChance": 0.16,
+			"ArmorDamage": 38,
+			"StaminaBurnPerDamage": 0.54,
+			"HeavyBleedingDelta": 0.03,
+			"LightBleedingDelta": 0.04,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1,
+			"Prefab": {
+				"path": "assets/content/items/ammo/patrons/patron_1143x23_acp.bundle",
+				"rcid": ""
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": ".45 ACP M1911 Ball",
+				"ShortName": ".45 M1911",
+				"Description": "The .45 ACP M1911 Ball is a standard army variant of the ACP cartridge, developed in 1911 and is one of the most iconic and well-known cartridges."
+			},
+			"russian": {
+				"Name": ".45 ACP M1911 Оболочечная",
+				"ShortName": ".45 M1911",
+				"Description": "45 ACP M1911 Ball - стандартный армейский вариант патрона ACP, разработанный в 1911 году и являющийся одним из самых знаковых и известных патронов."
+			},
+			"french": {
+				"Name": ".45 ACP M1911 Ball",
+				"ShortName": ".45 M1911",
+				"Description": "Le .45 ACP M1911 Ball est une variante militaire standard de la cartouche ACP, développée en 1911 et l'une des cartouches les plus emblématiques et les plus connues."
+			},
+			"german": {
+				"Name": ".45 ACP M1911 Kugel",
+				"ShortName": ".45 M1911",
+				"Description": "Die .45 ACP M1911 Ball ist eine Standard-Armee-Variante der ACP-Patrone, die 1911 entwickelt wurde und eine der bekanntesten und kultigsten Patronen ist."
+			}
+		}
+	},
+	"5e81f423763d9f754677bf2e": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.017,
+			"InitialSpeed": 250,
+			"Rarity": "Rare",
+			"SpawnChance": 33,
+			"CreditsPrice": 39,
+			"Damage": 62,
+			"ammoAccr": 0,
+			"ammoRec": -1,
+			"PenetrationPower": 13,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.122,
+			"RicochetChance": 0.069,
+			"FragmentationChance": 0.18,
+			"ArmorDamage": 32,
+			"StaminaBurnPerDamage": 0.58,
+			"HeavyBleedingDelta": 0.05,
+			"LightBleedingDelta": 0.07,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": ".45 ACP M1911 Match",
+				"ShortName": ".45 Match",
+				"Description": "The .45 ACP M1911 Match is a modified M1911 Ball cartridge, manufactured with increased precision specifically for shooting competitions."
+			},
+			"russian": {
+				"Name": ".45 ACP M1911 Матч",
+				"ShortName": ".45 Матч",
+				"Description": ".45 ACP M1911 Матч - это модифицированный патрон M1911 Ball, изготовленный с повышенной точностью специально для соревнований по стрельбе."
+			},
+			"french": {
+				"Name": ".45 ACP M1911 Match",
+				"ShortName": ".45 Match",
+				"Description": "La cartouche .45 ACP M1911 Match est une cartouche M1911 Ball modifiée, fabriquée avec une précision accrue spécifiquement pour les compétitions de tir."
+			},
+			"german": {
+				"Name": ".45 ACP M1911 Spiel",
+				"ShortName": ".45 Spiel",
+				"Description": "Die .45 ACP M1911 Spiel ist eine modifizierte M1911 Ball-Patrone, die mit erhöhter Präzision speziell für Schießwettbewerbe hergestellt wurde."
+			}
+		}
+	},
+	"5efb0d4f4bc50b58e81710f3": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.017,
+			"InitialSpeed": 250,
+			"Rarity": "Rare",
+			"SpawnChance": 33,
+			"CreditsPrice": 39,
+			"Damage": 63,
+			"ammoAccr": 0,
+			"ammoRec": -1,
+			"PenetrationPower": 13,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.122,
+			"RicochetChance": 0.067,
+			"FragmentationChance": 0.18,
+			"ArmorDamage": 33,
+			"StaminaBurnPerDamage": 0.58,
+			"HeavyBleedingDelta": 0.05,
+			"LightBleedingDelta": 0.07,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": ".45 ACP M1911 Lasematch",
+				"ShortName": ".45 Laser",
+				"Description": "The .45 ACP Lasermatch M1911 is a modified M1911 Match cartridge, featuring a tracer."
+			},
+			"russian": {
+				"Name": ".45 ACP M1911 Лазерматч",
+				"ShortName": ".45 Лазер",
+				"Description": "Патрон .45 ACP Лазерматч M1911 - это модифицированный патрон M1911 Матч с трассирующим механизмом."
+			},
+			"french": {
+				"Name": ".45 ACP M1911 Lasermatch",
+				"ShortName": ".45 Laser",
+				"Description": "Le M1911 .45 ACP Lasermatch est une cartouche M1911 Match modifiée, dotée d'un traceur."
+			},
+			"german": {
+				"Name": ".45 ACP M1911 Laserspiel",
+				"ShortName": ".45 Laser",
+				"Description": "Die .45 ACP Laserspiel M1911 ist eine modifizierte M1911 Spiel-Patrone, die mit einer Leuchtspur ausgestattet ist."
+			}
+		}
+	},
+	"5efb0fc6aeb21837e749c801": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.018,
+			"InitialSpeed": 275,
+			"Rarity": "Rare",
+			"SpawnChance": 28,
+			"CreditsPrice": 68,
+			"Damage": 69,
+			"ammoAccr": 0,
+			"ammoRec": -1,
+			"PenetrationPower": 15,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 1,
+			"MaxFragmentsCount": 2,
+			"PenetrationChance": 0.256,
+			"RicochetChance": 0.142,
+			"FragmentationChance": 0.18,
+			"ArmorDamage": 42,
+			"StaminaBurnPerDamage": 0.55,
+			"HeavyBleedingDelta": 0.05,
+			"LightBleedingDelta": 0.04,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": ".45 ACP Hydra-Shok HP",
+				"ShortName": ".45 Hydra",
+				"Description": "The .45 ACP Hydra-Shok HP is a hollow point modification of M1911 cartridge, manufactured by Federal Premium, intended for maximum wound and shock delivery that .45 ACP can offer."
+			},
+			"russian": {
+				"Name": ".45 ACP Гидра-Шок HP",
+				"ShortName": ".45 Гидра",
+				"Description": ".45 ACP Гидра-Шок HP - это модификация патрона M1911 с полым наконечником, выпускаемая компанией Federal Premium и предназначенная для нанесения максимального ранения и шокового воздействия, которое может предложить .45 ACP."
+			},
+			"french": {
+				"Name": ".45 ACP Hydra-Shok HP",
+				"ShortName": ".45 Hydra",
+				"Description": "Le .45 ACP Hydra-Shok HP est une modification à pointe creuse de la cartouche M1911, fabriquée par Federal Premium, destinée à délivrer le maximum de blessures et de chocs que le .45 ACP peut offrir."
+			},
+			"german": {
+				"Name": ".45 ACP Hydra-Shok HP",
+				"ShortName": ".45 Hydra",
+				"Description": "Die .45 ACP Hydra-Shok HP ist eine Hohlspitzmodifikation der M1911-Patrone, die von Federal Premium hergestellt wird und für die maximale Wund- und Schockwirkung der .45 ACP gedacht ist."
+			}
+		}
+	},
+	"5ea2a8e200685063ec28c05a": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.015,
+			"InitialSpeed": 310,
+			"Rarity": "Rare",
+			"SpawnChance": 39,
+			"CreditsPrice": 65,
+			"Damage": 69,
+			"ammoAccr": 1,
+			"ammoRec": 1,
+			"PenetrationPower": 13,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 1,
+			"MaxFragmentsCount": 2,
+			"PenetrationChance": 0.137,
+			"RicochetChance": 0.071,
+			"FragmentationChance": 0.2,
+			"ArmorDamage": 30,
+			"StaminaBurnPerDamage": 0.57,
+			"HeavyBleedingDelta": 0.06,
+			"LightBleedingDelta": 0.06,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": ".45 ACP R.I.P.",
+				"ShortName": ".45 R.I.P.",
+				"Description": "The .45 ACP R.I.P. is a hollow point modification of M1911 cartridge, featuring 8 petals that increase wound delivery to unarmoured targets."
+			},
+			"russian": {
+				"Name": ".45 ACP R.I.P.",
+				"ShortName": ".45 R.I.P.",
+				"Description": ".45 ACP R.I.P. - это модификация патрона M1911 с полым наконечником, имеющая 8 лепестков, которые увеличивают поражение небронированных целей."
+			},
+			"french": {
+				"Name": ".45 ACP R.I.P.",
+				"ShortName": ".45 R.I.P.",
+				"Description": "La cartouche .45 ACP R.I.P. est une modification à pointe creuse de la cartouche M1911, dotée de 8 pétales qui augmentent l'efficacité de la blessure sur les cibles non blindées."
+			},
+			"german": {
+				"Name": ".45 ACP R.I.P.",
+				"ShortName": ".45 R.I.P.",
+				"Description": "Die .45 ACP R.I.P. ist eine Hohlspitzmodifikation der M1911-Patrone, die mit 8 Blütenblättern ausgestattet ist, die die Trefferwirkung auf ungepanzerte Ziele erhöhen."
+			}
+		}
+	},
+	"5ba26812d4351e003201fef1": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.007,
+			"InitialSpeed": 690,
+			"Rarity": "Rare",
+			"SpawnChance": 9,
+			"CreditsPrice": 50,
+			"Damage": 72,
+			"ammoAccr": 1,
+			"ammoRec": -1,
+			"PenetrationPower": 12,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 4,
+			"PenetrationChance": 0.157,
+			"RicochetChance": 0.195,
+			"FragmentationChance": 0.55,
+			"ArmorDamage": 26,
+			"StaminaBurnPerDamage": 0.52,
+			"HeavyBleedingDelta": 0.06,
+			"LightBleedingDelta": 0.06,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "4.6x30 Action SX",
+				"ShortName": "4.6 Action",
+				"Description": "The 4.6x30 Action SX cartridge is designed for closed quarters deployment and provides high stopping power against soft targets with a maximum penetration depth of 30 cm. This avoids full penetration and collateral damage. Developed and manufactured by Heckler & Koch."
+			},
+			"russian": {
+				"Name": "4.6x30 Action SX",
+				"ShortName": "4.6 Action",
+				"Description": "Патрон 4.6x30 Action SX предназначен для применения в закрытых помещениях и обеспечивает высокую останавливающую способность против мягких целей с максимальной глубиной проникновения 30 см. Это позволяет избежать полного проникновения и сопутствующего ущерба. Разработан и производится компанией Heckler & Koch."
+			},
+			"french": {
+				"Name": "4.6x30 Action SX",
+				"ShortName": "4.6 Action",
+				"Description": "La cartouche 4.6x30 Action SX est conçue pour un déploiement en milieu fermé et offre une grande puissance d'arrêt contre les cibles molles avec une profondeur de pénétration maximale de 30 cm. Elle permet d'éviter la pénétration totale et les dommages collatéraux. Développée et fabriquée par Heckler & Koch."
+			},
+			"german": {
+				"Name": "4.6x30 Action SX",
+				"ShortName": "4.6 Action",
+				"Description": "Die Patrone 4,6x30 Action SX ist für den Einsatz in geschlossenen Räumen konzipiert und bietet eine hohe Durchschlagskraft gegen weiche Ziele mit einer maximalen Eindringtiefe von 30 cm. Dadurch werden ein vollständiges Durchschlagen und Kollateralschäden vermieden. Entwickelt und hergestellt von Heckler & Koch."
+			}
+		}
+	},
+	"5ba26844d4351e00334c9475": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.010,
+			"InitialSpeed": 290,
+			"Rarity": "Rare",
+			"SpawnChance": 15,
+			"CreditsPrice": 63,
+			"Damage": 48,
+			"ammoAccr": 0,
+			"ammoRec": -4,
+			"PenetrationPower": 20,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.219,
+			"RicochetChance": 0.151,
+			"FragmentationChance": 0.12,
+			"ArmorDamage": 32,
+			"StaminaBurnPerDamage": 0.52,
+			"HeavyBleedingDelta": 0.03,
+			"LightBleedingDelta": 0.05,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "4.6x30 Subsonic SX",
+				"ShortName": "4.6 Subsonic",
+				"Description": "The 4.6x30 Subsonic SX cartridge is designed for use with a supressor for excellent noise reduction, while also providing penetration of IIIA protected targets at distances of up to 50 meters. Developed and manufactured by Heckler & Koch."
+			},
+			"russian": {
+				"Name": "4.6x30 Дозвуковой SX",
+				"ShortName": "4.6 Дозвуковой",
+				"Description": "Патрон 4.6x30 Дозвуковой SX предназначен для использования с супрессором для превосходного снижения шума, обеспечивая при этом пробитие защищенных целей IIIA на дистанциях до 50 метров. Разработан и производится компанией Heckler & Koch."
+			},
+			"french": {
+				"Name": "4.6x30 Subsonique SX",
+				"ShortName": "4.6 Subsonique",
+				"Description": "La cartouche 4.6x30 Subsonique SX est conçue pour être utilisée avec un suppresseur pour une excellente réduction du bruit, tout en assurant la pénétration des cibles protégées IIIA à des distances allant jusqu'à 50 mètres. Développée et fabriquée par Heckler & Koch."
+			},
+			"german": {
+				"Name": "4.6x30 Unterschall SX",
+				"ShortName": "4.6 Unterschall",
+				"Description": "Die 4,6x30 Unterschall SX-Patrone ist für die Verwendung mit einem Entstauber konzipiert, der eine hervorragende Lärmreduzierung gewährleistet und gleichzeitig eine Penetration von IIIA-geschützten Zielen auf Entfernungen von bis zu 50 Metern ermöglicht. Entwickelt und hergestellt von Heckler & Koch."
+			}
+		}
+	},
+	"5ba2678ad4351e44f824b344": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.007,
+			"InitialSpeed": 620,
+			"Rarity": "Rare",
+			"SpawnChance": 32,
+			"CreditsPrice": 42,
+			"Damage": 57,
+			"ammoAccr": -1,
+			"ammoRec": -5,
+			"PenetrationPower": 24,
+			"PenetrationPowerDiviation": 0.536,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.195,
+			"RicochetChance": 0.12,
+			"FragmentationChance": 0.25,
+			"ArmorDamage": 36,
+			"StaminaBurnPerDamage": 0.47,
+			"HeavyBleedingDelta": 0,
+			"LightBleedingDelta": 0,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "4.6x30 FMJ SX",
+				"ShortName": "4.6 FMJ",
+				"Description": "The 4.6x30 FMJ SX cartridge is designed for multi-purpose use in CQC, boasting high stopping power and good penetration. Developed and manufactured by Heckler & Koch."
+			},
+			"russian": {
+				"Name": "4.6x30 FMJ SX",
+				"ShortName": "4.6 FMJ",
+				"Description": "Патрон 4,6x30 FMJ SX предназначен для многоцелевого использования в CQC, обладает высокой останавливающей силой и хорошей проникающей способностью. Разработан и производится компанией Heckler & Koch."
+			},
+			"french": {
+				"Name": "4.6x30 FMJ SX",
+				"ShortName": "4.6 FMJ",
+				"Description": "La cartouche 4.6x30 FMJ SX est conçue pour une utilisation polyvalente en CQC, avec un pouvoir d'arrêt élevé et une bonne pénétration. Développée et fabriquée par Heckler & Koch."
+			},
+			"german": {
+				"Name": "4.6x30 FMJ SX",
+				"ShortName": "4.6 FMJ",
+				"Description": "Die 4,6x30 FMJ SX-Patrone ist für den vielseitigen Einsatz in CQC konzipiert und zeichnet sich durch eine hohe Durchschlagskraft und eine gute Penetration aus. Entwickelt und hergestellt von Heckler & Koch."
+			}
+		}
+	},
+	"5ba26835d4351e0035628ff5": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.007,
+			"InitialSpeed": 680,
+			"Rarity": "Rare",
+			"SpawnChance": 9,
+			"CreditsPrice": 56,
+			"Damage": 47,
+			"ammoAccr": 0,
+			"ammoRec": -6,
+			"PenetrationPower": 27,
+			"PenetrationPowerDiviation": 0.536,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.415,
+			"RicochetChance": 0.346,
+			"FragmentationChance": 0.17,
+			"ArmorDamage": 35,
+			"StaminaBurnPerDamage": 0.48,
+			"HeavyBleedingDelta": 0,
+			"LightBleedingDelta": 0,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "4.6x30 AP SX",
+				"ShortName": "4.6 AP",
+				"Description": "The 4.6x30 AP SX cartridge is designed with combat against armoured targets in mind, allowing penetration of IIIA armour at up to 200 meters. Developed and manufactured by Heckler & Koch."
+			},
+			"russian": {
+				"Name": "4.6x30 AP SX",
+				"ShortName": "4.6 AP",
+				"Description": "Патрон 4,6x30 AP SX разработан для борьбы с бронированными целями и позволяет пробивать броню IIIA на расстоянии до 200 метров. Разработан и производится компанией Heckler & Koch."
+			},
+			"french": {
+				"Name": "4.6x30 AP SX",
+				"ShortName": "4.6 AP",
+				"Description": "La cartouche 4.6x30 AP SX est conçue pour le combat contre les cibles blindées, permettant la pénétration des blindages IIIA jusqu'à 200 mètres. Développée et fabriquée par Heckler & Koch."
+			},
+			"german": {
+				"Name": "4.6x30 AP SX",
+				"ShortName": "4.6 AP",
+				"Description": "Die Patrone 4,6x30 AP SX wurde speziell für die Bekämpfung gepanzerter Ziele entwickelt und ermöglicht die Durchdringung von IIIA-Panzern auf bis zu 200 Meter. Entwickelt und hergestellt von Heckler & Koch."
+			}
+		}
+	},
+	"573718ba2459775a75491131": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.009,
+			"InitialSpeed": 402.5,
+			"Rarity": "Rare",
+			"SpawnChance": 15,
+			"CreditsPrice": 47,
+			"Damage": 49,
+			"ammoAccr": 0,
+			"ammoRec": -3,
+			"PenetrationPower": 20,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.234,
+			"RicochetChance": 0.139,
+			"FragmentationChance": 0.16,
+			"ArmorDamage": 32,
+			"StaminaBurnPerDamage": 0.48,
+			"HeavyBleedingDelta": 0.05,
+			"LightBleedingDelta": 0.08,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "9x18 BZhT gzh",
+				"ShortName": "9x18 BZhT",
+				"Description": "The 9x18 BZhT gzh, GRAU index 7N15 cartridge is designed in late 1980s as a new high power cartridge for PMM, unfortunately, with the introduction of the Grach pistol, 9x18mm cartridge saw a reduction in popularity and BZhT saw little use."
+			},
+			"russian": {
+				"Name": "9х18 БЖТ гж",
+				"ShortName": "9х18 БЖТ",
+				"Description": "Патрон 9х18 БЖТ гж, ГРАУ индекс 7Н15 разработан в конце 1980-х годов как новый мощный патрон для ПММ. К сожалению, с появлением пистолета \"Грач\" популярность патрона 9х18 мм снизилась, и БЖТ практически не использовался."
+			},
+			"french": {
+				"Name": "9x18 BZhT gzh",
+				"ShortName": "9x18 BZhT",
+				"Description": "La cartouche 9x18 BZhT gzh, GRAU index 7N15 est conçue à la fin des années 1980 comme une nouvelle cartouche de haute puissance pour PMM, malheureusement, avec l'introduction du pistolet Grach, la cartouche 9x18mm a vu sa popularité diminuer et la BZhT a été peu utilisée."
+			},
+			"german": {
+				"Name": "9x18 BZhT gzh",
+				"ShortName": "9x18 BZhT",
+				"Description": "Die 9x18 BZhT gzh, GRAU Index 7N15 Patrone ist in den späten 1980er Jahren als eine neue Hochleistungspatrone für PMM entwickelt, leider mit der Einführung der Grach Pistole, 9x18mm Patrone sah einen Rückgang der Popularität und BZhT sah wenig Gebrauch."
+			}
+		}
+	},
+	"573719762459775a626ccbc1": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.010,
+			"InitialSpeed": 302.5,
+			"Rarity": "Rare",
+			"SpawnChance": 48,
+			"CreditsPrice": 25,
+			"Damage": 56,
+			"ammoAccr": 1,
+			"ammoRec": -4,
+			"PenetrationPower": 10,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.156,
+			"RicochetChance": 0.075,
+			"FragmentationChance": 0.22,
+			"ArmorDamage": 28,
+			"StaminaBurnPerDamage": 0.48,
+			"HeavyBleedingDelta": 0.04,
+			"LightBleedingDelta": 0.07,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "9x18 P gzh",
+				"ShortName": "9x18 P",
+				"Description": "The 9x18 P gzh, GAU index 57-N-181 cartridge is a P cartridge with a lead core, designed in 1947 based off of a shortened 1930 model 7,62mm cartridge."
+			},
+			"russian": {
+				"Name": "9х18 П гж",
+				"ShortName": "9х18 П",
+				"Description": "Патрон 9х18 П гж, индекс ГАУ 57-Н-181 - это патрон типа П со свинцовым сердечником, разработанный в 1947 году на основе укороченного 7,62-мм патрона образца 1930 года."
+			},
+			"french": {
+				"Name": "9x18 P gzh",
+				"ShortName": "9x18 P",
+				"Description": "La cartouche 9x18 P gzh, indice GAU 57-N-181 est une cartouche P avec un noyau en plomb, conçue en 1947 à partir d'une cartouche 7,62 mm raccourcie du modèle 1930."
+			},
+			"german": {
+				"Name": "9x18 P gzh",
+				"ShortName": "9x18 P",
+				"Description": "Die Patrone 9x18 P gzh, GAU-Index 57-N-181 ist eine P-Patrone mit Bleikern, die 1947 auf der Grundlage einer verkürzten 7,62-mm-Patrone des Modells 1930 entwickelt wurde."
+			}
+		}
+	},
+	"573719df2459775a626ccbc2": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.007,
+			"InitialSpeed": 480,
+			"Rarity": "Rare",
+			"SpawnChance": 14,
+			"CreditsPrice": 37,
+			"Damage": 49,
+			"ammoAccr": 0,
+			"ammoRec": 0,
+			"PenetrationPower": 24,
+			"PenetrationPowerDiviation": 0.536,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.195,
+			"RicochetChance": 0.112,
+			"FragmentationChance": 0.16,
+			"ArmorDamage": 34,
+			"StaminaBurnPerDamage": 0.5,
+			"HeavyBleedingDelta": 0.04,
+			"LightBleedingDelta": 0.05,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "9x18 PBM gzh",
+				"ShortName": "9x18 PBM",
+				"Description": "The 9x18 PBM gzh, GRAU index 7N25 armour-piercing cartridge was designed in the middle of 1990s. Core is made of high-carbon steel and takes up 70% of the bullet's mass, which increased penetration power. Unfortunately to make manufacturing easier - front of the core is a bit blunt, which decreases overall AP capabilities."
+			},
+			"russian": {
+				"Name": "9х18 ПБМ гж",
+				"ShortName": "9х18 ПБМ",
+				"Description": "Бронебойный патрон 9х18 ПБМ гж, индекс ГРАУ 7Н25 был разработан в середине 1990-х годов. Сердечник выполнен из высокоуглеродистой стали и занимает 70% массы пули, что позволило увеличить пробивную способность. К сожалению, для упрощения производства - передняя часть сердечника немного притуплена, что снижает общие возможности ПД."
+			},
+			"french": {
+				"Name": "9x18 PBM gzh",
+				"ShortName": "9x18 PBM",
+				"Description": "La cartouche perforante 9x18 PBM gzh, indice GRAU 7N25 a été conçue au milieu des années 1990. Le noyau est fait d'acier à haute teneur en carbone et occupe 70% de la masse de la balle, ce qui augmente le pouvoir de pénétration. Malheureusement, pour faciliter la fabrication, l'avant du noyau est un peu émoussé, ce qui diminue les capacités globales de PA."
+			},
+			"german": {
+				"Name": "9x18 PBM gzh",
+				"ShortName": "9x18 PBM",
+				"Description": "Die panzerbrechende Patrone 9x18 PBM gzh, GRAU-Index 7N25 wurde Mitte der 1990er Jahre entwickelt. Der Kern besteht aus kohlenstoffreichem Stahl und nimmt 70 % der Masse des Geschosses ein, was die Durchschlagskraft erhöht. Um die Herstellung zu vereinfachen, ist die Vorderseite des Kerns leider etwas stumpf, was die AP-Fähigkeiten insgesamt verringert."
+			}
+		}
+	},
+	"57371b192459775a9f58a5e0": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.011,
+			"InitialSpeed": 300,
+			"Rarity": "Rare",
+			"SpawnChance": 35,
+			"CreditsPrice": 35,
+			"Damage": 67,
+			"ammoAccr": 1,
+			"ammoRec": 2,
+			"PenetrationPower": 8,
+			"PenetrationPowerDiviation": 0.05,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.089,
+			"RicochetChance": 0.041,
+			"FragmentationChance": 0.31,
+			"ArmorDamage": 18,
+			"StaminaBurnPerDamage": 0.59,
+			"HeavyBleedingDelta": 0.06,
+			"LightBleedingDelta": 0.09,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "9x18 PPe gzh",
+				"ShortName": "9x18 PPe",
+				"Description": "The 9x18 PPe gzh cartridge was designed in the middle of 1980s, taking application practice of SP7 cartridge in mind. This cartridge features an expansive bullet with a steel core."
+			},
+			"russian": {
+				"Name": "9х18 ППэ гж",
+				"ShortName": "9х18 ППэ",
+				"Description": "Патрон 9х18 ППэ гж был разработан в середине 1980-х годов с учетом практики применения патрона СП7. Патрон имеет экспансивную пулю со стальным сердечником."
+			},
+			"french": {
+				"Name": "9x18 PPe gzh",
+				"ShortName": "9x18 PPe",
+				"Description": "La cartouche 9x18 PPe gzh a été conçue au milieu des années 1980, en tenant compte de l'application de la cartouche SP7. Cette cartouche comporte une balle expansive avec un noyau en acier."
+			},
+			"german": {
+				"Name": "9x18 PPe gzh",
+				"ShortName": "9x18 PPe",
+				"Description": "Die 9x18 PPe gzh-Patrone wurde Mitte der 1980er Jahre unter Berücksichtigung der Anwendungspraxis der SP7-Patrone entwickelt. Diese Patrone verfügt über ein expansives Geschoss mit einem Stahlkern."
+			}
+		}
+	},
+	"57371e4124597760ff7b25f1": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.007,
+			"InitialSpeed": 480,
+			"Rarity": "Rare",
+			"SpawnChance": 41,
+			"CreditsPrice": 44,
+			"Damage": 56,
+			"ammoAccr": 0,
+			"ammoRec": -5,
+			"PenetrationPower": 19,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.2,
+			"RicochetChance": 0.113,
+			"FragmentationChance": 0.2,
+			"ArmorDamage": 34,
+			"StaminaBurnPerDamage": 0.47,
+			"HeavyBleedingDelta": 0,
+			"LightBleedingDelta": 0,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "9x18 PPT gzh",
+				"ShortName": "9x18 PPT",
+				"Description": "The 9x18 PPT gzh cartridge was designed in 1995 due to MVD(Russian Ministry of Internal Affairs) request for a tracer bullet for the new 9mm SMGs."
+			},
+			"russian": {
+				"Name": "9x18 ППТ гж",
+				"ShortName": "9x18 ППТ",
+				"Description": "Патрон 9х18 ППТ гж был разработан в 1995 году в связи с запросом МВД (Министерства внутренних дел России) на трассирующую пулю для новых 9-мм СМГ."
+			},
+			"french": {
+				"Name": "9x18 PPT gzh",
+				"ShortName": "9x18 PPT",
+				"Description": "La cartouche 9x18 PPT gzh a été conçue en 1995 suite à la demande du MVD (ministère russe de l'intérieur) d'une balle traçante pour les nouveaux SMG 9mm."
+			},
+			"german": {
+				"Name": "9x18 PPT gzh",
+				"ShortName": "9x18 PPT",
+				"Description": "Die 9x18 PPT gzh-Patrone wurde 1995 auf Wunsch des MVD (russisches Innenministerium) entwickelt, das ein Leuchtspurgeschoss für die neuen 9 mm SMGs benötigte."
+			}
+		}
+	},
+	"57371eb62459776125652ac1": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.010,
+			"InitialSpeed": 303,
+			"Rarity": "Rare",
+			"SpawnChance": 48,
+			"CreditsPrice": 25,
+			"Damage": 56,
+			"ammoAccr": 1,
+			"ammoRec": -4,
+			"PenetrationPower": 10,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.156,
+			"RicochetChance": 0.075,
+			"FragmentationChance": 0.22,
+			"ArmorDamage": 28,
+			"StaminaBurnPerDamage": 0.5,
+			"HeavyBleedingDelta": 0.04,
+			"LightBleedingDelta": 0.07,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "9x18 PRS gs",
+				"ShortName": "9x18 PRS",
+				"Description": "The 9x18 PRS gs cartridge was designed in early 2000 since in 2004 MVD (Russian Ministry of Internal Affairs) stopped using PET gzh cartridge."
+			},
+			"russian": {
+				"Name": "9x18 ПРС гс",
+				"ShortName": "9x18 ПРС",
+				"Description": "Патрон 9х18 ПРС гс был разработан в начале 2000 года, так как в 2004 году МВД России прекратило использование патрона PET gzh."
+			},
+			"french": {
+				"Name": "9x18 PRS gs",
+				"ShortName": "9x18 PRS",
+				"Description": "La cartouche 9x18 PRS gs a été conçue au début de l'année 2000 car en 2004, le MVD (ministère russe des affaires intérieures) a cessé d'utiliser la cartouche PET gzh."
+			},
+			"german": {
+				"Name": "9x18 PRS gs",
+				"ShortName": "9x18 PRS",
+				"Description": "Die 9x18 PRS gs-Patrone wurde Anfang 2000 entwickelt, da das MVD (russisches Innenministerium) 2004 die Verwendung der PET gzh-Patrone einstellte."
+			}
+		}
+	},
+	"57371f2b24597761224311f1": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.010,
+			"InitialSpeed": 302.5,
+			"Rarity": "Rare",
+			"SpawnChance": 48,
+			"CreditsPrice": 25,
+			"Damage": 56,
+			"ammoAccr": 1,
+			"ammoRec": -4,
+			"PenetrationPower": 10,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.156,
+			"RicochetChance": 0.075,
+			"FragmentationChance": 0.22,
+			"ArmorDamage": 28,
+			"StaminaBurnPerDamage": 0.5,
+			"HeavyBleedingDelta": 0.04,
+			"LightBleedingDelta": 0.07,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "9x18 PS gs PPO",
+				"ShortName": "9x18 PPO",
+				"Description": "The 9x18 PS gs PPO cartridge was designed in 2004, the PPO deciphers to Law Enforcement Bullet. 9x18 PS gs PPO was requested due to the army-grade bullet having high ricochet probabilities in CQC City combat."
+			},
+			"russian": {
+				"Name": "9x18 ПС гс ППО",
+				"ShortName": "9x18 ППО",
+				"Description": "Патрон 9x18 ПС гс ППО был разработан в 2004 году, расшифровывается ППО как Патрон для Правоохранительных Органов. Патрон 9x18 ПС гс ППО был предложен в связи с тем, что пуля армейского класса имеет высокую вероятность рикошета в городском бою в условиях ближнего боя."
+			},
+			"french": {
+				"Name": "9x18 PS gs PPO",
+				"ShortName": "9x18 PPO",
+				"Description": "La cartouche 9x18 PS gs PPO a été conçue en 2004, le PPO se déchiffre à Law Enforcement Bullet. La 9x18 PS gs PPO a été demandée en raison de la balle de qualité militaire ayant des probabilités de ricochet élevées en combat urbain CQC."
+			},
+			"german": {
+				"Name": "9x18 PS gs PPO",
+				"ShortName": "9x18 PPO",
+				"Description": "Die 9x18 PS gs PPO Patrone wurde 2004 entwickelt, die PPO steht für Law Enforcement Bullet. Die 9x18 PS gs PPO wurde aufgrund der hohen Querschlägerwahrscheinlichkeit des Army-Grade-Geschosses im CQC-Stadtkampf gefordert."
+			}
+		}
+	},
+	"57371f8d24597761006c6a81": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.010,
+			"InitialSpeed": 302.5,
+			"Rarity": "Rare",
+			"SpawnChance": 48,
+			"CreditsPrice": 25,
+			"Damage": 56,
+			"ammoAccr": 1,
+			"ammoRec": -4,
+			"PenetrationPower": 10,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.156,
+			"RicochetChance": 0.075,
+			"FragmentationChance": 0.22,
+			"ArmorDamage": 28,
+			"StaminaBurnPerDamage": 0.5,
+			"HeavyBleedingDelta": 0.04,
+			"LightBleedingDelta": 0.07,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "9x18 PSO gzh",
+				"ShortName": "9x18 PSO",
+				"Description": "The 9x18 PSO gzh cartridge is a sporting and hunting cartridge. Nomenclature depends on the manufacturer, this particular cartridge is produced by Novosibirsk cartridge factory since 1995."
+			},
+			"russian": {
+				"Name": "9x18 ПСО гж",
+				"ShortName": "9x18 ПСО",
+				"Description": "Патрон 9х18 ПСО гж - спортивно-охотничий патрон. Номенклатура зависит от производителя, данный конкретный патрон выпускается Новосибирским патронным заводом с 1995 года."
+			},
+			"french": {
+				"Name": "9x18 PSO gzh",
+				"ShortName": "9x18 PSO",
+				"Description": "La cartouche 9x18 PSO gzh est une cartouche de sport et de chasse. La nomenclature dépend du fabricant, cette cartouche particulière est produite par la cartoucherie de Novosibirsk depuis 1995."
+			},
+			"german": {
+				"Name": "9x18 PSO gzh",
+				"ShortName": "9x18 PSO",
+				"Description": "Die Patrone 9x18 PSO gzh ist eine Sport- und Jagdpatrone. Die Nomenklatur hängt vom Hersteller ab, diese besondere Patrone wird seit 1995 von der Novosibirsker Patronenfabrik hergestellt."
+			}
+		}
+	},
+	"5737201124597760fc4431f1": {
+		"modifier": "edit",
+		"addToTrader": {
+			"traderName": [
+				"Therapist"
+			],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"Weight": 0.010,
+			"InitialSpeed": 302.5,
+			"Rarity": "Rare",
+			"SpawnChance": 48,
+			"CreditsPrice": 25,
+			"Damage": 56,
+			"ammoAccr": 1,
+			"ammoRec": -4,
+			"PenetrationPower": 10,
+			"PenetrationPowerDiviation": 0.201,
+			"MinFragmentsCount": 2,
+			"MaxFragmentsCount": 3,
+			"PenetrationChance": 0.156,
+			"RicochetChance": 0.075,
+			"FragmentationChance": 0.22,
+			"ArmorDamage": 28,
+			"StaminaBurnPerDamage": 0.5,
+			"HeavyBleedingDelta": 0.04,
+			"LightBleedingDelta": 0.07,
+			"StackMaxSize": 120,
+			"StackMinRandom": 5,
+			"StackMaxRandom": 120,
+			"DurabilityBurnModificator": 1
+		},
+		"translation": {
+			"english": {
+				"Name": "9x18 Pet gzh",
+				"ShortName": "9x18 Pet",
+				"Description": "The 9x18 Pet gzh cartridge began production in 1956 and soon after has displaced the P gzh cartridge in production."
+			},
+			"russian": {
+				"Name": "9x18 Пет гж",
+				"ShortName": "9x18 Пет",
+				"Description": "Патрон 9x18 Пет гж начал выпускаться в 1956 году и вскоре после этого вытеснил в производстве патрон П гж."
+			},
+			"french": {
+				"Name": "9x18 Pet gzh",
+				"ShortName": "9x18 Pet",
+				"Description": "La cartouche 9x18 Pet gzh a commencé à être produite en 1956 et a peu après supplanté la cartouche P gzh dans la production."
+			},
+			"german": {
+				"Name": "9x18 Pet gzh",
+				"ShortName": "9x18 Pet",
+				"Description": "Die 9x18 Pet gzh Patrone begann 1956 mit der Produktion und hat bald darauf die P gzh Patrone in der Produktion verdrängt."
+			}
+		}
+	}
+}

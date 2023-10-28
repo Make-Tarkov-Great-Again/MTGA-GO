@@ -1,0 +1,1937 @@
+{
+	"handguard_mp5k_midwest": {
+		"modifier": "none",
+		"basedOn": "55d459824bdc2d892f8b4573",
+		"addToTrader": {
+			"traderName": [],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"item": {
+			"_id": "handguard_mp5k_midwest",
+			"_name": "handguard_mpx_midwest_4,5_inch_m_lok",
+			"_parent": "55818a104bdc2db9688b4569",
+			"_type": "Item",
+			"_props": {
+				"Name": "handguard_mpx_lancer_oem_14_inch",
+				"ShortName": "handguard_mpx_lancer_oem_14_inch",
+				"Description": "handguard_mpx_lancer_oem_14_inch",
+				"Weight": 0.08,
+				"BackgroundColor": "blue",
+				"Width": 1,
+				"Height": 1,
+				"StackMaxSize": 1,
+				"Rarity": "Rare",
+				"SpawnChance": 3,
+				"CreditsPrice": 4050,
+				"ItemSound": "mod",
+				"Prefab": {
+					"path": "alteredescape/items/mods/handguards/midwest/handguard_mp5k_midwest.bundle",
+					"rcid": ""
+				},
+				"UsePrefab": {
+					"path": "",
+					"rcid": ""
+				},
+				"StackObjectsCount": 1,
+				"NotShownInSlot": false,
+				"ExaminedByDefault": false,
+				"ExamineTime": 1,
+				"IsUndiscardable": false,
+				"IsUnsaleable": false,
+				"IsUnbuyable": false,
+				"IsUngivable": false,
+				"IsLockedafterEquip": false,
+				"QuestItem": false,
+				"LootExperience": 20,
+				"ExamineExperience": 3,
+				"HideEntrails": false,
+				"RepairCost": 0,
+				"RepairSpeed": 0,
+				"ExtraSizeLeft": 1,
+				"ExtraSizeRight": 0,
+				"ExtraSizeUp": 0,
+				"ExtraSizeDown": 0,
+				"ExtraSizeForceAdd": false,
+				"MergesWithChildren": true,
+				"CanSellOnRagfair": true,
+				"CanRequireOnRagfair": true,
+				"ConflictingItems": [],
+				"FixedPrice": false,
+				"Unlootable": false,
+				"UnlootableFromSlot": "FirstPrimaryWeapon",
+				"UnlootableFromSide": [],
+				"ChangePriceCoef": 1,
+				"AllowSpawnOnLocations": [],
+				"SendToClient": false,
+				"AnimationVariantsNumber": 0,
+				"DiscardingBlock": false,
+				"RagFairCommissionModifier": 1,
+				"Grids": [],
+				"Slots": [
+					{
+						"_name": "mod_mount_000",
+						"_id": "midwest_foregrip",
+						"_parent": "handguard_mp5k_midwest",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5fc0f9b5d724d907e2077d82",
+										"5b7be4895acfc400170e2dd5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_mount_001",
+						"_id": "midwest_tac_000",
+						"_parent": "handguard_mp5k_midwest",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5b7be47f5acfc400170e2dd2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_mount_002",
+						"_id": "midwest_tac_001",
+						"_parent": "handguard_mp5k_midwest",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5b7be47f5acfc400170e2dd2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					}
+				],
+				"CanPutIntoDuringTheRaid": true,
+				"CantRemoveFromSlotsDuringRaid": [],
+				"Durability": 100,
+				"Accuracy": 0,
+				"Recoil": 0,
+				"Loudness": 0,
+				"EffectiveDistance": 0,
+				"Ergonomics": 15,
+				"Velocity": 0,
+				"RaidModdable": false,
+				"ToolModdable": true,
+				"BlocksFolding": false,
+				"BlocksCollapsible": false,
+				"IsAnimated": false,
+				"HasShoulderContact": false,
+				"SightingRange": 0
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": "MP5-K Midwest Industries 4.5\" M-LOK handguard",
+				"ShortName": "MP5-K 4.5\" M-LOK",
+				"Description": "Midwest 4.5 inch length foregrip for MP5-K equipped with a M-LOK interface for installation of additional devices and accessories."
+			},
+			"french": {
+				"Name": "Protège-mains M-LOK 4,5\" Midwest Industries MP5-K",
+				"ShortName": "MP5-K 4.5\" M-LOK",
+				"Description": "Poignée avant Midwest de 4,5 pouces de longueur pour MP5-K équipée d'une interface M-LOK pour l'installation d'appareils et d'accessoires supplémentaires."
+			},
+			"german": {
+				"Name": "MP5-K Midwest Industries 4.5\" M-LOK Handschutz",
+				"ShortName": "MP5-K 4.5\" M-LOK",
+				"Description": "Midwest 4,5 Zoll langer Vordergriff für MP5-K ausgestattet mit einer M-LOK Schnittstelle zum Einbau von Zusatzgeräten und Zubehör."
+			},
+			"russian": {
+				"Name": "MP5-K Midwest Industries 4.5\" M-LOK цевье",
+				"ShortName": "MP5-K 4.5\" M-LOK",
+				"Description": "Цевье Midwest длиной 4,5 дюйма для MP5-K, оснащенное интерфейсом M-LOK для установки дополнительных устройств и аксессуаров."
+			}
+		}
+	},
+	"handguard_mp5_moe": {
+		"modifier": "none",
+		"basedOn": "55d459824bdc2d892f8b4573",
+		"addToTrader": {
+			"traderName": [],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"addMods": {
+			"mod_handguard": [
+				"5926c0df86f77462f647f764"
+			]
+		},
+		"item": {
+			"_id": "handguard_mp5_moe",
+			"_name": "handguard_ar15_magpul_moe_sl_carabine_length",
+			"_parent": "55818a104bdc2db9688b4569",
+			"_type": "Item",
+			"_props": {
+				"Name": "handguard_ar15_stngr_vypr_m_lok_10_inch",
+				"ShortName": "handguard_ar15_stngr_vypr_m_lok_10_inch",
+				"Description": "handguard_ar15_stngr_vypr_m_lok_10_inch",
+				"Weight": 0.19,
+				"BackgroundColor": "blue",
+				"Width": 2,
+				"Height": 1,
+				"StackMaxSize": 1,
+				"Rarity": "Rare",
+				"SpawnChance": 2,
+				"CreditsPrice": 4050,
+				"ItemSound": "mod",
+				"Prefab": {
+					"path": "alteredescape/items/mods/handguards/magpul2/handguard_mp5_moe.bundle",
+					"rcid": ""
+				},
+				"UsePrefab": {
+					"path": "",
+					"rcid": ""
+				},
+				"StackObjectsCount": 1,
+				"NotShownInSlot": false,
+				"ExaminedByDefault": false,
+				"ExamineTime": 1,
+				"IsUndiscardable": false,
+				"IsUnsaleable": false,
+				"IsUnbuyable": false,
+				"IsUngivable": false,
+				"IsLockedafterEquip": false,
+				"QuestItem": false,
+				"LootExperience": 20,
+				"ExamineExperience": 3,
+				"HideEntrails": false,
+				"RepairCost": 0,
+				"RepairSpeed": 0,
+				"ExtraSizeLeft": 1,
+				"ExtraSizeRight": 0,
+				"ExtraSizeUp": 0,
+				"ExtraSizeDown": 0,
+				"ExtraSizeForceAdd": false,
+				"MergesWithChildren": true,
+				"CanSellOnRagfair": true,
+				"CanRequireOnRagfair": true,
+				"ConflictingItems": [
+					"5c0e2f94d174af029f650d56"
+				],
+				"FixedPrice": false,
+				"Unlootable": false,
+				"UnlootableFromSlot": "FirstPrimaryWeapon",
+				"UnlootableFromSide": [],
+				"ChangePriceCoef": 1,
+				"AllowSpawnOnLocations": [],
+				"SendToClient": false,
+				"AnimationVariantsNumber": 0,
+				"DiscardingBlock": false,
+				"RagFairCommissionModifier": 1,
+				"Grids": [],
+				"Slots": [
+					{
+						"_name": "mod_mount_000",
+						"_id": "5c78f2792e221600106f4685",
+						"_parent": "handguard_mp5_moe",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5b7be47f5acfc400170e2dd2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_mount_001",
+						"_id": "5c78f2792e221600106f4686",
+						"_parent": "handguard_mp5_moe",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5b7be47f5acfc400170e2dd2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_foregrip",
+						"_id": "5c78f7ec2e221644f31bfb21",
+						"_parent": "handguard_mp5_moe",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57cffb66245977632f391a99",
+										"57cffcd624597763133760c5",
+										"57cffcdd24597763f5110006",
+										"57cffce524597763b31685d8",
+										"5b7be4895acfc400170e2dd5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					}
+				],
+				"CanPutIntoDuringTheRaid": true,
+				"CantRemoveFromSlotsDuringRaid": [],
+				"Durability": 100,
+				"Accuracy": 0,
+				"Recoil": -1,
+				"Loudness": 0,
+				"EffectiveDistance": 0,
+				"Ergonomics": 6,
+				"Velocity": 0,
+				"RaidModdable": true,
+				"ToolModdable": true,
+				"BlocksFolding": false,
+				"BlocksCollapsible": false,
+				"IsAnimated": false,
+				"HasShoulderContact": false,
+				"SightingRange": 0
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": "MP5 Magpul MOE MP5 handguard (Black)",
+				"ShortName": "MOE MP5",
+				"Description": "The Magpul MOE MP5 hand guard is installed on MP5 compatible weapon systems. It comes equipped with licensed M-LOK mounts for the installation of additional devices or rails."
+			},
+			"french": {
+				"Name": "Protège-mains MP5 Magpul MOE MP5 (Noir)",
+				"ShortName": "MOE MP5 BLK",
+				"Description": "Le protège-main Magpul MOE MP5 est installé sur les systèmes d'armes compatibles MP5. Il est équipé de supports M-LOK sous licence pour l'installation d'appareils ou de rails supplémentaires."
+			},
+			"german": {
+				"Name": "MP5 Magpul MOE MP5 Handschutz (Schwarz)",
+				"ShortName": "MOE MP5 BLK",
+				"Description": "Der Magpul MOE MP5 Handschutz wird auf MP5 kompatiblen Waffensystemen verbaut. Es ist mit lizenzierten M-LOK-Halterungen für die Installation von zusätzlichen Geräten oder Schienen ausgestattet."
+			},
+			"russian": {
+				"Name": "MP5 Magpul MOE Цевье MP5 (черное)",
+				"ShortName": "MOE MP5 BLK",
+				"Description": "Защита руки Magpul MOE MP5 устанавливается на совместимые с MP5 системы вооружения. Он комплектуется лицензионными креплениями M-LOK для установки дополнительных устройств или направляющих."
+			}
+		}
+	},
+
+
+	"handguard_geissele_mk4_7inch": {
+		"modifier": "none",
+		"basedOn": "5d123102d7ad1a004e475fe5",
+		"addToTrader": {
+			"traderName": [],
+			"loyalty": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"addMods": {
+			"allCompatible": [
+				"5d123102d7ad1a004e475fe5"
+			]
+		},
+		"item": {
+			"_id": "handguard_geissele_mk4_7inch",
+			"_name": "handguard_geissele_mk4_7inch",
+			"_parent": "55818a104bdc2db9688b4569",
+			"_type": "Item",
+			"_props": {
+				"Name": "handguard_geissele_mk4_7inch",
+				"ShortName": "handguard_geissele_mk4_7inch",
+				"Description": "handguard_geissele_mk4_7inch",
+				"Weight": 0.24,
+				"BackgroundColor": "blue",
+				"Width": 2,
+				"Height": 1,
+				"StackMaxSize": 1,
+				"Rarity": "Rare",
+				"SpawnChance": 2,
+				"CreditsPrice": 16700,
+				"ItemSound": "mod",
+				"Prefab": {
+					"path": "assets/alteredescape/items/mods/handguards/handguard_geissele_mk4_7inch.bundle",
+					"rcid": ""
+				},
+				"UsePrefab": {
+					"path": "",
+					"rcid": ""
+				},
+				"StackObjectsCount": 1,
+				"NotShownInSlot": false,
+				"ExaminedByDefault": false,
+				"ExamineTime": 1,
+				"IsUndiscardable": false,
+				"IsUnsaleable": false,
+				"IsUnbuyable": false,
+				"IsUngivable": false,
+				"IsLockedafterEquip": false,
+				"QuestItem": false,
+				"LootExperience": 20,
+				"ExamineExperience": 3,
+				"HideEntrails": false,
+				"RepairCost": 0,
+				"RepairSpeed": 0,
+				"ExtraSizeLeft": 2,
+				"ExtraSizeRight": 0,
+				"ExtraSizeUp": 0,
+				"ExtraSizeDown": 0,
+				"ExtraSizeForceAdd": false,
+				"MergesWithChildren": true,
+				"CanSellOnRagfair": true,
+				"CanRequireOnRagfair": true,
+				"ConflictingItems": [
+					"5a34fbadc4a28200741e230a",
+					"5ae30e795acfc408fb139a0b",
+					"56ea8d2fd2720b7c698b4570"
+				],
+				"FixedPrice": false,
+				"Unlootable": false,
+				"UnlootableFromSlot": "FirstPrimaryWeapon",
+				"UnlootableFromSide": [],
+				"ChangePriceCoef": 1,
+				"AllowSpawnOnLocations": [],
+				"SendToClient": false,
+				"AnimationVariantsNumber": 0,
+				"DiscardingBlock": false,
+				"RagFairCommissionModifier": 1,
+				"IsAlwaysAvailableForInsurance": false,
+				"Grids": [],
+				"Slots": [
+					{
+						"_name": "mod_mount_000",
+						"_id": "5d123102d7ad1a004e475fe7",
+						"_parent": "5d123102d7ad1a004e475fe5",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5d123a3cd7ad1a004e476058",
+										"5d124c01d7ad1a115c7d59fb"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_mount_001",
+						"_id": "5d123102d7ad1a004e475fe8",
+						"_parent": "5d123102d7ad1a004e475fe5",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5d123a3cd7ad1a004e476058",
+										"5d124c01d7ad1a115c7d59fb"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_foregrip",
+						"_id": "5d123102d7ad1a004e475fea",
+						"_parent": "5d123102d7ad1a004e475fe5",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5d123b7dd7ad1a004f01b262",
+										"5d124c1ad7ad1a12227c53a7",
+										"5d133067d7ad1a33013f95b4"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_sight_front",
+						"_id": "5d123102d7ad1a004e475feb",
+						"_parent": "5d123102d7ad1a004e475fe5",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5ba26b01d4351e0085325a51",
+										"5dfa3d950dee1b22f862eae0",
+										"5c17804b2e2216152006c02f",
+										"5fb6567747ce63734e3fa1dc",
+										"5bc09a30d4351e00367fb7c8",
+										"5c18b90d2e2216152142466b",
+										"5fc0fa362770a0045c59c677",
+										"5894a73486f77426d259076c"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_000",
+						"_id": "5d123102d7ad1a004e475fec",
+						"_parent": "5d123102d7ad1a004e475fe5",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5d10b49bd7ad1a1a560708b0",
+										"5c06595c0db834001a66af6c",
+										"5a7b483fe899ef0016170d15",
+										"5c5952732e2216398b5abda2",
+										"5649a2464bdc2d91118b45a8"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_001",
+						"_id": "5d123102d7ad1a004e475fed",
+						"_parent": "5d123102d7ad1a004e475fe5",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_002",
+						"_id": "5d123102d7ad1a004e475fee",
+						"_parent": "5d123102d7ad1a004e475fe5",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_003",
+						"_id": "5d123102d7ad1a004e475fef",
+						"_parent": "5d123102d7ad1a004e475fe5",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					}
+				],
+				"CanPutIntoDuringTheRaid": true,
+				"CantRemoveFromSlotsDuringRaid": [],
+				"Durability": 100,
+				"Accuracy": 0,
+				"Recoil": -1,
+				"Loudness": 0,
+				"EffectiveDistance": 0,
+				"Ergonomics": 6,
+				"Velocity": 0,
+				"RaidModdable": false,
+				"ToolModdable": true,
+				"BlocksFolding": false,
+				"BlocksCollapsible": false,
+				"IsAnimated": false,
+				"HasShoulderContact": false,
+				"SightingRange": 0,
+				"HeatFactor": 1
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": "AR-15 Geissele SMR MK4 7 inch M-LOK handguard",
+				"ShortName": "SMR Mk4 7\"",
+				"Description": "Geissele SMR 7 inch M-LOK handguard for AR-15 equipped with a M-LOK interface for installation of additional devices and accessories."
+			},
+			"french": {
+				"Name": "AR-15 Garde-main Geissele SMR MK4 7 pouces M-LOK",
+				"ShortName": "SMR Mk4 7\"",
+				"Description": "Garde-main Geissele SMR 7 pouces M-LOK pour AR-15 équipé d'une interface M-LOK pour l'installation de dispositifs et accessoires supplémentaires."
+			},
+			"german": {
+				"Name": "AR-15 Geissele SMR MK4 7 Zoll M-LOK Handschutz",
+				"ShortName": "SMR Mk4 7\"",
+				"Description": "Geissele SMR 7 Zoll M-LOK Handschutz für AR-15 ausgestattet mit einer M-LOK Schnittstelle für die Installation von zusätzlichen Geräten und Zubehör."
+			},
+			"russian": {
+				"Name": "AR-15 Geissele SMR MK4 7-дюймовый M-LOK гарда",
+				"ShortName": "SMR Mk4 7\"",
+				"Description": "Geissele SMR 7-дюймовый M-LOK гарда для AR-15, оснащенная интерфейсом M-LOK для установки дополнительных устройств и аксессуаров."
+			}
+		}
+	},
+	"handguard_geissele_mk4_95inch": {
+		"modifier": "none",
+		"basedOn": "5ea16acdfadf1d18c87b0784",
+		"addToTrader": {
+			"traderName": [],
+			"loyalty": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"addMods": {
+			"allCompatible": [
+				"5ea16acdfadf1d18c87b0784"
+			]
+		},
+		"item":{
+			"_id": "handguard_geissele_mk4_95inch",
+			"_name": "handguard_geissele_mk4_95inch",
+			"_parent": "55818a104bdc2db9688b4569",
+			"_type": "Item",
+			"_props": {
+				"Name": "handguard_geissele_mk4_95inch",
+				"ShortName": "handguard_geissele_mk4_95inch",
+				"Description": "handguard_geissele_mk4_95inch",
+				"Weight": 0.335,
+				"BackgroundColor": "blue",
+				"Width": 2,
+				"Height": 1,
+				"StackMaxSize": 1,
+				"Rarity": "Rare",
+				"SpawnChance": 2,
+				"CreditsPrice": 16100,
+				"ItemSound": "mod",
+				"Prefab": {
+					"path": "assets/alteredescape/items/mods/handguards/handguard_geissele_mk4_95inch.bundle",
+					"rcid": ""
+				},
+				"UsePrefab": {
+					"path": "",
+					"rcid": ""
+				},
+				"StackObjectsCount": 1,
+				"NotShownInSlot": false,
+				"ExaminedByDefault": false,
+				"ExamineTime": 1,
+				"IsUndiscardable": false,
+				"IsUnsaleable": false,
+				"IsUnbuyable": false,
+				"IsUngivable": false,
+				"IsLockedafterEquip": false,
+				"QuestItem": false,
+				"LootExperience": 20,
+				"ExamineExperience": 3,
+				"HideEntrails": false,
+				"RepairCost": 0,
+				"RepairSpeed": 0,
+				"ExtraSizeLeft": 1,
+				"ExtraSizeRight": 0,
+				"ExtraSizeUp": 0,
+				"ExtraSizeDown": 0,
+				"ExtraSizeForceAdd": false,
+				"MergesWithChildren": true,
+				"CanSellOnRagfair": true,
+				"CanRequireOnRagfair": true,
+				"ConflictingItems": [
+					"5a34fbadc4a28200741e230a",
+					"5ae30e795acfc408fb139a0b",
+					"56ea8d2fd2720b7c698b4570"
+				],
+				"FixedPrice": false,
+				"Unlootable": false,
+				"UnlootableFromSlot": "FirstPrimaryWeapon",
+				"UnlootableFromSide": [],
+				"ChangePriceCoef": 1,
+				"AllowSpawnOnLocations": [],
+				"SendToClient": false,
+				"AnimationVariantsNumber": 0,
+				"DiscardingBlock": false,
+				"RagFairCommissionModifier": 1,
+				"IsAlwaysAvailableForInsurance": false,
+				"Grids": [],
+				"Slots": [
+					{
+						"_name": "mod_mount_000",
+						"_id": "5ea16acdfadf1d18c87b0786",
+						"_parent": "5ea16acdfadf1d18c87b0784",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_mount_001",
+						"_id": "5ea16acdfadf1d18c87b0787",
+						"_parent": "5ea16acdfadf1d18c87b0784",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_000",
+						"_id": "5ea16acdfadf1d18c87b0788",
+						"_parent": "5ea16acdfadf1d18c87b0784",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5d10b49bd7ad1a1a560708b0",
+										"5c06595c0db834001a66af6c",
+										"5a7b483fe899ef0016170d15",
+										"5c5952732e2216398b5abda2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_scope",
+						"_id": "5ea16acdfadf1d18c87b0789",
+						"_parent": "5ea16acdfadf1d18c87b0784",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5649a2464bdc2d91118b45a8"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_foregrip",
+						"_id": "5ea16acdfadf1d18c87b078a",
+						"_parent": "5ea16acdfadf1d18c87b0784",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57cffb66245977632f391a99",
+										"57cffcd624597763133760c5",
+										"57cffcdd24597763f5110006",
+										"57cffce524597763b31685d8",
+										"5b7be4895acfc400170e2dd5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_sight_front",
+						"_id": "5ea16acdfadf1d18c87b078b",
+						"_parent": "5ea16acdfadf1d18c87b0784",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5ba26b01d4351e0085325a51",
+										"5dfa3d950dee1b22f862eae0",
+										"5c17804b2e2216152006c02f",
+										"5fb6567747ce63734e3fa1dc",
+										"5bc09a30d4351e00367fb7c8",
+										"5c18b90d2e2216152142466b",
+										"5fc0fa362770a0045c59c677",
+										"5894a73486f77426d259076c",
+										"55d4af3a4bdc2d972f8b456f"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					}
+				],
+				"CanPutIntoDuringTheRaid": true,
+				"CantRemoveFromSlotsDuringRaid": [],
+				"Durability": 100,
+				"Accuracy": 0,
+				"Recoil": 0,
+				"Loudness": 0,
+				"EffectiveDistance": 0,
+				"Ergonomics": 8,
+				"Velocity": 0,
+				"RaidModdable": false,
+				"ToolModdable": true,
+				"BlocksFolding": false,
+				"BlocksCollapsible": false,
+				"IsAnimated": false,
+				"HasShoulderContact": false,
+				"SightingRange": 0,
+				"HeatFactor": 1
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": "AR-15 Geissele SMR MK4 9.5 inch M-LOK handguard",
+				"ShortName": "SMR Mk4 9.5\"",
+				"Description": "Geissele SMR 9.5 inch M-LOK handguard for AR-15 equipped with a M-LOK interface for installation of additional devices and accessories."
+			},
+			"french": {
+				"Name": "AR-15 Garde-main Geissele SMR MK4 9.5 pouces M-LOK",
+				"ShortName": "SMR Mk4 9.5\"",
+				"Description": "Garde-main Geissele SMR 9.5 pouces M-LOK pour AR-15 équipé d'une interface M-LOK pour l'installation de dispositifs et accessoires supplémentaires."
+			},
+			"german": {
+				"Name": "AR-15 Geissele SMR MK4 9.5 Zoll M-LOK Handschutz",
+				"ShortName": "SMR Mk4 9.5\"",
+				"Description": "Geissele SMR 9.5 Zoll M-LOK Handschutz für AR-15 ausgestattet mit einer M-LOK Schnittstelle für die Installation von zusätzlichen Geräten und Zubehör."
+			},
+			"russian": {
+				"Name": "AR-15 Geissele SMR MK4 9.5-дюймовый M-LOK гарда",
+				"ShortName": "SMR Mk4 9.5\"",
+				"Description": "Geissele SMR 9.5-дюймовый M-LOK гарда для AR-15, оснащенная интерфейсом M-LOK для установки дополнительных устройств и аксессуаров."
+			}
+		}
+	},
+	"handguard_geissele_mk4_10inch": {
+		"modifier": "none",
+		"basedOn": "5c78f2612e221600114c9f0d",
+		"addToTrader": {
+			"traderName": [],
+			"loyalty": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"addMods": {
+			"allCompatible": [
+				"5c78f2612e221600114c9f0d"
+			]
+		},
+		"item":{
+			"_id": "handguard_geissele_mk4_10inch",
+			"_name": "handguard_geissele_mk4_10inch",
+			"_parent": "55818a104bdc2db9688b4569",
+			"_type": "Item",
+			"_props": {
+				"Name": "handguard_geissele_mk4_10inch",
+				"ShortName": "handguard_geissele_mk4_10inch",
+				"Description": "handguard_geissele_mk4_10inch",
+				"Weight": 0.305,
+				"BackgroundColor": "blue",
+				"Width": 2,
+				"Height": 1,
+				"StackMaxSize": 1,
+				"Rarity": "Superrare",
+				"SpawnChance": 2,
+				"CreditsPrice": 24900,
+				"ItemSound": "mod",
+				"Prefab": {
+					"path": "assets/alteredescape/items/mods/handguards/handguard_geissele_mk4_10inch.bundle",
+					"rcid": ""
+				},
+				"UsePrefab": {
+					"path": "",
+					"rcid": ""
+				},
+				"StackObjectsCount": 1,
+				"NotShownInSlot": false,
+				"ExaminedByDefault": false,
+				"ExamineTime": 1,
+				"IsUndiscardable": false,
+				"IsUnsaleable": false,
+				"IsUnbuyable": false,
+				"IsUngivable": false,
+				"IsLockedafterEquip": false,
+				"QuestItem": false,
+				"LootExperience": 20,
+				"ExamineExperience": 3,
+				"HideEntrails": false,
+				"RepairCost": 0,
+				"RepairSpeed": 0,
+				"ExtraSizeLeft": 1,
+				"ExtraSizeRight": 0,
+				"ExtraSizeUp": 0,
+				"ExtraSizeDown": 0,
+				"ExtraSizeForceAdd": false,
+				"MergesWithChildren": true,
+				"CanSellOnRagfair": true,
+				"CanRequireOnRagfair": true,
+				"ConflictingItems": [
+					"5a34fbadc4a28200741e230a",
+					"5ae30e795acfc408fb139a0b",
+					"56ea8d2fd2720b7c698b4570",
+					"55d3632e4bdc2d972f8b4569",
+					"5d440b93a4b9364276578d4b",
+					"5d440b9fa4b93601354d480c",
+					"5c0e2f94d174af029f650d56"
+				],
+				"FixedPrice": false,
+				"Unlootable": false,
+				"UnlootableFromSlot": "FirstPrimaryWeapon",
+				"UnlootableFromSide": [],
+				"ChangePriceCoef": 1,
+				"AllowSpawnOnLocations": [],
+				"SendToClient": false,
+				"AnimationVariantsNumber": 0,
+				"DiscardingBlock": false,
+				"RagFairCommissionModifier": 1,
+				"IsAlwaysAvailableForInsurance": false,
+				"Grids": [],
+				"Slots": [
+					{
+						"_name": "mod_mount_000",
+						"_id": "5c78f2612e221600114c9f0f",
+						"_parent": "5c78f2612e221600114c9f0d",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5b7be47f5acfc400170e2dd2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_mount_001",
+						"_id": "5c78f2612e221600114c9f10",
+						"_parent": "5c78f2612e221600114c9f0d",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5b7be47f5acfc400170e2dd2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_scope",
+						"_id": "5c78f2612e221600114c9f13",
+						"_parent": "5c78f2612e221600114c9f0d",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5649a2464bdc2d91118b45a8"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_foregrip",
+						"_id": "5c78f2612e221600114c9f14",
+						"_parent": "5c78f2612e221600114c9f0d",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57cffb66245977632f391a99",
+										"57cffcd624597763133760c5",
+										"57cffcdd24597763f5110006",
+										"57cffce524597763b31685d8",
+										"5b7be4895acfc400170e2dd5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_sight_front",
+						"_id": "5c78f2612e221600114c9f15",
+						"_parent": "5c78f2612e221600114c9f0d",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5ba26b01d4351e0085325a51",
+										"5dfa3d950dee1b22f862eae0",
+										"5c17804b2e2216152006c02f",
+										"5fb6567747ce63734e3fa1dc",
+										"5bc09a30d4351e00367fb7c8",
+										"5c18b90d2e2216152142466b",
+										"5fc0fa362770a0045c59c677",
+										"5894a73486f77426d259076c"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_000",
+						"_id": "5c79054c2e221600114ca118",
+						"_parent": "5c78f2612e221600114c9f0d",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5d10b49bd7ad1a1a560708b0",
+										"5c06595c0db834001a66af6c",
+										"5a7b483fe899ef0016170d15",
+										"5c5952732e2216398b5abda2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_001",
+						"_id": "5c7905552e221644fc630f9f",
+						"_parent": "5c78f2612e221600114c9f0d",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_002",
+						"_id": "5c79055f2e221600114ca119",
+						"_parent": "5c78f2612e221600114c9f0d",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_003",
+						"_id": "5c7905672e221601da35820f",
+						"_parent": "5c78f2612e221600114c9f0d",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					}
+				],
+				"CanPutIntoDuringTheRaid": true,
+				"CantRemoveFromSlotsDuringRaid": [],
+				"Durability": 100,
+				"Accuracy": 0,
+				"Recoil": -3,
+				"Loudness": 0,
+				"EffectiveDistance": 0,
+				"Ergonomics": 10,
+				"Velocity": 0,
+				"RaidModdable": false,
+				"ToolModdable": true,
+				"BlocksFolding": false,
+				"BlocksCollapsible": false,
+				"IsAnimated": false,
+				"HasShoulderContact": false,
+				"SightingRange": 0,
+				"HeatFactor": 1
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": "AR-15 Geissele SMR MK4 10 inch M-LOK handguard",
+				"ShortName": "SMR Mk4 10\"",
+				"Description": "Geissele SMR 10 inch M-LOK handguard for AR-15 equipped with a M-LOK interface for installation of additional devices and accessories."
+			},
+			"french": {
+				"Name": "AR-15 Garde-main Geissele SMR MK4 10 pouces M-LOK",
+				"ShortName": "SMR Mk4 10\"",
+				"Description": "Garde-main Geissele SMR 10 pouces M-LOK pour AR-15 équipé d'une interface M-LOK pour l'installation de dispositifs et accessoires supplémentaires."
+			},
+			"german": {
+				"Name": "AR-15 Geissele SMR MK4 10 Zoll M-LOK Handschutz",
+				"ShortName": "SMR Mk4 10\"",
+				"Description": "Geissele SMR 10 Zoll M-LOK Handschutz für AR-15 ausgestattet mit einer M-LOK Schnittstelle für die Installation von zusätzlichen Geräten und Zubehör."
+			},
+			"russian": {
+				"Name": "AR-15 Geissele SMR MK4 10-дюймовый M-LOK гарда",
+				"ShortName": "SMR Mk4 10\"",
+				"Description": "Geissele SMR 10-дюймовый M-LOK гарда для AR-15, оснащенная интерфейсом M-LOK для установки дополнительных устройств и аксессуаров."
+			}
+		}
+	},
+	"handguard_geissele_mk4_13inch": {
+		"modifier": "none",
+		"basedOn": "5c9a25172e2216000f20314e",
+		"addToTrader": {
+			"traderName": [],
+			"loyalty": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"addMods": {
+			"allCompatible": [
+				"5c9a25172e2216000f20314e"
+			]
+		},
+		"item":{
+			"_id": "handguard_geissele_mk4_13inch",
+			"_name": "handguard_geissele_mk4_13inch",
+			"_parent": "55818a104bdc2db9688b4569",
+			"_type": "Item",
+			"_props": {
+				"Name": "handguard_geissele_mk4_13inch",
+				"ShortName": "handguard_geissele_mk4_13inch",
+				"Description": "handguard_geissele_mk4_13inch",
+				"Weight": 0.502,
+				"BackgroundColor": "blue",
+				"Width": 2,
+				"Height": 1,
+				"StackMaxSize": 1,
+				"Rarity": "Rare",
+				"SpawnChance": 2,
+				"CreditsPrice": 17400,
+				"ItemSound": "mod",
+				"Prefab": {
+					"path": "assets/alteredescape/items/mods/handguards/handguard_geissele_mk4_13inch.bundle",
+					"rcid": ""
+				},
+				"UsePrefab": {
+					"path": "",
+					"rcid": ""
+				},
+				"StackObjectsCount": 1,
+				"NotShownInSlot": false,
+				"ExaminedByDefault": false,
+				"ExamineTime": 1,
+				"IsUndiscardable": false,
+				"IsUnsaleable": false,
+				"IsUnbuyable": false,
+				"IsUngivable": false,
+				"IsLockedafterEquip": false,
+				"QuestItem": false,
+				"LootExperience": 20,
+				"ExamineExperience": 3,
+				"HideEntrails": false,
+				"RepairCost": 0,
+				"RepairSpeed": 0,
+				"ExtraSizeLeft": 2,
+				"ExtraSizeRight": 0,
+				"ExtraSizeUp": 0,
+				"ExtraSizeDown": 0,
+				"ExtraSizeForceAdd": false,
+				"MergesWithChildren": true,
+				"CanSellOnRagfair": true,
+				"CanRequireOnRagfair": true,
+				"ConflictingItems": [
+					"5a34fbadc4a28200741e230a",
+					"5ae30e795acfc408fb139a0b",
+					"56ea8d2fd2720b7c698b4570",
+					"55d35ee94bdc2d61338b4568"
+				],
+				"FixedPrice": false,
+				"Unlootable": false,
+				"UnlootableFromSlot": "FirstPrimaryWeapon",
+				"UnlootableFromSide": [],
+				"ChangePriceCoef": 1,
+				"AllowSpawnOnLocations": [],
+				"SendToClient": false,
+				"AnimationVariantsNumber": 0,
+				"DiscardingBlock": false,
+				"RagFairCommissionModifier": 1,
+				"IsAlwaysAvailableForInsurance": false,
+				"Grids": [],
+				"Slots": [
+					{
+						"_name": "mod_foregrip",
+						"_id": "5c9a25172e2216000f203150",
+						"_parent": "5c9a25172e2216000f20314e",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57cffb66245977632f391a99",
+										"57cffcd624597763133760c5",
+										"57cffcdd24597763f5110006",
+										"57cffce524597763b31685d8",
+										"5b7be4895acfc400170e2dd5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_scope",
+						"_id": "5c9a25172e2216000f203151",
+						"_parent": "5c9a25172e2216000f20314e",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5649a2464bdc2d91118b45a8"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_001",
+						"_id": "5c9a25172e2216000f203152",
+						"_parent": "5c9a25172e2216000f20314e",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_002",
+						"_id": "5c9a25172e2216000f203153",
+						"_parent": "5c9a25172e2216000f20314e",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5d10b49bd7ad1a1a560708b0",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_sight_front",
+						"_id": "5c9a25172e2216000f203154",
+						"_parent": "5c9a25172e2216000f20314e",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5ba26b01d4351e0085325a51",
+										"5dfa3d950dee1b22f862eae0",
+										"5c17804b2e2216152006c02f",
+										"5fb6567747ce63734e3fa1dc",
+										"5bc09a30d4351e00367fb7c8",
+										"5c18b90d2e2216152142466b",
+										"5fc0fa362770a0045c59c677",
+										"5894a73486f77426d259076c",
+										"55d4af3a4bdc2d972f8b456f"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_000",
+						"_id": "5c9a25172e2216000f203155",
+						"_parent": "5c9a25172e2216000f20314e",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5d10b49bd7ad1a1a560708b0",
+										"5c06595c0db834001a66af6c",
+										"5a7b483fe899ef0016170d15",
+										"5c5952732e2216398b5abda2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_003",
+						"_id": "5c9a25ed2e221600106f6af0",
+						"_parent": "5c9a25172e2216000f20314e",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					}
+				],
+				"CanPutIntoDuringTheRaid": true,
+				"CantRemoveFromSlotsDuringRaid": [],
+				"Durability": 100,
+				"Accuracy": 0,
+				"Recoil": -2,
+				"Loudness": 0,
+				"EffectiveDistance": 0,
+				"Ergonomics": 7,
+				"Velocity": 0,
+				"RaidModdable": false,
+				"ToolModdable": true,
+				"BlocksFolding": false,
+				"BlocksCollapsible": false,
+				"IsAnimated": false,
+				"HasShoulderContact": false,
+				"SightingRange": 0,
+				"HeatFactor": 1
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": "AR-15 Geissele SMR MK4 13 inch M-LOK handguard",
+				"ShortName": "SMR Mk4 13\"",
+				"Description": "Geissele SMR 13 inch M-LOK handguard for AR-15 equipped with a M-LOK interface for installation of additional devices and accessories."
+			},
+			"french": {
+				"Name": "AR-15 Garde-main Geissele SMR MK4 13 pouces M-LOK",
+				"ShortName": "SMR Mk4 13\"",
+				"Description": "Garde-main Geissele SMR 13 pouces M-LOK pour AR-15 équipé d'une interface M-LOK pour l'installation de dispositifs et accessoires supplémentaires."
+			},
+			"german": {
+				"Name": "AR-15 Geissele SMR MK4 13 Zoll M-LOK Handschutz",
+				"ShortName": "SMR Mk4 13\"",
+				"Description": "Geissele SMR 13 Zoll M-LOK Handschutz für AR-15 ausgestattet mit einer M-LOK Schnittstelle für die Installation von zusätzlichen Geräten und Zubehör."
+			},
+			"russian": {
+				"Name": "AR-15 Geissele SMR MK4 13-дюймовый M-LOK гарда",
+				"ShortName": "SMR Mk4 13\"",
+				"Description": "Geissele SMR 13-дюймовый M-LOK гарда для AR-15, оснащенная интерфейсом M-LOK для установки дополнительных устройств и аксессуаров."
+			}
+		}
+	},
+	"handguard_geissele_mk4_15inch": {
+		"modifier": "none",
+		"basedOn": "5c78f2492e221600114c9f04",
+		"addToTrader": {
+			"traderName": [],
+			"loyalty": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"addMods": {
+			"allCompatible": [
+				"5c78f2492e221600114c9f04"
+			]
+		},
+		"item":{
+			"_id": "handguard_geissele_mk4_15inch",
+			"_name": "handguard_geissele_mk4_15inch",
+			"_parent": "55818a104bdc2db9688b4569",
+			"_type": "Item",
+			"_props": {
+				"Name": "handguard_geissele_mk4_15inch",
+				"ShortName": "handguard_geissele_mk4_15inch",
+				"Description": "handguard_geissele_mk4_15inch",
+				"Weight": 0.355,
+				"BackgroundColor": "blue",
+				"Width": 3,
+				"Height": 1,
+				"StackMaxSize": 1,
+				"Rarity": "Superrare",
+				"SpawnChance": 1,
+				"CreditsPrice": 29100,
+				"ItemSound": "mod",
+				"Prefab": {
+					"path": "assets/alteredescape/items/mods/handguards/handguard_geissele_mk4_15inch.bundle",
+					"rcid": ""
+				},
+				"UsePrefab": {
+					"path": "",
+					"rcid": ""
+				},
+				"StackObjectsCount": 1,
+				"NotShownInSlot": false,
+				"ExaminedByDefault": false,
+				"ExamineTime": 1,
+				"IsUndiscardable": false,
+				"IsUnsaleable": false,
+				"IsUnbuyable": false,
+				"IsUngivable": false,
+				"IsLockedafterEquip": false,
+				"QuestItem": false,
+				"LootExperience": 20,
+				"ExamineExperience": 3,
+				"HideEntrails": false,
+				"RepairCost": 0,
+				"RepairSpeed": 0,
+				"ExtraSizeLeft": 3,
+				"ExtraSizeRight": 0,
+				"ExtraSizeUp": 0,
+				"ExtraSizeDown": 0,
+				"ExtraSizeForceAdd": false,
+				"MergesWithChildren": true,
+				"CanSellOnRagfair": true,
+				"CanRequireOnRagfair": true,
+				"ConflictingItems": [
+					"5a34fbadc4a28200741e230a",
+					"5ae30e795acfc408fb139a0b",
+					"56ea8d2fd2720b7c698b4570",
+					"55d35ee94bdc2d61338b4568"
+				],
+				"FixedPrice": false,
+				"Unlootable": false,
+				"UnlootableFromSlot": "FirstPrimaryWeapon",
+				"UnlootableFromSide": [],
+				"ChangePriceCoef": 1,
+				"AllowSpawnOnLocations": [],
+				"SendToClient": false,
+				"AnimationVariantsNumber": 0,
+				"DiscardingBlock": false,
+				"RagFairCommissionModifier": 1,
+				"IsAlwaysAvailableForInsurance": false,
+				"Grids": [],
+				"Slots": [
+					{
+						"_name": "mod_mount_000",
+						"_id": "5c78f2492e221600114c9f06",
+						"_parent": "5c78f2492e221600114c9f04",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5b7be47f5acfc400170e2dd2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_mount_001",
+						"_id": "5c78f2492e221600114c9f07",
+						"_parent": "5c78f2492e221600114c9f04",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5b7be47f5acfc400170e2dd2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_scope",
+						"_id": "5c78f2492e221600114c9f0a",
+						"_parent": "5c78f2492e221600114c9f04",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5649a2464bdc2d91118b45a8"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_foregrip",
+						"_id": "5c78f2492e221600114c9f0b",
+						"_parent": "5c78f2492e221600114c9f04",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57cffb66245977632f391a99",
+										"57cffcd624597763133760c5",
+										"57cffcdd24597763f5110006",
+										"57cffce524597763b31685d8",
+										"5b7be4895acfc400170e2dd5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_sight_front",
+						"_id": "5c78f2492e221600114c9f0c",
+						"_parent": "5c78f2492e221600114c9f04",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5ba26b01d4351e0085325a51",
+										"5dfa3d950dee1b22f862eae0",
+										"5c17804b2e2216152006c02f",
+										"5fb6567747ce63734e3fa1dc",
+										"5bc09a30d4351e00367fb7c8",
+										"5c18b90d2e2216152142466b",
+										"5fc0fa362770a0045c59c677",
+										"5894a73486f77426d259076c"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_000",
+						"_id": "5c7904482e221600114ca117",
+						"_parent": "5c78f2492e221600114c9f04",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5d10b49bd7ad1a1a560708b0",
+										"5c06595c0db834001a66af6c",
+										"5a7b483fe899ef0016170d15",
+										"5c5952732e2216398b5abda2"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_001",
+						"_id": "5c7904552e221644fc630f9e",
+						"_parent": "5c78f2492e221600114c9f04",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_002",
+						"_id": "5c79048b2e2216000f200d3b",
+						"_parent": "5c78f2492e221600114c9f04",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					},
+					{
+						"_name": "mod_tactical_003",
+						"_id": "5c7905762e22160bc12c5e32",
+						"_parent": "5c78f2492e221600114c9f04",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"5a800961159bd4315e3a1657",
+										"57fd23e32459772d0805bcf1",
+										"544909bb4bdc2d6f028b4577",
+										"5c06595c0db834001a66af6c",
+										"5cc9c20cd7f00c001336c65d",
+										"5d2369418abbc306c62e0c80",
+										"5b07dd285acfc4001754240d",
+										"56def37dd2720bec348b456a",
+										"5a7b483fe899ef0016170d15",
+										"5a5f1ce64f39f90b401987bc",
+										"560d657b4bdc2da74d8b4572",
+										"5b3a337e5acfc4704b4a19a0",
+										"5c5952732e2216398b5abda2",
+										"57d17e212459775a1179a0f5"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					}
+				],
+				"CanPutIntoDuringTheRaid": true,
+				"CantRemoveFromSlotsDuringRaid": [],
+				"Durability": 100,
+				"Accuracy": 0,
+				"Recoil": -3,
+				"Loudness": 0,
+				"EffectiveDistance": 0,
+				"Ergonomics": 12,
+				"Velocity": 0,
+				"RaidModdable": false,
+				"ToolModdable": true,
+				"BlocksFolding": false,
+				"BlocksCollapsible": false,
+				"IsAnimated": false,
+				"HasShoulderContact": false,
+				"SightingRange": 0,
+				"HeatFactor": 1
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": "AR-15 Geissele SMR MK4 15 inch M-LOK handguard",
+				"ShortName": "SMR Mk4 15\"",
+				"Description": "Geissele SMR 15 inch M-LOK handguard for AR-15 equipped with a M-LOK interface for installation of additional devices and accessories."
+			},
+			"french": {
+				"Name": "AR-15 Garde-main Geissele SMR MK4 15 pouces M-LOK",
+				"ShortName": "SMR Mk4 15\"",
+				"Description": "Garde-main Geissele SMR 15 pouces M-LOK pour AR-15 équipé d'une interface M-LOK pour l'installation de dispositifs et accessoires supplémentaires."
+			},
+			"german": {
+				"Name": "AR-15 Geissele SMR MK4 15 Zoll M-LOK Handschutz",
+				"ShortName": "SMR Mk4 15\"",
+				"Description": "Geissele SMR 15 Zoll M-LOK Handschutz für AR-15 ausgestattet mit einer M-LOK Schnittstelle für die Installation von zusätzlichen Geräten und Zubehör."
+			},
+			"russian": {
+				"Name": "AR-15 Geissele SMR MK4 15-дюймовый M-LOK гарда",
+				"ShortName": "SMR Mk4 15\"",
+				"Description": "Geissele SMR 15-дюймовый M-LOK гарда для AR-15, оснащенная интерфейсом M-LOK для установки дополнительных устройств и аксессуаров."
+			}
+		}
+	}
+}

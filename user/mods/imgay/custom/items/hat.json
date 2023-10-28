@@ -1,0 +1,27 @@
+{
+  "test9": {
+    "Parameters": {
+      "ReferenceItemTPL": "5b432d215acfc4771e1c6624",
+      "ModifierType": "clone",
+      "AddToTrader": {
+        "58330581ace78e27b8b10cee": {
+          "LoyaltyLevel": 1,
+          "BarterScheme": {
+            "5449016a4bdc2d6f028b456f": 50000
+          },
+          "AmountInStock": 999
+        }
+      }
+    },
+    "overrides": {
+      "_name": "test9"
+    },
+    "locale": {
+      "en": {
+        "Name": "Sombrero",
+        "ShortName": "Sombrero",
+        "Description": "A traditional and iconic type of wide-brimmed hat that is commonly associated with Mexican culture"
+      }
+    }
+  }
+}

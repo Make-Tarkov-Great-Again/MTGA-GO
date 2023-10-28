@@ -1,0 +1,391 @@
+{
+  "reciever_ppsh_tactical": {
+    "modifier": "none",
+    "basedOn": "5ea03e5009aa976f2e7a514b",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5ea03e5009aa976f2e7a514b"] },
+    "item": {
+      "_id": "reciever_ppsh_tactical",
+      "_name": "reciever_ppsh_zis_ppsh41_std",
+      "_parent": "55818a304bdc2db5418b457d",
+      "_type": "Item",
+      "_props": {
+        "Name": "reciever_ppsh_tactical",
+        "ShortName": "reciever_ppsh_tactical",
+        "Description": "reciever_ppsh_tactical",
+        "Weight": 1.1,
+        "BackgroundColor": "blue",
+        "Width": 2,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Common",
+        "SpawnChance": 4,
+        "CreditsPrice": 6550,
+        "ItemSound": "mod",
+        "Prefab": {
+          "path": "alteredescape/items/mods/upper/ppsh_tactical/reciever_ppsh_tactical.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": false,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 5,
+        "ExamineExperience": 2,
+        "HideEntrails": false,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 2,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": true,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": [],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "Grids": [],
+        "Slots": [
+          {
+            "_name": "mod_mount_000",
+            "_id": "reciever_ppsh_mount_000",
+            "_parent": "reciever_ppsh_tactical",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": ["5b7be47f5acfc400170e2dd2"]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_mount_001",
+            "_id": "reciever_ppsh_mount_001",
+            "_parent": "reciever_ppsh_tactical",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": ["5b7be47f5acfc400170e2dd2"]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_scope",
+            "_id": "reciever_ppsh_scope",
+            "_parent": "reciever_ppsh_tactical",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": ["5dfe14f30b92095fd441edaf"]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_foregrip",
+            "_id": "reciever_ppsh_foregrip",
+            "_parent": "reciever_ppsh_tactical",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": [
+                    "57cffb66245977632f391a99",
+                    "57cffcd624597763133760c5",
+                    "57cffcdd24597763f5110006",
+                    "57cffce524597763b31685d8",
+                    "5b7be4895acfc400170e2dd5"
+                  ]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          }
+        ],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "Durability": 100,
+        "Accuracy": 0,
+        "Recoil": -2,
+        "Loudness": 0,
+        "EffectiveDistance": 0,
+        "Ergonomics": 3,
+        "Velocity": 0,
+        "RaidModdable": true,
+        "ToolModdable": false,
+        "BlocksFolding": false,
+        "BlocksCollapsible": false,
+        "IsAnimated": false,
+        "HasShoulderContact": false,
+        "SightingRange": 0
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "PPSh-41 dust cover (Tactical)",
+        "ShortName": "PPSH-41 Tac",
+        "Description": "Standard PPSh-41 top dust cover with tactical attachments."
+      },
+      "french": {
+        "Name": "Cache-poussière PPSh-41 (Tactique)",
+        "ShortName": "PPSH-41 Tac",
+        "Description": "Cache-poussière standard pour le PPSh-41 avec accessoires tactiques."
+      },
+      "german": {
+        "Name": "PPSh-41 Staubschutzhülle (taktisch)",
+        "ShortName": "PPSH-41 Tac",
+        "Description": "Standard PPSh-41 Staubschutzhaube mit taktischen Anbauteilen."
+      },
+      "russian": {
+        "Name": "Пылезащитная крышка ППШ-41 (тактическая)",
+        "ShortName": "PPSH-41 Tac",
+        "Description": "Стандартная верхняя пылезащитная крышка ППШ-41 с тактическими насадками."
+      }
+    }
+  },
+  "reciever_mp5k_alt": {
+    "modifier": "none",
+    "basedOn": "55d355e64bdc2d962f8b4569",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": {
+      "mod_reciever": ["5d2f0d8048f0356c925bc3b0"]
+    },
+    "item": {
+      "_id": "reciever_mp5k_alt",
+      "_name": "reciever_mp5k_alt",
+      "_parent": "55818a304bdc2db5418b457d",
+      "_type": "Item",
+      "_props": {
+        "Name": "reciever_mp5_hk_std",
+        "ShortName": "reciever_mp5_hk_std",
+        "Description": "reciever_mp5_hk_std",
+        "Weight": 0.45,
+        "BackgroundColor": "blue",
+        "Width": 2,
+        "Height": 1,
+        "StackMaxSize": 1,
+        "Rarity": "Rare",
+        "SpawnChance": 3,
+        "CreditsPrice": 4050,
+        "ItemSound": "mod",
+        "Prefab": {
+          "path": "alteredescape/items/mods/upper/mpk5/reciever_mp5k_alt.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": false,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 10,
+        "ExamineExperience": 2,
+        "HideEntrails": false,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 1,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 0,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": true,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": [],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "Grids": [],
+        "Slots": [
+          {
+            "_name": "mod_handguard",
+            "_id": "reciever_mp5k_alt_handguard",
+            "_parent": "reciever_mp5k_alt",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": [
+                    "5d2f259b48f0355a844acd74",
+                    "handguard_mp5k_midwest"
+                  ]
+                }
+              ]
+            },
+            "_required": true,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_sight_rear",
+            "_id": "reciever_mp5k_alt_rearsight",
+            "_parent": "reciever_mp5k_alt",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": ["5926d2be86f774134d668e4e"]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_stock",
+            "_id": "reciever_mp5k_alt_stock",
+            "_parent": "reciever_mp5k_alt",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": [
+                    "5d2f25bc48f03502573e5d85",
+                    "5926d3c686f77410de68ebc8",
+                    "5926d40686f7740f152b6b7e",
+                    "stock_mp5k_adapter"
+                  ]
+                }
+              ]
+            },
+            "_required": true,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_mount",
+            "_id": "reciever_mp5k_alt_mount",
+            "_parent": "reciever_mp5k_alt",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": ["5926dad986f7741f82604363"]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_muzzle",
+            "_id": "reciever_mp5k_alt_muzzle",
+            "_parent": "reciever_mp5k_alt",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": [
+                    "5926e16e86f7742f5a0f7ecb",
+                    "5c0000c00db834001a6697fc"
+                  ]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          }
+        ],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "Durability": 100,
+        "Accuracy": 0,
+        "Recoil": 0,
+        "Loudness": 0,
+        "EffectiveDistance": 0,
+        "Ergonomics": 6,
+        "Velocity": 0,
+        "RaidModdable": false,
+        "ToolModdable": false,
+        "BlocksFolding": false,
+        "BlocksCollapsible": false,
+        "IsAnimated": false,
+        "HasShoulderContact": false,
+        "SightingRange": 0
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "MP5K 9x19 upper receiver",
+        "ShortName": "MP5K Upper-Alt",
+        "Description": "A aftermarket upper receiver for the MP5K SMGs, manufactured by Heckler & Koch. This model has can accept 3-lug suppressor adaptor."
+      },
+      "french": {
+        "Name": "Récepteur supérieur MP5K 9x19",
+        "ShortName": "MP5K Upper-Alt",
+        "Description": "Un récepteur supérieur de rechange pour les MP5K SMG, fabriqué par Heckler & Koch. Ce modèle peut accepter un adaptateur de suppresseur à 3 cosses."
+      },
+      "german": {
+        "Name": "MP5K 9x19 oberer Empfänger",
+        "ShortName": "MP5K Upper-Alt",
+        "Description": "Ein Aftermarket Upper Receiver für die MP5K SMGs, hergestellt von Heckler & Koch. Dieses Modell kann einen 3-Lagen-Suppressor-Adapter aufnehmen."
+      },
+      "russian": {
+        "Name": "Приемник верхний MP5K 9x19",
+        "ShortName": "MP5K Upper-Alt",
+        "Description": "Послепродажный верхний ствол для пистолетов-пулеметов MP5K производства Heckler & Koch. Эта модель может принимать адаптер подавителя с 3 выступами."
+      }
+    }
+  }
+}

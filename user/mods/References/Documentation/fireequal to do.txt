@@ -1,0 +1,37 @@
+Neural ammo:
+- Differentiate between army/civillian?
+- Fix rarity somehow
+- Maybe rework some neural net aspects, rethink what goes first, etc..
+- Add more irl pen statistics? Rework them to include army/civillian?
+- Finish up adding all ammo
+
+Armour plates:
+- Add other plates
+- Add a slot in armour to accomodate the plates
+- Maybe add armour slots for baseball caps, lol?
+- Rebalance stuff, make normal armour at least lvl 2, depending on normal lvl. Maybe restrict some armours to their specific plates?
+
+Ports:
+- based multi-mount (almost finished)
+
+Modloader (priority from high to low):
+- Figure out presets
+- Trader support
+- Use .filter() for finding something, instead of for-if.
+- Rework some things? Make functions?
+- copyMods or deleteMods function
+- Expand on addMods to allow adding a mod slot
+
+Ragfair:
+- Increase spawn amount for some things? No seriously 0-3 bolts on ragfair is dumb, 5-10 would be better
+- Optimise the ragfair file itself? "if-else" to "switch"
+
+Balancing/Raids/Hideout:
+- Dynamic raid timers
+- Maps locked behind requirements (either dymamic weather or smth)
+
+Translation:
+- French and German are added like Mao does it. They don't work tho. Maybe rollback to v15?
+
+Assembly:
+- Look into making a new slot for our belt rigs

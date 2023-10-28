@@ -1,0 +1,528 @@
+{
+  "magmarsass_handguard": {
+    "modifier": "useBase",
+    "basedOn": "5a329052c4a28200741e22d3",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5a329052c4a28200741e22d3"] },
+    "item": {
+      "_id": "magmarsass_handguard",
+      "_props": {
+        "Prefab": {
+          "path": "magmarsass_handguard.bundle",
+          "rcid": ""
+        }
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Remington R11 RSASS Magma handguard",
+        "ShortName": "RSASS magma",
+        "Description": "molten hot m a g m a"
+      },
+      "french": {
+        "Name": "Garde-main Remington R11 RSASS Magma",
+        "ShortName": "RSASS magma",
+        "Description": "fondu chaud m a g m a"
+      },
+      "german": {
+        "Name": "Remington R11 RSASS Magma Handschutz",
+        "ShortName": "RSASS magma",
+        "Description": "schmelzend heiß m a g m a"
+      },
+      "russian": {
+        "Name": "Remington R11 RSASS Magma handguard",
+        "ShortName": "RSASS magma",
+        "Description": "расплавленный горячий м а г м а"
+      }
+    }
+  },
+  "magmarsassweapon_container": {
+    "modifier": "useBase",
+    "basedOn": "5a367e5dc4a282000e49738f",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5a367e5dc4a282000e49738f"] },
+    "item": {
+      "_id": "magmarsassweapon_container",
+      "_props": {
+        "Prefab": {
+          "path": "assets/content/weapons/rsass_magma/weapon_remington_r11_rsass_762x51_container.bundle",
+          "rcid": ""
+        }
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Remington R11 RSASS 7.62x51 marksman rifle (Magma)",
+        "ShortName": "RSASS magma",
+        "Description": "molten hot m a g m a gun"
+      },
+      "french": {
+        "Name": "Fusil de précision Remington R11 RSASS 7.62x51 (Magma)",
+        "ShortName": "RSASS magma",
+        "Description": "fusil m a g m a chaud fondu"
+      },
+      "german": {
+        "Name": "Remington R11 RSASS 7.62x51 Scharfschützengewehr (Magma)",
+        "ShortName": "RSASS magma",
+        "Description": "schmelzheißes M a g m a Gewehr"
+      },
+      "russian": {
+        "Name": "Винтовка Remington R11 RSASS 7.62x51 marksman (Magma)",
+        "ShortName": "RSASS magma",
+        "Description": "расплавленный горячий пистолет м а г м а"
+      }
+    }
+  },
+  "nentendo_zapper_9x19_container": {
+    "modifier": "useBase",
+    "basedOn": "5b1fa9b25acfc40018633c01",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "allCompatible": ["5a7ae0c351dfba0017554310"] },
+    "item": {
+      "_id": "nentendo_zapper_9x19_container",
+      "_props": {
+        "Prefab": {
+          "path": "assets/content/weapons/nigatendo/weapon_glock_glock_17_gen3_9x19_container.bundle",
+          "rcid": ""
+        },
+        "Slots": [
+          {
+            "_name": "mod_barrel",
+            "_id": "nentendo_zapper_9x19_container_barrel",
+            "_parent": "nentendo_zapper_9x19_container",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": []
+                }
+              ]
+            },
+            "_required": true,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_pistol_grip",
+            "_id": "nentendo_zapper_9x19_container_pg",
+            "_parent": "nentendo_zapper_9x19_container",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": ["5a7b4960e899ef197b331a2d"]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_reciever",
+            "_id": "nentendo_zapper_9x19_container_receiver",
+            "_parent": "nentendo_zapper_9x19_container",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": []
+                }
+              ]
+            },
+            "_required": true,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_magazine",
+            "_id": "nentendo_zapper_9x19_container_magazine",
+            "_parent": "nentendo_zapper_9x19_container",
+            "_props": {
+              "filters": [
+                {
+                  "AnimationIndex": 0,
+                  "Filter": []
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c394bdc2dae468b4577"
+          },
+          {
+            "_name": "mod_tactical",
+            "_id": "nentendo_zapper_9x19_container_tactical",
+            "_parent": "nentendo_zapper_9x19_container",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": [
+                    "5a800961159bd4315e3a1657",
+                    "5cc9c20cd7f00c001336c65d",
+                    "5d2369418abbc306c62e0c80",
+                    "5b07dd285acfc4001754240d",
+                    "56def37dd2720bec348b456a",
+                    "5a7b483fe899ef0016170d15",
+                    "5a5f1ce64f39f90b401987bc",
+                    "560d657b4bdc2da74d8b4572",
+                    "5a7ad4af51dfba0013379717",
+                    "5a7b4900e899ef197b331a2a"
+                  ]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_mount",
+            "_id": "nentendo_zapper_9x19_container_mount",
+            "_parent": "nentendo_zapper_9x19_container",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": ["5a7ad55551dfba0015068f42"]
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          },
+          {
+            "_name": "mod_stock",
+            "_id": "nentendo_zapper_9x19_container_stock",
+            "_parent": "nentendo_zapper_9x19_container",
+            "_props": {
+              "filters": [
+                {
+                  "Shift": 0,
+                  "Filter": []
+                }
+              ]
+            },
+            "_required": false,
+            "_mergeSlotWithChildren": false,
+            "_proto": "55d30c4c4bdc2db4468b457e"
+          }
+        ]
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Nentendo Glock-Glock `Zapper`",
+        "ShortName": "Nentendo Zapper",
+        "Description": "Nentendo, presents the latest addition to the Glock-Glock brand with the `Zapper`. The `Zapper` is a child-safe, fun for the whole family selective-fire variant of the Glock-Glock 17. It has a keyhole opening cut into the forward portion of the slide, similar to the opening on the Glock long-slide models, although the Glock 18 has a standard-length slide. The keyhole opening provides an area to allow the four, progressively larger (from back to front) compensator cuts machined into the barrel to vent the propellant gases upwards, affording more control over the rapid-firing machine pistol."
+      },
+      "french": {
+        "Name": "Nentendo Glock-Glock `Zapper`",
+        "ShortName": "Nentendo Zapper",
+        "Description": "Le Nentendo Zapper est une variante à tir sélectif du Glock-Glock 17, sûre pour les enfants et amusante pour toute la famille. Il possède une ouverture en trou de serrure découpée dans la partie avant de la glissière, similaire à l'ouverture des modèles Glock à glissière longue, bien que le Glock 18 ait une glissière de longueur standard. L'ouverture en trou de serrure fournit une zone permettant aux quatre compensateurs progressivement plus grands (de l'arrière vers l'avant) usinés dans le canon d'évacuer les gaz propulseurs vers le haut, ce qui permet un meilleur contrôle du pistolet-mitrailleur à tir rapide."
+      },
+      "german": {
+        "Name": "Nentendo Glock-Glock `Zapper`",
+        "ShortName": "Nentendo Zapper",
+        "Description": "Die Nentendo Zapper ist eine kindersichere, für die ganze Familie geeignete Selektivfeuer-Variante der Glock-Glock 17. Sie verfügt über eine Schlüssellochöffnung im vorderen Teil des Schlittens, ähnlich der Öffnung bei den Glock-Modellen mit langem Schlitten, obwohl die Glock 18 einen Schlitten in Standardlänge hat. Die Schlüssellochöffnung bietet einen Bereich, durch den die vier (von hinten nach vorne) in den Lauf eingearbeiteten, immer größer werdenden Kompensatoren die Treibgase nach oben ableiten können, was eine bessere Kontrolle über die Schnellfeuerpistole ermöglicht."
+      },
+      "russian": {
+        "Name": "Nentendo Glock-Glock `Zapper`",
+        "ShortName": "Nentendo Zapper",
+        "Description": "Nentendo Zapper - это безопасный для детей и всей семьи вариант пистолета Glock-Glock 17. В его передней части затвора прорезано отверстие для ключа, аналогичное отверстию на моделях Glock с длинным затвором, хотя у Glock 18 затвор стандартной длины. Отверстие под замочную скважину позволяет четырем постепенно увеличивающимся (от задней части ствола к передней) нарезам компенсатора, сделанным в стволе, выводить газы из ствола вверх, обеспечивая больший контроль над скорострельностью пистолета-пулемета."
+      }
+    }
+  },
+  "stock_glockglock_zapper_glr_17": {
+    "modifier": "useBase",
+    "basedOn": "5d1c702ad7ad1a632267f429",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "mod_stock": ["nentendo_zapper_9x19_container"] },
+    "item": {
+      "_id": "stock_glockglock_zapper_glr_17",
+      "_props": {
+        "Prefab": {
+          "path": "nentendo/stock_glockglock_zapper_glr_17.bundle",
+          "rcid": ""
+        },
+        "Recoil": -69,
+        "Ergonomics": 420
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Nentendo Zapper Glock-Glock FAB Defense GLR-69 stock",
+        "ShortName": "GLR-69",
+        "Description": "Nentendo Zapper brings you a Glock-Glock exclusive Glock FAB Defense GLR-17 stock look-alike attachment for your `Zapper`"
+      },
+      "french": {
+        "Name": "Nentendo Zapper Glock-Glock FAB Defense GLR-69 stock",
+        "ShortName": "GLR-69",
+        "Description": "Le Zapper de Nentendo vous offre une exclusivité de Glock-Glock, une crosse FAB Defense GLR-17 pour votre `Zapper`."
+      },
+      "german": {
+        "Name": "Nentendo Zapper Glock-Glock FAB Defense GLR-69 Schaft",
+        "ShortName": "GLR-69",
+        "Description": "Nentendo Zapper bringt Ihnen einen Glock-Glock exklusiven Glock FAB Defense GLR-17 schaftähnlichen Aufsatz für Ihren \"Zapper\"."
+      },
+      "russian": {
+        "Name": "Приклад Nentendo Zapper Glock-Glock FAB Defense GLR-69",
+        "ShortName": "GLR-69",
+        "Description": "Nentendo Zapper предлагает вам эксклюзивный приклад Glock-Glock FAB Defense GLR-17 для вашего `Zapper`."
+      }
+    }
+  },
+  "duracell_std_9x19_17": {
+    "modifier": "useBase",
+    "basedOn": "5a718b548dc32e000d46d262",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "mod_magazine": ["nentendo_zapper_9x19_container"] },
+    "item": {
+      "_id": "duracell_std_9x19_17",
+      "_props": {
+        "Prefab": {
+          "path": "batteries/duracell_std_9x19_17.bundle",
+          "rcid": ""
+        },
+        "Cartridges": [
+          {
+            "_name": "cartridges",
+            "_id": "duracell_std_9x19_17",
+            "_parent": "duracell_std_9x19_17",
+            "_max_count": 100,
+            "_props": {
+              "filters": [
+                {
+                  "Filter": [
+                    "5efb0da7a29a85116f6ea05f",
+                    "5c3df7d588a4501f290594e5",
+                    "58864a4f2459770fcc257101",
+                    "56d59d3ad2720bdb418b4577",
+                    "5c925fa22e221601da359b7b",
+                    "5a3c16fe86f77452b62de32a",
+                    "5efb0e16aeb21837e749c7ff",
+                    "5c0d56a986f774449d5de529"
+                  ]
+                }
+              ]
+            },
+            "_proto": "5748538b2459770af276a261"
+          }
+        ],
+        "LoadUnloadModifier": -100
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Duracell Rechargeable Lithium Battery",
+        "ShortName": "Duracell STD",
+        "Description": "Duracell recharagble battery pack specially made for the Nentendo Zapper for long gaming sessions"
+      },
+      "french": {
+        "Name": "Pile rechargeable Duracell au lithium",
+        "ShortName": "Duracell STD",
+        "Description": "Pile rechargeable Duracell spécialement conçue pour le Nentendo Zapper pour les longues sessions de jeu."
+      },
+      "german": {
+        "Name": "Duracell Wiederaufladbare Lithium-Batterie",
+        "ShortName": "Duracell STD",
+        "Description": "Duracell wiederaufladbare Batterie speziell für den Nentendo Zapper für lange Spielesessions"
+      },
+      "russian": {
+        "Name": "Перезаряжаемая литиевая батарейка Duracell",
+        "ShortName": "Duracell STD",
+        "Description": "Перезаряжаемая литиевая батарея Duracell, специально разработанная для Nentendo Zapper для длительных игровых сессий"
+      }
+    }
+  },
+  "nentendo_barrel": {
+    "modifier": "useBase",
+    "basedOn": "5a6b5ed88dc32e000c52ec86",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": {
+      "mod_barrel": ["nentendo_zapper_9x19_container"]
+    },
+    "item": {
+      "_id": "nentendo_barrel",
+      "_props": {
+        "Prefab": {
+          "path": "nentendo/barrel_nentendo_zapper_114mm_threaded_9x19.bundle",
+          "rcid": ""
+        }
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Nentendo Zapper 144mm Barrel",
+        "ShortName": "Nentendo Barrel",
+        "Description": "Threaded barrel for the Nentendo Zapper"
+      },
+      "french": {
+        "Name": "Canon 144mm pour Nentendo Zapper",
+        "ShortName": "Nentendo Barrel",
+        "Description": "Canon fileté pour le Nentendo Zapper"
+      },
+      "german": {
+        "Name": "Nentendo Zapper 144mm Lauf",
+        "ShortName": "Nentendo Barrel",
+        "Description": "Gewindelauf für den Nentendo Zapper"
+      },
+      "russian": {
+        "Name": "Ствол для Nentendo Zapper 144 мм",
+        "ShortName": "Nentendo Barrel",
+        "Description": "Ствол с резьбой для Nentendo Zapper"
+      }
+    }
+  },
+  "nentendo_zapper_slide_cut": {
+    "modifier": "useBase",
+    "basedOn": "5a6f5f078dc32e00094b97dd",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": {
+      "mod_reciever": ["nentendo_zapper_9x19_container"]
+    },
+    "item": {
+      "_id": "nentendo_zapper_slide_cut",
+      "_props": {
+        "Prefab": {
+          "path": "nentendo/nentendo_zapper_slide_cut.bundle",
+          "rcid": ""
+        }
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Nentendo Zapper ViperCut slide",
+        "ShortName": "Nentendo ViperCut",
+        "Description": "Lightweight viper-cut slide for the Nentendo Zapper"
+      },
+      "french": {
+        "Name": "Glissière ViperCut pour Nentendo Zapper",
+        "ShortName": "Nentendo ViperCut",
+        "Description": "Glissière légère en forme de vipère pour le Nentendo Zapper."
+      },
+      "german": {
+        "Name": "Nentendo Zapper ViperCut Schlitten",
+        "ShortName": "Nentendo ViperCut",
+        "Description": "Leichter ViperCut Schlitten für den Nentendo Zapper"
+      },
+      "russian": {
+        "Name": "Горка Nentendo Zapper ViperCut",
+        "ShortName": "Nentendo ViperCut",
+        "Description": "Легкий слайд с гадючьей насечкой для Nentendo Zapper"
+      }
+    }
+  },
+  "bamboo_barrel_dvl-10_500mm": {
+    "modifier": "useBase",
+    "basedOn": "5888945a2459774bf43ba385",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "mod_barrel": ["588892092459774ac91d4b11"] },
+    "item": {
+      "_id": "bamboo_barrel_dvl-10_500mm",
+      "_props": {
+        "Prefab": {
+          "path": "bamboo_barrel_dvl-10_500mm.bundle",
+          "rcid": ""
+        }
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "BAMBOOOOOOOOOOOOOOO",
+        "ShortName": "bababa",
+        "Description": "bababa"
+      },
+      "french": {
+        "Name": "BAMBOOOOOOOOOOOOOOO",
+        "ShortName": "bababa",
+        "Description": "bababa"
+      },
+      "german": {
+        "Name": "BAMBOOOOOOOOOOOOOOO",
+        "ShortName": "bababa",
+        "Description": "bababa"
+      },
+      "russian": {
+        "Name": "BAMBOOOOOOOOOOOOOOO",
+        "ShortName": "bababa",
+        "Description": "bababa"
+      }
+    }
+  },
+  "stock_mp155_izhmeh_monte_carlo_gore": {
+    "modifier": "useBase",
+    "basedOn": "607d5aa50494a626335e12ed",
+    "addToTrader": {
+      "traderName": [],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": { "mod_stock": ["606dae0ab0e443224b421bb7"] },
+    "item": {
+      "_id": "stock_mp155_izhmeh_monte_carlo_gore",
+      "_props": {
+        "Prefab": {
+          "path": "stocks/stock_mp155_izhmeh_monte_carlo_gore.bundle",
+          "rcid": ""
+        }
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "GOREEEEE",
+        "ShortName": "asdhjksah",
+        "Description": "dsadasdsa"
+      },
+      "french": {
+        "Name": "GOREEEEE",
+        "ShortName": "asdhjksah",
+        "Description": "dsadasdsa"
+      },
+      "german": {
+        "Name": "GOREEEEE",
+        "ShortName": "asdhjksah",
+        "Description": "dsadasdsa"
+      },
+      "russian": {
+        "Name": "GOREEEEE",
+        "ShortName": "asdhjksah",
+        "Description": "dsadasdsa"
+      }
+    }
+  }
+}

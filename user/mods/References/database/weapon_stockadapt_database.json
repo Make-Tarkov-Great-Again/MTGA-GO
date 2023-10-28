@@ -1,0 +1,297 @@
+{
+	"stock_mp5k_adapter": {
+		"modifier": "none",
+		"basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+		"addToTrader": {
+			"traderName": [],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"addMods": {
+			"mod_stock": [
+				"5d2f261548f03576f500e7b7"
+			]
+		},
+		"item": {
+			"_id": "stock_mp5k_adapter",
+			"_name": "stock_mp5k_adapter",
+			"_parent": "55818a594bdc2db9688b456a",
+			"_type": "Item",
+			"_props": {
+				"Name": "stock_ar15_magpul_moe_carbine_blk",
+				"ShortName": "stock_ar15_magpul_moe_carbine_blk",
+				"Description": "stock_ar15_magpul_moe_carbine_blk",
+				"Weight": 0.28,
+				"BackgroundColor": "blue",
+				"Width": 1,
+				"Height": 1,
+				"StackMaxSize": 1,
+				"Rarity": "Rare",
+				"SpawnChance": 3,
+				"CreditsPrice": 4600,
+				"ItemSound": "mod",
+				"Prefab": {
+					"path": "alteredescape/items/mods/stock_mp5k_adapter.bundle",
+					"rcid": ""
+				},
+				"UsePrefab": {
+					"path": "",
+					"rcid": ""
+				},
+				"StackObjectsCount": 1,
+				"NotShownInSlot": false,
+				"ExaminedByDefault": true,
+				"ExamineTime": 1,
+				"IsUndiscardable": false,
+				"IsUnsaleable": false,
+				"IsUnbuyable": false,
+				"IsUngivable": false,
+				"IsLockedafterEquip": false,
+				"QuestItem": false,
+				"LootExperience": 10,
+				"ExamineExperience": 4,
+				"HideEntrails": false,
+				"RepairCost": 0,
+				"RepairSpeed": 0,
+				"ExtraSizeLeft": 0,
+				"ExtraSizeRight": 0,
+				"ExtraSizeUp": 0,
+				"ExtraSizeDown": 0,
+				"ExtraSizeForceAdd": false,
+				"MergesWithChildren": true,
+				"CanSellOnRagfair": true,
+				"CanRequireOnRagfair": true,
+				"ConflictingItems": [],
+				"FixedPrice": false,
+				"Unlootable": false,
+				"UnlootableFromSlot": "FirstPrimaryWeapon",
+				"UnlootableFromSide": [],
+				"ChangePriceCoef": 1,
+				"AllowSpawnOnLocations": [],
+				"SendToClient": false,
+				"AnimationVariantsNumber": 0,
+				"DiscardingBlock": false,
+				"RagFairCommissionModifier": 1,
+				"IsAlwaysAvailableForInsurance": false,
+				"Grids": [],
+				"Slots": [
+					{
+						"_name": "mod_stock_000",
+						"_id": "stock_mp5k_adapter_mods",
+						"_parent": "5fb655b748c711690e3a8d5a",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"57ade1442459771557167e15",
+										"5a33ca0fc4a282000d72292f",
+										"5c0faeddd174af02a962601f",
+										"5649be884bdc2d79388b4577",
+										"5d120a10d7ad1a4e1026ba85",
+										"5b0800175acfc400153aebd4",
+										"5bb20e58d4351e00320205d7",
+										"5947e98b86f774778f1448bc",
+										"5947eab886f77475961d96c5",
+										"602e3f1254072b51b239f713",
+										"5c793fb92e221644f31bfb64",
+										"5c793fc42e221600114ca25d",
+										"5fb655a72b1b027b1f50bd06"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					}
+				],
+				"CanPutIntoDuringTheRaid": true,
+				"CantRemoveFromSlotsDuringRaid": [],
+				"Durability": 100,
+				"Accuracy": 0,
+				"Recoil": 0,
+				"Loudness": 0,
+				"EffectiveDistance": 0,
+				"Ergonomics": -2,
+				"Velocity": 0,
+				"RaidModdable": true,
+				"ToolModdable": false,
+				"BlocksFolding": true,
+				"BlocksCollapsible": false,
+				"IsAnimated": false,
+				"HasShoulderContact": true,
+				"SightingRange": 0,
+				"IsShoulderContact": false,
+				"Foldable": false,
+				"Retractable": false,
+				"SizeReduceRight": 0,
+				"HeatFactor": 1
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": "MP5-K non-folding stock adapter",
+				"ShortName": "MP5-K NFA",
+				"Description": "A non-folding adapter for the installation of telescopic stock buffer tubes on the MP5-K."
+			},
+			"french": {
+				"Name": "Adaptateur de crosse non pliable MP5-K",
+				"ShortName": "MP5-K NFA",
+				"Description": "Un adaptateur non pliable pour l'installation de tubes tampons télescopiques sur le MP5-K."
+			},
+			"german": {
+				"Name": "MP5-K nicht klappbarer Schaftadapter",
+				"ShortName": "MP5-K NFA",
+				"Description": "Ein nicht faltbarer Adapter für die Installation von Teleskop-Aderpuffern am MP5-K."
+			},
+			"russian": {
+				"Name": "Адаптер для складывающегося приклада MP5-K",
+				"ShortName": "MP5-K NFA",
+				"Description": "Не раскладывающийся адаптер для установки буферных труб телескопического приклада на MP5-K."
+			}
+		}
+	},
+	"stock_mp5_dsarms_lock": {
+		"modifier": "none",
+		"basedOn": "5649b1c04bdc2d16268b457c",
+		"addToTrader": {
+			"traderName": [],
+			"loyality": 1,
+			"currency": "5449016a4bdc2d6f028b456f"
+		},
+		"addMods": {
+			"mod_stock": [
+				"5926f2e086f7745aae644231",
+				"5926c0df86f77462f647f764"
+			]
+		},
+		"item": {
+			"_id": "stock_mp5_dsarms_lock",
+			"_name": "stock_ak_zenit_pt-3m_lock",
+			"_parent": "55818a594bdc2db9688b456a",
+			"_type": "Item",
+			"_props": {
+				"Name": "stock_ak_zenit_pt-3m_lock",
+				"ShortName": "stock_ak_zenit_pt-3m_lock",
+				"Description": "stock_ak_zenit_pt-3m_lock",
+				"Weight": 0.31,
+				"BackgroundColor": "blue",
+				"Width": 1,
+				"Height": 1,
+				"StackMaxSize": 1,
+				"Rarity": "Rare",
+				"SpawnChance": 3,
+				"CreditsPrice": 4250,
+				"ItemSound": "mod",
+				"Prefab": {
+					"path": "alteredescape/items/mods/stocks/ds_arms_lock/stock_mp5_dsarms_lock.bundle",
+					"rcid": ""
+				},
+				"UsePrefab": {
+					"path": "",
+					"rcid": ""
+				},
+				"StackObjectsCount": 1,
+				"NotShownInSlot": false,
+				"ExaminedByDefault": false,
+				"ExamineTime": 1,
+				"IsUndiscardable": false,
+				"IsUnsaleable": false,
+				"IsUnbuyable": false,
+				"IsUngivable": false,
+				"IsLockedafterEquip": false,
+				"QuestItem": false,
+				"LootExperience": 10,
+				"ExamineExperience": 4,
+				"HideEntrails": false,
+				"RepairCost": 0,
+				"RepairSpeed": 0,
+				"ExtraSizeLeft": 0,
+				"ExtraSizeRight": 0,
+				"ExtraSizeUp": 0,
+				"ExtraSizeDown": 0,
+				"ExtraSizeForceAdd": false,
+				"MergesWithChildren": true,
+				"CanSellOnRagfair": true,
+				"CanRequireOnRagfair": true,
+				"ConflictingItems": [],
+				"FixedPrice": false,
+				"Unlootable": false,
+				"UnlootableFromSlot": "FirstPrimaryWeapon",
+				"UnlootableFromSide": [],
+				"ChangePriceCoef": 1,
+				"AllowSpawnOnLocations": [],
+				"SendToClient": false,
+				"AnimationVariantsNumber": 0,
+				"DiscardingBlock": false,
+				"RagFairCommissionModifier": 1,
+				"IsAlwaysAvailableForInsurance": false,
+				"Grids": [],
+				"Slots": [
+					{
+						"_name": "mod_stock",
+						"_id": "mp5_dsa_lock",
+						"_parent": "stock_mp5_dsarms_lock",
+						"_props": {
+							"filters": [
+								{
+									"Shift": 0,
+									"Filter": [
+										"stock_mp5_ds_arms"
+									]
+								}
+							]
+						},
+						"_required": false,
+						"_mergeSlotWithChildren": false,
+						"_proto": "55d30c4c4bdc2db4468b457e"
+					}
+				],
+				"CanPutIntoDuringTheRaid": true,
+				"CantRemoveFromSlotsDuringRaid": [],
+				"Durability": 100,
+				"Accuracy": 0,
+				"Recoil": 0,
+				"Loudness": 0,
+				"EffectiveDistance": 0,
+				"Ergonomics": 0,
+				"Velocity": 0,
+				"RaidModdable": false,
+				"ToolModdable": true,
+				"BlocksFolding": false,
+				"BlocksCollapsible": false,
+				"IsAnimated": false,
+				"HasShoulderContact": false,
+				"SightingRange": 0,
+				"IsShoulderContact": false,
+				"Foldable": false,
+				"Retractable": false,
+				"SizeReduceRight": 0,
+				"HeatFactor": 1
+			}
+		},
+		"translation": {
+			"english": {
+				"Name": "MP5 DSA adapter",
+				"ShortName": "MP5 DSA",
+				"Description": "The lock is designed to install the MP5 DSA stock to the weapon."
+			},
+			"french": {
+				"Name": "Adaptateur DSA MP5",
+				"ShortName": "MP5 DSA",
+				"Description": "La serrure est conçue pour installer la crosse MP5K DSA sur l'arme."
+			},
+			"german": {
+				"Name": "MP5 DSA-Adapter",
+				"ShortName": "MP5 DSA",
+				"Description": "Das Schloss wurde entwickelt, um den MP5 DSA-Schaft an der Waffe zu installieren."
+			},
+			"russian": {
+				"Name": "Адаптер MP5 DSA",
+				"ShortName": "MP5 DSA",
+				"Description": "Замок предназначен для установки на оружие приклада MP5 DSA."
+			}
+		}
+	}
+}

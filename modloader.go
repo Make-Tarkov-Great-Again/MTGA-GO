@@ -14,8 +14,8 @@ import (
 const (
 	MTGOUserMods = "%s\"MT-GO/user/mods/%s\""
 	//MTGO_SERVER    = "\"MT-GO/server\""
-	ModNameMod        = "%s.Mod()"
-	BundlesToLoad     = "var bundlesToLoad = []string{\n\t\"%s\",\n}"
+	ModNameMod        = "%s.Mod(\"%s\")"
+	BundlesToLoad     = "var bundlesToLoad = []string{%s,\n}"
 	BundlesToLoadLoop = "for _, path := range bundlesToLoad {\n\t\tformattedPath := strings.Replace(path, \"\\\\\\\\\", \"\\\\\", -1)\n\t\tdatabase.AddModBundleDirPath(formattedPath)\n\t}"
 )
 
@@ -43,6 +43,8 @@ func main() {
 	//var modAdvanced []string
 	var modConfig *database.ModInfo
 
+	var bundleLoader bool
+
 	if len(modSubDirs) != 0 {
 		for name := range modSubDirs {
 			fmt.Println("Checking directory:", name)
@@ -63,25 +65,41 @@ func main() {
 			}
 			// Construct the mod import and function call with alias.
 
-			modConfig.Dir = filepath.Join(modDir, name)
-			if tools.FileExist(filepath.Join(modConfig.Dir, "bundles")) {
-				imports = append(imports, "\"MT-GO/database\"", "\"strings\"")
-				calls = append(calls, BundlesToLoadLoop)
-				bundlesToLoad = append(bundlesToLoad, filepath.Join(modConfig.Dir, "bundles"))
+			dir := filepath.Join(modDir, name)
+			if tools.FileExist(filepath.Join(dir, "bundles")) {
+				if !bundleLoader {
+					imports = append(imports, "\"MT-GO/database\"", "\"strings\"")
+					calls = append(calls, BundlesToLoadLoop)
+
+					bundleLoader = true
+				}
+
+				//TODO: See if we can make this better because golly-fuckin-gee
+
+				bundleName := filepath.Join(dir, "bundles")
+				fixed := "\n\t\"" + strings.Replace(bundleName, "\\", "\\\\", -1) + "\""
+				bundlesToLoad = append(bundlesToLoad, fixed)
+				fmt.Println()
 			}
 
-			modImport := fmt.Sprintf(MTGOUserMods, modConfig.PackageAlias, modConfig.PackageName)
-			modCall := fmt.Sprintf(ModNameMod, modConfig.PackageAlias)
+			var modImport string
+			var modCall string
+			if modConfig.PackageAlias == modConfig.PackageName {
+				modImport = fmt.Sprintf(MTGOUserMods, "", modConfig.PackageName)
+				modCall = fmt.Sprintf(ModNameMod, modConfig.PackageName, strings.Replace(dir, "\\", "\\\\", -1))
+			} else {
+				modImport = fmt.Sprintf(MTGOUserMods, modConfig.PackageAlias, modConfig.PackageName)
+				modCall = fmt.Sprintf(ModNameMod, modConfig.PackageAlias, strings.Replace(dir, "\\", "\\\\", -1))
+			}
 
 			imports = append(imports, modImport)
 			calls = append(calls, modCall)
 		}
 
 		if len(bundlesToLoad) != 0 {
-			for _, toLoad := range bundlesToLoad {
-				bundlesVariable := fmt.Sprintf(BundlesToLoad, strings.Replace(toLoad, "\\", "\\\\", -1))
-				variables = append(variables, bundlesVariable)
-			}
+			bundles := strings.Join(bundlesToLoad, ",")
+			bundlesVariable := fmt.Sprintf(BundlesToLoad, bundles)
+			variables = append(variables, bundlesVariable)
 		}
 	}
 

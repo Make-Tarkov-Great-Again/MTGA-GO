@@ -1,0 +1,12 @@
+{
+	"overwrite_me": {
+		"modifier": "edit",
+		"basedOn": "overwrite_me",
+		"item": {
+			"Prefab": {
+				"path": "overwrite_me",
+				"rcid": ""
+			}
+		}
+    }
+}

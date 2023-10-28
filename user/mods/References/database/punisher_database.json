@@ -1,0 +1,417 @@
+{
+    "punisher_mask": {
+        "modifier": "none",
+        "basedOn": "572b7d8524597762b472f9d1",
+        "addToTrader": {
+            "traderName": [
+                "Therapist"
+            ],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "item": {
+            "_id": "punisher_mask",
+            "_name": "item_equipment_facecover_skullmask",
+            "_parent": "5a341c4686f77469e155819e",
+            "_type": "Item",
+            "_props": {
+                "Name": "skullmask",
+                "ShortName": "skullmask",
+                "Description": "skullmask",
+                "Weight": 0.2,
+                "BackgroundColor": "default",
+                "Width": 2,
+                "Height": 2,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 2,
+                "CreditsPrice": 250000,
+                "ItemSound": "gear_generic",
+                "Prefab": {
+                    "path": "assets/content/items/equipment/facecover_skullmask/punisher_mask.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 20,
+                "ExamineExperience": 10,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 0,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": false,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "BlocksEarpiece": false,
+                "BlocksEyewear": true,
+                "BlocksHeadwear": true,
+                "BlocksFaceCover": false,
+                "Durability": 100,
+                "MaxDurability": 100,
+                "armorClass": "0",
+                "speedPenaltyPercent": 0,
+                "mousePenalty": 0,
+                "weaponErgonomicPenalty": 0,
+                "armorZone": [],
+                "Indestructibility": 0.9,
+                "headSegments": [],
+                "FaceShieldComponent": false,
+                "FaceShieldMask": "NoMask",
+                "HasHinge": false,
+                "MaterialType": "BodyArmor",
+                "RicochetParams": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 80
+                },
+                "DeafStrength": "None",
+                "BluntThroughput": 0,
+                "ArmorMaterial": "UHMWPE",
+                "BlindnessProtection": 0
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "Punisher Skull Mask",
+                "ShortName": "Pun Mask",
+                "Description": "Custom made mask, branded with the Punisher Skull in white."
+            },
+            "french": {
+                "Name": "Masque Crâne Punisher",
+                "ShortName": "Pun Mask",
+                "Description": "Masque sur mesure, marqué du Punisher Skull en blanc."
+            },
+            "german": {
+                "Name": "Punisher Totenkopf Maske",
+                "ShortName": "Pun Mask",
+                "Description": "Maßgeschneiderte Maske mit dem Punisher Skull in Weiß."
+            },
+            "russian": {
+                "Name": "Маска черепа Карателя",
+                "ShortName": "Pun Mask",
+                "Description": "Изготовленная на заказ маска с изображением черепа Карателя белого цвета."
+            }
+        }
+    },
+
+    "punisher_slick": {
+        "modifier": "none",
+        "basedOn": "545cdb794bdc2d3a198b456a",
+        "addToTrader": {
+            "traderName": [
+                "Therapist"
+            ],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "item": {
+            "_id": "punisher_slick",
+            "_name": "punisher_slick",
+            "_parent": "5448e54d4bdc2dcc718b4568",
+            "_type": "Item",
+            "_props": {
+                "Name": "gjel",
+                "ShortName": "gjel",
+                "Description": "gjel",
+                "Weight": 8.1,
+                "BackgroundColor": "blue",
+                "Width": 3,
+                "Height": 3,
+                "StackMaxSize": 1,
+                "Rarity": "Superrare",
+                "SpawnChance": 1,
+                "CreditsPrice": 999999999,
+                "ItemSound": "gear_armor",
+                "Prefab": {
+                    "path": "assets/content/items/equipment/armor_slick/punisher_slick.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 20,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 790,
+                "RepairSpeed": 8,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 0,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": false,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "BannedFromRagfair": false,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "BlocksEarpiece": false,
+                "BlocksEyewear": false,
+                "BlocksHeadwear": false,
+                "BlocksFaceCover": false,
+                "Durability": 120,
+                "MaxDurability": 120,
+                "armorClass": "6",
+                "speedPenaltyPercent": -14,
+                "mousePenalty": -5,
+                "weaponErgonomicPenalty": -4,
+                "armorZone": [
+                    "Chest"
+                ],
+                "Indestructibility": 0.9,
+                "headSegments": [],
+                "FaceShieldComponent": false,
+                "FaceShieldMask": "NoMask",
+                "HasHinge": false,
+                "MaterialType": "BodyArmor",
+                "RicochetParams": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 80
+                },
+                "DeafStrength": "None",
+                "BluntThroughput": 0.19,
+                "ArmorMaterial": "ArmoredSteel"
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "Punisher Slick",
+                "ShortName": "Punisher",
+                "Description": "Custom made class 6 armor. Branded with the Punisher Skull in white on the chest."
+            },
+            "french": {
+                "Name": "Punisher Nappe",
+                "ShortName": "Punisher",
+                "Description": "Armure de classe 6 sur mesure. Marqué avec le Punisher Skull en blanc sur la poitrine."
+            },
+            "german": {
+                "Name": "Punisher Slick",
+                "ShortName": "Punisher",
+                "Description": "Maßgeschneiderte Rüstung der Klasse 6. Gebrandet mit dem Punisher Skull in Weiß auf der Brust."
+            },
+            "russian": {
+                "Name": "Каратель Slick",
+                "ShortName": "Punisher",
+                "Description": "Изготовленная на заказ броня 6 класса. На груди изображен Череп Карателя белого цвета."
+            }
+        }
+    },
+    "punisher_pockets": {
+        "modifier": "none",
+        "basedOn": "5af99e9186f7747c447120b8",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "item": {
+            "_id": "punisher_pockets",
+            "_name": "карманы Большие",
+            "_parent": "557596e64bdc2dc2118b4571",
+            "_type": "Item",
+            "_props": {
+                "Name": "Pockets",
+                "ShortName": "Pockets",
+                "Description": "Pockets",
+                "Weight": 0,
+                "BackgroundColor": "default",
+                "Width": 2,
+                "Height": 3,
+                "StackMaxSize": 1,
+                "Rarity": "Not_exist",
+                "SpawnChance": 50,
+                "CreditsPrice": 100,
+                "ItemSound": "generic",
+                "Prefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": true,
+                "ExaminedByDefault": true,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 20,
+                "ExamineExperience": 10,
+                "HideEntrails": true,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 0,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": false,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "Grids": [{
+                        "_name": "pocket1",
+                        "_id": "5af99e9186f7747c447120ba",
+                        "_parent": "5af99e9186f7747c447120b8",
+                        "_props": {
+                            "filters": [{
+                                "Filter": [
+                                    "54009119af1c881c07000029"
+                                ],
+                                "ExcludedFilter": [
+                                    "5448bf274bdc2dfc2f8b456a"
+                                ]
+                            }],
+                            "cellsH": 2,
+                            "cellsV": 2,
+                            "minCount": 0,
+                            "maxCount": 0,
+                            "maxWeight": 0
+                        },
+                        "_proto": "55d329c24bdc2d892f8b4567"
+                    },
+                    {
+                        "_name": "pocket2",
+                        "_id": "5af99e9186f7747c447120bb",
+                        "_parent": "5af99e9186f7747c447120b8",
+                        "_props": {
+                            "filters": [{
+                                "Filter": [
+                                    "54009119af1c881c07000029"
+                                ],
+                                "ExcludedFilter": [
+                                    "5448bf274bdc2dfc2f8b456a"
+                                ]
+                            }],
+                            "cellsH": 2,
+                            "cellsV": 2,
+                            "minCount": 0,
+                            "maxCount": 0,
+                            "maxWeight": 0
+                        },
+                        "_proto": "55d329c24bdc2d892f8b4567"
+                    },
+                    {
+                        "_name": "pocket3",
+                        "_id": "5af99e9186f7747c447120bc",
+                        "_parent": "5af99e9186f7747c447120b8",
+                        "_props": {
+                            "filters": [{
+                                "Filter": [
+                                    "54009119af1c881c07000029"
+                                ],
+                                "ExcludedFilter": [
+                                    "5448bf274bdc2dfc2f8b456a"
+                                ]
+                            }],
+                            "cellsH": 2,
+                            "cellsV": 2,
+                            "minCount": 0,
+                            "maxCount": 0,
+                            "maxWeight": 0
+                        },
+                        "_proto": "55d329c24bdc2d892f8b4567"
+                    }
+                ],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "SearchSound": "looting_body_extended",
+                "BlocksArmorVest": false
+            },
+            "_proto": "557ffd194bdc2d28148b457f"
+        },
+        "translation": {
+            "english": {
+                "Name": "Punisher Pockets",
+                "ShortName": "Punisher",
+                "Description": "Custom made boss pockets for Frank Castle"
+            },
+            "french": {
+                "Name": "Poches Punisher",
+                "ShortName": "Punisher",
+                "Description": "Poches de patron sur mesure pour Frank Castle."
+            },
+            "german": {
+                "Name": "Punisher Taschen",
+                "ShortName": "Bestrafer",
+                "Description": "Maßgeschneiderte Bosstaschen für Frank Castle."
+            },
+            "russian": {
+                "Name": "карманы карателя",
+                "ShortName": "Каратель",
+                "Description": "Карманы для боссов на заказ для замка Фрэнка."
+            }
+        }
+    }
+}

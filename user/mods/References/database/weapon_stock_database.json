@@ -1,0 +1,1588 @@
+{
+    "stock_tapco_ppsh": {
+        "modifier": "none",
+        "basedOn": "56083cba4bdc2de22e8b456f",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "item": {
+            "_id": "stock_tapco_ppsh",
+            "_name": "stock_sks_tapco_intrafuse_sks_railed",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_sks_tapco_intrafuse_sks_railed",
+                "ShortName": "stock_sks_tapco_intrafuse_sks_railed",
+                "Description": "stock_sks_tapco_intrafuse_sks_railed",
+                "Weight": 0.75,
+                "BackgroundColor": "blue",
+                "Width": 3,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 4,
+                "CreditsPrice": 12540,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stocks/tapco_ppsh/stock_tapco_ppsh.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 3,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [
+                    {
+                        "_name": "mod_stock",
+                        "_id": "tapco_ppsh_stock",
+                        "_parent": "stock_tapco_ppsh",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "5afd7e095acfc40017541f61"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": false,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    },
+                    {
+                        "_name": "mod_foregrip",
+                        "_id": "tapco_ppsh_foregrip",
+                        "_parent": "stock_tapco_ppsh",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "5c7fc87d2e221644f31c0298",
+                                        "5cda9bcfd7f00c0c0b53e900",
+                                        "59f8a37386f7747af3328f06",
+                                        "5c87ca002e221600114cb150",
+                                        "588226d124597767ad33f787",
+                                        "588226dd24597767ad33f789",
+                                        "588226e62459776e3e094af7",
+                                        "588226ef24597767af46e39c",
+                                        "59fc48e086f77463b1118392",
+                                        "5fce0cf655375d18a253eff0",
+                                        "5cf4fb76d7f00c065703d3ac",
+                                        "5b057b4f5acfc4771e1bd3e9",
+                                        "5c791e872e2216001219c40a",
+                                        "558032614bdc2de7118b4585",
+                                        "58c157be86f77403c74b2bb6",
+                                        "58c157c886f774032749fb06",
+                                        "5f6340d3ca442212f4047eb2",
+                                        "591af28e86f77414a27a9e1d",
+                                        "5c1cd46f2e22164bef5cfedb",
+                                        "5c1bc4812e22164bef5cfde7",
+                                        "5c1bc5612e221602b5429350",
+                                        "5c1bc5af2e221602b412949b",
+                                        "5c1bc5fb2e221602b1779b32",
+                                        "5c1bc7432e221602b412949d",
+                                        "5c1bc7752e221602b1779b34"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": false,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    },
+                    {
+                        "_name": "mod_scope",
+                        "_id": "tapco_ppsh_scope",
+                        "_parent": "stock_tapco_ppsh",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "591c4efa86f7741030027726",
+                                        "570fd79bd2720bc7458b4583",
+                                        "570fd6c2d2720bc6458b457f",
+                                        "558022b54bdc2dac148b458d",
+                                        "58491f3324597764bc48fa02",
+                                        "584924ec24597768f12ae244",
+                                        "5b30b0dc5acfc400153b7124",
+                                        "60a23797a37c940de7062d02",
+                                        "5d2da1e948f035477b1ce2ba",
+                                        "5c0505e00db834001b735073",
+                                        "609a63b6e2ff132951242d09",
+                                        "584984812459776a704a82a6",
+                                        "59f9d81586f7744c7506ee62",
+                                        "570fd721d2720bc5458b4596",
+                                        "57ae0171245977343c27bfcf",
+                                        "57fd23e32459772d0805bcf1",
+                                        "544909bb4bdc2d6f028b4577",
+                                        "5c06595c0db834001a66af6c",
+                                        "5a7b483fe899ef0016170d15",
+                                        "5c5952732e2216398b5abda2",
+                                        "58d39d3d86f77445bb794ae7",
+                                        "5c7d55f52e221644f31bff6a",
+                                        "577d128124597739d65d0e56",
+                                        "58d2664f86f7747fec5834f6",
+                                        "5649a2464bdc2d91118b45a8",
+                                        "5b31163c5acfc400153b71cb",
+                                        "5a33b652c4a28232996e407c",
+                                        "5a33b2c9c4a282000c5a9511"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": false,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    },
+                    {
+                        "_name": "mod_pistol_grip",
+                        "_id": "tapco_ppsh_pgrip",
+                        "_parent": "stock_tapco_ppsh",
+                        "_props": {
+                            "filters": [
+                                {
+                                    "Shift": 0,
+                                    "Filter": [
+                                        "5afd7e445acfc4001637e35a"
+                                    ]
+                                }
+                            ]
+                        },
+                        "_required": true,
+                        "_mergeSlotWithChildren": false,
+                        "_proto": "55d30c4c4bdc2db4468b457e"
+                    }
+                ],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -2,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 17,
+                "Velocity": 0,
+                "RaidModdable": false,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": false,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 0,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "TAPCO Intrafuse stock",
+                "ShortName": "TAPCO PPsH",
+                "Description": "The TAPCO Intrafuse Stock System helps owners modernize their proven firearm for more customization options. This durable composite stock system gives an upper handguard with Picatinny-style rail for optics, lights, laser sights, or other modern accessories."
+            },
+            "french": {
+                "Name": "Stock TAPCO Intrafuse",
+                "ShortName": "TAPCO PPsH",
+                "Description": "Le système de stock TAPCO Intrafuse aide les propriétaires à moderniser leur arme à feu éprouvée pour plus d'options de personnalisation. Ce système de crosse composite durable offre un protège-main supérieur avec un rail de style Picatinny pour les optiques, les lumières, les viseurs laser ou d'autres accessoires modernes."
+            },
+            "german": {
+                "Name": "TAPCO Intrafuse-Bestand",
+                "ShortName": "TAPCO PPsH",
+                "Description": "Das TAPCO Intrafuse Stock System hilft Besitzern, ihre bewährte Schusswaffe für mehr Anpassungsoptionen zu modernisieren. Dieses haltbare Composite-Schaftsystem bietet einen oberen Handschutz mit Picatinny-Schiene für Optiken, Lichter, Laservisiere oder anderes modernes Zubehör."
+            },
+            "russian": {
+                "Name": "Запас TAPCO Intrafuse",
+                "ShortName": "TAPCO PPsH",
+                "Description": "Система приклада TAPCO Intrafuse помогает владельцам модернизировать свое проверенное огнестрельное оружие для получения дополнительных возможностей настройки. Эта прочная композитная система ложа обеспечивает верхнее цевье с планкой в ​​стиле Пикатинни для оптики, фонарей, лазерных прицелов или других современных аксессуаров."
+            }
+        }
+    },
+    "stock_mp5k_krissfolding": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": [
+                "reciever_mp5k_alt"
+            ]
+        },
+        "item": {
+            "_id": "stock_mp5k_krissfolding",
+            "_name": "stock_mp5k_gen_2_folding_stock",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_ar15_magpul_moe_carbine_blk",
+                "ShortName": "stock_ar15_magpul_moe_carbine_blk",
+                "Description": "stock_ar15_magpul_moe_carbine_blk",
+                "Weight": 0.3,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 3,
+                "CreditsPrice": 7038,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stock_mp5k_krissfolding.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 4,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -31,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 7,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": false,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": false,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 1,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "MP5-K Gen.2 folding stock",
+                "ShortName": "MP5-K G2",
+                "Description": "MP5K Gen.2 folding stock."
+            },
+            "french": {
+                "Name": "Crosse pliable MP5-K Gen.2",
+                "ShortName": "MP5-K G2",
+                "Description": "Crosse pliable MP5-K Gen.2"
+            },
+            "german": {
+                "Name": "MP5-K Gen.2 Klappschaft",
+                "ShortName": "MP5-K G2",
+                "Description": "MP5-K Gen.2 Klappschaft"
+            },
+            "russian": {
+                "Name": "Складной приклад MP5-K Gen.2",
+                "ShortName": "MP5-K G2",
+                "Description": "Складной приклад MP5-K Gen.2"
+            }
+        }
+    },
+    "stock_mp5k_ump": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": [
+                "reciever_mp5k_alt"
+            ]
+        },
+        "item": {
+            "_id": "stock_mp5k_ump",
+            "_name": "stock_mp5k_ump",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_ak74m_izhmash_ak74m_std",
+                "ShortName": "stock_ak74m_izhmash_ak74m_std",
+                "Description": "stock_ak74m_izhmash_ak74m_std",
+                "Weight": 0.25,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 4,
+                "CreditsPrice": 5850,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stock_mp5k_ump.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": true,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 3,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -34,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 2,
+                "Velocity": 0,
+                "RaidModdable": false,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 1,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "Polymer stock for MP5-K",
+                "ShortName": "MP5-K Poly",
+                "Description": "Polymer stock for MP5-K manufactured by Heckler & Koch."
+            },
+            "french": {
+                "Name": "Crosse polymère pour MP5-K",
+                "ShortName": "MP5-K Poly",
+                "Description": "Crosse polymère pour MP5-K fabriquée par Heckler & Koch."
+            },
+            "german": {
+                "Name": "Polymerlager für MP5-K",
+                "ShortName": "MP5-K Poly",
+                "Description": "Polymerlager für MP5-K von Heckler & Koch."
+            },
+            "russian": {
+                "Name": "Шток полимерный для МП5-К",
+                "ShortName": "MP5-K Poly",
+                "Description": "Полимерная ложа для MP5-K производства Heckler & Koch."
+            }
+        }
+    },
+    "stock_mp5_ds_arms": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": []
+        },
+        "item": {
+            "_id": "stock_mp5_ds_arms",
+            "_name": "stock_mp5_hk_a2_std",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_mp5_hk_a2_std",
+                "ShortName": "stock_mp5_hk_a2_std",
+                "Description": "stock_mp5_hk_a2_std",
+                "Weight": 0.396,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 3,
+                "CreditsPrice": 16750,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stocks/ds_arms_stock/stock_mp5_dsarms_stock.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -36,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": -2,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 0,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "(Battle Rifle Stock) stock for MP5",
+                "ShortName": "DSA BRS MP5",
+                "Description": "BRS (Battle Rifle Stock) stock for the MP5, manufactured by DS Arms."
+            },
+            "french": {
+                "Name": "(Battle Rifle Stock) pour MP5",
+                "ShortName": "DSA BRS MP5",
+                "Description": "Crosse BRS (Battle Rifle Stock) pour le MP5, fabriquée par DS Arms."
+            },
+            "german": {
+                "Name": "(Battle Rifle Stock) Schaft für MP5",
+                "ShortName": "DSA BRS MP5",
+                "Description": "BRS (Battle Rifle Stock) Schaft für die MP5, hergestellt von DS Arms."
+            },
+            "russian": {
+                "Name": "(Боевая винтовка) ложа для MP5",
+                "ShortName": "DSA BRS MP5",
+                "Description": "Приклад BRS (Battle Rifle Stock) для MP5 производства DS Arms."
+            }
+        }
+    },
+    "stock_mp5_pdw_stock": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": [
+                "5926c0df86f77462f647f764",
+                "5926f2e086f7745aae644231"
+            ]
+        },
+        "item": {
+            "_id": "stock_mp5_pdw_stock",
+            "_name": "stock_mp5_hk_a2_std",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_mp5_hk_a2_std",
+                "ShortName": "stock_mp5_hk_a2_std",
+                "Description": "stock_mp5_hk_a2_std",
+                "Weight": 0.396,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 3,
+                "CreditsPrice": 6450,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stocks/mp5/pdw/stock_mp5_pdw.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -32,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 6,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 0,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "TROY M7A1 PDW MP5 stock (Black)",
+                "ShortName": "TROY M7A1 MP5",
+                "Description": "The TROY M7A1 PDW MP5 Stock kit is a retractable stock made to elevate the MP5, making them compact, measuring 3” shorter than traditional SMG stocks. Reduces the overall weapon size and recoil buffer. Black MP5 version."
+            },
+            "french": {
+                "Name": "Crosse TROY M7A1 PDW MP5 (Noir)",
+                "ShortName": "TROY M7A1 MP5",
+                "Description": "Le kit TROY M7A1 PDW MP5 Stock est un stock rétractable conçu pour élever le MP5, le rendant compact, mesurant 3 \"plus court que les stocks SMG traditionnels. Réduit la taille globale de l'arme et le tampon de recul. Version MP5 noire."
+            },
+            "german": {
+                "Name": "TROY M7A1 PDW MP5 Schaft (Schwarz)",
+                "ShortName": "TROY M7A1 MP5",
+                "Description": "Das TROY M7A1 PDW MP5 Schaft-Kit ist ein einziehbarer Schaft, der den MP5 anheben soll, wodurch er kompakt und 3 Zoll kürzer als herkömmliche SMG-Schäfte ist. Reduziert die Gesamtgröße der Waffe und den Rückstoßpuffer. Schwarze MP5-Version."
+            },
+            "russian": {
+                "Name": "Приклад TROY M7A1 PDW MP5 (черный)",
+                "ShortName": "TROY M7A1 MP5",
+                "Description": "Комплект ложи TROY M7A1 PDW MP5 представляет собой выдвижной приклад, предназначенный для поднятия MP5, что делает его компактным, на 3 дюйма короче, чем у традиционных прикладов SMG. Уменьшает общий размер оружия и буфер отдачи. Черная версия MP5."
+            }
+        }
+    },
+    "stock_mp5_fabdef": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": [
+                "5926f2e086f7745aae644231",
+                "5926c0df86f77462f647f764"
+            ]
+        },
+        "item": {
+            "_id": "stock_mp5_fabdef",
+            "_name": "stock_mp5_fabdef",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_ak_fab_defense_uas_ak_p",
+                "ShortName": "stock_ak_fab_defense_uas_ak_p",
+                "Description": "stock_ak_fab_defense_uas_ak_p",
+                "Weight": 0.45,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 3,
+                "CreditsPrice": 18077,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stocks/fabdef/stock_mp5_fabdef.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": true,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -38,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 16,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 0,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "Fab Defense UAS for MP5",
+                "ShortName": "UAS MP5",
+                "Description": "UAS MP5 stock for MP5/MP5SD product by Fab Defence"
+            },
+            "french": {
+                "Name": "Fab Defense UAS pour MP5",
+                "ShortName": "TROY M7A1 MP5",
+                "Description": "Crosse UAS MP5 pour produit MP5/MP5SD par Fab Defense"
+            },
+            "german": {
+                "Name": "Fab Defense UAS für MP5",
+                "ShortName": "TROY M7A1 MP5",
+                "Description": "UAS MP5-Lager für MP5/MP5SD-Produkte von Fab Defense"
+            },
+            "russian": {
+                "Name": "Fab Defense UAS для MP5",
+                "ShortName": "TROY M7A1 MP5",
+                "Description": "Приклад UAS MP5 для продукта MP5 / MP5SD от Fab Defense"
+            }
+        }
+    },
+    "stock_mp5_maxim": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": [
+                "5926f2e086f7745aae644231",
+                "5926c0df86f77462f647f764"
+            ]
+        },
+        "item": {
+            "_id": "stock_mp5_maxim",
+            "_name": "stock_mp5_maxim_defence_cqb_stock",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_all_mp5_mcx_early_type",
+                "ShortName": "stock_all_mp5_early_type",
+                "Description": "stock_all_mp5_early_type",
+                "Weight": 0.501,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Not_exist",
+                "SpawnChance": 50,
+                "CreditsPrice": 3750,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stock_mp5_maxim.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -30,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 15,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": true,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 0,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "Maxim Defence CQB collapsing/telescoping MP5/MP5SD stock",
+                "ShortName": "MD CQB",
+                "Description": "A telescopic retractable CQB stock manufactured by Maxim Defence."
+            },
+            "french": {
+                "Name": "Crosse repliable/télescopique Maxim Defense CQB MP5/MP5SD",
+                "ShortName": "MD CQB",
+                "Description": "Une crosse CQB télescopique rétractable fabriquée par Maxim Defence."
+            },
+            "german": {
+                "Name": "Maxim Defense CQB kollabieren/teleskopieren MP5/MP5SD-Schaft",
+                "ShortName": "MD CQB",
+                "Description": "Ein teleskopischer einziehbarer CQB-Schaft, hergestellt von Maxim Defence."
+            },
+            "russian": {
+                "Name": "Maxim Defense CQB складывающийся / телескопический приклад MP5 / MP5SD",
+                "ShortName": "MD CQB",
+                "Description": "Телескопический выдвижной приклад CQB производства Maxim Defense."
+            }
+        }
+    },
+    "stock_mp5_mpx_early": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": [
+                "5926f2e086f7745aae644231",
+                "5926c0df86f77462f647f764"
+            ]
+        },
+        "item": {
+            "_id": "stock_mp5_mpx_early",
+            "_name": "stock_all_mp5_mp5sd_early_type",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_all_mp5_mp5sd_early_type",
+                "ShortName": "stock_all_mp5_mp5sd_early_type",
+                "Description": "stock_all_mp5_mp5sd_early_type",
+                "Weight": 0.396,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Not_exist",
+                "SpawnChance": 50,
+                "CreditsPrice": 2839,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stocks/mpx/stock_mp5_mpx.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -26,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 17,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": true,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 0,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "Early produced SIG collapsing/telescoping MP5/MP5SD stock",
+                "ShortName": "MP5/MP5SD early",
+                "Description": "A telescopic retractable stock for early issues of MCX/MPX manufactured by SIG adapted for the MP5/MP5SD."
+            },
+            "french": {
+                "Name": "Stock MP5/MP5SD repliable/télescopique SIG produit au début",
+                "ShortName": "MP5/MP5SD early",
+                "Description": "Une crosse télescopique rétractable pour les premières éditions de MCX/MPX fabriquée par SIG adaptée pour le MP5/MP5SD."
+            },
+            "german": {
+                "Name": "Früh produzierter SIG-Klapp-/Teleskop-MP5/MP5SD-Schaft",
+                "ShortName": "MP5/MP5SD early",
+                "Description": "Ein ausziehbarer Teleskopschaft für frühe Ausgaben von MCX/MPX von SIG, angepasst für MP5/MP5SD."
+            },
+            "russian": {
+                "Name": "Ранний выпуск складывающейся / телескопической ложи SIG MP5 / MP5SD",
+                "ShortName": "MP5/MP5SD early",
+                "Description": "Телескопический выдвижной приклад для ранних выпусков MCX / MPX производства SIG адаптирован для MP5 / MP5SD."
+            }
+        }
+    },
+    "stock_mp5_para_folding": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": [
+                "5926f2e086f7745aae644231",
+                "5926c0df86f77462f647f764"
+            ]
+        },
+        "item": {
+            "_id": "stock_mp5_para_folding",
+            "_name": "stock_mp5_mp5sd_ds_arms_para_folding_stock",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_sa58_ds_arms_para_folding_stock",
+                "ShortName": "stock_sa58_ds_arms_para_folding_stock",
+                "Description": "stock_sa58_ds_arms_para_folding_stock",
+                "Weight": 0.8,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 3,
+                "CreditsPrice": 14015,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stocks/sa58_folding/stock_mp5_para_folding.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 3,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -31,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 3,
+                "Velocity": 0,
+                "RaidModdable": false,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 1,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "MP5/MP5SD folding stock",
+                "ShortName": "MP5/MP5SD folding",
+                "Description": "Folding steel stock for SA-58 rifles manufactured by DS Arms adapted for the MP5/MP5SD."
+            },
+            "french": {
+                "Name": "Crosse pliable MP5/MP5SD",
+                "ShortName": "MP5/MP5SD folding",
+                "Description": "Crosse en acier pliable pour fusils SA-58 fabriqués par DS Arms adaptée pour le MP5/MP5SD."
+            },
+            "german": {
+                "Name": "MP5/MP5SD Klappschaft",
+                "ShortName": "MP5/MP5SD folding",
+                "Description": "Klappbarer Stahlschaft für SA-58-Gewehre von DS Arms, angepasst an die MP5/MP5SD."
+            },
+            "russian": {
+                "Name": "Складной приклад MP5 / MP5SD",
+                "ShortName": "MP5/MP5SD folding",
+                "Description": "Складывающаяся стальная ложа для винтовок SA-58 производства DS Arms адаптирована для MP5 / MP5SD."
+            }
+        }
+    },
+    "stock_mp5_slim_folding": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": [
+                "5926f2e086f7745aae644231",
+                "5926c0df86f77462f647f764"
+            ]
+        },
+        "item": {
+            "_id": "stock_mp5_slim_folding",
+            "_name": "stock_all_sig_thin_folding_stock",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_all_sig_thin_folding_stock",
+                "ShortName": "stock_all_sig_thin_folding_stock",
+                "Description": "stock_all_sig_thin_folding_stock",
+                "Weight": 0.27,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 3,
+                "CreditsPrice": 6900,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stocks/slim_folding/stock_mp5_slim_folding.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": true,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -31,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 5,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": true,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 0,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "SIG Sauer Thin lightweight MP5/MP5SD stock",
+                "ShortName": "MP5/MP5SD thin",
+                "Description": "Thin and lightweight stock for MCX/MPX manufactured by SIG Sauer adapted for the MP5/MP5SD."
+            },
+            "french": {
+                "Name": "Crosse SIG Sauer Thin légère MP5/MP5SD",
+                "ShortName": "MP5/MP5SD thin",
+                "Description": "Crosse fine et légère pour MCX/MPX fabriquée par SIG Sauer adaptée pour le MP5/MP5SD."
+            },
+            "german": {
+                "Name": "SIG Sauer Dünner leichter MP5/MP5SD Schaft",
+                "ShortName": "MP5/MP5SD thin",
+                "Description": "Dünner und leichter Schaft für MCX/MPX von SIG Sauer, angepasst an MP5/MP5SD."
+            },
+            "russian": {
+                "Name": "Тонкая легкая ложа SIG Sauer MP5 / MP5SD",
+                "ShortName": "MP5/MP5SD thin",
+                "Description": "Тонкий и легкий приклад для MCX / MPX производства SIG Sauer адаптирован для MP5 / MP5SD."
+            }
+        }
+    },
+    "stock_mp5_tele": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": [
+                "5926f2e086f7745aae644231",
+                "5926c0df86f77462f647f764"
+            ]
+        },
+        "item": {
+            "_id": "stock_mp5_tele",
+            "_name": "stock_all_sig_telescoping_stock",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_all_sig_mpx_mcx_early_type",
+                "ShortName": "stock_all_sig_mpx_mcx_early_type",
+                "Description": "stock_all_sig_mpx_mcx_early_type",
+                "Weight": 0.336,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 3,
+                "CreditsPrice": 4839,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "assets/content/items/mods/stocks/stock_all_sig_telescoping_stock.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": true,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -29,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 10,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": true,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 0,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "MP5/MP5SD telescoping stock",
+                "ShortName": "MP5/MP5SD telestock",
+                "Description": "A telescopic stock for MCX/MPX manufactured by SIG Sauer adapted for the MP5/MP5SD."
+            },
+            "french": {
+                "Name": "Crosse télescopique MP5/MP5SD",
+                "ShortName": "MP5/MP5SD telestock",
+                "Description": "Une crosse télescopique pour MCX/MPX fabriquée par SIG Sauer adaptée pour le MP5/MP5SD."
+            },
+            "german": {
+                "Name": "MP5/MP5SD Teleskopschaft",
+                "ShortName": "MP5/MP5SD telestock",
+                "Description": "Ein Teleskopschaft für MCX/MPX von SIG Sauer, angepasst an den MP5/MP5SD."
+            },
+            "russian": {
+                "Name": "Приклад телескопический MP5 / MP5SD",
+                "ShortName": "MP5/MP5SD telestock",
+                "Description": "Телескопический приклад для MCX / MPX производства SIG Sauer адаптирован для MP5 / MP5SD."
+            }
+        }
+    },
+    "stock_mp5k_pdw_stock": {
+        "modifier": "none",
+        "basedOn": "55d4ae6c4bdc2d8b2f8b456e",
+        "addToTrader": {
+            "traderName": [],
+            "loyality": 1,
+            "currency": "5449016a4bdc2d6f028b456f"
+        },
+        "addMods": {
+            "mod_stock": []
+        },
+        "item": {
+            "_id": "stock_mp5k_pdw_stock",
+            "_name": "stock_mp5_hk_a2_std",
+            "_parent": "55818a594bdc2db9688b456a",
+            "_type": "Item",
+            "_props": {
+                "Name": "stock_mp5_hk_a2_std",
+                "ShortName": "stock_mp5_hk_a2_std",
+                "Description": "stock_mp5_hk_a2_std",
+                "Weight": 0.396,
+                "BackgroundColor": "blue",
+                "Width": 2,
+                "Height": 1,
+                "StackMaxSize": 1,
+                "Rarity": "Rare",
+                "SpawnChance": 3,
+                "CreditsPrice": 6450,
+                "ItemSound": "mod",
+                "Prefab": {
+                    "path": "alteredescape/items/mods/stocks/mp5k/pdw/stock_mp5k_pdw.bundle",
+                    "rcid": ""
+                },
+                "UsePrefab": {
+                    "path": "",
+                    "rcid": ""
+                },
+                "StackObjectsCount": 1,
+                "NotShownInSlot": false,
+                "ExaminedByDefault": false,
+                "ExamineTime": 1,
+                "IsUndiscardable": false,
+                "IsUnsaleable": false,
+                "IsUnbuyable": false,
+                "IsUngivable": false,
+                "IsLockedafterEquip": false,
+                "QuestItem": false,
+                "LootExperience": 10,
+                "ExamineExperience": 2,
+                "HideEntrails": false,
+                "RepairCost": 0,
+                "RepairSpeed": 0,
+                "ExtraSizeLeft": 0,
+                "ExtraSizeRight": 1,
+                "ExtraSizeUp": 0,
+                "ExtraSizeDown": 0,
+                "ExtraSizeForceAdd": false,
+                "MergesWithChildren": true,
+                "CanSellOnRagfair": true,
+                "CanRequireOnRagfair": true,
+                "ConflictingItems": [],
+                "FixedPrice": false,
+                "Unlootable": false,
+                "UnlootableFromSlot": "FirstPrimaryWeapon",
+                "UnlootableFromSide": [],
+                "ChangePriceCoef": 1,
+                "AllowSpawnOnLocations": [],
+                "SendToClient": false,
+                "AnimationVariantsNumber": 0,
+                "DiscardingBlock": false,
+                "RagFairCommissionModifier": 1,
+                "IsAlwaysAvailableForInsurance": false,
+                "Grids": [],
+                "Slots": [],
+                "CanPutIntoDuringTheRaid": true,
+                "CantRemoveFromSlotsDuringRaid": [],
+                "Durability": 100,
+                "Accuracy": 0,
+                "Recoil": -32,
+                "Loudness": 0,
+                "EffectiveDistance": 0,
+                "Ergonomics": 6,
+                "Velocity": 0,
+                "RaidModdable": true,
+                "ToolModdable": true,
+                "BlocksFolding": false,
+                "BlocksCollapsible": false,
+                "IsAnimated": false,
+                "HasShoulderContact": true,
+                "SightingRange": 0,
+                "IsShoulderContact": true,
+                "Foldable": false,
+                "Retractable": false,
+                "SizeReduceRight": 0,
+                "HeatFactor": 1
+            }
+        },
+        "translation": {
+            "english": {
+                "Name": "TROY M7A1 PDW MP5k stock (Black)",
+                "ShortName": "TROY M7A1 MP5k",
+                "Description": "The TROY M7A1 PDW MP5k Stock kit is a retractable stock made to elevate the MP5, making them compact, measuring 3” shorter than traditional SMG stocks. Reduces the overall weapon size and recoil buffer. Black MP5 version."
+            },
+            "french": {
+                "Name": "Crosse TROY M7A1 PDW MP5k (Noir)",
+                "ShortName": "TROY M7A1 MP5k",
+                "Description": "Le kit TROY M7A1 PDW MP5k Stock est un stock rétractable conçu pour élever le MP5, le rendant compact, mesurant 3 \"plus court que les stocks SMG traditionnels. Réduit la taille globale de l'arme et le tampon de recul. Version MP5 noire."
+            },
+            "german": {
+                "Name": "TROY M7A1 PDW MP5k Schaft (Schwarz)",
+                "ShortName": "TROY M7A1 MP5k",
+                "Description": "Das TROY M7A1 PDW MP5k Schaft-Kit ist ein einziehbarer Schaft, der den MP5 anheben soll, wodurch er kompakt und 3 Zoll kürzer als herkömmliche SMG-Schäfte ist. Reduziert die Gesamtgröße der Waffe und den Rückstoßpuffer. Schwarze MP5-Version."
+            },
+            "russian": {
+                "Name": "Приклад TROY M7A1 PDW MP5k (черный)",
+                "ShortName": "TROY M7A1 MP5k",
+                "Description": "Комплект ложи TROY M7A1 PDW MP5k представляет собой выдвижной приклад, предназначенный для поднятия MP5, что делает его компактным, на 3 дюйма короче, чем у традиционных прикладов SMG. Уменьшает общий размер оружия и буфер отдачи. Черная версия MP5."
+            }
+        }
+    }
+}

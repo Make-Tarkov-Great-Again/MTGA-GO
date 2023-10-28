@@ -1,0 +1,18 @@
+ats warbelt
+3 1x2, 2 1x1
+>
+all 1x2
+
+tacbelts 
+5 1x1
+balanced
+
+uc tacbelt
+3 1x1, 1 1x2, prolly 2 3x2
+>
+1 1x2, 2 2x2, 1 1x2
+
+battlebelt n ksk
+2 1x1, 1 3x2, 1 2x2, 2 1x1
+>
+1 1x2, 1 3x2, 1 1x2

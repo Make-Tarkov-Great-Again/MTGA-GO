@@ -1,0 +1,55 @@
+{ // Your database is a .json file that can hold however many items you want.
+  // It's generally advised to sort different items into different databases though.
+
+  // Your new Item ID, or existing one if you're editing an item
+  "itemID": {
+    // This is a required field for all items
+    "modifier": 
+      "none", // Considers item a new one, requires full "item" and "translation"
+      "useBase", // Considers item a new one, based on existing item.
+                 // Requires at least several fields to be filled out in "item" (example below) and full "translation"
+      "edit", // Considers this an edit of an existing item.
+
+    // This is a required field for "none" and "useBase" options
+    "basedOn": "itemID", //itemID needs to be an existing item (can also be item loaded previously by this mod)
+
+    // This is an add to trader request field
+    "addToTrader": {
+      "traderName": [ // An array containing all traders this item is to be added to. Can be empty.
+        "Therapist" // Name of trader.
+      ],
+      "loyality": 1, // Loyalty Level at which the trader will sell the item
+      "currency": "5449016a4bdc2d6f028b456f" // Currency at which the item will be sold.
+      // This isn't a bank, currency will just take the CreditsPrice value
+    },
+
+    // This is a request to add this item to mod slots
+    "addMods": {
+      "mod slot name": [ // Name of the slot you need to add the item to
+        "itemID" //Id of the weapon you need to add it to
+      ],
+      "allCompatible": [ // Adds your item to all slots compatible with given itemID
+        "itemID" //Id of mod similar to yours
+      ]
+    },
+
+    // Your item properties. Given example is what's required for a "useBase" option
+    "item": {
+      "_id": "basedPistolGrip",
+      "_name": "basedPistolGrip",
+      "_props": {
+        "Name": "basedPistolGrip",
+        "ShortName": "basedPistolGrip",
+        "Description": "basedPistolGrip"
+      }
+    },
+
+    // Item translation.
+    "translation": {
+      // Has to have 4 languages. English, Russian, French, German, in any order.
+      "language": {
+        // Your translation info
+      }
+    }
+  }
+}

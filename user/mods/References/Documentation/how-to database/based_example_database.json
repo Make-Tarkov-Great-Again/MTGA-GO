@@ -1,0 +1,255 @@
+{
+  "basedPistolGrip": {
+    "modifier": "useBase",
+    "basedOn": "5f6341043ada5942720e2dc5",
+    "addToTrader": {
+      "traderName": [
+        "Therapist"
+      ],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "item": {
+      "_id": "basedPistolGrip",
+      "_name": "basedPistolGrip",
+      "_props": {
+        "Name": "basedPistolGrip",
+        "ShortName": "basedPistolGrip",
+        "Description": "basedPistolGrip",
+        "CreditsPrice": 800,
+        "Ergonomics": 25
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Based 720* no-scope pistol grip",
+        "ShortName": "Based grip",
+        "Description": "Based 720* no-scope pistol grip is the prime drip you need for your gun. Do bosses spit on you? Do scavs refuse to shoot your ass because u sus? Use this grip and prove them wrong."
+      },
+      "french": {
+        "Name": "Poignée pistolet sans lunette de visée basée sur 720",
+        "ShortName": "Prise de base",
+        "Description": "La crosse de pistolet sans lunette 720* est la première goutte d'eau dont vous avez besoin pour votre arme. Les patrons vous crachent dessus ? Est-ce que les charognards refusent de vous tirer dessus parce que vous êtes sus ? Utilisez cette poignée et prouvez-leur qu'ils ont tort."
+      },
+      "german": {
+        "Name": "Basis 720* Pistolengriff ohne Zielfernrohr",
+        "ShortName": "Basisgriff",
+        "Description": "Der 720* No-Scope-Pistolengriff ist der beste Tropfen, den Sie für Ihre Waffe brauchen. Haben Bosse spucken auf Sie? Weigern sich Scavs, deinen Arsch zu erschießen, weil du sus? Verwenden Sie diesen Griff und beweisen sie falsch."
+      },
+      "russian": {
+        "Name": "Основанная пистолетная рукоятка 720* без прицела",
+        "ShortName": "Основанная рукоятка",
+        "Description": "Пистолетная рукоятка 720* без прицела - это главная капля, необходимая для вашего оружия. Плюют ли на тебя боссы? Скауты отказываются стрелять в твою задницу, потому что ты не в себе? Используйте эту рукоятку и докажите, что они не правы."
+      }
+    }
+  },
+  "56e05a6ed2720bd0748b4567": {
+    "modifier": "edit",
+    "addToTrader": {
+      "traderName": [
+        "Therapist"
+      ],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "item": {
+      "CreditsPrice": 420
+    }
+  },
+  "5a7b4960e899ef197b331a2d": {
+    "modifier": "edit",
+    "addToTrader": {
+      "traderName": [
+        "Therapist"
+      ],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "item": {
+      "Ergonomics": 25
+    },
+    "locales": {
+      "english": {
+        "Name": "Based test B)",
+        "ShortName": "Based test B)",
+        "Description": "Based test B)"
+      },
+      "french": {
+        "Name": "Based test B)",
+        "ShortName": "Based test B)",
+        "Description": "Based test B)"
+      },
+      "german": {
+        "Name": "Based test B)",
+        "ShortName": "Based test B)",
+        "Description": "Based test B)"
+      },
+      "russian": {
+        "Name": "Based test B)",
+        "ShortName": "Based test B)",
+        "Description": "Based test B)"
+      }
+    }
+  },
+  "basedMag": {
+    "modifier": "none",
+    "basedOn": "57616a9e2459773c7a400234",
+    "addToTrader": {
+      "traderName": [
+        "Therapist"
+      ],
+      "loyality": 1,
+      "currency": "5449016a4bdc2d6f028b456f"
+    },
+    "addMods": {
+      "allCompatible": [
+        "57616a9e2459773c7a400234"
+      ]
+    },
+    "item": {
+      "_id": "basedMag",
+      "_name": "basedMag",
+      "_parent": "5448bc234bdc2d3c308b4569",
+      "_type": "Item",
+      "_props": {
+        "Name": "basedMag",
+        "ShortName": "basedMag",
+        "Description": "basedMag",
+        "Weight": 1,
+        "BackgroundColor": "red",
+        "Width": 1,
+        "Height": 2,
+        "StackMaxSize": 1,
+        "Rarity": "Superrare",
+        "SpawnChance": 1,
+        "CreditsPrice": 6969,
+        "ItemSound": "mag_plastic",
+        "Prefab": {
+          "path": "assets/content/items/mods/magazines/mag_saiga12_izhmash_sb5_12x76_5.bundle",
+          "rcid": ""
+        },
+        "UsePrefab": {
+          "path": "",
+          "rcid": ""
+        },
+        "StackObjectsCount": 1,
+        "NotShownInSlot": false,
+        "ExaminedByDefault": false,
+        "ExamineTime": 1,
+        "IsUndiscardable": false,
+        "IsUnsaleable": false,
+        "IsUnbuyable": false,
+        "IsUngivable": false,
+        "IsLockedafterEquip": false,
+        "QuestItem": false,
+        "LootExperience": 10,
+        "ExamineExperience": 2,
+        "HideEntrails": false,
+        "RepairCost": 0,
+        "RepairSpeed": 0,
+        "ExtraSizeLeft": 0,
+        "ExtraSizeRight": 0,
+        "ExtraSizeUp": 0,
+        "ExtraSizeDown": 1,
+        "ExtraSizeForceAdd": false,
+        "MergesWithChildren": true,
+        "CanSellOnRagfair": true,
+        "CanRequireOnRagfair": true,
+        "ConflictingItems": [],
+        "FixedPrice": false,
+        "Unlootable": false,
+        "UnlootableFromSlot": "FirstPrimaryWeapon",
+        "UnlootableFromSide": [],
+        "ChangePriceCoef": 1,
+        "AllowSpawnOnLocations": [],
+        "SendToClient": false,
+        "AnimationVariantsNumber": 0,
+        "DiscardingBlock": false,
+        "RagFairCommissionModifier": 1,
+        "IsAlwaysAvailableForInsurance": false,
+        "Grids": [],
+        "Slots": [],
+        "CanPutIntoDuringTheRaid": true,
+        "CantRemoveFromSlotsDuringRaid": [],
+        "Durability": 100,
+        "Accuracy": 0,
+        "Recoil": -5,
+        "Loudness": 0,
+        "EffectiveDistance": 0,
+        "Ergonomics": 10,
+        "Velocity": 0,
+        "RaidModdable": true,
+        "ToolModdable": false,
+        "BlocksFolding": false,
+        "BlocksCollapsible": false,
+        "IsAnimated": false,
+        "HasShoulderContact": false,
+        "SightingRange": 0,
+        "magAnimationIndex": 0,
+        "Cartridges": [
+          {
+            "_name": "cartridges",
+            "_id": "5a966f51a2750c00156aacf8",
+            "_parent": "57616a9e2459773c7a400234",
+            "_max_count": 50,
+            "_props": {
+              "filters": [
+                {
+                  "Filter": [
+                    "560d5e524bdc2d25448b4571",
+                    "5d6e6772a4b936088465b17c",
+                    "5d6e67fba4b9361bc73bc779",
+                    "5d6e6806a4b936088465b17e",
+                    "5d6e68dea4b9361bcc29e659",
+                    "5d6e6911a4b9361bd5780d52",
+                    "5c0d591486f7744c505b416f",
+                    "58820d1224597753c90aeb13",
+                    "5d6e68c4a4b9361b93413f79",
+                    "5d6e68a8a4b9360b6c0d54e2",
+                    "5d6e68e6a4b9361c140bcfe0",
+                    "5d6e6869a4b9361c140bcfde",
+                    "5d6e68b3a4b9361bca7e50b5",
+                    "5d6e6891a4b9361bd473feea",
+                    "5d6e689ca4b9361bc8618956",
+                    "5d6e68d1a4b93622fe60e845"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "CanFast": true,
+        "CanHit": false,
+        "CanAdmin": false,
+        "LoadUnloadModifier": -50,
+        "CheckTimeModifier": -100,
+        "CheckOverride": 0,
+        "ReloadMagType": "ExternalMagazine",
+        "VisibleAmmoRangesString": "1-3",
+        "MalfunctionChance": 0
+      }
+    },
+    "translation": {
+      "english": {
+        "Name": "Based l33t 50 round 12 gauge mag",
+        "ShortName": "L33t 50",
+        "Description": "Based l33t 50 round 12 gauge mag, for all your human extermination purposes."
+      },
+      "french": {
+        "Name": "Based l33t 50 round 12 gauge mag",
+        "ShortName": "L33t 50",
+        "Description": "Un chargeur de calibre 12 de 50 balles, pour tous vos besoins d'extermination humaine."
+      },
+      "german": {
+        "Name": "Basierend l33t 50 Runde 12 Kaliber mag",
+        "ShortName": "L33t 50",
+        "Description": "Basierend l33t 50 Runden 12-Gauge-Mag, für alle Ihre menschlichen Ausrottung Zwecke."
+      },
+      "russian": {
+        "Name": "Based l33t 50 round 12 gauge mag",
+        "ShortName": "L33t 50",
+        "Description": "Основан на 50 патронах 12 калибра для истребления людей."
+      }
+    }
+  }
+}
