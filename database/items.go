@@ -153,7 +153,7 @@ type GridProps struct {
 
 // GetItemGrids Get the grid property from the item if it exists
 func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
-	grids, ok := i.Props["Grids"].([]interface{})
+	grids, ok := i.Props["Grids"].([]any)
 	if !ok || len(grids) == 0 {
 		fmt.Println("Item:", i.ID, " does not have Grid property")
 		return nil
@@ -194,7 +194,7 @@ type SlotProps struct {
 
 // GetItemSlots Get the slot property from the item if it exists
 func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
-	slots, ok := i.Props["Slots"].([]interface{})
+	slots, ok := i.Props["Slots"].([]any)
 	if !ok || len(slots) == 0 {
 		fmt.Println("Item:", i.ID, " does not have Grid property")
 		return nil
@@ -414,6 +414,6 @@ type DatabaseItem struct {
 	Proto  string                 `json:"_proto"`
 }
 
-type DatabaseItemProperties map[string]interface{}
+type DatabaseItemProperties map[string]any
 
 // #endregion

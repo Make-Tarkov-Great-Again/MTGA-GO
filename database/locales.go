@@ -78,7 +78,7 @@ func GetLocalesMenuByName(name string) *LocaleMenu {
 	return locales.EN.Menu
 }
 
-func GetLocalesLocaleByName(name string) map[string]interface{} {
+func GetLocalesLocaleByName(name string) map[string]any {
 	if locale, ok := localeMap[name]; ok {
 		return locale.Locale
 	}
@@ -110,7 +110,7 @@ func setLocales() {
 				log.Fatalln(err)
 			}
 
-			raw := make(map[string]interface{})
+			raw := make(map[string]any)
 
 			if file == "locale.json" {
 				err = json.Unmarshal(fileContent, &raw)
@@ -172,7 +172,7 @@ type Locale struct {
 }
 
 type LocaleData struct {
-	Locale map[string]interface{}
+	Locale map[string]any
 	Menu   *LocaleMenu
 }
 

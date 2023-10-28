@@ -316,7 +316,7 @@ func setTraders() {
 func setTraderBase(basePath string) *TraderBase {
 	trader := new(TraderBase)
 
-	var dynamic map[string]interface{} //here we fucking go
+	var dynamic map[string]any //here we fucking go
 
 	raw := tools.GetJSONRawMessage(basePath)
 	err := json.Unmarshal(raw, &dynamic)
@@ -324,11 +324,11 @@ func setTraderBase(basePath string) *TraderBase {
 		log.Fatalln(err)
 	}
 
-	loyaltyLevels := dynamic["loyaltyLevels"].([]interface{})
+	loyaltyLevels := dynamic["loyaltyLevels"].([]any)
 	length := len(loyaltyLevels)
 
 	for i := 0; i < length; i++ {
-		level := loyaltyLevels[i].(map[string]interface{})
+		level := loyaltyLevels[i].(map[string]any)
 
 		insurancePriceCoef, ok := level["insurance_price_coef"].(string)
 		if !ok {
@@ -341,7 +341,7 @@ func setTraderBase(basePath string) *TraderBase {
 		}
 	}
 
-	repair := dynamic["repair"].(map[string]interface{})
+	repair := dynamic["repair"].(map[string]any)
 
 	repairQuality, ok := repair["quality"].(string)
 	if ok {
@@ -415,7 +415,7 @@ func SetTraderIndex() {
 }
 
 func setTraderAssort(assortPath string) *Assort {
-	var dynamic map[string]interface{}
+	var dynamic map[string]any
 	raw := tools.GetJSONRawMessage(assortPath)
 
 	err := json.Unmarshal(raw, &dynamic)
@@ -427,7 +427,7 @@ func setTraderAssort(assortPath string) *Assort {
 
 	assort.NextResupply = 1672236024
 
-	items, ok := dynamic["items"].([]interface{})
+	items, ok := dynamic["items"].([]any)
 	if ok {
 		assort.Items = make([]*AssortItem, 0, len(items))
 		data, err := json.Marshal(items)
@@ -443,7 +443,7 @@ func setTraderAssort(assortPath string) *Assort {
 		log.Fatalln("Items not found")
 	}
 
-	barterSchemes, ok := dynamic["barter_scheme"].(map[string]interface{})
+	barterSchemes, ok := dynamic["barter_scheme"].(map[string]any)
 	if ok {
 		assort.BarterScheme = make(map[string][][]*Scheme)
 		data, err := json.Marshal(barterSchemes)
@@ -458,7 +458,7 @@ func setTraderAssort(assortPath string) *Assort {
 		panic("Barter scheme not found")
 	}
 
-	loyalLevelItems, ok := dynamic["loyal_level_items"].(map[string]interface{})
+	loyalLevelItems, ok := dynamic["loyal_level_items"].(map[string]any)
 	if ok {
 		assort.LoyalLevelItems = map[string]int8{}
 		for key, item := range loyalLevelItems {
@@ -491,7 +491,7 @@ func setTraderQuestAssort(questsPath string) map[string]map[string]string {
 }
 
 func setTraderDialogues(dialoguesPath string) map[string][]string {
-	var dynamic map[string]interface{}
+	var dynamic map[string]any
 	raw := tools.GetJSONRawMessage(dialoguesPath)
 
 	err := json.Unmarshal(raw, &dynamic)
@@ -501,7 +501,7 @@ func setTraderDialogues(dialoguesPath string) map[string][]string {
 
 	dialogues := map[string][]string{}
 	for k, v := range dynamic {
-		v := v.([]interface{})
+		v := v.([]any)
 
 		length := len(v)
 		dialogues[k] = make([]string, 0, len(v))
@@ -638,7 +638,7 @@ type SuitRequirements struct {
 	LoyaltyLevel         int8                   `json:"loyaltyLevel"`
 	ProfileLevel         int8                   `json:"profileLevel"`
 	Standing             int8                   `json:"standing"`
-	SkillRequirements    []interface{}          `json:"skillRequirements"`
+	SkillRequirements    []any                  `json:"skillRequirements"`
 	QuestRequirements    []string               `json:"questRequirements"`
 	SuitItemRequirements []SuitItemRequirements `json:"itemRequirements"`
 }
@@ -659,8 +659,8 @@ type AssortItem struct {
 }
 
 type AssortItemUpd struct {
-	BuyRestrictionCurrent interface{} `json:"BuyRestrictionCurrent,omitempty"`
-	BuyRestrictionMax     interface{} `json:"BuyRestrictionMax,omitempty"`
+	BuyRestrictionCurrent any         `json:"BuyRestrictionCurrent,omitempty"`
+	BuyRestrictionMax     any         `json:"BuyRestrictionMax,omitempty"`
 	StackObjectsCount     int         `json:"StackObjectsCount,omitempty"`
 	UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
 	FireMode              *FireMode   `json:"FireMode,omitempty"`

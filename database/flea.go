@@ -21,7 +21,7 @@ func setFlea() {
 // #region Flea structs
 
 type Flea struct {
-	Offers           []interface{}
+	Offers           []any
 	OffersCount      int
 	SelectedCategory string
 	Categories       map[string]int

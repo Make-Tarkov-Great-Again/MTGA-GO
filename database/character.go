@@ -24,8 +24,8 @@ func GetCharacterByUID(uid string) *Character {
 	return nil
 }
 
-func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
-	var output []interface{}
+func (c *Character) GetQuestsAvailableToPlayer() []any {
+	var output []any
 
 	query := GetQuestsQuery()
 
@@ -260,7 +260,7 @@ type fromOwner struct {
 	Type string `json:"type"`
 }
 
-func (c *Character) ExamineItem(moveAction map[string]interface{}) {
+func (c *Character) ExamineItem(moveAction map[string]any) {
 	examine := new(examine)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &examine)
@@ -333,7 +333,7 @@ type moveToLocation struct {
 	IsSearched bool    `json:"isSearched"`
 }
 
-func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) MoveItemInStash(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	move := new(move)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &move)
@@ -386,7 +386,7 @@ type swap struct {
 	To2    moveTo `json:"to2"`
 }
 
-func (c *Character) SwapItemInStash(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) SwapItemInStash(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	swap := new(swap)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &swap)
@@ -453,7 +453,7 @@ type fold struct {
 	Value  bool   `json:"value"`
 }
 
-func (c *Character) FoldItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) FoldItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	fold := new(fold)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &fold)
@@ -482,7 +482,7 @@ type readEncyclopedia struct {
 	IDs    []string `json:"ids"`
 }
 
-func (c *Character) ReadEncyclopedia(moveAction map[string]interface{}) {
+func (c *Character) ReadEncyclopedia(moveAction map[string]any) {
 	readEncyclopedia := new(readEncyclopedia)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &readEncyclopedia)
@@ -501,7 +501,7 @@ type merge struct {
 	With   string `json:"with"`
 }
 
-func (c *Character) MergeItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	merge := new(merge)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &merge)
@@ -557,7 +557,7 @@ type transfer struct {
 	Count  int32  `json:"count"`
 }
 
-func (c *Character) TransferItem(moveAction map[string]interface{}) {
+func (c *Character) TransferItem(moveAction map[string]any) {
 	transfer := new(transfer)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &transfer)
@@ -585,7 +585,7 @@ type split struct {
 	Count     int32  `json:"count"`
 }
 
-func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	split := new(split)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &split)
@@ -635,7 +635,7 @@ type remove struct {
 	ItemId string `json:"item"`
 }
 
-func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) RemoveItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	remove := new(remove)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &remove)
@@ -663,12 +663,12 @@ func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChanges
 
 type applyInventoryChanges struct {
 	Action       string
-	ChangedItems []interface{} `json:"changedItems"`
+	ChangedItems []any `json:"changedItems"`
 }
 
 //TODO: Make ApplyInventoryChanges not look like shit
 
-func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
+func (c *Character) ApplyInventoryChanges(moveAction map[string]any) {
 	applyInventoryChanges := new(applyInventoryChanges)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &applyInventoryChanges)
@@ -678,7 +678,7 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 
 	cache := *GetCacheByUID(c.ID).Inventory
 	for _, item := range applyInventoryChanges.ChangedItems {
-		properties, ok := item.(map[string]interface{})
+		properties, ok := item.(map[string]any)
 		if !ok {
 			log.Fatalln("Cannot type assert item from Auto-Sort items slice")
 		}
@@ -701,7 +701,7 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 		}
 		itemInInventory.SlotID = &slotId
 
-		location, ok := properties["location"].(map[string]interface{})
+		location, ok := properties["location"].(map[string]any)
 		if !ok {
 			itemInInventory.Location = nil
 			continue
@@ -761,7 +761,7 @@ type soldItems struct {
 	SchemeID int8   `json:"scheme_id"`
 }
 
-func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	//TODO: Make everything purchased NOT free lol
 
 	invCache := GetCacheByUID(c.ID).Inventory
@@ -1049,12 +1049,12 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 }
 
 type buyCustomization struct {
-	Action string                   `json:"Action"`
-	Offer  string                   `json:"offer"`
-	Items  []map[string]interface{} `json:"items"`
+	Action string           `json:"Action"`
+	Offer  string           `json:"offer"`
+	Items  []map[string]any `json:"items"`
 }
 
-func (c *Character) CustomizationBuy(moveAction map[string]interface{}) {
+func (c *Character) CustomizationBuy(moveAction map[string]any) {
 	customizationBuy := new(buyCustomization)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &customizationBuy)
@@ -1090,7 +1090,7 @@ const (
 	upperParentID = "5cd944ca1388ce03a44dc2a4"
 )
 
-func (c *Character) CustomizationWear(moveAction map[string]interface{}) {
+func (c *Character) CustomizationWear(moveAction map[string]any) {
 	customizationWear := new(wearCustomization)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &customizationWear)
@@ -1122,7 +1122,7 @@ type hideoutUpgrade struct {
 	TimeStamp float64         `json:"timeStamp"`
 }
 
-func (c *Character) HideoutUpgrade(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) HideoutUpgrade(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	fmt.Println("HideoutUpgrade")
 	upgrade := new(hideoutUpgrade)
 	data, _ := json.Marshal(moveAction)
@@ -1143,7 +1143,7 @@ type hideoutUpgradeComplete struct {
 	TimeStamp float64 `json:"timeStamp"`
 }
 
-func (c *Character) HideoutUpgradeComplete(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) HideoutUpgradeComplete(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	fmt.Println("HideoutUpgradeComplete")
 	upgradeComplete := new(hideoutUpgradeComplete)
 	data, _ := json.Marshal(moveAction)
@@ -1160,30 +1160,30 @@ func (c *Character) HideoutUpgradeComplete(moveAction map[string]interface{}, pr
 // #region Character structs
 
 type Character struct {
-	ID                string                 `json:"_id"`
-	AID               int                    `json:"aid"`
-	Savage            *string                `json:"savage"`
-	Info              PlayerInfo             `json:"Info"`
-	Customization     PlayerCustomization    `json:"Customization"`
-	Health            HealthInfo             `json:"Health"`
-	Inventory         Inventory              `json:"Inventory"`
-	Skills            PlayerSkills           `json:"Skills"`
-	Stats             PlayerStats            `json:"Stats"`
-	Encyclopedia      map[string]bool        `json:"Encyclopedia"`
-	ConditionCounters ConditionCounters      `json:"ConditionCounters"`
-	BackendCounters   map[string]interface{} `json:"BackendCounters"`
-	InsuredItems      []InsuredItem          `json:"InsuredItems"`
-	Hideout           PlayerHideout          `json:"Hideout"`
-	Bonuses           []Bonus                `json:"Bonuses"`
+	ID                string              `json:"_id"`
+	AID               int                 `json:"aid"`
+	Savage            *string             `json:"savage"`
+	Info              PlayerInfo          `json:"Info"`
+	Customization     PlayerCustomization `json:"Customization"`
+	Health            HealthInfo          `json:"Health"`
+	Inventory         Inventory           `json:"Inventory"`
+	Skills            PlayerSkills        `json:"Skills"`
+	Stats             PlayerStats         `json:"Stats"`
+	Encyclopedia      map[string]bool     `json:"Encyclopedia"`
+	ConditionCounters ConditionCounters   `json:"ConditionCounters"`
+	BackendCounters   map[string]any      `json:"BackendCounters"`
+	InsuredItems      []InsuredItem       `json:"InsuredItems"`
+	Hideout           PlayerHideout       `json:"Hideout"`
+	Bonuses           []Bonus             `json:"Bonuses"`
 	Notes             struct {
-		Notes [][]interface{} `json:"Notes"`
+		Notes [][]any `json:"Notes"`
 	} `json:"Notes"`
 	Quests       []CharacterQuest             `json:"Quests"`
 	RagfairInfo  PlayerRagfairInfo            `json:"RagfairInfo"`
 	WishList     []string                     `json:"WishList"`
 	TradersInfo  map[string]PlayerTradersInfo `json:"TradersInfo"`
 	UnlockedInfo struct {
-		UnlockedProductionRecipe []interface{} `json:"unlockedProductionRecipe"`
+		UnlockedProductionRecipe []any `json:"unlockedProductionRecipe"`
 	} `json:"UnlockedInfo"`
 }
 
@@ -1195,30 +1195,30 @@ type PlayerTradersInfo struct {
 }
 
 type PlayerRagfairInfo struct {
-	Rating          float32       `json:"rating"`
-	IsRatingGrowing bool          `json:"isRatingGrowing"`
-	Offers          []interface{} `json:"offers"`
+	Rating          float32 `json:"rating"`
+	IsRatingGrowing bool    `json:"isRatingGrowing"`
+	Offers          []any   `json:"offers"`
 }
 
 type PlayerHideoutArea struct {
-	Type                  int           `json:"type"`
-	Level                 int           `json:"level"`
-	Active                bool          `json:"active"`
-	PassiveBonusesEnabled bool          `json:"passiveBonusesEnabled"`
-	CompleteTime          int           `json:"completeTime"`
-	Constructing          bool          `json:"constructing"`
-	Slots                 []interface{} `json:"slots"`
-	LastRecipe            string        `json:"lastRecipe"`
+	Type                  int    `json:"type"`
+	Level                 int    `json:"level"`
+	Active                bool   `json:"active"`
+	PassiveBonusesEnabled bool   `json:"passiveBonusesEnabled"`
+	CompleteTime          int    `json:"completeTime"`
+	Constructing          bool   `json:"constructing"`
+	Slots                 []any  `json:"slots"`
+	LastRecipe            string `json:"lastRecipe"`
 }
 type PlayerHideout struct {
-	Production  map[string]interface{} `json:"Production"`
-	Areas       []PlayerHideoutArea    `json:"Areas"`
-	Improvement map[string]interface{} `json:"Improvement"`
+	Production  map[string]any      `json:"Production"`
+	Areas       []PlayerHideoutArea `json:"Areas"`
+	Improvement map[string]any      `json:"Improvement"`
 	//Seed        int                    `json:"Seed"`
 }
 
 type ConditionCounters struct {
-	Counters []interface{} `json:"Counters"`
+	Counters []any `json:"Counters"`
 }
 
 type PlayerStats struct {
@@ -1226,25 +1226,25 @@ type PlayerStats struct {
 }
 
 type StatCounters struct {
-	Items []interface{} `json:"Items"`
+	Items []any `json:"Items"`
 }
 
 type EftStats struct {
-	SessionCounters        map[string]interface{} `json:"SessionCounters"`
-	OverallCounters        map[string]interface{} `json:"OverallCounters"`
-	SessionExperienceMult  int                    `json:"SessionExperienceMult"`
-	ExperienceBonusMult    int                    `json:"ExperienceBonusMult"`
-	TotalSessionExperience int                    `json:"TotalSessionExperience"`
-	LastSessionDate        int                    `json:"LastSessionDate"`
-	Aggressor              map[string]interface{} `json:"Aggressor"`
-	DroppedItems           []interface{}          `json:"DroppedItems"`
-	FoundInRaidItems       []interface{}          `json:"FoundInRaidItems"`
-	Victims                []interface{}          `json:"Victims"`
-	CarriedQuestItems      []interface{}          `json:"CarriedQuestItems"`
-	DamageHistory          map[string]interface{} `json:"DamageHistory"`
-	LastPlayerState        *float32               `json:"LastPlayerState"`
-	TotalInGameTime        int                    `json:"TotalInGameTime"`
-	SurvivorClass          string                 `json:"SurvivorClass"`
+	SessionCounters        map[string]any `json:"SessionCounters"`
+	OverallCounters        map[string]any `json:"OverallCounters"`
+	SessionExperienceMult  int            `json:"SessionExperienceMult"`
+	ExperienceBonusMult    int            `json:"ExperienceBonusMult"`
+	TotalSessionExperience int            `json:"TotalSessionExperience"`
+	LastSessionDate        int            `json:"LastSessionDate"`
+	Aggressor              map[string]any `json:"Aggressor"`
+	DroppedItems           []any          `json:"DroppedItems"`
+	FoundInRaidItems       []any          `json:"FoundInRaidItems"`
+	Victims                []any          `json:"Victims"`
+	CarriedQuestItems      []any          `json:"CarriedQuestItems"`
+	DamageHistory          map[string]any `json:"DamageHistory"`
+	LastPlayerState        *float32       `json:"LastPlayerState"`
+	TotalInGameTime        int            `json:"TotalInGameTime"`
+	SurvivorClass          string         `json:"SurvivorClass"`
 }
 
 type SkillsCommon struct {
@@ -1265,33 +1265,33 @@ type PlayerSkills struct {
 }
 
 type PlayerInfo struct {
-	Nickname               string                 `json:"Nickname"`
-	LowerNickname          string                 `json:"LowerNickname"`
-	Side                   string                 `json:"Side"`
-	Voice                  string                 `json:"Voice"`
-	Level                  int8                   `json:"Level"`
-	Experience             int32                  `json:"Experience"`
-	RegistrationDate       int32                  `json:"RegistrationDate"`
-	GameVersion            string                 `json:"GameVersion"`
-	AccountType            int8                   `json:"AccountType"`
-	MemberCategory         int8                   `json:"MemberCategory"`
-	LockedMoveCommands     bool                   `json:"lockedMoveCommands"`
-	SavageLockTime         int32                  `json:"SavageLockTime"`
-	LastTimePlayedAsSavage int32                  `json:"LastTimePlayedAsSavage"`
-	Settings               map[string]interface{} `json:"Settings"`
-	NicknameChangeDate     int32                  `json:"NicknameChangeDate"`
-	NeedWipeOptions        []interface{}          `json:"NeedWipeOptions"`
+	Nickname               string         `json:"Nickname"`
+	LowerNickname          string         `json:"LowerNickname"`
+	Side                   string         `json:"Side"`
+	Voice                  string         `json:"Voice"`
+	Level                  int8           `json:"Level"`
+	Experience             int32          `json:"Experience"`
+	RegistrationDate       int32          `json:"RegistrationDate"`
+	GameVersion            string         `json:"GameVersion"`
+	AccountType            int8           `json:"AccountType"`
+	MemberCategory         int8           `json:"MemberCategory"`
+	LockedMoveCommands     bool           `json:"lockedMoveCommands"`
+	SavageLockTime         int32          `json:"SavageLockTime"`
+	LastTimePlayedAsSavage int32          `json:"LastTimePlayedAsSavage"`
+	Settings               map[string]any `json:"Settings"`
+	NicknameChangeDate     int32          `json:"NicknameChangeDate"`
+	NeedWipeOptions        []any          `json:"NeedWipeOptions"`
 	LastCompletedWipe      struct {
 		Oid string `json:"$oid"`
 	} `json:"lastCompletedWipe"`
 	LastCompletedEvent struct {
 		Oid string `json:"$oid"`
 	} `json:"lastCompletedEvent"`
-	BannedState             bool          `json:"BannedState"`
-	BannedUntil             int32         `json:"BannedUntil"`
-	IsStreamerModeAvailable bool          `json:"IsStreamerModeAvailable"`
-	SquadInviteRestriction  bool          `json:"SquadInviteRestriction"`
-	Bans                    []interface{} `json:"Bans"`
+	BannedState             bool  `json:"BannedState"`
+	BannedUntil             int32 `json:"BannedUntil"`
+	IsStreamerModeAvailable bool  `json:"IsStreamerModeAvailable"`
+	SquadInviteRestriction  bool  `json:"SquadInviteRestriction"`
+	Bans                    []any `json:"Bans"`
 }
 
 type InfoSettings struct {

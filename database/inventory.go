@@ -16,8 +16,8 @@ type Inventory struct {
 	SortingTable       string          `json:"sortingTable"`
 	QuestRaidItems     string          `json:"questRaidItems"`
 	QuestStashItems    string          `json:"questStashItems"`
-	FastPanel          interface{}     `json:"fastPanel"`
-	HideoutAreaStashes interface{}     `json:"hideoutAreaStashes"`
+	FastPanel          any             `json:"fastPanel"`
+	HideoutAreaStashes any             `json:"hideoutAreaStashes"`
 }
 
 type InventoryItem struct {
@@ -79,10 +79,10 @@ type FireMode struct {
 }
 
 type InventoryItemLocation struct {
-	IsSearched bool        `json:"isSearched"`
-	R          interface{} `json:"r"`
-	X          interface{} `json:"x"`
-	Y          interface{} `json:"y"`
+	IsSearched bool `json:"isSearched"`
+	R          any  `json:"r"`
+	X          any  `json:"x"`
+	Y          any  `json:"y"`
 }
 
 type InventoryContainer struct {

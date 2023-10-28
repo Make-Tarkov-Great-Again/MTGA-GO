@@ -13,7 +13,7 @@ type ModInfo struct {
 	PackageAlias string
 	MtgaVersion  string `json:"MTGA_Version"`
 	Parameters   *advancedModInfo
-	Config       map[string]interface{} `json:",omitempty"`
+	Config       map[string]any `json:",omitempty"`
 }
 
 type advancedModInfo struct {
@@ -39,7 +39,7 @@ var modBundleDirPaths = make([]string, 0)
 
 var bundleManifests []*Manifest
 
-func (m *ModInfo) GetConfig() map[string]interface{} {
+func (m *ModInfo) GetConfig() map[string]any {
 	return m.Config
 }
 
@@ -203,7 +203,7 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params customItemParams) {
 	}
 }
 
-func (i *DatabaseItem) SetCustomOverrides(overrides map[string]interface{}) {
+func (i *DatabaseItem) SetCustomOverrides(overrides map[string]any) {
 	for key, value := range overrides {
 		switch key {
 		case "_name":
@@ -304,7 +304,7 @@ func setCustomItemLocale(uid string, apiLocale map[string]*customItemLocale) {
 
 type CustomItemAPI struct {
 	Parameters customItemParams
-	Overrides  map[string]interface{} `json:"overrides,omitempty"`
+	Overrides  map[string]any `json:"overrides,omitempty"`
 	Locale     map[string]*customItemLocale
 }
 

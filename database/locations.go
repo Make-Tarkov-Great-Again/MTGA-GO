@@ -36,9 +36,9 @@ func setLocations() {
 	}
 }
 
-var localLoot = make(map[string][]interface{})
+var localLoot = make(map[string][]any)
 
-func GetLocalLootByNameAndIndex(name string, index int8) interface{} {
+func GetLocalLootByNameAndIndex(name string, index int8) any {
 	location, ok := localLoot[name]
 	if !ok {
 		fmt.Println("Location", name, "doesn't exist in localLoot map")
@@ -65,11 +65,11 @@ func setLocalLoot() {
 		name := fileNameSplit[0][:len(fileNameSplit[0])-1]
 
 		if _, ok := localLoot[name]; !ok {
-			localLoot[name] = make([]interface{}, 0, 6)
+			localLoot[name] = make([]any, 0, 6)
 		}
 		filePath := filepath.Join("/locationTest", file)
 
-		formatt := new(interface{})
+		formatt := new(any)
 		readFile, err := tools.ReadFile(filePath)
 		if err != nil {
 			fmt.Println(err)
@@ -152,6 +152,7 @@ type SpawnPointParam struct {
 	Infiltration       string         `json:"Infiltration"`
 	DelayToCanSpawnSec float32        `json:"DelayToCanSpawnSec"`
 	ColliderParams     ColliderParams `json:"ColliderParams"`
+	CorePointId        float32        `json:"CorePointId,omitempty"`
 	BotZoneName        string         `json:"BotZoneName"`
 }
 
@@ -326,7 +327,7 @@ type LocationBase struct {
 	SpawnPointParams               []SpawnPointParam            `json:"SpawnPointParams"` //needs to be checked
 	UnixDateTime                   int32                        `json:"UnixDateTime"`
 	Id                             string                       `json:"_Id"`
-	Doors                          []interface{}                `json:"doors"`
+	Doors                          []any                        `json:"doors"`
 	ExitAccessTime                 int16                        `json:"exit_access_time"`
 	ExitCount                      int8                         `json:"exit_count,omitempty"`
 	ExitTime                       int8                         `json:"exit_time"`

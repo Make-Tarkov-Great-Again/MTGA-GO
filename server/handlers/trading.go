@@ -11,7 +11,7 @@ func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	suites := database.GetStorageByUID(sessionID).Suites
 
-	storage := map[string]interface{}{
+	storage := map[string]any{
 		"_id":    sessionID,
 		"suites": suites,
 	}

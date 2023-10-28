@@ -9,7 +9,7 @@ import (
 
 func LobbyPushNotifier(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Push notification")
-	body := services.ApplyResponseBody([]interface{}{})
+	body := services.ApplyResponseBody([]any{})
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 

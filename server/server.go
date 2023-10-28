@@ -75,7 +75,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 				return
 			}
 
-			var parsedData map[string]interface{}
+			var parsedData map[string]any
 			decoder := json.NewDecoder(buffer)
 			if err := decoder.Decode(&parsedData); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)

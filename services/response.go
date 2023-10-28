@@ -13,16 +13,16 @@ import (
 )
 
 type ResponseBody struct {
-	Err    int         `json:"err"`
-	Errmsg interface{} `json:"errmsg"`
-	Data   interface{} `json:"data"`
+	Err    int `json:"err"`
+	Errmsg any `json:"errmsg"`
+	Data   any `json:"data"`
 }
 
 type CRCResponseBody struct {
-	Err    int         `json:"err"`
-	Errmsg interface{} `json:"errmsg"`
-	Data   interface{} `json:"data"`
-	Crc    *uint32     `json:"crc"`
+	Err    int     `json:"err"`
+	Errmsg any     `json:"errmsg"`
+	Data   any     `json:"data"`
+	Crc    *uint32 `json:"crc"`
 }
 
 const (
@@ -50,7 +50,7 @@ func GetSessionID(r *http.Request) string {
 }
 
 // ApplyCRCResponseBody appends data to CRCResponseBody and returns it
-func ApplyCRCResponseBody(data interface{}, crc *uint32) *CRCResponseBody {
+func ApplyCRCResponseBody(data any, crc *uint32) *CRCResponseBody {
 	body := &CRCResponseBody{}
 	body.Data = data
 	body.Crc = crc
@@ -58,7 +58,7 @@ func ApplyCRCResponseBody(data interface{}, crc *uint32) *CRCResponseBody {
 }
 
 // ApplyResponseBody appends data to ResponseBody and returns it
-func ApplyResponseBody(data interface{}) *ResponseBody {
+func ApplyResponseBody(data any) *ResponseBody {
 	body := &ResponseBody{}
 	body.Data = data
 	return body
@@ -218,7 +218,7 @@ type contextKey string
 
 const ParsedBodyKey contextKey = "ParsedBody"
 
-func GetParsedBody(r *http.Request) interface{} {
+func GetParsedBody(r *http.Request) any {
 	return r.Context().Value(ParsedBodyKey)
 }
 

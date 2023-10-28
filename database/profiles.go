@@ -25,12 +25,12 @@ func CreateProfileChangesEvent(character *Character) *ProfileChangesEvent {
 	output.ProfileChanges[character.ID] = &ProfileChanges{
 		ID:              character.ID,
 		Experience:      character.Info.Experience,
-		Quests:          make([]interface{}, 0),
-		RagfairOffers:   make([]interface{}, 0),
-		WeaponBuilds:    make([]interface{}, 0),
-		EquipmentBuilds: make([]interface{}, 0),
+		Quests:          make([]any, 0),
+		RagfairOffers:   make([]any, 0),
+		WeaponBuilds:    make([]any, 0),
+		EquipmentBuilds: make([]any, 0),
 		Items:           ItemChanges{},
-		Improvements:    make(map[string]interface{}),
+		Improvements:    make(map[string]any),
 		Skills:          character.Skills,
 		Health:          character.Health,
 		TraderRelations: make(map[string]PlayerTradersInfo),
@@ -109,7 +109,7 @@ func SetProfiles() {
 					EquipmentBuilds: make([]*EquipmentBuild, 0),
 					WeaponBuilds:    make([]*WeaponBuild, 0),
 				},
-				Insurance: make([]interface{}, 0),
+				Insurance: make([]any, 0),
 				Mailbox:   make([]*Notification, 0),
 			}
 		}
@@ -216,7 +216,7 @@ type Storage struct {
 	//ID        string                 `json:"_id"`
 	Suites    []string        `json:"suites"`
 	Builds    Builds          `json:"builds"`
-	Insurance []interface{}   `json:"insurance"`
+	Insurance []any           `json:"insurance"`
 	Mailbox   []*Notification `json:"mailbox"`
 }
 
@@ -226,20 +226,20 @@ type Builds struct {
 }
 
 type WeaponBuild struct {
-	ID    string        `json:"id"`
-	Name  string        `json:"name"`
-	Root  string        `json:"root"`
-	Items []interface{} `json:"items"`
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Root  string `json:"root"`
+	Items []any  `json:"items"`
 }
 
 type EquipmentBuild struct {
-	ID        string        `json:"id"`
-	Name      string        `json:"name"`
-	Root      string        `json:"root"`
-	Items     []interface{} `json:"items"`
-	Type      string        `json:"type"`
-	FastPanel []interface{} `json:"fastPanel"`
-	BuildType int8          `json:"buildType"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Root      string `json:"root"`
+	Items     []any  `json:"items"`
+	Type      string `json:"type"`
+	FastPanel []any  `json:"fastPanel"`
+	BuildType int8   `json:"buildType"`
 }
 
 // #endregion
@@ -252,10 +252,10 @@ type ProfileChangesEvent struct {
 }
 
 type Warning struct {
-	Index  int         `json:"index"`
-	Errmsg string      `json:"errmsg"`
-	Code   string      `json:"code,omitempty"`
-	Data   interface{} `json:"data,omitempty"`
+	Index  int    `json:"index"`
+	Errmsg string `json:"errmsg"`
+	Code   string `json:"code,omitempty"`
+	Data   any    `json:"data,omitempty"`
 }
 
 type ItemChanges struct {
@@ -274,20 +274,20 @@ type ItemLocation struct {
 type ProfileChanges struct {
 	ID                    string                       `json:"_id"`
 	Experience            int32                        `json:"experience"`
-	Quests                []interface{}                `json:"quests"`
+	Quests                []any                        `json:"quests"`
 	QuestsStatus          []CharacterQuest             `json:"questsStatus"`
-	RagfairOffers         []interface{}                `json:"ragFairOffers"`
-	WeaponBuilds          []interface{}                `json:"weaponBuilds"`
-	EquipmentBuilds       []interface{}                `json:"equipmentBuilds"`
+	RagfairOffers         []any                        `json:"ragFairOffers"`
+	WeaponBuilds          []any                        `json:"weaponBuilds"`
+	EquipmentBuilds       []any                        `json:"equipmentBuilds"`
 	Items                 ItemChanges                  `json:"items"`
-	Production            *map[string]interface{}      `json:"production"`
-	Improvements          map[string]interface{}       `json:"improvements"`
+	Production            *map[string]any              `json:"production"`
+	Improvements          map[string]any               `json:"improvements"`
 	Skills                PlayerSkills                 `json:"skills"`
 	Health                HealthInfo                   `json:"health"`
 	TraderRelations       map[string]PlayerTradersInfo `json:"traderRelations"`
-	RepeatableQuests      *[]interface{}               `json:"repeatableQuests,omitempty"`
+	RepeatableQuests      *[]any                       `json:"repeatableQuests,omitempty"`
 	RecipeUnlocked        *map[string]bool             `json:"recipeUnlocked,omitempty"`
-	ChangedHideoutStashes *map[string]interface{}      `json:"changedHideoutStashes,omitempty"`
+	ChangedHideoutStashes *map[string]any              `json:"changedHideoutStashes,omitempty"`
 }
 
 // #endregion

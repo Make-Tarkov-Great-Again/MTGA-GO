@@ -46,7 +46,7 @@ func MessagingFriendRequestOutbox(w http.ResponseWriter, r *http.Request) {
 
 func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
 	parsedData := services.GetParsedBody(r)
-	dialogId, _ := parsedData.(map[string]interface{})["dialogId"].(string)
+	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
 
 	dialogues := *database.GetDialogueByUID(services.GetSessionID(r))
 	dialog, ok := dialogues[dialogId]
@@ -114,7 +114,7 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 
 func MessagingMailDialogPin(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	dialogId := services.GetParsedBody(r).(map[string]interface{})["dialogId"].(string)
+	dialogId := services.GetParsedBody(r).(map[string]any)["dialogId"].(string)
 
 	dialogues := *database.GetDialogueByUID(sessionID)
 	dialog, ok := dialogues[dialogId]
@@ -134,7 +134,7 @@ func MessagingMailDialogUnpin(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 
 	parsedData := services.GetParsedBody(r)
-	dialogId, _ := parsedData.(map[string]interface{})["dialogId"].(string)
+	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
 
 	dialogues := *database.GetDialogueByUID(sessionID)
 	dialog, ok := dialogues[dialogId]
@@ -154,7 +154,7 @@ func MessagingMailDialogRemove(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 
 	parsedData := services.GetParsedBody(r)
-	dialogId, _ := parsedData.(map[string]interface{})["dialogId"].(string)
+	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
 
 	dialogues := *database.GetDialogueByUID(sessionID)
 	delete(dialogues, dialogId)
