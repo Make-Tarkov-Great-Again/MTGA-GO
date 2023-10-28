@@ -6,6 +6,7 @@ import (
 	"github.com/goccy/go-json"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type ModInfo struct {
@@ -63,6 +64,12 @@ func SetBundleManifests() {
 		modBundleDirPaths = nil
 	}()
 
+	startTime := time.Now()
+	bundleLoaded := 0
+	totalBundles := 0
+
+	fmt.Printf("\n[BUNDLELOADER : BEGIN]\n")
+
 	isLocal := GetServerConfig().IP == "127.0.0.1"
 	var mainAddress string
 	if !isLocal {
@@ -70,55 +77,64 @@ func SetBundleManifests() {
 	}
 
 	for _, path := range modBundleDirPaths {
-		bundlesJsonPath := filepath.Join(path, "bundles.json")
-
-		var err error
-		if !tools.FileExist(bundlesJsonPath) {
-			err = fmt.Errorf("bundles.json file not located in %s, returning", path)
-			fmt.Println(err)
-			return
-		}
-
 		bundlesSubDirectories, err := tools.GetDirectoriesFrom(path)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		manifests := new(Manifests)
-		data := tools.GetJSONRawMessage(bundlesJsonPath)
-		if err := json.Unmarshal(data, &manifests); err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		for _, manifest := range manifests.Manifests {
-			name := strings.Split(manifest.Key, ".")[0]
-			if _, ok := bundlesSubDirectories[name]; !ok {
-				err = fmt.Errorf("bundle %s does not have a directory in %s", name, path)
+		for subDir := range bundlesSubDirectories {
+			bundleMainDirPath := filepath.Join(path, subDir)
+			bundlesJsonPath := filepath.Join(bundleMainDirPath, "bundles.json")
+			if !tools.FileExist(bundlesJsonPath) {
+				err = fmt.Errorf("bundles.json file not located in %s, returning", path)
 				fmt.Println(err)
 				return
 			}
 
-			bundleDirPath := filepath.Join(path, name)
-			bundlePath := filepath.Join(bundleDirPath, manifest.Key)
-			if !tools.FileExist(bundlePath) {
-				err = fmt.Errorf("bundle %s does not exist in %s", manifest.Key, bundleDirPath)
+			manifests := new(Manifests)
+			data := tools.GetJSONRawMessage(bundlesJsonPath)
+			if err := json.Unmarshal(data, &manifests); err != nil {
 				fmt.Println(err)
 				return
 			}
 
-			manifest.ModPath = bundleDirPath
-			if isLocal {
-				manifest.Path = bundlePath
-			} else {
-				manifest.Path = filepath.Join(mainAddress, "files", "bundle", manifest.Key)
-				manifest.FilePath = manifest.Path
-			}
+			totalBundles += len(manifests.Manifests)
+			for _, manifest := range manifests.Manifests {
+				bundlesFolder := filepath.Join(bundleMainDirPath, "bundles")
 
-			bundleManifests = append(bundleManifests, manifest)
+				split := strings.Split(manifest.Key, "/")
+				var name string
+				if len(split) == 1 {
+					name = split[0]
+				} else {
+					name = strings.Join(split[2:], "/")
+				}
+
+				bundlePath := filepath.Join(bundlesFolder, name)
+				if !tools.FileExist(bundlePath) {
+					err := fmt.Sprintf("bundle %s does not exist in %s", manifest.Key, bundlesFolder)
+					modCritiqueLog[subDir] = append(modCritiqueLog[subDir], err)
+					fmt.Println(err)
+					continue
+				}
+
+				manifest.ModPath = bundlesFolder
+				if isLocal {
+					manifest.Path = bundlePath
+				} else {
+					manifest.Path = filepath.Join(mainAddress, "files", "bundle", manifest.Key)
+					manifest.FilePath = manifest.Path
+				}
+
+				bundleManifests = append(bundleManifests, manifest)
+				bundleLoaded++
+			}
 		}
 	}
+	endTime := time.Now()
+	fmt.Printf("[BUNDLELOADER : COMPLETE] %d of %d bundles loaded in %s\n\n", bundleLoaded, totalBundles, endTime.Sub(startTime))
+
 }
 
 //TODO: When database item is being modified (not cloned) add here with mod-name
@@ -218,13 +234,14 @@ func (i *DatabaseItem) SetCustomOverrides(overrides map[string]any) {
 		case "_proto":
 			i.Proto = value.(string)
 			continue
-		}
-
-		if _, ok := i.Props[key]; !ok {
-			fmt.Println("Could not override property", key, "because it does not exist on the item")
+		default:
+			if _, ok := i.Props[key]; !ok {
+				fmt.Println("Could not override property", key, "because it does not exist on the item")
+			} else {
+				i.Props[key] = value
+			}
 			continue
 		}
-		i.Props[key] = value
 	}
 }
 
@@ -261,7 +278,7 @@ func ProcessCustomItems() {
 		}*/
 }
 
-func setCustomItemLocale(uid string, apiLocale map[string]*customItemLocale) {
+func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 	name := fmt.Sprintf(localeName, uid)
 	shortName := fmt.Sprintf(localeShortName, uid)
 	description := fmt.Sprintf(localeDescription, uid)
@@ -303,25 +320,29 @@ func setCustomItemLocale(uid string, apiLocale map[string]*customItemLocale) {
 }
 
 type CustomItemAPI struct {
-	Parameters customItemParams
+	API        string
+	Parameters CustomItemParams
 	Overrides  map[string]any `json:"overrides,omitempty"`
-	Locale     map[string]*customItemLocale
+	Locale     map[string]*CustomItemLocale
 }
 
-type customItemParams struct {
-	ReferenceItemTPL            string
+type CustomItemParams struct {
+	ReferenceClothingTpl        string `json:",omitempty"`
+	ReferenceItemTPL            string `json:",omitempty"`
+	HandbookPrice               int    `json:",omitempty"`
 	ModifierType                string
-	AddToTrader                 map[string]*customItemAddToTrader `json:",omitempty"`
+	AddToTrader                 map[string]*CustomItemAddToTrader `json:",omitempty"`
 	AdditionalItemCompatibility []*string                         `json:",omitempty"`
+	ItemPresets                 map[string]map[string]any         `json:",omitempty"`
 }
 
-type customItemAddToTrader struct {
+type CustomItemAddToTrader struct {
 	LoyaltyLevel  int8
 	BarterScheme  map[string]float32
 	AmountInStock int16
 }
 
-type customItemLocale struct {
+type CustomItemLocale struct {
 	Name        string
 	ShortName   string
 	Description string

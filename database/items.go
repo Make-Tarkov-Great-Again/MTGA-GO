@@ -401,6 +401,21 @@ func (i *DatabaseItem) GenerateNewUPD() *AssortItemUpd {
 	}
 }
 
+const weaponBaseClass = "5422acb9af1c889c16000029"
+
+func (i *DatabaseItem) IsWeapon() bool {
+	if i.ID == weaponBaseClass {
+		fmt.Println("Why are you looking at the node?")
+		return false
+	}
+
+	if i.Parent == weaponBaseClass || items[i.Parent].Parent == weaponBaseClass {
+		return true
+	}
+
+	return false
+}
+
 // #endregion
 
 // #region Item structs

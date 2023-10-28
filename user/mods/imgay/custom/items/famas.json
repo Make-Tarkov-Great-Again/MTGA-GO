@@ -1,0 +1,263 @@
+{
+  "weapon_famas_556x45": {
+    "API": "item",
+    "Parameters": {
+      "ReferenceItemTPL": "5447a9cd4bdc2dbd208b4567",
+      "HandbookPrice": 34230,
+      "ModifierType": "clone",
+      "AddToTrader": {
+        "58330581ace78e27b8b10cee": {
+          "LoyaltyLevel": 0,
+          "BarterScheme": {
+            "5449016a4bdc2d6f028b456f": 0
+          },
+          "AmountInStock": 0
+        }
+      },
+      "ItemPresets": {
+        "famas_std_presetid": {
+          "_id": "famas_std_presetid",
+          "_type": "Preset",
+          "_changeWeaponName": false,
+          "_name": "FAMAS default",
+          "_encyclopedia": "weapon_famas_556x45",
+          "_parent": "famas_std_id",
+          "_items": [
+            {
+              "_id": "famas_std_id",
+              "_tpl": "weapon_famas_556x45"
+            },
+            {
+              "_id": "famas_std_barrelID",
+              "_tpl": "barrel_famas_488mm",
+              "parentId": "famas_std_id",
+              "slotId": "mod_muzzle"
+            },
+            {
+              "_id": "famas_std_muzzleID",
+              "_tpl": "muzzle_famas_flash_hider",
+              "parentId": "famas_std_barrelID",
+              "slotId": "mod_muzzle"
+            },
+            {
+              "_id": "famas_std_upperID",
+              "_tpl": "upper_famas",
+              "parentId": "famas_std_id",
+              "slotId": "mod_scope"
+            },
+            {
+              "_id": "famas_std_magazineID",
+              "_tpl": "mag_famas_556x45_25",
+              "parentId": "famas_std_id",
+              "slotId": "mod_magazine"
+            }
+          ]
+        },
+        "famas_rails_presetid": {
+          "_id": "famas_rails_presetid",
+          "_type": "Preset",
+          "_changeWeaponName": false,
+          "_name": "FAMAS rails",
+          "_encyclopedia": "weapon_famas_556x45",
+          "_parent": "famas_rails_id",
+          "_items": [
+            {
+              "_id": "famas_rails_id",
+              "_tpl": "weapon_famas_556x45"
+            },
+            {
+              "_id": "famas_rails_barrelID",
+              "_tpl": "barrel_famas_488mm",
+              "parentId": "famas_rails_id",
+              "slotId": "mod_muzzle"
+            },
+            {
+              "_id": "famas_rails_muzzleID",
+              "_tpl": "muzzle_famas_flash_hider",
+              "parentId": "famas_rails_barrelID",
+              "slotId": "mod_muzzle"
+            },
+            {
+              "_id": "famas_rails_upperID",
+              "_tpl": "upper_famas",
+              "parentId": "famas_rails_id",
+              "slotId": "mod_scope"
+            },
+            {
+              "_id": "famas_rails_toprailID",
+              "_tpl": "mount_famas_optic_rail",
+              "parentId": "famas_rails_upperID",
+              "slotId": "mod_mount"
+            },
+            {
+              "_id": "famas_rails_siderailID",
+              "_tpl": "mount_famas_side",
+              "parentId": "famas_rails_id",
+              "slotId": "mod_tactical_002"
+            },
+            {
+              "_id": "famas_rails_bottomrailID",
+              "_tpl": "mount_famas_bottom",
+              "parentId": "famas_rails_id",
+              "slotId": "mod_handguard"
+            },
+            {
+              "_id": "famas_rails_magazineID",
+              "_tpl": "mag_famas_556x45_30",
+              "parentId": "famas_rails_id",
+              "slotId": "mod_magazine"
+            }
+          ]
+        }
+      }
+    },
+    "overrides": {
+      "Slots": [
+        {
+          "_name": "mod_muzzle",
+          "_id": "weapon_famas_556x45_barrel",
+          "_parent": "weapon_famas_556x45",
+          "_props": {
+            "filters": [
+              {
+                "Shift": 0,
+                "Filter": [
+                  "barrel_famas_488mm"
+                ]
+              }
+            ]
+          },
+          "_required": true,
+          "_mergeSlotWithChildren": false,
+          "_proto": "55d30c4c4bdc2db4468b457e"
+        },
+        {
+          "_name": "mod_magazine",
+          "_id": "weapon_famas_556x45_magazine",
+          "_parent": "weapon_famas_556x45",
+          "_props": {
+            "filters": [
+              {
+                "Shift": 0,
+                "Filter": [
+                  "mag_famas_556x45_25",
+                  "mag_famas_556x45_30"
+                ]
+              }
+            ]
+          },
+          "_required": false,
+          "_mergeSlotWithChildren": false,
+          "_proto": "55d30c4c4bdc2db4468b457e"
+        },
+        {
+          "_name": "mod_scope",
+          "_id": "weapon_famas_556x45_scope",
+          "_parent": "weapon_famas_556x45",
+          "_props": {
+            "filters": [
+              {
+                "Shift": 0,
+                "Filter": [
+                  "upper_famas"
+                ]
+              }
+            ]
+          },
+          "_required": true,
+          "_mergeSlotWithChildren": false,
+          "_proto": "55d30c4c4bdc2db4468b457e"
+        },
+        {
+          "_name": "mod_handguard",
+          "_id": "weapon_famas_556x45_handguard",
+          "_parent": "weapon_famas_556x45",
+          "_props": {
+            "filters": [
+              {
+                "Shift": 0,
+                "Filter": [
+                  "mount_famas_bottom"
+                ]
+              }
+            ]
+          },
+          "_required": false,
+          "_mergeSlotWithChildren": false,
+          "_proto": "55d30c4c4bdc2db4468b457e"
+        },
+        {
+          "_name": "mod_tactical_002",
+          "_id": "weapon_famas_556x45_tac02",
+          "_parent": "weapon_famas_556x45",
+          "_props": {
+            "filters": [
+              {
+                "Shift": 0,
+                "Filter": [
+                  "mount_famas_side"
+                ]
+              }
+            ]
+          },
+          "_required": false,
+          "_mergeSlotWithChildren": false,
+          "_proto": "55d30c4c4bdc2db4468b457e"
+        }
+      ],
+      "Prefab": {
+        "path": "assets/content/weapons/famas/weapon_mas_famas_556x45_container.bundle",
+        "rcid": ""
+      },
+      "weapFireType": [
+        "single",
+        "burst",
+        "fullauto"
+      ],
+      "defMagType": "mag_famas_556x45_30",
+      "Chambers": [
+        {
+          "_name": "patron_in_weapon",
+          "_id": "weapon_famas_556x45_chamber",
+          "_parent": "weapon_famas_556x45",
+          "_props": {
+            "filters": [
+              {
+                "Filter": [
+                  "59e6920f86f77411d82aa167",
+                  "59e6927d86f77411da468256",
+                  "54527a984bdc2d4e668b4567",
+                  "54527ac44bdc2d36668b4567",
+                  "59e68f6f86f7746c9f75e846",
+                  "59e6906286f7746c9f75e847",
+                  "59e690b686f7746c9f75e848",
+                  "59e6918f86f7746c9f75e849",
+                  "60194943740c5d77f6705eea",
+                  "601949593ae8f707c4608daa",
+                  "5c0d5ae286f7741e46554302"
+                ]
+              }
+            ]
+          },
+          "_required": false,
+          "_mergeSlotWithChildren": false,
+          "_proto": "55d4af244bdc2d962f8b4571"
+        }
+      ],
+      "CameraRecoil": 0.12,
+      "CameraSnap": 3.5,
+      "ReloadMode": "ExternalMagazine",
+      "CenterOfImpact": 0.01,
+      "AimPlane": 0.16,
+      "DeviationCurve": 1.35,
+      "DeviationMax": 23
+    },
+    "locale": {
+      "en": {
+        "Name": "GIAT FAMAS 5.56x45 Assault Rifle",
+        "ShortName": "FAMAS",
+        "Description": "The FAMAS (Fusil d'Assaut de la Manufacture d'Armes de Saint-Étienne) is a bullpup assault rifle designed and manufactured in France by MAS in 1978. The FAMAS is recognised for its high rate of fire at 1,100 rounds per minute."
+      }
+    }
+  }
+}

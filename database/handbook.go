@@ -10,6 +10,7 @@ import (
 )
 
 var handbook = Handbook{}
+var handbookIndex = map[string]int16{}
 var prices = make(map[string]*int32)
 
 // #region Handbook getters
@@ -44,13 +45,42 @@ func setHandbook() {
 		log.Fatalln(err)
 	}
 
-	for _, v := range handbook.Items {
+	for idx, v := range handbook.Items {
+		handbookIndex[v.Id] = int16(idx)
 		prices[v.Id] = &v.Price
 	}
 }
 
+func (i *DatabaseItem) GetHandbookItemEntry() *HandbookItem {
+	idx, ok := handbookIndex[i.ID]
+	if !ok {
+		fmt.Println("Entry doesn't exist, returning nil")
+		return nil
+	}
+	return &handbook.Items[idx]
+}
+
+func (i *DatabaseItem) CloneHandbookItemEntry() *HandbookItem {
+	handbookEntry := i.GetHandbookItemEntry()
+	if handbookEntry == nil {
+		fmt.Println("Could not create clone of entry, returning nil")
+		return nil
+	}
+	return &HandbookItem{
+		Id:       "",
+		ParentId: handbookEntry.ParentId,
+		Price:    0,
+	}
+}
+
+func (hbi *HandbookItem) SetHandbookItemEntry() {
+	handbook.Items = append(handbook.Items, *hbi)
+	handbookIndex[hbi.Id] = int16(len(handbook.Items) - 1)
+}
+
 func SetHandbookItemEntry(entry HandbookItem) {
 	handbook.Items = append(handbook.Items, entry)
+	handbookIndex[entry.Id] = int16(len(handbook.Items) - 1)
 }
 
 // #endregion

@@ -12,7 +12,6 @@ import (
 )
 
 var bundlesToLoad = []string{
-	"D:\\Repos\\MT-GO\\user\\mods\\ExampleMod\\bundles",
 	"D:\\Repos\\MT-GO\\user\\mods\\imgay\\bundles",
 }
 
@@ -24,8 +23,6 @@ func Init() {
 		formattedPath := strings.Replace(path, "\\\\", "\\", -1)
 		database.AddModBundleDirPath(formattedPath)
 	}
-	//ExampleMod.Mod("D:\\Repos\\MT-GO\\user\\mods\\ExampleMod")
-	//LiveFleaPrices.Mod("D:\\Repos\\MT-GO\\user\\mods\\LiveFleaPrices")
 	imgay.Mod("D:\\Repos\\MT-GO\\user\\mods\\imgay")
 
 	endTime := time.Now()
