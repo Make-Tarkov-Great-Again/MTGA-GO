@@ -18,7 +18,7 @@ var smallBox = map[string]*database.CustomItemAPI{
 					AmountInStock: 2,
 				},
 			},
-			ri
+			ItemPresets: map[string]map[string]any{},
 		},
 	},
 }
