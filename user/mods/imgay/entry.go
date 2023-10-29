@@ -31,7 +31,7 @@ func Mod(dir string) {
 		}
 
 		database.SortAndQueueCustomItems(modConfig.PackageName, items.Test9)
-		database.SortAndQueueCustomItems(modConfig.PackageName, items.Famas)
+		database.SortAndQueueCustomItems(modConfig.PackageName, items.FAMAS)
 
 	}
 

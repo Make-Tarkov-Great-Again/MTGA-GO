@@ -21,9 +21,9 @@ var Test9 = map[string]*database.CustomItemAPI{
 		},
 		Locale: map[string]*database.CustomItemLocale{
 			"en": {
-				Name: "Sombrero",
-				ShortName: "Sombrero",
-				Description: "A traditional and iconic type of wide-brimmed hat that is commonly associated with Mexican culture"
+				Name:        "Sombrero",
+				ShortName:   "Sombrero",
+				Description: "A traditional and iconic type of wide-brimmed hat that is commonly associated with Mexican culture",
 			},
 		},
 	},

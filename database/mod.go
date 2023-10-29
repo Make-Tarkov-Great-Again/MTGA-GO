@@ -193,7 +193,7 @@ func (i *DatabaseItem) GenerateTraderAssortItem() *AssortItem {
 	return assortItem
 }
 
-func (i *DatabaseItem) GenerateTraderAssortEntry(params customItemParams) {
+func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 	assortItem := i.GenerateTraderAssortItem()
 
 	for tid, traderParams := range params.AddToTrader {
@@ -263,7 +263,7 @@ func ProcessCustomItems() {
 		itemClone := itemsDatabase[api.Parameters.ReferenceItemTPL].Clone()
 		itemClone.ID = uid
 
-		itemClone.GenerateTraderAssortEntry(api.Parameters)
+		itemClone.GenerateTraderAssortEntry(&api.Parameters)
 		if api.Overrides != nil || len(api.Overrides) != 0 {
 			itemClone.SetCustomOverrides(api.Overrides)
 		}
@@ -320,10 +320,11 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 }
 
 type CustomItemAPI struct {
-	API        string
-	Parameters CustomItemParams
-	Overrides  map[string]any `json:"overrides,omitempty"`
-	Locale     map[string]*CustomItemLocale
+	API         string
+	Parameters  CustomItemParams
+	Overrides   map[string]any `json:"overrides,omitempty"`
+	Locale      map[string]*CustomItemLocale
+	ItemPresets map[string]*CustomItemPreset `json:",omitempty"`
 }
 
 type CustomItemParams struct {
@@ -333,7 +334,16 @@ type CustomItemParams struct {
 	ModifierType                string
 	AddToTrader                 map[string]*CustomItemAddToTrader `json:",omitempty"`
 	AdditionalItemCompatibility []*string                         `json:",omitempty"`
-	ItemPresets                 map[string]map[string]any         `json:",omitempty"`
+}
+
+type CustomItemPreset struct {
+	Id               string           `json:"_id"`
+	Type             string           `json:"_type"`
+	ChangeWeaponName bool             `json:"_changeWeaponName"`
+	Name             string           `json:"_name"`
+	Encyclopedia     string           `json:"_encyclopedia"`
+	Parent           string           `json:"_parent"`
+	Items            []*InventoryItem `json:"_items"`
 }
 
 type CustomItemAddToTrader struct {

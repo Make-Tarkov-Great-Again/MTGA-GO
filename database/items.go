@@ -186,6 +186,7 @@ type Slot struct {
 	Proto                 string    `json:"_proto"`
 }
 type SlotFilters struct {
+	Shift  int      `json:"Shift,omitempty"`
 	Filter []string `json:"Filter"`
 }
 type SlotProps struct {

@@ -24,8 +24,8 @@ type InventoryItem struct {
 	ID       string                 `json:"_id"`
 	TPL      string                 `json:"_tpl,omitempty"`
 	Location *InventoryItemLocation `json:"location,omitempty"`
-	ParentID *string                `json:"parentId,omitempty"`
-	SlotID   *string                `json:"slotId,omitempty"`
+	ParentID string                 `json:"parentId,omitempty"`
+	SlotID   string                 `json:"slotId,omitempty"`
 	UPD      *InventoryItemUpd      `json:"upd,omitempty"`
 }
 
@@ -119,7 +119,7 @@ func CreateNewItem(TPL string, parent string) *InventoryItem {
 	item := new(InventoryItem)
 
 	item.ID = tools.GenerateMongoID()
-	item.ParentID = &parent
+	item.ParentID = parent
 	item.TPL = TPL
 
 	return item
@@ -169,11 +169,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 	for index := range ic.Lookup.Reverse {
 		itemInInventory := inventory.Items[index]
-		if itemInInventory.ParentID == nil ||
-			*itemInInventory.ParentID != inventory.Stash ||
-			itemInInventory.SlotID == nil ||
-			*itemInInventory.SlotID != "hideout" ||
-			itemInInventory.Location == nil {
+		if itemInInventory.ParentID == "" || itemInInventory.ParentID != inventory.Stash || itemInInventory.SlotID != "hideout" || itemInInventory.Location == nil {
 			continue
 		}
 
@@ -460,8 +456,8 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 		convertedIDs[inventoryItem.ID] = newId
 		inventoryItem.ID = newId
 
-		if *inventoryItem.SlotID == "hideout" && *inventoryItem.ParentID == "hideout" {
-			inventoryItem.ParentID = stashID
+		if inventoryItem.SlotID == "hideout" && inventoryItem.ParentID == "hideout" {
+			inventoryItem.ParentID = *stashID
 
 			parent = inventoryItem
 			continue
@@ -473,11 +469,11 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 	output = append(output, *parent)
 
 	for _, item := range output {
-		CID, ok := convertedIDs[*item.ParentID]
+		CID, ok := convertedIDs[item.ParentID]
 		if !ok {
 			continue
 		}
-		item.ParentID = &CID
+		item.ParentID = CID
 	}
 	return output
 }
@@ -495,11 +491,11 @@ func AssignNewIDs(inventoryItems []InventoryItem) []InventoryItem {
 	}
 
 	for _, item := range output {
-		CID, ok := convertedIDs[*item.ParentID]
+		CID, ok := convertedIDs[item.ParentID]
 		if !ok {
 			continue
 		}
-		item.ParentID = &CID
+		item.ParentID = CID
 	}
 	return output
 }
@@ -519,11 +515,11 @@ func GetInventoryItemFamilyTreeIDs(items []InventoryItem, parent string) []strin
 	var list []string
 
 	for _, childItem := range items {
-		if childItem.ParentID == nil {
+		if childItem.ParentID == "" {
 			continue
 		}
 
-		if *childItem.ParentID == parent {
+		if childItem.ParentID == parent {
 			list = append(list, GetInventoryItemFamilyTreeIDs(items, childItem.ID)...)
 		}
 	}
@@ -591,7 +587,7 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 		if parentFolded || childFolded {
 			continue
 		} else if (foldablePropertyExists && canFold) &&
-			*itemInInventory.SlotID == foldedSlotID &&
+			itemInInventory.SlotID == foldedSlotID &&
 			(parentFolded || childFolded) {
 			continue
 		}
@@ -678,7 +674,7 @@ func MeasurePurchaseForInventoryMapping(items []InventoryItem) (int8, int8) {
 		if parentFolded || childFolded {
 			continue
 		} else if (foldablePropertyExists && canFold) &&
-			*item.SlotID == foldedSlotID &&
+			item.SlotID == foldedSlotID &&
 			(parentFolded || childFolded) {
 			continue
 		}
