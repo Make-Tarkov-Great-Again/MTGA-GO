@@ -3,11 +3,12 @@ package database
 import (
 	"MT-GO/tools"
 	"fmt"
-	"github.com/goccy/go-json"
 	"log"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/goccy/go-json"
 )
 
 type ModInfo struct {
@@ -223,13 +224,11 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 	assortItem := i.GenerateTraderAssortItem()
 
 	for tid, traderParams := range params.AddToTrader {
-		schemes := map[string][]*Scheme{}
-
 		trader := GetTraderByUID(tid)
 		if trader == nil {
 			trader = GetTraderByName(tid)
 			if trader == nil {
-				//TODO: Inform about error
+				// TODO: Inform about error
 				fmt.Println("TraderId/Name", tid, "is not valid, returning...")
 				return
 			}
@@ -238,17 +237,21 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 		for _, barterScheme := range traderParams {
 			barterId := tools.GenerateMongoID()
 			assortItem.ID = barterId
-			schemes[barterId] = make([]*Scheme, 0, len(barterScheme.BarterScheme))
+			schemes := make([]*Scheme, 0, len(barterScheme.BarterScheme))
 
 			for bid, value := range barterScheme.BarterScheme {
 				scheme := new(Scheme)
 				scheme.Tpl = bid
 				scheme.Count = value
 
-				schemes[barterId] = append(schemes[barterId], scheme)
+				schemes = append(schemes, scheme)
 			}
 			trader.Assort.LoyalLevelItems[barterId] = barterScheme.LoyaltyLevel
 
+			if trader.Assort.BarterScheme[barterId] == nil {
+				trader.Assort.BarterScheme[barterId] = make([][]*Scheme, 0)
+			}
+			trader.Assort.BarterScheme[barterId] = append(trader.Assort.BarterScheme[barterId], schemes)
 			trader.Assort.Items = append(trader.Assort.Items, assortItem)
 		}
 	}
