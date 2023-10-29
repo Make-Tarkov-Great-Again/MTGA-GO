@@ -367,8 +367,8 @@ type CustomItemParams struct {
 	ReferenceItemTPL            string `json:",omitempty"`
 	HandbookPrice               int    `json:",omitempty"`
 	ModifierType                string
-	AddToTrader                 map[string]*CustomItemAddToTrader `json:",omitempty"`
-	AdditionalItemCompatibility []*string                         `json:",omitempty"`
+	AddToTrader                 map[string][]*CustomItemAddToTrader `json:",omitempty"`
+	AdditionalItemCompatibility []*string                           `json:",omitempty"`
 }
 
 type CustomItemPreset struct {

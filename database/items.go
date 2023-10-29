@@ -166,7 +166,7 @@ type GridProps struct {
 	CellsV         int8          `json:"cellsV"`
 	MinCount       int8          `json:"minCount"`
 	MaxCount       int8          `json:"maxCount"`
-	MaxWeight      int8          `json:"maxWeight"`
+	MaxWeight      int16         `json:"maxWeight"`
 	IsSortingTable bool          `json:"isSortingTable"`
 }
 
