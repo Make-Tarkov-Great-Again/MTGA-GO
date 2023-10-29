@@ -364,11 +364,11 @@ func (c *Character) MoveItemInStash(moveAction map[string]any, profileChangesEve
 		itemInInventory.Location = nil
 	}
 
-	itemInInventory.ParentID = &move.To.ID
-	itemInInventory.SlotID = &move.To.Container
+	itemInInventory.ParentID = move.To.ID
+	itemInInventory.SlotID = move.To.Container
 
 	cache.UpdateItemFlatMapLookup([]InventoryItem{*itemInInventory})
-	if *itemInInventory.SlotID != "hideout" {
+	if itemInInventory.SlotID != "hideout" {
 		cache.ClearItemFromContainerMap(move.Item)
 	} else {
 		cache.AddItemFromContainerMap(move.Item)
@@ -416,8 +416,8 @@ func (c *Character) SwapItemInStash(moveAction map[string]any, profileChangesEve
 		itemInInventory.Location = nil
 	}
 
-	itemInInventory.ParentID = &swap.To.ID
-	itemInInventory.SlotID = &swap.To.Container
+	itemInInventory.ParentID = swap.To.ID
+	itemInInventory.SlotID = swap.To.Container
 
 	cache = GetCacheByUID(c.ID).Inventory.Lookup.Forward[swap.Item2]
 	itemInInventory = &c.Inventory.Items[cache]
@@ -441,8 +441,8 @@ func (c *Character) SwapItemInStash(moveAction map[string]any, profileChangesEve
 		itemInInventory.Location = nil
 	}
 
-	itemInInventory.ParentID = &swap.To2.ID
-	itemInInventory.SlotID = &swap.To2.Container
+	itemInInventory.ParentID = swap.To2.ID
+	itemInInventory.SlotID = swap.To2.Container
 
 	profileChangesEvent.ProfileChanges[c.ID].Production = nil
 }
@@ -607,8 +607,8 @@ func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *Pr
 			X:          split.Container.Location.X,
 			Y:          split.Container.Location.Y,
 		},
-		ParentID: &split.Container.ID,
-		SlotID:   &split.Container.Container,
+		ParentID: split.Container.ID,
+		SlotID:   split.Container.Container,
 	}
 
 	if split.Container.Location.R == "Vertical" {
@@ -693,13 +693,13 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]any) {
 		if !ok {
 			log.Fatalln("Cannot type assert item `parentId` property from Auto-Sort items slice")
 		}
-		itemInInventory.ParentID = &parent
+		itemInInventory.ParentID = parent
 
 		slotId, ok := properties["slotId"].(string)
 		if !ok {
 			log.Fatalln("Cannot type assert item `slotId` property from Auto-Sort items slice")
 		}
-		itemInInventory.SlotID = &slotId
+		itemInInventory.SlotID = slotId
 
 		location, ok := properties["location"].(map[string]any)
 		if !ok {

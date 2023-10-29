@@ -4,6 +4,7 @@ import (
 	"MT-GO/tools"
 	"fmt"
 	"github.com/goccy/go-json"
+	"log"
 	"path/filepath"
 	"strings"
 	"time"
@@ -147,6 +148,25 @@ var modCritiqueLog = make(map[string][]string)
 var itemsClone = make(map[string]*CustomItemAPI)
 var itemsEdit = make(map[string]*CustomItemAPI)
 
+func ParseCustomItemAPI(customDirectory string) map[string]*CustomItemAPI {
+	itemFilesDir := filepath.Join(customDirectory, "items")
+	itemFiles, err := tools.GetFilesFrom(itemFilesDir)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	customItems := make(map[string]*CustomItemAPI)
+	for file := range itemFiles {
+		filePath := filepath.Join(itemFilesDir, file)
+		if err := json.Unmarshal(tools.GetJSONRawMessage(filePath), &customItems); err != nil {
+			log.Println(err)
+			return nil
+		}
+	}
+	return customItems
+}
+
 const overwriteNotification = "%s is trying to overwrite %s for item %s. The mod developers will be notified to apply changes!"
 
 func SortAndQueueCustomItems(modName string, items map[string]*CustomItemAPI) {
@@ -184,11 +204,17 @@ func SortAndQueueCustomItems(modName string, items map[string]*CustomItemAPI) {
 
 func (i *DatabaseItem) GenerateTraderAssortItem() *AssortItem {
 	assortItem := new(AssortItem)
-	assortItem.ID = tools.GenerateMongoID()
+	assortItem.ID = ""
 	assortItem.Tpl = i.ID
 	assortItem.ParentID = "hideout"
 	assortItem.SlotID = "hideout"
-	assortItem.Upd = *i.GenerateNewUPD()
+
+	upd := i.GenerateNewUPD()
+	if upd == nil {
+		return assortItem
+	}
+
+	assortItem.Upd = *upd
 
 	return assortItem
 }
@@ -199,23 +225,32 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 	for tid, traderParams := range params.AddToTrader {
 		schemes := map[string][]*Scheme{}
 
-		assort := GetTraderByUID(tid).Assort
-		if assort == nil {
-			tid = *GetTraderIDByName(tid)
-			assort = GetTraderByUID(tid).Assort
+		trader := GetTraderByUID(tid)
+		if trader == nil {
+			trader = GetTraderByName(tid)
+			if trader == nil {
+				//TODO: Inform about error
+				fmt.Println("TraderId/Name", tid, "is not valid, returning...")
+				return
+			}
 		}
 
-		schemes[tid] = make([]*Scheme, 0, len(traderParams.BarterScheme))
-		for bid, value := range traderParams.BarterScheme {
-			scheme := new(Scheme)
-			scheme.Tpl = bid
-			scheme.Count = value
+		for _, barterScheme := range traderParams {
+			barterId := tools.GenerateMongoID()
+			assortItem.ID = barterId
+			schemes[barterId] = make([]*Scheme, 0, len(barterScheme.BarterScheme))
 
-			schemes[tid] = append(schemes[tid], scheme)
+			for bid, value := range barterScheme.BarterScheme {
+				scheme := new(Scheme)
+				scheme.Tpl = bid
+				scheme.Count = value
+
+				schemes[barterId] = append(schemes[barterId], scheme)
+			}
+			trader.Assort.LoyalLevelItems[barterId] = barterScheme.LoyaltyLevel
+
+			trader.Assort.Items = append(trader.Assort.Items, assortItem)
 		}
-		assort.LoyalLevelItems[i.ID] = traderParams.LoyaltyLevel
-
-		assort.Items = append(assort.Items, assortItem)
 	}
 }
 
@@ -347,6 +382,8 @@ type CustomItemPreset struct {
 }
 
 type CustomItemAddToTrader struct {
+	//Set allows you to create a full weapon for the trader
+	Set           map[string]any `json:",omitempty"`
 	LoyaltyLevel  int8
 	BarterScheme  map[string]float32
 	AmountInStock int16

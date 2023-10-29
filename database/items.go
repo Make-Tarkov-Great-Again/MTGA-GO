@@ -69,12 +69,14 @@ func ItemClone(item string) *DatabaseItem {
 func (i *DatabaseItem) Clone() *DatabaseItem {
 	clone := new(DatabaseItem)
 
-	clone.ID = i.ID
-	clone.Name = i.Name
-	clone.Parent = i.Parent
-	clone.Type = i.Type
-	clone.Props = i.Props
-	clone.Proto = i.Proto
+	data, err := json.Marshal(i)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := json.Unmarshal(data, &clone); err != nil {
+		log.Fatal(err)
+	}
 
 	return clone
 }
@@ -128,6 +130,23 @@ func (i *DatabaseItem) GetItemForcedSize(sizes *sizes) {
 		sizes.SizeLeft = max(sizes.SizeLeft, extraSizeLeft)
 		sizes.SizeRight = max(sizes.SizeRight, extraSizeRight)
 	}
+}
+
+type Cartridges struct {
+	Name     string           `json:"_name"`
+	Id       string           `json:"_id"`
+	Parent   string           `json:"_parent"`
+	MaxCount int              `json:"_max_count"`
+	Props    CartridgeFilters `json:"_props"`
+	Proto    string           `json:"_proto"`
+}
+
+type CartridgeFilters struct {
+	Filters []CartridgeFilter `json:"filters"`
+}
+
+type CartridgeFilter struct {
+	Filter []string `json:"Filter"`
 }
 
 type Grid struct {

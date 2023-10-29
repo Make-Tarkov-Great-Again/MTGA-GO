@@ -32,6 +32,10 @@ func Mod(dir string) {
 
 		database.SortAndQueueCustomItems(modConfig.PackageName, items.Test9)
 		database.SortAndQueueCustomItems(modConfig.PackageName, items.FAMAS)
+		database.SortAndQueueCustomItems(modConfig.PackageName, items.RationCard)
+		database.SortAndQueueCustomItems(modConfig.PackageName, items.HQImprovisedArmorRig)
+		database.SortAndQueueCustomItems(modConfig.PackageName, items.BigBox)
+		database.SortAndQueueCustomItems(modConfig.PackageName, items.SmallBox)
 
 	}
 
