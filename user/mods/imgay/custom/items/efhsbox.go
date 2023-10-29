@@ -19,5 +19,9 @@ var smallBox = map[string]*database.CustomItemAPI{
 				},
 			},
 		},
+		ItemPresets: map[string]*database.CustomItemPreset{},
+		Overrides: map[string]any{
+			"Grids": map[string]any{},
+		},
 	},
 }
