@@ -27,6 +27,10 @@ var FAMAS = map[string]*database.CustomItemAPI{
 			},
 		},
 		Overrides: map[string]any{
+			"Prefab": database.Prefab{
+				Path: "assets/content/weapons/famas/weapon_mas_famas_556x45_container.bundle",
+				Rcid: "",
+			},
 			"Slots": []*database.Slot{
 				{
 					Name:   "mod_muzzle",
@@ -122,7 +126,6 @@ var FAMAS = map[string]*database.CustomItemAPI{
 			},
 			"CameraRecoil":   0.12,
 			"CameraSnap":     3.5,
-			"ReloadMode":     "ExternalMagazine",
 			"CenterOfImpact": 0.01,
 			"AimPlane":       0.16,
 			"DeviationCurve": 1.35,
@@ -132,7 +135,33 @@ var FAMAS = map[string]*database.CustomItemAPI{
 				"burst",
 				"fullauto",
 			},
-			"defMagType": "mag_famas_556x45_30",
+			"defMagType":                  "mag_famas_556x45_30",
+			"isFastReload":                true,
+			"RecoilForceUp":               90,
+			"RecoilForceBack":             350,
+			"Convergence":                 1.5,
+			"RecoilAngle":                 90,
+			"RecolDispersion":             25,
+			"SingleFireRate":              450,
+			"CanQueueSecondShot":          true,
+			"bFirerate":                   1100,
+			"Ergonomics":                  76,
+			"Velocity":                    0,
+			"bEffDist":                    300,
+			"bHearDist":                   80,
+			"HipAccuracyRestorationDelay": 0.2,
+			"HipAccuracyRestorationSpeed": 7,
+			"HipInnaccuracyGain":          0.16,
+			"AimSensitivity":              0.65,
+			"BurstShotsCount":             3,
+			"BaseMalfunctionChance":       0.1595,
+			"DurabilityBurnRatio":         1.15,
+			"HeatFactorGun":               1,
+			"CoolFactorGun":               3.168,
+			"CoolFactorGunMods":           1,
+			"HeatFactorByShot":            1.235,
+			"DoubleActionAccuracyPenalty": 1.5,
+			"RecoilPosZMult":              1,
 			"Chambers": []database.Slot{
 				{
 					Name:   "patron_in_weapon",
@@ -257,6 +286,73 @@ var FAMAS = map[string]*database.CustomItemAPI{
 						SlotID:   "mod_magazine",
 					},
 				},
+			},
+		},
+	},
+	"upper_famas": {
+		API: "item",
+		Parameters: database.CustomItemParams{
+			ReferenceItemTPL: "55d355e64bdc2d962f8b4569",
+			HandbookPrice:    22640,
+			ModifierType:     "clone",
+			AddToTrader: map[string]*database.CustomItemAddToTrader{
+				"Peacekeeper": {
+					LoyaltyLevel: 0,
+					BarterScheme: map[string]float32{
+						"5449016a4bdc2d6f028b456f": 22640,
+					},
+					AmountInStock: 0,
+				},
+			},
+		},
+		Locale: map[string]*database.CustomItemLocale{
+			"en": {
+				Name:        "Upper part for GIAT FAMAS",
+				ShortName:   "FAMAS Upper",
+				Description: "Standard upper part manufactured by GIAT for FAMAS assault rifle 5.56x45.",
+			},
+		},
+		Overrides: map[string]any{
+			"Prefab": map[string]any{
+				"path": "assets/content/items/mods/famas/upper_famas.bundle",
+				"rcid": "",
+			},
+			"Slots": []map[string]any{
+				{
+					"_name":   "mod_mount",
+					"_id":     "upper_famas_mount",
+					"_parent": "upper_famas",
+					"_props": map[string]any{
+						"filters": []map[string]any{
+							{
+								"Shift": 0,
+								"Filter": []string{
+									"mount_famas_optic_rail",
+								},
+							},
+						},
+					},
+					"_required":              false,
+					"_mergeSlotWithChildren": false,
+					"_proto":                 "55d30c4c4bdc2db4468b457e",
+				},
+			},
+		},
+	},
+	"mag_famas_556x45_25": {
+		API: "",
+		Parameters: database.CustomItemParams{
+			ReferenceItemTPL: "",
+			HandbookPrice:    0,
+			ModifierType:     "",
+			AddToTrader:      nil,
+		},
+		Overrides: map[string]any{},
+		Locale: map[string]*database.CustomItemLocale{
+			"en": {
+				Name:        "GIAT FAMAS 5.56x45 25-round box magazine",
+				ShortName:   "FAMAS 25",
+				Description: "25-round standard GIAT FAMAS metal magazine for 5.56x45 NATO cartridges.",
 			},
 		},
 	},
