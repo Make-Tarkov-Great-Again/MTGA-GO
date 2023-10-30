@@ -72,8 +72,12 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 			for trader, loyalty := range forStart.TraderLoyalty {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := float64(GetTraderByUID(trader).GetTraderLoyaltyLevel(c))
-					traderStandings[trader] = &loyaltyLevel
+					if data, err := GetTraderByUID(trader); err != nil {
+						log.Fatalln(err)
+					} else {
+						loyaltyLevel := float64(data.GetTraderLoyaltyLevel(c))
+						traderStandings[trader] = &loyaltyLevel
+					}
 				}
 
 				loyaltyCheck = services.LevelComparisonCheck(
@@ -92,8 +96,12 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 			for trader, loyalty := range forStart.TraderStanding {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := float64(GetTraderByUID(trader).GetTraderLoyaltyLevel(c))
-					traderStandings[trader] = &loyaltyLevel
+					if data, err := GetTraderByUID(trader); err != nil {
+						log.Fatalln(err)
+					} else {
+						loyaltyLevel := float64(data.GetTraderLoyaltyLevel(c))
+						traderStandings[trader] = &loyaltyLevel
+					}
 				}
 
 				standingCheck = services.LevelComparisonCheck(
@@ -281,7 +289,12 @@ func (c *Character) ExamineItem(moveAction map[string]any) {
 	} else {
 		switch examine.FromOwner.Type {
 		case "Trader":
-			assortItem := GetTraderByUID(examine.FromOwner.ID).GetAssortItemByID(examine.Item)
+			data, err := GetTraderByUID(examine.FromOwner.ID)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			assortItem := data.GetAssortItemByID(examine.Item)
 			item = GetItemByUID(assortItem[0].Tpl)
 
 		case "HideoutUpgrade":
@@ -791,7 +804,10 @@ func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEven
 }
 
 func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
-	trader := GetTraderByUID(tradeConfirm.TID)
+	trader, err := GetTraderByUID(tradeConfirm.TID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	assortItem := trader.GetAssortItemByID(tradeConfirm.ItemID)
 	if assortItem == nil {
@@ -940,9 +956,12 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 }
 
 func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
+	trader, err := GetTraderByUID(tradeConfirm.TID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	trader := GetTraderByUID(tradeConfirm.TID).Base
-	saleCurrency := *GetCurrencyByName(trader.Currency)
+	saleCurrency := *GetCurrencyByName(trader.Base.Currency)
 
 	var remainingBalance = tradeConfirm.Price
 	stackMaxSize := *GetItemByUID(saleCurrency).GetStackMaxSize()
@@ -1062,7 +1081,10 @@ func (c *Character) CustomizationBuy(moveAction map[string]any) {
 		log.Fatalln(err)
 	}
 
-	trader := GetTraderByName("Ragman")
+	trader, err := GetTraderByName("Ragman")
+	if err != nil {
+		log.Fatalln(err)
+	}
 	suitsIndex := trader.Index.Suits[customizationBuy.Offer]
 	suitID := trader.Suits[suitsIndex].SuiteID
 

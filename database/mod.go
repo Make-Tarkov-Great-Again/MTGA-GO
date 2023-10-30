@@ -203,56 +203,99 @@ func SortAndQueueCustomItems(modName string, items map[string]*CustomItemAPI) {
 	}
 }
 
-func (i *DatabaseItem) GenerateTraderAssortItem() *AssortItem {
+func (i *DatabaseItem) GenerateTraderAssortSingleItem() []*AssortItem {
 	assortItem := new(AssortItem)
-	assortItem.ID = ""
+	assortItem.ID = tools.GenerateMongoID()
 	assortItem.Tpl = i.ID
 	assortItem.ParentID = "hideout"
 	assortItem.SlotID = "hideout"
 
-	upd := i.GenerateNewUPD()
-	if upd == nil {
-		return assortItem
+	if upd, err := i.GenerateNewUPD(); err != nil {
+		return []*AssortItem{assortItem}
+	} else {
+		assortItem.Upd = *upd
 	}
 
-	assortItem.Upd = *upd
+	return []*AssortItem{assortItem}
+}
 
-	return assortItem
+func ProcessCustomItemSet(parentId string, set map[string]any) []*AssortItem {
+	if set == nil {
+		return make([]*AssortItem, 0)
+	}
+	output := make([]*AssortItem, 0, len(set))
+
+	for slotId, value := range set {
+		setData, ok := value.(map[string]any)
+		if !ok {
+			fmt.Println()
+		}
+
+		attachment := new(AssortItem)
+		attachment.ID = tools.GenerateMongoID()
+		attachment.Tpl = setData["_tpl"].(string)
+		attachment.ParentID = parentId
+		attachment.SlotID = slotId
+		output = append(output, attachment)
+
+		attachments, ok := setData["attachments"].(map[string]any)
+		if !ok {
+			continue
+		}
+
+		subAttachments := ProcessCustomItemSet(attachment.ID, attachments)
+		output = append(output, subAttachments...)
+	}
+
+	return output
+}
+
+func (i *DatabaseItem) GenerateTraderAssortPresetItem(set map[string]any) []*AssortItem {
+	parent := i.GenerateTraderAssortSingleItem()
+	children := ProcessCustomItemSet(parent[0].ID, set)
+	parent = append(parent, children...)
+	return parent
 }
 
 func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
-	assortItem := i.GenerateTraderAssortItem()
 
 	for tid, traderParams := range params.AddToTrader {
-		trader := GetTraderByUID(tid)
-		if trader == nil {
-			trader = GetTraderByName(tid)
-			if trader == nil {
+		trader, err := GetTraderByUID(tid)
+		if err != nil {
+			trader, err = GetTraderByName(tid)
+			if err != nil {
 				// TODO: Inform about error
 				fmt.Println("TraderId/Name", tid, "is not valid, returning...")
 				return
 			}
 		}
 
-		for _, barterScheme := range traderParams {
-			barterId := tools.GenerateMongoID()
-			assortItem.ID = barterId
-			schemes := make([]*Scheme, 0, len(barterScheme.BarterScheme))
+		for _, barter := range traderParams {
+			var assortItem []*AssortItem
+			if barter.Set != nil {
+				assortItem = i.GenerateTraderAssortPresetItem(barter.Set)
+			} else {
+				assortItem = i.GenerateTraderAssortSingleItem()
+			}
 
-			for bid, value := range barterScheme.BarterScheme {
+			schemes := make([]*Scheme, 0, len(barter.BarterScheme))
+
+			parent := assortItem[0]
+			if trader.Assort.BarterScheme[parent.ID] == nil {
+				trader.Assort.BarterScheme[parent.ID] = make([][]*Scheme, 0, len(traderParams))
+			}
+
+			for bid, value := range barter.BarterScheme {
 				scheme := new(Scheme)
 				scheme.Tpl = bid
 				scheme.Count = value
 
 				schemes = append(schemes, scheme)
 			}
-			trader.Assort.LoyalLevelItems[barterId] = barterScheme.LoyaltyLevel
 
-			if trader.Assort.BarterScheme[barterId] == nil {
-				trader.Assort.BarterScheme[barterId] = make([][]*Scheme, 0)
-			}
-			trader.Assort.BarterScheme[barterId] = append(trader.Assort.BarterScheme[barterId], schemes)
-			trader.Assort.Items = append(trader.Assort.Items, assortItem)
+			trader.Assort.LoyalLevelItems[parent.ID] = barter.LoyaltyLevel
+			trader.Assort.BarterScheme[parent.ID] = append(trader.Assort.BarterScheme[parent.ID], schemes)
+			trader.Assort.Items = append(trader.Assort.Items, assortItem...)
 		}
 	}
 }

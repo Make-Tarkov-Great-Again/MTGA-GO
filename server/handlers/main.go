@@ -646,7 +646,11 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 
 	Traders := make(map[string]traderInsuranceInfo)
 	for _, TID := range insuranceListCost.Traders {
-		trader := database.GetTraderByUID(TID)
+		trader, err := database.GetTraderByUID(TID)
+		if err != nil {
+			log.Fatalln("InsuranceListCost:", err)
+		}
+
 		loyaltyLevel := trader.GetTraderLoyaltyLevel(character)
 
 		Traders[TID] = traderInsuranceInfo{

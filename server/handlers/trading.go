@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"MT-GO/database"
@@ -42,7 +43,11 @@ func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
 
 func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
 	tid := r.URL.Path[36:]
-	trader := database.GetTraderByUID(tid)
+	trader, err := database.GetTraderByUID(tid)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	character := database.GetCharacterByUID(services.GetSessionID(r))
 	var assort = trader.GetStrippedAssort(character)
 

@@ -261,41 +261,38 @@ func SetNewItem(entry DatabaseItem) {
 	items[entry.ID] = &entry
 }
 
-func (i *DatabaseItem) GenerateNewUPD() *AssortItemUpd {
+func (i *DatabaseItem) GenerateNewUPD() (*AssortItemUpd, error) {
 
 	itemUpd := new(AssortItemUpd)
 	switch i.Parent {
 	case "590c745b86f7743cc433c5f2":
 		resource, ok := i.Props["Resource"].(float64)
 		if !ok {
-			fmt.Println("ballsack")
-			return nil
+			return nil, fmt.Errorf("i.Props[\"Resource\"] is not a float64")
 		}
 		itemUpd.Resource = new(Resource)
 		itemUpd.Resource.Value = int16(resource)
-		return itemUpd
+		return itemUpd, nil
 	case "5448f3ac4bdc2dce718b4569":
 		resource, ok := i.Props["MaxHpResource"].(float64)
 		if !ok {
-			fmt.Println("ballsack")
-			return nil
+			return nil, fmt.Errorf("i.Props[\"MaxHpResource\"] is not a float64")
 		}
 
 		itemUpd.MedKit = new(MedicalKit)
 		itemUpd.MedKit.HpResource = int(resource)
-		return itemUpd
+		return itemUpd, nil
 
 	case "5448e8d04bdc2ddf718b4569", "5448e8d64bdc2dce718b4568":
 		{
 			resource, ok := i.Props["MaxResource"].(float64)
 			if !ok {
-				fmt.Println("ballsack")
-				return nil
+				return nil, fmt.Errorf("i.Props[\"MaxResource\"] is not a float64")
 			}
 
 			itemUpd.FoodDrink = new(FoodDrink)
 			itemUpd.FoodDrink.HpPercent = int16(resource)
-			return itemUpd
+			return itemUpd, nil
 		}
 	case "5a341c4086f77401f2541505", "5448e5284bdc2dcb718b4567",
 		"57bef4c42459772e8d35a53b", "5a341c4686f77469e155819e",
@@ -304,20 +301,18 @@ func (i *DatabaseItem) GenerateNewUPD() *AssortItemUpd {
 		{
 			maxDurability, ok := i.Props["MaxDurability"].(float64)
 			if !ok {
-				fmt.Println("ballsack")
-				return nil
+				return nil, fmt.Errorf("i.Props[\"MaxDurability\"] is not a float64")
 			}
 
 			durability, ok := i.Props["Durability"].(float64)
 			if !ok {
-				fmt.Println("ballsack")
-				return nil
+				return nil, fmt.Errorf("i.Props[\"Durability\"] is not a float64")
 			}
 
 			itemUpd.Repairable = new(Repairable)
 			itemUpd.Repairable.MaxDurability = int(maxDurability)
 			itemUpd.Repairable.Durability = int(durability)
-			return itemUpd
+			return itemUpd, nil
 		}
 	case "55818ae44bdc2dde698b456c", "55818ac54bdc2d5b648b456e",
 		"55818acf4bdc2dde698b456b", "55818ad54bdc2ddc698b4569",
@@ -329,7 +324,7 @@ func (i *DatabaseItem) GenerateNewUPD() *AssortItemUpd {
 			itemUpd.Sight.ScopesSelectedModes = []int{0}
 			itemUpd.Sight.SelectedScope = 0
 
-			return itemUpd
+			return itemUpd, nil
 		}
 	case "5447bee84bdc2dc3278b4569", "5447bedf4bdc2d87278b4568",
 		"5447bed64bdc2d97278b4568", "5447b6254bdc2dc3278b4568",
@@ -339,14 +334,12 @@ func (i *DatabaseItem) GenerateNewUPD() *AssortItemUpd {
 		{
 			maxDurability, ok := i.Props["MaxDurability"].(float64)
 			if !ok {
-				fmt.Println("ballsack")
-				return nil
+				return nil, fmt.Errorf("i.Props[\"MaxDurability\"] is not a float64")
 			}
 
 			durability, ok := i.Props["Durability"].(float64)
 			if !ok {
-				fmt.Println("ballsack")
-				return nil
+				return nil, fmt.Errorf("i.Props[\"Durability\"] is not a float64")
 			}
 
 			itemUpd.Repairable = new(Repairable)
@@ -358,21 +351,19 @@ func (i *DatabaseItem) GenerateNewUPD() *AssortItemUpd {
 			itemUpd.Foldable.Folded = false
 			itemUpd.FireMode.FireMode = "single"
 
-			return itemUpd
+			return itemUpd, nil
 		}
 
 	case "5447b5cf4bdc2d65278b4567":
 		{
 			maxDurability, ok := i.Props["MaxDurability"].(float64)
 			if !ok {
-				fmt.Println("ballsack")
-				return nil
+				return nil, fmt.Errorf("i.Props[\"MaxDurability\"] is not a float64")
 			}
 
 			durability, ok := i.Props["Durability"].(float64)
 			if !ok {
-				fmt.Println("ballsack")
-				return nil
+				return nil, fmt.Errorf("i.Props[\"Durability\"] is not a float64")
 			}
 
 			itemUpd.Repairable = new(Repairable)
@@ -382,30 +373,28 @@ func (i *DatabaseItem) GenerateNewUPD() *AssortItemUpd {
 			itemUpd.Repairable.Durability = int(durability)
 			itemUpd.FireMode.FireMode = "single"
 
-			return itemUpd
+			return itemUpd, nil
 		}
 	case "616eb7aea207f41933308f46":
 		{
 			maxRepairResource, ok := i.Props["MaxRepairResource"].(float64)
 			if !ok {
-				fmt.Println("ballsack")
-				return nil
+				return nil, fmt.Errorf("i.Props[\"MaxRepairResource\"] is not a float64")
 			}
 
 			itemUpd.RepairKit = new(RepairKit)
 			itemUpd.RepairKit.Resource = int16(maxRepairResource)
-			return itemUpd
+			return itemUpd, nil
 		}
 	case "5485a8684bdc2da71d8b4567":
 		{
 			stackMaxSize, ok := i.Props["StackMaxSize"].(float64)
 			if !ok {
-				fmt.Println("ballsack")
-				return nil
+				return nil, fmt.Errorf("i.Props[\"StackMaxSize\"] is not a float64")
 			}
 
 			itemUpd.StackObjectsCount = int(stackMaxSize)
-			return itemUpd
+			return itemUpd, nil
 		}
 	case "55818b084bdc2d5b648b4571", "55818b164bdc2ddc698b456c":
 		{
@@ -413,11 +402,10 @@ func (i *DatabaseItem) GenerateNewUPD() *AssortItemUpd {
 
 			itemUpd.Light.IsActive = false
 			itemUpd.Light.SelectedMode = 0
-			return itemUpd
+			return itemUpd, nil
 		}
 	default:
-		log.Println(i.Parent, "does not require a UPD")
-		return nil
+		return nil, fmt.Errorf(i.Parent, "does not require a UPD")
 	}
 }
 

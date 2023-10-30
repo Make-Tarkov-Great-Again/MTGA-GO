@@ -21,13 +21,12 @@ func GetTraders() map[string]*Trader {
 }
 
 // GetTraderByUID returns trader by UID
-func GetTraderByUID(UID string) *Trader {
+func GetTraderByUID(UID string) (*Trader, error) {
 	trader, ok := traders[UID]
 	if ok {
-		return trader
+		return trader, nil
 	}
-	log.Println("Trader with UID", UID, "does not exist, returning nil")
-	return nil
+	return nil, fmt.Errorf("Trader with UID", UID, "does not exist, returning nil")
 }
 
 var tradersByName = map[string]string{
@@ -45,25 +44,23 @@ var tradersByName = map[string]string{
 // GetTraderIDByName returns the TID by their name
 //
 // Prapor, Therapist, Fence, Skier, PeaceKeeper, Mechanic, Ragman, Jaeger, LighthouseKeeper
-func GetTraderIDByName(name string) *string {
+func GetTraderIDByName(name string) (*string, error) {
 	tid, ok := tradersByName[name]
 	if !ok {
-		log.Println("Trader with name", name, "does not exist, returning nil")
-		return nil
+		return nil, fmt.Errorf("Trader with name", name, "does not exist, returning nil")
 	}
-	return &tid
+	return &tid, nil
 }
 
 // GetTraderByName returns Trader by their name
 //
 // Prapor, Therapist, Fence, Skier, PeaceKeeper, Mechanic, Ragman, Jaeger, LighthouseKeeper
-func GetTraderByName(name string) *Trader {
+func GetTraderByName(name string) (*Trader, error) {
 	tid, ok := tradersByName[name]
 	if !ok {
-		log.Println("Trader with name", name, "does not exist, returning nil")
-		return nil
+		return nil, fmt.Errorf("Trader with name", name, "does not exist, returning nil")
 	}
-	return traders[tid]
+	return traders[tid], nil
 }
 
 // GetAssortItemByID returns entire item from assort as a slice (to get parent item use [0] when calling)
