@@ -380,7 +380,9 @@ func (c *Character) MoveItemInStash(moveAction map[string]any, profileChangesEve
 	itemInInventory.ParentID = move.To.ID
 	itemInInventory.SlotID = move.To.Container
 
-	cache.UpdateItemFlatMapLookup([]InventoryItem{*itemInInventory})
+	if itemInInventory.Location != nil {
+		cache.UpdateItemFlatMapLookup([]InventoryItem{*itemInInventory})
+	}
 	if itemInInventory.SlotID != "hideout" {
 		cache.ClearItemFromContainerMap(move.Item)
 	} else {

@@ -391,7 +391,7 @@ var FAMAS = map[string]*database.CustomItemAPI{
 			AddToTrader: map[string][]*database.CustomItemAddToTrader{
 				"5935c25fb3acc3127c3d8cd9": {
 					{
-						LoyaltyLevel: 0,
+						LoyaltyLevel: 1,
 						BarterScheme: map[string]float32{
 							"5696686a4bdc2da3298b456a": 26,
 						},
@@ -456,7 +456,7 @@ var FAMAS = map[string]*database.CustomItemAPI{
 			AddToTrader: map[string][]*database.CustomItemAddToTrader{
 				"5935c25fb3acc3127c3d8cd9": {
 					{
-						LoyaltyLevel: 0,
+						LoyaltyLevel: 1,
 						BarterScheme: map[string]float32{
 							"5696686a4bdc2da3298b456a": 39,
 						},

@@ -204,16 +204,17 @@ func SortAndQueueCustomItems(modName string, items map[string]*CustomItemAPI) {
 }
 
 func (i *DatabaseItem) GenerateTraderAssortSingleItem() []*AssortItem {
-	assortItem := new(AssortItem)
-	assortItem.ID = tools.GenerateMongoID()
-	assortItem.Tpl = i.ID
-	assortItem.ParentID = "hideout"
-	assortItem.SlotID = "hideout"
+	assortItem := &AssortItem{
+		ID:       tools.GenerateMongoID(),
+		Tpl:      i.ID,
+		ParentID: "hideout",
+		SlotID:   "hideout",
+	}
 
 	if upd, err := i.GenerateNewUPD(); err != nil {
 		return []*AssortItem{assortItem}
 	} else {
-		assortItem.Upd = *upd
+		assortItem.Upd = upd
 	}
 
 	return []*AssortItem{assortItem}
@@ -231,11 +232,12 @@ func ProcessCustomItemSet(parentId string, set map[string]any) []*AssortItem {
 			fmt.Println()
 		}
 
-		attachment := new(AssortItem)
-		attachment.ID = tools.GenerateMongoID()
-		attachment.Tpl = setData["_tpl"].(string)
-		attachment.ParentID = parentId
-		attachment.SlotID = slotId
+		attachment := &AssortItem{
+			ID:       tools.GenerateMongoID(),
+			Tpl:      setData["_tpl"].(string),
+			ParentID: parentId,
+			SlotID:   slotId,
+		}
 		output = append(output, attachment)
 
 		attachments, ok := setData["attachments"].(map[string]any)
@@ -260,6 +262,7 @@ func (i *DatabaseItem) GenerateTraderAssortPresetItem(set map[string]any) []*Ass
 func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 
 	for tid, traderParams := range params.AddToTrader {
+		var trader *Trader
 		trader, err := GetTraderByUID(tid)
 		if err != nil {
 			trader, err = GetTraderByName(tid)
@@ -281,14 +284,20 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 			schemes := make([]*Scheme, 0, len(barter.BarterScheme))
 
 			parent := assortItem[0]
+			if parent.Upd == nil {
+				parent.Upd = new(AssortItemUpd)
+			}
+			parent.Upd.StackObjectsCount = int(barter.AmountInStock)
+
 			if trader.Assort.BarterScheme[parent.ID] == nil {
-				trader.Assort.BarterScheme[parent.ID] = make([][]*Scheme, 0, len(traderParams))
+				trader.Assort.BarterScheme[parent.ID] = make([][]*Scheme, 0, 1)
 			}
 
 			for bid, value := range barter.BarterScheme {
-				scheme := new(Scheme)
-				scheme.Tpl = bid
-				scheme.Count = value
+				scheme := &Scheme{
+					Tpl:   bid,
+					Count: value,
+				}
 
 				schemes = append(schemes, scheme)
 			}
@@ -334,6 +343,7 @@ const (
 
 func ProcessCustomItems() {
 	itemsDatabase := GetItems()
+	handbookItemsDatabase := GetHandbook().Items
 
 	for uid, api := range itemsClone {
 		if api.Locale == nil || len(api.Locale) == 0 {
@@ -341,7 +351,8 @@ func ProcessCustomItems() {
 			continue
 		}
 
-		itemClone := itemsDatabase[api.Parameters.ReferenceItemTPL].Clone()
+		original := itemsDatabase[api.Parameters.ReferenceItemTPL]
+		itemClone := original.Clone()
 		itemClone.ID = uid
 
 		itemClone.GenerateTraderAssortEntry(&api.Parameters)
@@ -349,6 +360,16 @@ func ProcessCustomItems() {
 			itemClone.SetCustomOverrides(api.Overrides)
 		}
 
+		itemsDatabase[uid] = itemClone
+		handbookEntry := original.GetHandbookItemEntry()
+
+		entry := HandbookItem{
+			Id:       uid,
+			ParentId: handbookEntry.ParentId,
+			Price:    int32(api.Parameters.HandbookPrice),
+		}
+
+		handbookItemsDatabase = append(handbookItemsDatabase, entry)
 		setCustomItemLocale(uid, api.Locale)
 	}
 
