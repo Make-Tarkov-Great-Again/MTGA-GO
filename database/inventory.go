@@ -10,14 +10,14 @@ import (
 )
 
 type Inventory struct {
-	Items              []InventoryItem `json:"items"`
-	Equipment          string          `json:"equipment"`
-	Stash              string          `json:"stash"`
-	SortingTable       string          `json:"sortingTable"`
-	QuestRaidItems     string          `json:"questRaidItems"`
-	QuestStashItems    string          `json:"questStashItems"`
-	FastPanel          any             `json:"fastPanel"`
-	HideoutAreaStashes any             `json:"hideoutAreaStashes"`
+	Items              []InventoryItem   `json:"items"`
+	Equipment          string            `json:"equipment"`
+	Stash              string            `json:"stash"`
+	SortingTable       string            `json:"sortingTable"`
+	QuestRaidItems     string            `json:"questRaidItems"`
+	QuestStashItems    string            `json:"questStashItems"`
+	FastPanel          map[string]string `json:"fastPanel"`
+	HideoutAreaStashes any               `json:"hideoutAreaStashes"`
 }
 
 type InventoryItem struct {
@@ -433,23 +433,22 @@ columnLoop:
 // ConvertAssortItemsToInventoryItem converts AssortItem to InventoryItem, also reassigns IDs of all items
 // as well as their children; sets parent item to last index
 func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *string) []InventoryItem {
-	output := make([]InventoryItem, 0, len(assortItems))
 	convertedIDs := make(map[string]string)
+	var parent InventoryItem
 
-	var parent *InventoryItem
-
+	input := make([]InventoryItem, 0, len(assortItems))
 	for _, assortItem := range assortItems {
 		data, err := json.Marshal(assortItem)
 		if err != nil {
 			log.Println("Failed to marshal Assort Item, returning empty output")
-			return output
+			return input
 		}
 
 		inventoryItem := new(InventoryItem)
 		err = json.Unmarshal(data, inventoryItem)
 		if err != nil {
 			log.Println("Failed to unmarshal Assort Item to Inventory Item, returning empty output")
-			return output
+			return input
 		}
 
 		newId := tools.GenerateMongoID()
@@ -459,22 +458,27 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 		if inventoryItem.SlotID == "hideout" && inventoryItem.ParentID == "hideout" {
 			inventoryItem.ParentID = *stashID
 
-			parent = inventoryItem
+			parent = *inventoryItem
 			continue
 		}
 
-		output = append(output, *inventoryItem)
+		input = append(input, *inventoryItem)
 	}
 
-	output = append(output, *parent)
+	input = append(input, parent)
 
-	for _, item := range output {
-		CID, ok := convertedIDs[item.ParentID]
-		if !ok {
+	//TODO: items are not assigning their id's properly
+	output := make([]InventoryItem, 0, len(assortItems))
+	for _, item := range input {
+		if CID, ok := convertedIDs[item.ParentID]; !ok {
 			continue
+		} else {
+			item.ParentID = CID
+			output = append(output, item)
 		}
-		item.ParentID = CID
 	}
+
+	output = append(output, parent)
 	return output
 }
 

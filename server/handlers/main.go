@@ -547,6 +547,9 @@ var actionHandlers = map[string]func(map[string]any, *database.Character, *datab
 	"CustomizationWear": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.CustomizationWear(moveAction)
 	},
+	"Bind": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.BindItem(moveAction)
+	},
 	"HideoutUpgrade": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.HideoutUpgrade(moveAction, profileChangeEvent)
 	},

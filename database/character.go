@@ -554,7 +554,7 @@ func (inv *Inventory) RemoveSingleItemFromInventoryByIndex(index int16) {
 // RemoveItemsFromInventoryByIndices takes the existing Inventory.Items and removes an InventoryItem at its index
 // by creating new slice to assign to Inventory.Items
 func (inv *Inventory) RemoveItemsFromInventoryByIndices(indices []int16) {
-	output := make([]InventoryItem, len(inv.Items))
+	output := make([]InventoryItem, 0, len(inv.Items))
 
 	for idx, item := range inv.Items {
 		if slices.Contains(indices, int16(idx)) {
@@ -614,30 +614,32 @@ func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *Pr
 	*originalItem.UPD.StackObjectsCount -= split.Count
 
 	newItem := &InventoryItem{
-		ID:  split.NewItem,
-		TPL: originalItem.TPL,
-		UPD: originalItem.UPD,
-		Location: &InventoryItemLocation{
-			IsSearched: split.Container.Location.IsSearched,
-			X:          split.Container.Location.X,
-			Y:          split.Container.Location.Y,
-		},
+		ID:       split.NewItem,
+		TPL:      originalItem.TPL,
+		UPD:      originalItem.UPD,
 		ParentID: split.Container.ID,
 		SlotID:   split.Container.Container,
 	}
 
-	if split.Container.Location.R == "Vertical" {
-		newItem.Location.R = float64(1)
-	} else {
-		newItem.Location.R = float64(0)
-	}
-
 	*newItem.UPD.StackObjectsCount = split.Count
 
-	height, width := MeasurePurchaseForInventoryMapping([]InventoryItem{*newItem})
-	itemFlatMap := invCache.CreateFlatMapLookup(height, width, newItem)
-	itemFlatMap.Coordinates = invCache.GenerateCoordinatesFromLocation(*itemFlatMap)
-	invCache.AddItemToContainer(split.NewItem, itemFlatMap)
+	if split.Container.Location != nil {
+		newItem.Location = &InventoryItemLocation{
+			IsSearched: split.Container.Location.IsSearched,
+			X:          split.Container.Location.X,
+			Y:          split.Container.Location.Y,
+		}
+		if split.Container.Location.R == "Vertical" {
+			newItem.Location.R = float64(1)
+		} else {
+			newItem.Location.R = float64(0)
+		}
+
+		height, width := MeasurePurchaseForInventoryMapping([]InventoryItem{*newItem})
+		itemFlatMap := invCache.CreateFlatMapLookup(height, width, newItem)
+		itemFlatMap.Coordinates = invCache.GenerateCoordinatesFromLocation(*itemFlatMap)
+		invCache.AddItemToContainer(split.NewItem, itemFlatMap)
+	}
 
 	c.Inventory.Items = append(c.Inventory.Items, *newItem)
 	invCache.SetSingleInventoryIndex(newItem.ID, int16(len(c.Inventory.Items)-1))
@@ -826,7 +828,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	// Basically gets the correct amount of items to be created, based on StackSize
 
 	//Create copy-of Character.Inventory.Items for modification in the case of any failures to assign later
-	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items)+len(stackSlice))
+	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items)+len(inventoryItems))
 	copyOfItems = append(copyOfItems, c.Inventory.Items...)
 	//Create copy-of invCache.Stash.Container for modification in the case of any failures to assign later
 	copyOfMap := invCache.Stash.Container
@@ -838,7 +840,12 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	height, width := MeasurePurchaseForInventoryMapping(inventoryItems)
 
 	for _, stack := range stackSlice {
-		copyOfInventoryItems := AssignNewIDs(inventoryItems)
+		var copyOfInventoryItems []InventoryItem
+		if len(stackSlice) != 1 {
+			copyOfInventoryItems = AssignNewIDs(inventoryItems)
+		} else {
+			copyOfInventoryItems = inventoryItems
+		}
 
 		mainItem := &copyOfInventoryItems[len(copyOfInventoryItems)-1]
 
@@ -873,12 +880,19 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 
 		itemInInventory := copyOfItems[*index]
 
-		currency := GetCurrencyByName("RUB")
-		if currency != nil && *currency == itemInInventory.TPL {
+		//TODO: YOU'RE DELETING ALL MY FUCKIN MONEY
+		// the only reason this is here is to convert barter items to currency
+		currency := *GetCurrencyByName(trader.Base.Currency)
+		if IsCurrencyByUID(itemInInventory.TPL) {
 			traderRelations.SalesSum += float32(scheme.Count)
-		} else if IsCurrencyByUID(itemInInventory.TPL) {
-			conversion := ConvertToRoubles(scheme.Count, itemInInventory.TPL)
-			traderRelations.SalesSum += float32(conversion)
+		} else {
+			priceOfItem := *GetPriceByID(itemInInventory.TPL)
+			if "RUB" != trader.Base.Currency {
+				conversion := ConvertFromRouble(priceOfItem, currency)
+				traderRelations.SalesSum += float32(conversion)
+			} else {
+				traderRelations.SalesSum += float32(priceOfItem)
+			}
 		}
 
 		if itemInInventory.UPD != nil && itemInInventory.UPD.StackObjectsCount != nil {
@@ -888,6 +902,8 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 				*itemInInventory.UPD.StackObjectsCount -= remainingBalance
 
 				profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, &itemInInventory)
+			} else if *itemInInventory.UPD.StackObjectsCount == remainingBalance {
+				toDelete[itemInInventory.ID] = *index
 			} else {
 				remainingBalance -= *itemInInventory.UPD.StackObjectsCount
 
@@ -897,7 +913,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 
 				var toChange []*InventoryItem
 				for idx, item := range copyOfItems {
-					if _, ok := toDelete[item.ID]; ok || item.TPL != *currency {
+					if _, ok := toDelete[item.ID]; ok || item.TPL != currency {
 						continue
 					}
 
@@ -940,7 +956,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	c.Inventory.Items = copyOfItems
 
 	if len(toDelete) != 0 {
-		indices := make([]int16, len(toDelete))
+		indices := make([]int16, 0, len(toDelete))
 		for id, idx := range toDelete {
 			invCache.ClearItemFromContainer(id)
 			indices = append(indices, idx)
@@ -1159,6 +1175,31 @@ func (c *Character) HideoutUpgrade(moveAction map[string]any, profileChangesEven
 
 	fmt.Println(hideoutArea)
 	fmt.Println()
+}
+
+type bindItem struct {
+	Action string
+	Item   string `json:"item"`
+	Index  string `json:"index"`
+}
+
+func (c *Character) BindItem(moveAction map[string]any) {
+	bind := new(bindItem)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &bind)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if _, ok := c.Inventory.FastPanel[bind.Index]; !ok {
+		c.Inventory.FastPanel[bind.Index] = bind.Item
+	} else {
+		if c.Inventory.FastPanel[bind.Index] == bind.Item {
+			c.Inventory.FastPanel[bind.Index] = ""
+		} else {
+			c.Inventory.FastPanel[bind.Index] = bind.Item
+		}
+	}
 }
 
 type hideoutUpgradeComplete struct {

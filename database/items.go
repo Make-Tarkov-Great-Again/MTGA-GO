@@ -81,6 +81,14 @@ func (i *DatabaseItem) Clone() *DatabaseItem {
 	return clone
 }
 
+func ConvertFromRouble(amount int32, currency string) float64 {
+	price := GetPriceByID(currency)
+	if price == nil {
+		return 0
+	}
+	return math.Round(float64(amount / *price))
+}
+
 func ConvertToRoubles(amount int32, currency string) float64 {
 	price := *GetPriceByID(currency)
 	return math.Round(float64(amount * price))

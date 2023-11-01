@@ -82,6 +82,7 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 	for _, index := range parentItems {
 		if t.Assort.Items[index].ID == id {
 			parent = t.Assort.Items[index]
+			continue
 		}
 		items = append(items, t.Assort.Items[index])
 	}
