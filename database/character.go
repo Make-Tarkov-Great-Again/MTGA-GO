@@ -538,6 +538,7 @@ func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *Pr
 	c.Inventory.RemoveSingleItemFromInventoryByIndex(toMergeIndex)
 	inventoryCache.SetInventoryIndex(&c.Inventory)
 
+	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, mergeWith)
 	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: toMerge.ID})
 }
 
@@ -547,6 +548,7 @@ func (inv *Inventory) RemoveSingleItemFromInventoryByIndex(index int16) {
 	if index < 0 || index >= int16(len(inv.Items)) {
 		log.Fatalln("[RemoveSingleItemFromInventoryByIndex] Index out of Range")
 	}
+
 	copy(inv.Items[index:], inv.Items[index+1:])
 	inv.Items = inv.Items[:len(inv.Items)-1]
 }
@@ -644,6 +646,7 @@ func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *Pr
 	c.Inventory.Items = append(c.Inventory.Items, *newItem)
 	invCache.SetSingleInventoryIndex(newItem.ID, int16(len(c.Inventory.Items)-1))
 
+	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, originalItem)
 	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
 }
 

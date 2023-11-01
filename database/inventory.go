@@ -376,8 +376,11 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 		containerMap[index] = ""
 	}
 
-	delete(ic.Lookup.Reverse, ic.Lookup.Forward[UID])
-	delete(ic.Lookup.Forward, UID)
+	if _, ok := ic.Lookup.Forward[UID]; ok {
+		delete(ic.Lookup.Reverse, ic.Lookup.Forward[UID])
+		delete(ic.Lookup.Forward, UID)
+	}
+
 	delete(ic.Stash.Container.FlatMap, UID)
 }
 

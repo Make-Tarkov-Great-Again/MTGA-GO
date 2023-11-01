@@ -51,7 +51,7 @@ func GetBundleManifests() []*Manifest {
 }
 
 func ClearBundleManifests() {
-	bundleManifests = nil
+	bundleManifests = make([]*Manifest, 0)
 }
 
 func AddModBundleDirPath(modBundleDirPath string) {
@@ -62,9 +62,6 @@ func SetBundleManifests() {
 	if len(modBundleDirPaths) == 0 {
 		return
 	}
-	defer func() {
-		modBundleDirPaths = nil
-	}()
 
 	startTime := time.Now()
 	bundleLoaded := 0
