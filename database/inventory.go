@@ -40,6 +40,17 @@ type InventoryItemUpd struct {
 	RepairKit         *RepairKit  `json:"RepairKit,omitempty"`
 	Light             *Light      `json:"Light,omitempty"`
 	Resource          *Resource   `json:"Resource,omitempty"`
+	Tag               *Tag        `json:"Tag,omitempty"`
+	Togglable         *Toggle     `json:"Togglable,omitempty"`
+}
+
+type Toggle struct {
+	On bool `json:"On"`
+}
+
+type Tag struct {
+	Name  string
+	Color string
 }
 
 type Resource struct {

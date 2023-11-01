@@ -550,6 +550,12 @@ var actionHandlers = map[string]func(map[string]any, *database.Character, *datab
 	"Bind": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.BindItem(moveAction)
 	},
+	"Tag": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.TagItem(moveAction)
+	},
+	"Toggle": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.ToggleItem(moveAction)
+	},
 	"HideoutUpgrade": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.HideoutUpgrade(moveAction, profileChangeEvent)
 	},
@@ -560,7 +566,8 @@ var actionHandlers = map[string]func(map[string]any, *database.Character, *datab
 }
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
-	data := services.GetParsedBody(r).(map[string]any)["data"].([]any)
+	parsed := services.GetParsedBody(r)
+	data := parsed.(map[string]any)["data"].([]any)
 	length := int8(len(data)) - 1
 
 	character := database.GetCharacterByUID(services.GetSessionID(r))

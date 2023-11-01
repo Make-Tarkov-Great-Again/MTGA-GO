@@ -462,14 +462,14 @@ func (c *Character) SwapItemInStash(moveAction map[string]any, profileChangesEve
 	profileChangesEvent.ProfileChanges[c.ID].Production = nil
 }
 
-type fold struct {
+type foldItem struct {
 	Action string
 	Item   string `json:"item"`
 	Value  bool   `json:"value"`
 }
 
 func (c *Character) FoldItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
-	fold := new(fold)
+	fold := new(foldItem)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &fold)
 	if err != nil {
@@ -1199,6 +1199,71 @@ func (c *Character) BindItem(moveAction map[string]any) {
 		} else {
 			c.Inventory.FastPanel[bind.Index] = bind.Item
 		}
+	}
+}
+
+type tagItem struct {
+	Action   string
+	Item     string `json:"item"`
+	TagName  string `json:"TagName"`
+	TagColor string `json:"TagColor"`
+}
+
+func (c *Character) TagItem(moveAction map[string]any) {
+	tag := new(tagItem)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &tag)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	index := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(tag.Item)
+	if c.Inventory.Items[index].UPD == nil {
+		c.Inventory.Items[index].UPD = new(InventoryItemUpd)
+		c.Inventory.Items[index].UPD.Tag = new(Tag)
+
+		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		c.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+
+	} else if c.Inventory.Items[index].UPD.Tag == nil {
+		c.Inventory.Items[index].UPD.Tag = new(Tag)
+
+		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		c.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+
+	} else {
+		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		c.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+	}
+
+}
+
+type toggleItem struct {
+	Action string
+	Item   string `json:"item"`
+	Value  bool   `json:"value"`
+}
+
+func (c *Character) ToggleItem(moveAction map[string]any) {
+	toggle := new(toggleItem)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &toggle)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	index := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(toggle.Item)
+	if c.Inventory.Items[index].UPD == nil {
+		c.Inventory.Items[index].UPD = new(InventoryItemUpd)
+		c.Inventory.Items[index].UPD.Togglable = new(Toggle)
+		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+
+	} else if c.Inventory.Items[index].UPD.Togglable == nil {
+		c.Inventory.Items[index].UPD.Togglable = new(Toggle)
+		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+
+	} else {
+		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
 	}
 }
 
