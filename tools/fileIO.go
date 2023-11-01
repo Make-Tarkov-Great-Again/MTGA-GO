@@ -23,7 +23,7 @@ const (
 )
 
 // WriteToFile writes the given string of data to the specified file path
-func WriteToFile(filePath string, data interface{}) error {
+func WriteToFile(filePath string, data any) error {
 	path := GetAbsolutePathFrom(filePath)
 	err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
 	if err != nil {
@@ -136,23 +136,23 @@ func GetFilesFrom(filePath string) (map[string]*struct{}, error) {
 	return files, nil
 }
 
-func TransformInterfaceIntoMappedArray(data []interface{}) []map[string]interface{} {
-	results := make([]map[string]interface{}, 0, len(data))
+func TransformInterfaceIntoMappedArray(data []any) []map[string]any {
+	results := make([]map[string]any, 0, len(data))
 	for _, v := range data {
-		result := v.(map[string]interface{})
+		result := v.(map[string]any)
 		results = append(results, result)
 	}
 	return results
 }
 
-func TransformInterfaceIntoMappedObject(data interface{}) map[string]interface{} {
-	result := data.(map[string]interface{})
+func TransformInterfaceIntoMappedObject(data any) map[string]any {
+	result := data.(map[string]any)
 	return result
 }
 
-func AuditArrayCapacity(data []map[string]interface{}) []map[string]interface{} {
+func AuditArrayCapacity(data []map[string]any) []map[string]any {
 	dataLen := len(data)
-	results := make([]map[string]interface{}, 0, dataLen)
+	results := make([]map[string]any, 0, dataLen)
 	for i := 0; i < dataLen; i++ {
 		result := data[i]
 		results = append(results, result)

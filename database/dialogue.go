@@ -48,20 +48,20 @@ type DialogUserInfo struct {
 }
 
 type DialogMessage struct {
-	ID                  string                 `json:"_id"`
-	UID                 string                 `json:"uid"`
-	Type                int8                   `json:"type"`
-	DT                  int32                  `json:"dt"`
-	UtcDateTime         int32                  `json:"UtcDateTime,omitempty"`
-	Member              map[string]interface{} `json:"Member,omitempty"`
-	Text                string                 `json:"text"`
-	TemplateID          string                 `json:"templateId,omitempty"`
-	Items               []interface{}          `json:"items,omitempty"`
-	HasRewards          bool                   `json:"hasRewards"`
-	RewardCollected     bool                   `json:"rewardCollected"`
-	MaxStorageTime      int32                  `json:"maxStorageTime,omitempty"`
-	SystemData          string                 `json:"systemData,omitempty"`
-	ProfileChangeEvents []interface{}          `json:"profileChangeEvents"`
+	ID                  string         `json:"_id"`
+	UID                 string         `json:"uid"`
+	Type                int8           `json:"type"`
+	DT                  int32          `json:"dt"`
+	UtcDateTime         int32          `json:"UtcDateTime,omitempty"`
+	Member              map[string]any `json:"Member,omitempty"`
+	Text                string         `json:"text"`
+	TemplateID          string         `json:"templateId,omitempty"`
+	Items               []any          `json:"items,omitempty"`
+	HasRewards          bool           `json:"hasRewards"`
+	RewardCollected     bool           `json:"rewardCollected"`
+	MaxStorageTime      int32          `json:"maxStorageTime,omitempty"`
+	SystemData          string         `json:"systemData,omitempty"`
+	ProfileChangeEvents []any          `json:"profileChangeEvents"`
 }
 
 type DialogMessageView struct {
@@ -71,13 +71,13 @@ type DialogMessageView struct {
 }
 
 type DialogueDetails struct {
-	RecipientID                    string        `json:"recipientId"`
-	Sender                         int8          `json:"sender"`
-	DialogType                     int8          `json:"dialogType"`
-	Trader                         string        `json:"trader"`
-	TemplateID                     string        `json:"template"`
-	Items                          []interface{} `json:"items,omitempty"`
-	ItemsMaxStorageLifetimeSeconds int32         `json:"itemsMaxStorageLifetimeSeconds,omitempty"`
+	RecipientID                    string `json:"recipientId"`
+	Sender                         int8   `json:"sender"`
+	DialogType                     int8   `json:"dialogType"`
+	Trader                         string `json:"trader"`
+	TemplateID                     string `json:"template"`
+	Items                          []any  `json:"items,omitempty"`
+	ItemsMaxStorageLifetimeSeconds int32  `json:"itemsMaxStorageLifetimeSeconds,omitempty"`
 }
 
 type DialogueInfo struct {

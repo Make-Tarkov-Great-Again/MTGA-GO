@@ -8,7 +8,7 @@ import (
 )
 
 // Stringify returns a string representation of the given data.
-func Stringify(data interface{}, oneline bool) string {
+func Stringify(data any, oneline bool) string {
 	if oneline {
 		jsonBytes, err := json.Marshal(data)
 		if err != nil {

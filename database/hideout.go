@@ -27,7 +27,7 @@ func GetHideout() *Hideout {
 }
 
 // GetHideoutAreaByAreaType retrieves a hideout area by its type int8.
-func GetHideoutAreaByAreaType(_type int8) *map[string]interface{} {
+func GetHideoutAreaByAreaType(_type int8) *map[string]any {
 	index, ok := hideout.Index.Areas[_type]
 	if !ok {
 		fmt.Println("Area Type ", _type, " does not exist")
@@ -39,7 +39,7 @@ func GetHideoutAreaByAreaType(_type int8) *map[string]interface{} {
 }
 
 // GetHideoutAreaByName retrieves a hideout area by its name.
-func GetHideoutAreaByName(name string) *map[string]interface{} {
+func GetHideoutAreaByName(name string) *map[string]any {
 	area, ok := HideoutAreaNames[name]
 	if !ok {
 		fmt.Println("Hideout Area ", name, " does not exist")
@@ -57,7 +57,7 @@ func GetHideoutAreaByName(name string) *map[string]interface{} {
 }
 
 // GetHideoutRecipeByID retrieves a hideout production by its ID.
-func GetHideoutRecipeByID(rid string) *map[string]interface{} {
+func GetHideoutRecipeByID(rid string) *map[string]any {
 	index, ok := hideout.Index.Recipes[rid]
 	if ok {
 		recipe := hideout.Recipes[index]
@@ -68,7 +68,7 @@ func GetHideoutRecipeByID(rid string) *map[string]interface{} {
 }
 
 // GetScavCaseRecipeByID retrieves a scavcase production by its ID.
-func GetScavCaseRecipeByID(rid string) *map[string]interface{} {
+func GetScavCaseRecipeByID(rid string) *map[string]any {
 	index, ok := hideout.Index.ScavCase[rid]
 	if ok {
 		recipe := hideout.ScavCase[index]
@@ -87,7 +87,7 @@ func setHideout() {
 
 	if tools.FileExist(areasPath) {
 		areas := tools.GetJSONRawMessage(areasPath)
-		var areasMap []map[string]interface{}
+		var areasMap []map[string]any
 		err := json.Unmarshal(areas, &areasMap)
 		if err != nil {
 			log.Fatalln(err)
@@ -97,7 +97,7 @@ func setHideout() {
 
 	if tools.FileExist(productionPath) {
 		recipes := tools.GetJSONRawMessage(productionPath)
-		var productionsMap []map[string]interface{}
+		var productionsMap []map[string]any
 		err := json.Unmarshal(recipes, &productionsMap)
 		if err != nil {
 			log.Fatalln(err)
@@ -107,7 +107,7 @@ func setHideout() {
 
 	if tools.FileExist(scavcasePath) {
 		scavcase := tools.GetJSONRawMessage(scavcasePath)
-		var scavcaseReturns []map[string]interface{}
+		var scavcaseReturns []map[string]any
 		err := json.Unmarshal(scavcase, &scavcaseReturns)
 		if err != nil {
 			log.Fatalln(err)
@@ -117,7 +117,7 @@ func setHideout() {
 
 	if tools.FileExist(qtePath) {
 		qte := tools.GetJSONRawMessage(qtePath)
-		hideout.QTE = []map[string]interface{}{}
+		hideout.QTE = []map[string]any{}
 
 		err := json.Unmarshal(qte, &hideout.QTE)
 		if err != nil {
@@ -135,8 +135,8 @@ func setHideout() {
 }
 
 // setHideoutAreas sets the hideout areas and their indexes.
-func setHideoutAreas(areas []map[string]interface{}) {
-	hideout.Areas = make([]map[string]interface{}, 0, len(areas))
+func setHideoutAreas(areas []map[string]any) {
+	hideout.Areas = make([]map[string]any, 0, len(areas))
 	hideout.Index.Areas = make(map[int8]int8)
 
 	for index, area := range areas {
@@ -148,8 +148,8 @@ func setHideoutAreas(areas []map[string]interface{}) {
 }
 
 // setHideoutRecipes sets the hideout production recipes and their indexes.
-func setHideoutRecipes(recipes []map[string]interface{}) {
-	hideout.Recipes = make([]map[string]interface{}, 0, len(recipes))
+func setHideoutRecipes(recipes []map[string]any) {
+	hideout.Recipes = make([]map[string]any, 0, len(recipes))
 	hideout.Index.Recipes = make(map[string]int16)
 
 	for index, recipe := range recipes {
@@ -161,8 +161,8 @@ func setHideoutRecipes(recipes []map[string]interface{}) {
 }
 
 // setHideoutScavcase sets the hideout scavcase items and their indexes.
-func setHideoutScavcase(scavcase []map[string]interface{}) {
-	hideout.ScavCase = make([]map[string]interface{}, 0, len(scavcase))
+func setHideoutScavcase(scavcase []map[string]any) {
+	hideout.ScavCase = make([]map[string]any, 0, len(scavcase))
 	hideout.Index.ScavCase = make(map[string]int8)
 
 	for index, item := range scavcase {
@@ -179,10 +179,10 @@ func setHideoutScavcase(scavcase []map[string]interface{}) {
 
 type Hideout struct {
 	Index    HideoutIndex
-	Areas    []map[string]interface{}
-	Recipes  []map[string]interface{}
-	QTE      []map[string]interface{}
-	ScavCase []map[string]interface{}
+	Areas    []map[string]any
+	Recipes  []map[string]any
+	QTE      []map[string]any
+	ScavCase []map[string]any
 	Settings HideoutSettings
 }
 

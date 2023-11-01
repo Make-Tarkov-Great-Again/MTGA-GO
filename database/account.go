@@ -31,18 +31,18 @@ func (a *Account) SaveAccount() {
 // #region Account structs
 
 type Account struct {
-	AID                 int           `json:"aid"`
-	UID                 string        `json:"uid"`
-	Username            string        `json:"username"`
-	Password            string        `json:"password"`
-	Wipe                bool          `json:"wipe"`
-	Edition             string        `json:"edition"`
-	Friends             Friends       `json:"friends"`
-	Matching            Matching      `json:"Matching"`
-	FriendRequestInbox  []interface{} `json:"friendRequestInbox"`
-	FriendRequestOutbox []interface{} `json:"friendRequestOutbox"`
-	TarkovPath          string        `json:"tarkovPath"`
-	Lang                string        `json:"lang"`
+	AID                 int      `json:"aid"`
+	UID                 string   `json:"uid"`
+	Username            string   `json:"username"`
+	Password            string   `json:"password"`
+	Wipe                bool     `json:"wipe"`
+	Edition             string   `json:"edition"`
+	Friends             Friends  `json:"friends"`
+	Matching            Matching `json:"Matching"`
+	FriendRequestInbox  []any    `json:"friendRequestInbox"`
+	FriendRequestOutbox []any    `json:"friendRequestOutbox"`
+	TarkovPath          string   `json:"tarkovPath"`
+	Lang                string   `json:"lang"`
 }
 type Friends struct {
 	Friends      []FriendRequest `json:"Friends"`

@@ -24,11 +24,11 @@ var cachedZlib = map[string][]byte{
 	//"/client/location/getLocalloot": {}, don't fully understand why this would be cached
 }
 
-func ZlibReply(w http.ResponseWriter, path string, data interface{}) {
+func ZlibReply(w http.ResponseWriter, path string, data any) {
 	zlibDeflate(w, path, data)
 }
 
-func ZlibJSONReply(w http.ResponseWriter, path string, data interface{}) {
+func ZlibJSONReply(w http.ResponseWriter, path string, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	zlibDeflate(w, path, data)
 }
@@ -62,7 +62,7 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 	return nil
 }
 
-func zlibDeflate(w http.ResponseWriter, path string, data interface{}) {
+func zlibDeflate(w http.ResponseWriter, path string, data any) {
 	cached, ok := cachedZlib[path]
 	if ok && cached != nil {
 		w.WriteHeader(http.StatusOK)

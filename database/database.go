@@ -97,20 +97,20 @@ type Database struct {
 
 	Items     map[string]*DatabaseItem
 	Locales   *Locale
-	Languages map[string]interface{}
+	Languages map[string]any
 	Handbook  *Handbook
 	Traders   map[string]*Trader
 	Flea      *Flea
-	Quests    map[string]interface{}
+	Quests    map[string]any
 	Hideout   *Hideout
 
 	Locations     *Locations
 	Weather       *Weather
-	Customization map[string]interface{}
-	Editions      map[string]interface{}
+	Customization map[string]any
+	Editions      map[string]any
 	Bot           *Bots
 	Profiles      map[string]*Profile
-	//bundles  []map[string]interface{}
+	//bundles  []map[string]any
 }
 
 type Vector3 struct {

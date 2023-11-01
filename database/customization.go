@@ -51,20 +51,20 @@ type Customization struct {
 }
 
 type CustomizationProperties struct {
-	BodyPart            *string     `json:"BodyPart,omitempty"`
-	Description         *string     `json:"Description,omitempty"`
-	AvailableAsDefault  *bool       `json:"AvailableAsDefault,omitempty"`
-	IntegratedArmorVest *bool       `json:"IntegratedArmorVest,omitempty"`
-	Name                *string     `json:"Name,omitempty"`
-	Prefab              interface{} `json:"Prefab,omitempty"`
-	ShortName           *string     `json:"ShortName,omitempty"`
-	Side                *[]string   `json:"Side,omitempty"`
-	WatchPosition       *Vector3    `json:"WatchPosition,omitempty"`
-	WatchPrefab         *Prefab     `json:"WatchPrefab,omitempty"`
-	WatchRotation       *Vector3    `json:"WatchRotation,omitempty"`
-	Feet                *string     `json:"Feet,omitempty"`
-	Body                *string     `json:"Body,omitempty"`
-	Hands               *string     `json:"Hands,omitempty"`
+	BodyPart            *string   `json:"BodyPart,omitempty"`
+	Description         *string   `json:"Description,omitempty"`
+	AvailableAsDefault  *bool     `json:"AvailableAsDefault,omitempty"`
+	IntegratedArmorVest *bool     `json:"IntegratedArmorVest,omitempty"`
+	Name                *string   `json:"Name,omitempty"`
+	Prefab              any       `json:"Prefab,omitempty"`
+	ShortName           *string   `json:"ShortName,omitempty"`
+	Side                *[]string `json:"Side,omitempty"`
+	WatchPosition       *Vector3  `json:"WatchPosition,omitempty"`
+	WatchPrefab         *Prefab   `json:"WatchPrefab,omitempty"`
+	WatchRotation       *Vector3  `json:"WatchRotation,omitempty"`
+	Feet                *string   `json:"Feet,omitempty"`
+	Body                *string   `json:"Body,omitempty"`
+	Hands               *string   `json:"Hands,omitempty"`
 }
 
 // #endregion

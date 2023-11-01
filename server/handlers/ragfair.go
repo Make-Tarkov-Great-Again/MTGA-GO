@@ -7,14 +7,14 @@ import (
 )
 
 type ragfairOffers struct {
-	Offers           []interface{} `json:"offers"`
-	OffersCount      int16         `json:"offersCount"`
-	SelectedCategory string        `json:"selectedCategory"`
+	Offers           []any  `json:"offers"`
+	OffersCount      int16  `json:"offersCount"`
+	SelectedCategory string `json:"selectedCategory"`
 }
 
 func RagfairFind(w http.ResponseWriter, r *http.Request) {
 	output := ragfairOffers{
-		Offers:           make([]interface{}, 0),
+		Offers:           make([]any, 0),
 		OffersCount:      0,
 		SelectedCategory: "",
 	}

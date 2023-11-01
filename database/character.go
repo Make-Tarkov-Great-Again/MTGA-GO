@@ -24,8 +24,8 @@ func GetCharacterByUID(uid string) *Character {
 	return nil
 }
 
-func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
-	var output []interface{}
+func (c *Character) GetQuestsAvailableToPlayer() []any {
+	var output []any
 
 	query := GetQuestsQuery()
 
@@ -72,8 +72,12 @@ func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
 			for trader, loyalty := range forStart.TraderLoyalty {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := float64(GetTraderByUID(trader).GetTraderLoyaltyLevel(c))
-					traderStandings[trader] = &loyaltyLevel
+					if data, err := GetTraderByUID(trader); err != nil {
+						log.Fatalln(err)
+					} else {
+						loyaltyLevel := float64(data.GetTraderLoyaltyLevel(c))
+						traderStandings[trader] = &loyaltyLevel
+					}
 				}
 
 				loyaltyCheck = services.LevelComparisonCheck(
@@ -92,8 +96,12 @@ func (c *Character) GetQuestsAvailableToPlayer() []interface{} {
 			for trader, loyalty := range forStart.TraderStanding {
 
 				if traderStandings[trader] == nil {
-					loyaltyLevel := float64(GetTraderByUID(trader).GetTraderLoyaltyLevel(c))
-					traderStandings[trader] = &loyaltyLevel
+					if data, err := GetTraderByUID(trader); err != nil {
+						log.Fatalln(err)
+					} else {
+						loyaltyLevel := float64(data.GetTraderLoyaltyLevel(c))
+						traderStandings[trader] = &loyaltyLevel
+					}
 				}
 
 				standingCheck = services.LevelComparisonCheck(
@@ -260,7 +268,7 @@ type fromOwner struct {
 	Type string `json:"type"`
 }
 
-func (c *Character) ExamineItem(moveAction map[string]interface{}) {
+func (c *Character) ExamineItem(moveAction map[string]any) {
 	examine := new(examine)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &examine)
@@ -281,7 +289,12 @@ func (c *Character) ExamineItem(moveAction map[string]interface{}) {
 	} else {
 		switch examine.FromOwner.Type {
 		case "Trader":
-			assortItem := GetTraderByUID(examine.FromOwner.ID).GetAssortItemByID(examine.Item)
+			data, err := GetTraderByUID(examine.FromOwner.ID)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			assortItem := data.GetAssortItemByID(examine.Item)
 			item = GetItemByUID(assortItem[0].Tpl)
 
 		case "HideoutUpgrade":
@@ -333,7 +346,7 @@ type moveToLocation struct {
 	IsSearched bool    `json:"isSearched"`
 }
 
-func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) MoveItemInStash(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	move := new(move)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &move)
@@ -364,11 +377,13 @@ func (c *Character) MoveItemInStash(moveAction map[string]interface{}, profileCh
 		itemInInventory.Location = nil
 	}
 
-	itemInInventory.ParentID = &move.To.ID
-	itemInInventory.SlotID = &move.To.Container
+	itemInInventory.ParentID = move.To.ID
+	itemInInventory.SlotID = move.To.Container
 
-	cache.UpdateItemFlatMapLookup([]InventoryItem{*itemInInventory})
-	if *itemInInventory.SlotID != "hideout" {
+	if itemInInventory.Location != nil {
+		cache.UpdateItemFlatMapLookup([]InventoryItem{*itemInInventory})
+	}
+	if itemInInventory.SlotID != "hideout" {
 		cache.ClearItemFromContainerMap(move.Item)
 	} else {
 		cache.AddItemFromContainerMap(move.Item)
@@ -386,7 +401,7 @@ type swap struct {
 	To2    moveTo `json:"to2"`
 }
 
-func (c *Character) SwapItemInStash(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) SwapItemInStash(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	swap := new(swap)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &swap)
@@ -416,8 +431,8 @@ func (c *Character) SwapItemInStash(moveAction map[string]interface{}, profileCh
 		itemInInventory.Location = nil
 	}
 
-	itemInInventory.ParentID = &swap.To.ID
-	itemInInventory.SlotID = &swap.To.Container
+	itemInInventory.ParentID = swap.To.ID
+	itemInInventory.SlotID = swap.To.Container
 
 	cache = GetCacheByUID(c.ID).Inventory.Lookup.Forward[swap.Item2]
 	itemInInventory = &c.Inventory.Items[cache]
@@ -441,20 +456,20 @@ func (c *Character) SwapItemInStash(moveAction map[string]interface{}, profileCh
 		itemInInventory.Location = nil
 	}
 
-	itemInInventory.ParentID = &swap.To2.ID
-	itemInInventory.SlotID = &swap.To2.Container
+	itemInInventory.ParentID = swap.To2.ID
+	itemInInventory.SlotID = swap.To2.Container
 
 	profileChangesEvent.ProfileChanges[c.ID].Production = nil
 }
 
-type fold struct {
+type foldItem struct {
 	Action string
 	Item   string `json:"item"`
 	Value  bool   `json:"value"`
 }
 
-func (c *Character) FoldItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
-	fold := new(fold)
+func (c *Character) FoldItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
+	fold := new(foldItem)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &fold)
 	if err != nil {
@@ -482,7 +497,7 @@ type readEncyclopedia struct {
 	IDs    []string `json:"ids"`
 }
 
-func (c *Character) ReadEncyclopedia(moveAction map[string]interface{}) {
+func (c *Character) ReadEncyclopedia(moveAction map[string]any) {
 	readEncyclopedia := new(readEncyclopedia)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &readEncyclopedia)
@@ -501,7 +516,7 @@ type merge struct {
 	With   string `json:"with"`
 }
 
-func (c *Character) MergeItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	merge := new(merge)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &merge)
@@ -523,6 +538,7 @@ func (c *Character) MergeItem(moveAction map[string]interface{}, profileChangesE
 	c.Inventory.RemoveSingleItemFromInventoryByIndex(toMergeIndex)
 	inventoryCache.SetInventoryIndex(&c.Inventory)
 
+	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, mergeWith)
 	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: toMerge.ID})
 }
 
@@ -532,6 +548,7 @@ func (inv *Inventory) RemoveSingleItemFromInventoryByIndex(index int16) {
 	if index < 0 || index >= int16(len(inv.Items)) {
 		log.Fatalln("[RemoveSingleItemFromInventoryByIndex] Index out of Range")
 	}
+
 	copy(inv.Items[index:], inv.Items[index+1:])
 	inv.Items = inv.Items[:len(inv.Items)-1]
 }
@@ -539,7 +556,7 @@ func (inv *Inventory) RemoveSingleItemFromInventoryByIndex(index int16) {
 // RemoveItemsFromInventoryByIndices takes the existing Inventory.Items and removes an InventoryItem at its index
 // by creating new slice to assign to Inventory.Items
 func (inv *Inventory) RemoveItemsFromInventoryByIndices(indices []int16) {
-	output := make([]InventoryItem, len(inv.Items))
+	output := make([]InventoryItem, 0, len(inv.Items))
 
 	for idx, item := range inv.Items {
 		if slices.Contains(indices, int16(idx)) {
@@ -557,7 +574,7 @@ type transfer struct {
 	Count  int32  `json:"count"`
 }
 
-func (c *Character) TransferItem(moveAction map[string]interface{}) {
+func (c *Character) TransferItem(moveAction map[string]any) {
 	transfer := new(transfer)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &transfer)
@@ -585,7 +602,7 @@ type split struct {
 	Count     int32  `json:"count"`
 }
 
-func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	split := new(split)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &split)
@@ -599,34 +616,37 @@ func (c *Character) SplitItem(moveAction map[string]interface{}, profileChangesE
 	*originalItem.UPD.StackObjectsCount -= split.Count
 
 	newItem := &InventoryItem{
-		ID:  split.NewItem,
-		TPL: originalItem.TPL,
-		UPD: originalItem.UPD,
-		Location: &InventoryItemLocation{
-			IsSearched: split.Container.Location.IsSearched,
-			X:          split.Container.Location.X,
-			Y:          split.Container.Location.Y,
-		},
-		ParentID: &split.Container.ID,
-		SlotID:   &split.Container.Container,
-	}
-
-	if split.Container.Location.R == "Vertical" {
-		newItem.Location.R = float64(1)
-	} else {
-		newItem.Location.R = float64(0)
+		ID:       split.NewItem,
+		TPL:      originalItem.TPL,
+		UPD:      originalItem.UPD,
+		ParentID: split.Container.ID,
+		SlotID:   split.Container.Container,
 	}
 
 	*newItem.UPD.StackObjectsCount = split.Count
 
-	height, width := MeasurePurchaseForInventoryMapping([]InventoryItem{*newItem})
-	itemFlatMap := invCache.CreateFlatMapLookup(height, width, newItem)
-	itemFlatMap.Coordinates = invCache.GenerateCoordinatesFromLocation(*itemFlatMap)
-	invCache.AddItemToContainer(split.NewItem, itemFlatMap)
+	if split.Container.Location != nil {
+		newItem.Location = &InventoryItemLocation{
+			IsSearched: split.Container.Location.IsSearched,
+			X:          split.Container.Location.X,
+			Y:          split.Container.Location.Y,
+		}
+		if split.Container.Location.R == "Vertical" {
+			newItem.Location.R = float64(1)
+		} else {
+			newItem.Location.R = float64(0)
+		}
+
+		height, width := MeasurePurchaseForInventoryMapping([]InventoryItem{*newItem})
+		itemFlatMap := invCache.CreateFlatMapLookup(height, width, newItem)
+		itemFlatMap.Coordinates = invCache.GenerateCoordinatesFromLocation(*itemFlatMap)
+		invCache.AddItemToContainer(split.NewItem, itemFlatMap)
+	}
 
 	c.Inventory.Items = append(c.Inventory.Items, *newItem)
 	invCache.SetSingleInventoryIndex(newItem.ID, int16(len(c.Inventory.Items)-1))
 
+	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, originalItem)
 	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
 }
 
@@ -635,7 +655,7 @@ type remove struct {
 	ItemId string `json:"item"`
 }
 
-func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) RemoveItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	remove := new(remove)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &remove)
@@ -663,12 +683,12 @@ func (c *Character) RemoveItem(moveAction map[string]interface{}, profileChanges
 
 type applyInventoryChanges struct {
 	Action       string
-	ChangedItems []interface{} `json:"changedItems"`
+	ChangedItems []any `json:"changedItems"`
 }
 
 //TODO: Make ApplyInventoryChanges not look like shit
 
-func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
+func (c *Character) ApplyInventoryChanges(moveAction map[string]any) {
 	applyInventoryChanges := new(applyInventoryChanges)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &applyInventoryChanges)
@@ -678,7 +698,7 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 
 	cache := *GetCacheByUID(c.ID).Inventory
 	for _, item := range applyInventoryChanges.ChangedItems {
-		properties, ok := item.(map[string]interface{})
+		properties, ok := item.(map[string]any)
 		if !ok {
 			log.Fatalln("Cannot type assert item from Auto-Sort items slice")
 		}
@@ -693,15 +713,15 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]interface{}) {
 		if !ok {
 			log.Fatalln("Cannot type assert item `parentId` property from Auto-Sort items slice")
 		}
-		itemInInventory.ParentID = &parent
+		itemInInventory.ParentID = parent
 
 		slotId, ok := properties["slotId"].(string)
 		if !ok {
 			log.Fatalln("Cannot type assert item `slotId` property from Auto-Sort items slice")
 		}
-		itemInInventory.SlotID = &slotId
+		itemInInventory.SlotID = slotId
 
-		location, ok := properties["location"].(map[string]interface{})
+		location, ok := properties["location"].(map[string]any)
 		if !ok {
 			itemInInventory.Location = nil
 			continue
@@ -761,7 +781,7 @@ type soldItems struct {
 	SchemeID int8   `json:"scheme_id"`
 }
 
-func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	//TODO: Make everything purchased NOT free lol
 
 	invCache := GetCacheByUID(c.ID).Inventory
@@ -791,7 +811,10 @@ func (c *Character) TradingConfirm(moveAction map[string]interface{}, profileCha
 }
 
 func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
-	trader := GetTraderByUID(tradeConfirm.TID)
+	trader, err := GetTraderByUID(tradeConfirm.TID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	assortItem := trader.GetAssortItemByID(tradeConfirm.ItemID)
 	if assortItem == nil {
@@ -808,7 +831,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	// Basically gets the correct amount of items to be created, based on StackSize
 
 	//Create copy-of Character.Inventory.Items for modification in the case of any failures to assign later
-	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items)+len(stackSlice))
+	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items)+len(inventoryItems))
 	copyOfItems = append(copyOfItems, c.Inventory.Items...)
 	//Create copy-of invCache.Stash.Container for modification in the case of any failures to assign later
 	copyOfMap := invCache.Stash.Container
@@ -820,7 +843,12 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	height, width := MeasurePurchaseForInventoryMapping(inventoryItems)
 
 	for _, stack := range stackSlice {
-		copyOfInventoryItems := AssignNewIDs(inventoryItems)
+		var copyOfInventoryItems []InventoryItem
+		if len(stackSlice) != 1 {
+			copyOfInventoryItems = AssignNewIDs(inventoryItems)
+		} else {
+			copyOfInventoryItems = inventoryItems
+		}
 
 		mainItem := &copyOfInventoryItems[len(copyOfInventoryItems)-1]
 
@@ -855,12 +883,19 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 
 		itemInInventory := copyOfItems[*index]
 
-		currency := GetCurrencyByName("RUB")
-		if currency != nil && *currency == itemInInventory.TPL {
+		//TODO: YOU'RE DELETING ALL MY FUCKIN MONEY
+		// the only reason this is here is to convert barter items to currency
+		currency := *GetCurrencyByName(trader.Base.Currency)
+		if IsCurrencyByUID(itemInInventory.TPL) {
 			traderRelations.SalesSum += float32(scheme.Count)
-		} else if IsCurrencyByUID(itemInInventory.TPL) {
-			conversion := ConvertToRoubles(scheme.Count, itemInInventory.TPL)
-			traderRelations.SalesSum += float32(conversion)
+		} else {
+			priceOfItem := *GetPriceByID(itemInInventory.TPL)
+			if "RUB" != trader.Base.Currency {
+				conversion := ConvertFromRouble(priceOfItem, currency)
+				traderRelations.SalesSum += float32(conversion)
+			} else {
+				traderRelations.SalesSum += float32(priceOfItem)
+			}
 		}
 
 		if itemInInventory.UPD != nil && itemInInventory.UPD.StackObjectsCount != nil {
@@ -870,6 +905,8 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 				*itemInInventory.UPD.StackObjectsCount -= remainingBalance
 
 				profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, &itemInInventory)
+			} else if *itemInInventory.UPD.StackObjectsCount == remainingBalance {
+				toDelete[itemInInventory.ID] = *index
 			} else {
 				remainingBalance -= *itemInInventory.UPD.StackObjectsCount
 
@@ -879,7 +916,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 
 				var toChange []*InventoryItem
 				for idx, item := range copyOfItems {
-					if _, ok := toDelete[item.ID]; ok || item.TPL != *currency {
+					if _, ok := toDelete[item.ID]; ok || item.TPL != currency {
 						continue
 					}
 
@@ -922,7 +959,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	c.Inventory.Items = copyOfItems
 
 	if len(toDelete) != 0 {
-		indices := make([]int16, len(toDelete))
+		indices := make([]int16, 0, len(toDelete))
 		for id, idx := range toDelete {
 			invCache.ClearItemFromContainer(id)
 			indices = append(indices, idx)
@@ -940,9 +977,12 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 }
 
 func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
+	trader, err := GetTraderByUID(tradeConfirm.TID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	trader := GetTraderByUID(tradeConfirm.TID).Base
-	saleCurrency := *GetCurrencyByName(trader.Currency)
+	saleCurrency := *GetCurrencyByName(trader.Base.Currency)
 
 	var remainingBalance = tradeConfirm.Price
 	stackMaxSize := *GetItemByUID(saleCurrency).GetStackMaxSize()
@@ -1049,12 +1089,12 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 }
 
 type buyCustomization struct {
-	Action string                   `json:"Action"`
-	Offer  string                   `json:"offer"`
-	Items  []map[string]interface{} `json:"items"`
+	Action string           `json:"Action"`
+	Offer  string           `json:"offer"`
+	Items  []map[string]any `json:"items"`
 }
 
-func (c *Character) CustomizationBuy(moveAction map[string]interface{}) {
+func (c *Character) CustomizationBuy(moveAction map[string]any) {
 	customizationBuy := new(buyCustomization)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &customizationBuy)
@@ -1062,7 +1102,10 @@ func (c *Character) CustomizationBuy(moveAction map[string]interface{}) {
 		log.Fatalln(err)
 	}
 
-	trader := GetTraderByName("Ragman")
+	trader, err := GetTraderByName("Ragman")
+	if err != nil {
+		log.Fatalln(err)
+	}
 	suitsIndex := trader.Index.Suits[customizationBuy.Offer]
 	suitID := trader.Suits[suitsIndex].SuiteID
 
@@ -1090,7 +1133,7 @@ const (
 	upperParentID = "5cd944ca1388ce03a44dc2a4"
 )
 
-func (c *Character) CustomizationWear(moveAction map[string]interface{}) {
+func (c *Character) CustomizationWear(moveAction map[string]any) {
 	customizationWear := new(wearCustomization)
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &customizationWear)
@@ -1122,7 +1165,7 @@ type hideoutUpgrade struct {
 	TimeStamp float64         `json:"timeStamp"`
 }
 
-func (c *Character) HideoutUpgrade(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) HideoutUpgrade(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	fmt.Println("HideoutUpgrade")
 	upgrade := new(hideoutUpgrade)
 	data, _ := json.Marshal(moveAction)
@@ -1137,13 +1180,103 @@ func (c *Character) HideoutUpgrade(moveAction map[string]interface{}, profileCha
 	fmt.Println()
 }
 
+type bindItem struct {
+	Action string
+	Item   string `json:"item"`
+	Index  string `json:"index"`
+}
+
+func (c *Character) BindItem(moveAction map[string]any) {
+	bind := new(bindItem)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &bind)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if _, ok := c.Inventory.FastPanel[bind.Index]; !ok {
+		c.Inventory.FastPanel[bind.Index] = bind.Item
+	} else {
+		if c.Inventory.FastPanel[bind.Index] == bind.Item {
+			c.Inventory.FastPanel[bind.Index] = ""
+		} else {
+			c.Inventory.FastPanel[bind.Index] = bind.Item
+		}
+	}
+}
+
+type tagItem struct {
+	Action   string
+	Item     string `json:"item"`
+	TagName  string `json:"TagName"`
+	TagColor string `json:"TagColor"`
+}
+
+func (c *Character) TagItem(moveAction map[string]any) {
+	tag := new(tagItem)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &tag)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	index := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(tag.Item)
+	if c.Inventory.Items[index].UPD == nil {
+		c.Inventory.Items[index].UPD = new(InventoryItemUpd)
+		c.Inventory.Items[index].UPD.Tag = new(Tag)
+
+		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		c.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+
+	} else if c.Inventory.Items[index].UPD.Tag == nil {
+		c.Inventory.Items[index].UPD.Tag = new(Tag)
+
+		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		c.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+
+	} else {
+		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		c.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+	}
+
+}
+
+type toggleItem struct {
+	Action string
+	Item   string `json:"item"`
+	Value  bool   `json:"value"`
+}
+
+func (c *Character) ToggleItem(moveAction map[string]any) {
+	toggle := new(toggleItem)
+	data, _ := json.Marshal(moveAction)
+	err := json.Unmarshal(data, &toggle)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	index := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(toggle.Item)
+	if c.Inventory.Items[index].UPD == nil {
+		c.Inventory.Items[index].UPD = new(InventoryItemUpd)
+		c.Inventory.Items[index].UPD.Togglable = new(Toggle)
+		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+
+	} else if c.Inventory.Items[index].UPD.Togglable == nil {
+		c.Inventory.Items[index].UPD.Togglable = new(Toggle)
+		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+
+	} else {
+		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+	}
+}
+
 type hideoutUpgradeComplete struct {
 	Action    string
 	AreaType  int8    `json:"areaType"`
 	TimeStamp float64 `json:"timeStamp"`
 }
 
-func (c *Character) HideoutUpgradeComplete(moveAction map[string]interface{}, profileChangesEvent *ProfileChangesEvent) {
+func (c *Character) HideoutUpgradeComplete(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	fmt.Println("HideoutUpgradeComplete")
 	upgradeComplete := new(hideoutUpgradeComplete)
 	data, _ := json.Marshal(moveAction)
@@ -1160,30 +1293,30 @@ func (c *Character) HideoutUpgradeComplete(moveAction map[string]interface{}, pr
 // #region Character structs
 
 type Character struct {
-	ID                string                 `json:"_id"`
-	AID               int                    `json:"aid"`
-	Savage            *string                `json:"savage"`
-	Info              PlayerInfo             `json:"Info"`
-	Customization     PlayerCustomization    `json:"Customization"`
-	Health            HealthInfo             `json:"Health"`
-	Inventory         Inventory              `json:"Inventory"`
-	Skills            PlayerSkills           `json:"Skills"`
-	Stats             PlayerStats            `json:"Stats"`
-	Encyclopedia      map[string]bool        `json:"Encyclopedia"`
-	ConditionCounters ConditionCounters      `json:"ConditionCounters"`
-	BackendCounters   map[string]interface{} `json:"BackendCounters"`
-	InsuredItems      []InsuredItem          `json:"InsuredItems"`
-	Hideout           PlayerHideout          `json:"Hideout"`
-	Bonuses           []Bonus                `json:"Bonuses"`
+	ID                string              `json:"_id"`
+	AID               int                 `json:"aid"`
+	Savage            *string             `json:"savage"`
+	Info              PlayerInfo          `json:"Info"`
+	Customization     PlayerCustomization `json:"Customization"`
+	Health            HealthInfo          `json:"Health"`
+	Inventory         Inventory           `json:"Inventory"`
+	Skills            PlayerSkills        `json:"Skills"`
+	Stats             PlayerStats         `json:"Stats"`
+	Encyclopedia      map[string]bool     `json:"Encyclopedia"`
+	ConditionCounters ConditionCounters   `json:"ConditionCounters"`
+	BackendCounters   map[string]any      `json:"BackendCounters"`
+	InsuredItems      []InsuredItem       `json:"InsuredItems"`
+	Hideout           PlayerHideout       `json:"Hideout"`
+	Bonuses           []Bonus             `json:"Bonuses"`
 	Notes             struct {
-		Notes [][]interface{} `json:"Notes"`
+		Notes [][]any `json:"Notes"`
 	} `json:"Notes"`
 	Quests       []CharacterQuest             `json:"Quests"`
 	RagfairInfo  PlayerRagfairInfo            `json:"RagfairInfo"`
 	WishList     []string                     `json:"WishList"`
 	TradersInfo  map[string]PlayerTradersInfo `json:"TradersInfo"`
 	UnlockedInfo struct {
-		UnlockedProductionRecipe []interface{} `json:"unlockedProductionRecipe"`
+		UnlockedProductionRecipe []any `json:"unlockedProductionRecipe"`
 	} `json:"UnlockedInfo"`
 }
 
@@ -1195,30 +1328,30 @@ type PlayerTradersInfo struct {
 }
 
 type PlayerRagfairInfo struct {
-	Rating          float32       `json:"rating"`
-	IsRatingGrowing bool          `json:"isRatingGrowing"`
-	Offers          []interface{} `json:"offers"`
+	Rating          float32 `json:"rating"`
+	IsRatingGrowing bool    `json:"isRatingGrowing"`
+	Offers          []any   `json:"offers"`
 }
 
 type PlayerHideoutArea struct {
-	Type                  int           `json:"type"`
-	Level                 int           `json:"level"`
-	Active                bool          `json:"active"`
-	PassiveBonusesEnabled bool          `json:"passiveBonusesEnabled"`
-	CompleteTime          int           `json:"completeTime"`
-	Constructing          bool          `json:"constructing"`
-	Slots                 []interface{} `json:"slots"`
-	LastRecipe            string        `json:"lastRecipe"`
+	Type                  int    `json:"type"`
+	Level                 int    `json:"level"`
+	Active                bool   `json:"active"`
+	PassiveBonusesEnabled bool   `json:"passiveBonusesEnabled"`
+	CompleteTime          int    `json:"completeTime"`
+	Constructing          bool   `json:"constructing"`
+	Slots                 []any  `json:"slots"`
+	LastRecipe            string `json:"lastRecipe"`
 }
 type PlayerHideout struct {
-	Production  map[string]interface{} `json:"Production"`
-	Areas       []PlayerHideoutArea    `json:"Areas"`
-	Improvement map[string]interface{} `json:"Improvement"`
+	Production  map[string]any      `json:"Production"`
+	Areas       []PlayerHideoutArea `json:"Areas"`
+	Improvement map[string]any      `json:"Improvement"`
 	//Seed        int                    `json:"Seed"`
 }
 
 type ConditionCounters struct {
-	Counters []interface{} `json:"Counters"`
+	Counters []any `json:"Counters"`
 }
 
 type PlayerStats struct {
@@ -1226,25 +1359,25 @@ type PlayerStats struct {
 }
 
 type StatCounters struct {
-	Items []interface{} `json:"Items"`
+	Items []any `json:"Items"`
 }
 
 type EftStats struct {
-	SessionCounters        map[string]interface{} `json:"SessionCounters"`
-	OverallCounters        map[string]interface{} `json:"OverallCounters"`
-	SessionExperienceMult  int                    `json:"SessionExperienceMult"`
-	ExperienceBonusMult    int                    `json:"ExperienceBonusMult"`
-	TotalSessionExperience int                    `json:"TotalSessionExperience"`
-	LastSessionDate        int                    `json:"LastSessionDate"`
-	Aggressor              map[string]interface{} `json:"Aggressor"`
-	DroppedItems           []interface{}          `json:"DroppedItems"`
-	FoundInRaidItems       []interface{}          `json:"FoundInRaidItems"`
-	Victims                []interface{}          `json:"Victims"`
-	CarriedQuestItems      []interface{}          `json:"CarriedQuestItems"`
-	DamageHistory          map[string]interface{} `json:"DamageHistory"`
-	LastPlayerState        *float32               `json:"LastPlayerState"`
-	TotalInGameTime        int                    `json:"TotalInGameTime"`
-	SurvivorClass          string                 `json:"SurvivorClass"`
+	SessionCounters        map[string]any `json:"SessionCounters"`
+	OverallCounters        map[string]any `json:"OverallCounters"`
+	SessionExperienceMult  int            `json:"SessionExperienceMult"`
+	ExperienceBonusMult    int            `json:"ExperienceBonusMult"`
+	TotalSessionExperience int            `json:"TotalSessionExperience"`
+	LastSessionDate        int            `json:"LastSessionDate"`
+	Aggressor              map[string]any `json:"Aggressor"`
+	DroppedItems           []any          `json:"DroppedItems"`
+	FoundInRaidItems       []any          `json:"FoundInRaidItems"`
+	Victims                []any          `json:"Victims"`
+	CarriedQuestItems      []any          `json:"CarriedQuestItems"`
+	DamageHistory          map[string]any `json:"DamageHistory"`
+	LastPlayerState        *float32       `json:"LastPlayerState"`
+	TotalInGameTime        int            `json:"TotalInGameTime"`
+	SurvivorClass          string         `json:"SurvivorClass"`
 }
 
 type SkillsCommon struct {
@@ -1265,33 +1398,33 @@ type PlayerSkills struct {
 }
 
 type PlayerInfo struct {
-	Nickname               string                 `json:"Nickname"`
-	LowerNickname          string                 `json:"LowerNickname"`
-	Side                   string                 `json:"Side"`
-	Voice                  string                 `json:"Voice"`
-	Level                  int8                   `json:"Level"`
-	Experience             int32                  `json:"Experience"`
-	RegistrationDate       int32                  `json:"RegistrationDate"`
-	GameVersion            string                 `json:"GameVersion"`
-	AccountType            int8                   `json:"AccountType"`
-	MemberCategory         int8                   `json:"MemberCategory"`
-	LockedMoveCommands     bool                   `json:"lockedMoveCommands"`
-	SavageLockTime         int32                  `json:"SavageLockTime"`
-	LastTimePlayedAsSavage int32                  `json:"LastTimePlayedAsSavage"`
-	Settings               map[string]interface{} `json:"Settings"`
-	NicknameChangeDate     int32                  `json:"NicknameChangeDate"`
-	NeedWipeOptions        []interface{}          `json:"NeedWipeOptions"`
+	Nickname               string         `json:"Nickname"`
+	LowerNickname          string         `json:"LowerNickname"`
+	Side                   string         `json:"Side"`
+	Voice                  string         `json:"Voice"`
+	Level                  int8           `json:"Level"`
+	Experience             int32          `json:"Experience"`
+	RegistrationDate       int32          `json:"RegistrationDate"`
+	GameVersion            string         `json:"GameVersion"`
+	AccountType            int8           `json:"AccountType"`
+	MemberCategory         int8           `json:"MemberCategory"`
+	LockedMoveCommands     bool           `json:"lockedMoveCommands"`
+	SavageLockTime         int32          `json:"SavageLockTime"`
+	LastTimePlayedAsSavage int32          `json:"LastTimePlayedAsSavage"`
+	Settings               map[string]any `json:"Settings"`
+	NicknameChangeDate     int32          `json:"NicknameChangeDate"`
+	NeedWipeOptions        []any          `json:"NeedWipeOptions"`
 	LastCompletedWipe      struct {
 		Oid string `json:"$oid"`
 	} `json:"lastCompletedWipe"`
 	LastCompletedEvent struct {
 		Oid string `json:"$oid"`
 	} `json:"lastCompletedEvent"`
-	BannedState             bool          `json:"BannedState"`
-	BannedUntil             int32         `json:"BannedUntil"`
-	IsStreamerModeAvailable bool          `json:"IsStreamerModeAvailable"`
-	SquadInviteRestriction  bool          `json:"SquadInviteRestriction"`
-	Bans                    []interface{} `json:"Bans"`
+	BannedState             bool  `json:"BannedState"`
+	BannedUntil             int32 `json:"BannedUntil"`
+	IsStreamerModeAvailable bool  `json:"IsStreamerModeAvailable"`
+	SquadInviteRestriction  bool  `json:"SquadInviteRestriction"`
+	Bans                    []any `json:"Bans"`
 }
 
 type InfoSettings struct {

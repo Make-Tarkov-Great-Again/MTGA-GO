@@ -2,6 +2,7 @@
   "ip": "127.0.0.1",
   "hostname": "localhost",
   "name": "Make Tarkov Great Again",
+  "brandName": "MTGA",
   "version": "0.0.1",
   "secure": false,
   "ports": {

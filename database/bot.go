@@ -27,7 +27,7 @@ func GetBotTypeByName(name string) *BotType {
 	return botType
 }
 
-func GetBotTypeDifficultyByName(name string, diff string) interface{} {
+func GetBotTypeDifficultyByName(name string, diff string) any {
 	botType := GetBotTypeByName(name)
 	if botType == nil {
 		return nil
@@ -93,7 +93,7 @@ func setBotType(dirPath string) *BotType {
 	}
 
 	difficulties := make(map[string]json.RawMessage)
-	botDifficulty := map[string]interface{}{}
+	botDifficulty := map[string]any{}
 	for difficulty := range files {
 		difficultyPath := filepath.Join(diffPath, difficulty)
 		raw := tools.GetJSONRawMessage(difficultyPath)
@@ -113,7 +113,7 @@ func setBotType(dirPath string) *BotType {
 
 	healthPath := filepath.Join(dirPath, "health.json")
 	if tools.FileExist(healthPath) {
-		health := make(map[string]interface{})
+		health := make(map[string]any)
 
 		raw := tools.GetJSONRawMessage(healthPath)
 		err = json.Unmarshal(raw, &health)
@@ -202,9 +202,9 @@ type BotAppearance struct {
 }
 
 type BotType struct {
-	Difficulties map[string]interface{} `json:"difficulties,omitempty"`
-	Health       map[string]interface{} `json:"health,omitempty"`
-	Loadout      *BotLoadout            `json:"loadout,omitempty"`
+	Difficulties map[string]any `json:"difficulties,omitempty"`
+	Health       map[string]any `json:"health,omitempty"`
+	Loadout      *BotLoadout    `json:"loadout,omitempty"`
 }
 
 type BotLoadout struct {

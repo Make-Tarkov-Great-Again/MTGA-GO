@@ -39,7 +39,7 @@ func GetServerConfig() *ServerConfig {
 	return core.ServerConfig
 }
 
-func GetGlobalBotSettings() *map[string]interface{} {
+func GetGlobalBotSettings() *map[string]any {
 	return core.GlobalBotSettings
 }
 
@@ -124,10 +124,10 @@ func setGetAirdropSettings() *AirdropParameters {
 	return airDropParameters
 }
 
-func setGlobalBotSettings() *map[string]interface{} {
+func setGlobalBotSettings() *map[string]any {
 	raw := tools.GetJSONRawMessage(globalBotSettingsPath)
 
-	globalBotSettings := map[string]interface{}{}
+	globalBotSettings := map[string]any{}
 	err := json.Unmarshal(raw, &globalBotSettings)
 	if err != nil {
 		log.Fatalln(err)
@@ -280,9 +280,9 @@ type Core struct {
 	MainSettings      *MainSettings
 	ServerConfig      *ServerConfig
 	Globals           *Globals
-	GlobalBotSettings *map[string]interface{}
-	//gameplay        map[string]interface{}
-	//blacklist       []interface{}
+	GlobalBotSettings *map[string]any
+	//gameplay        map[string]any
+	//blacklist       []any
 	MatchMetrics      *MatchMetrics
 	AirdropParameters *AirdropParameters
 }
@@ -309,38 +309,38 @@ type airDropChance struct {
 }
 
 type Scav struct {
-	ID                string                 `json:"_id"`
-	AID               int                    `json:"aid"`
-	Savage            *string                `json:"savage"`
-	Info              PlayerInfo             `json:"Info"`
-	Customization     PlayerCustomization    `json:"Customization"`
-	Health            HealthInfo             `json:"Health"`
-	Inventory         Inventory              `json:"Inventory"`
-	Skills            PlayerSkills           `json:"Skills"`
-	Stats             PlayerStats            `json:"Stats"`
-	Encyclopedia      map[string]bool        `json:"Encyclopedia"`
-	ConditionCounters ConditionCounters      `json:"ConditionCounters"`
-	BackendCounters   map[string]interface{} `json:"BackendCounters"`
-	InsuredItems      []interface{}          `json:"InsuredItems"`
-	Hideout           interface{}            `json:"Hideout"`
-	Bonuses           []interface{}          `json:"Bonuses"`
+	ID                string              `json:"_id"`
+	AID               int                 `json:"aid"`
+	Savage            *string             `json:"savage"`
+	Info              PlayerInfo          `json:"Info"`
+	Customization     PlayerCustomization `json:"Customization"`
+	Health            HealthInfo          `json:"Health"`
+	Inventory         Inventory           `json:"Inventory"`
+	Skills            PlayerSkills        `json:"Skills"`
+	Stats             PlayerStats         `json:"Stats"`
+	Encyclopedia      map[string]bool     `json:"Encyclopedia"`
+	ConditionCounters ConditionCounters   `json:"ConditionCounters"`
+	BackendCounters   map[string]any      `json:"BackendCounters"`
+	InsuredItems      []any               `json:"InsuredItems"`
+	Hideout           any                 `json:"Hideout"`
+	Bonuses           []any               `json:"Bonuses"`
 	Notes             struct {
-		Notes [][]interface{} `json:"Notes"`
+		Notes [][]any `json:"Notes"`
 	} `json:"Notes"`
-	Quests       []interface{}     `json:"Quests"`
+	Quests       []any             `json:"Quests"`
 	RagfairInfo  PlayerRagfairInfo `json:"RagfairInfo"`
-	WishList     []interface{}     `json:"WishList"`
-	TradersInfo  []interface{}     `json:"TradersInfo"`
+	WishList     []any             `json:"WishList"`
+	TradersInfo  []any             `json:"TradersInfo"`
 	UnlockedInfo struct {
-		UnlockedProductionRecipe []interface{} `json:"unlockedProductionRecipe"`
+		UnlockedProductionRecipe []any `json:"unlockedProductionRecipe"`
 	} `json:"UnlockedInfo"`
 }
 
 type Globals struct {
-	Config               map[string]interface{} `json:"config"`
-	BotPresets           [18]interface{}        `json:"bot_presets"`
-	BotWeaponScatterings [4]interface{}         `json:"BotWeaponScatterings"`
-	ItemPresets          map[string]interface{} `json:"ItemPresets"`
+	Config               map[string]any `json:"config"`
+	BotPresets           [18]any        `json:"bot_presets"`
+	BotWeaponScatterings [4]any         `json:"BotWeaponScatterings"`
+	ItemPresets          map[string]any `json:"ItemPresets"`
 }
 
 type MainSettings struct {
@@ -397,12 +397,13 @@ type FramerateLimit struct {
 }
 
 type ServerConfig struct {
-	IP       string      `json:"ip"`
-	Hostname string      `json:"hostname"`
-	Name     string      `json:"name"`
-	Version  string      `json:"version"`
-	Secure   bool        `json:"secure"`
-	Ports    ServerPorts `json:"ports"`
+	IP        string      `json:"ip"`
+	Hostname  string      `json:"hostname"`
+	Name      string      `json:"name"`
+	BrandName string      `json:"brandName"`
+	Version   string      `json:"version"`
+	Secure    bool        `json:"secure"`
+	Ports     ServerPorts `json:"ports"`
 }
 
 type ServerPorts struct {

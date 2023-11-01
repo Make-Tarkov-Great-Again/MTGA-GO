@@ -25,6 +25,7 @@ func main() {
 	database.SetDatabase()
 	mods.Init()
 	database.SetBundleManifests()
+	database.ProcessCustomItems()
 	database.SetTraderIndex()
 	database.SetProfiles()
 
@@ -113,8 +114,8 @@ func registerAccount() {
 		InIgnoreList: []string{},
 	}
 
-	account.FriendRequestInbox = []interface{}{}
-	account.FriendRequestOutbox = []interface{}{}
+	account.FriendRequestInbox = []any{}
+	account.FriendRequestOutbox = []any{}
 
 	profiles[UID] = &database.Profile{}
 	profiles[UID].Account = &account
@@ -125,7 +126,7 @@ func registerAccount() {
 			EquipmentBuilds: []*database.EquipmentBuild{},
 			WeaponBuilds:    []*database.WeaponBuild{},
 		},
-		Insurance: []interface{}{},
+		Insurance: []any{},
 		Mailbox:   []*database.Notification{},
 	}
 	profiles[UID].Dialogue = &database.Dialogue{}
@@ -283,7 +284,7 @@ func wipeYoAss(account *database.Account) {
 			EquipmentBuilds: []*database.EquipmentBuild{},
 			WeaponBuilds:    []*database.WeaponBuild{},
 		},
-		Insurance: []interface{}{},
+		Insurance: []any{},
 		Mailbox:   []*database.Notification{},
 	}
 	profiles[account.UID].Dialogue = &database.Dialogue{}

@@ -10,22 +10,22 @@ import (
 )
 
 type Inventory struct {
-	Items              []InventoryItem `json:"items"`
-	Equipment          string          `json:"equipment"`
-	Stash              string          `json:"stash"`
-	SortingTable       string          `json:"sortingTable"`
-	QuestRaidItems     string          `json:"questRaidItems"`
-	QuestStashItems    string          `json:"questStashItems"`
-	FastPanel          interface{}     `json:"fastPanel"`
-	HideoutAreaStashes interface{}     `json:"hideoutAreaStashes"`
+	Items              []InventoryItem   `json:"items"`
+	Equipment          string            `json:"equipment"`
+	Stash              string            `json:"stash"`
+	SortingTable       string            `json:"sortingTable"`
+	QuestRaidItems     string            `json:"questRaidItems"`
+	QuestStashItems    string            `json:"questStashItems"`
+	FastPanel          map[string]string `json:"fastPanel"`
+	HideoutAreaStashes any               `json:"hideoutAreaStashes"`
 }
 
 type InventoryItem struct {
 	ID       string                 `json:"_id"`
 	TPL      string                 `json:"_tpl,omitempty"`
 	Location *InventoryItemLocation `json:"location,omitempty"`
-	ParentID *string                `json:"parentId,omitempty"`
-	SlotID   *string                `json:"slotId,omitempty"`
+	ParentID string                 `json:"parentId,omitempty"`
+	SlotID   string                 `json:"slotId,omitempty"`
 	UPD      *InventoryItemUpd      `json:"upd,omitempty"`
 }
 
@@ -40,6 +40,17 @@ type InventoryItemUpd struct {
 	RepairKit         *RepairKit  `json:"RepairKit,omitempty"`
 	Light             *Light      `json:"Light,omitempty"`
 	Resource          *Resource   `json:"Resource,omitempty"`
+	Tag               *Tag        `json:"Tag,omitempty"`
+	Togglable         *Toggle     `json:"Togglable,omitempty"`
+}
+
+type Toggle struct {
+	On bool `json:"On"`
+}
+
+type Tag struct {
+	Name  string
+	Color string
 }
 
 type Resource struct {
@@ -79,10 +90,10 @@ type FireMode struct {
 }
 
 type InventoryItemLocation struct {
-	IsSearched bool        `json:"isSearched"`
-	R          interface{} `json:"r"`
-	X          interface{} `json:"x"`
-	Y          interface{} `json:"y"`
+	IsSearched bool `json:"isSearched"`
+	R          any  `json:"r"`
+	X          any  `json:"x"`
+	Y          any  `json:"y"`
 }
 
 type InventoryContainer struct {
@@ -119,7 +130,7 @@ func CreateNewItem(TPL string, parent string) *InventoryItem {
 	item := new(InventoryItem)
 
 	item.ID = tools.GenerateMongoID()
-	item.ParentID = &parent
+	item.ParentID = parent
 	item.TPL = TPL
 
 	return item
@@ -169,11 +180,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 	for index := range ic.Lookup.Reverse {
 		itemInInventory := inventory.Items[index]
-		if itemInInventory.ParentID == nil ||
-			*itemInInventory.ParentID != inventory.Stash ||
-			itemInInventory.SlotID == nil ||
-			*itemInInventory.SlotID != "hideout" ||
-			itemInInventory.Location == nil {
+		if itemInInventory.ParentID == "" || itemInInventory.ParentID != inventory.Stash || itemInInventory.SlotID != "hideout" || itemInInventory.Location == nil {
 			continue
 		}
 
@@ -369,8 +376,11 @@ func (ic *InventoryContainer) ClearItemFromContainer(UID string) {
 		containerMap[index] = ""
 	}
 
-	delete(ic.Lookup.Reverse, ic.Lookup.Forward[UID])
-	delete(ic.Lookup.Forward, UID)
+	if _, ok := ic.Lookup.Forward[UID]; ok {
+		delete(ic.Lookup.Reverse, ic.Lookup.Forward[UID])
+		delete(ic.Lookup.Forward, UID)
+	}
+
 	delete(ic.Stash.Container.FlatMap, UID)
 }
 
@@ -437,48 +447,52 @@ columnLoop:
 // ConvertAssortItemsToInventoryItem converts AssortItem to InventoryItem, also reassigns IDs of all items
 // as well as their children; sets parent item to last index
 func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *string) []InventoryItem {
-	output := make([]InventoryItem, 0, len(assortItems))
 	convertedIDs := make(map[string]string)
+	var parent InventoryItem
 
-	var parent *InventoryItem
-
+	input := make([]InventoryItem, 0, len(assortItems))
 	for _, assortItem := range assortItems {
 		data, err := json.Marshal(assortItem)
 		if err != nil {
 			log.Println("Failed to marshal Assort Item, returning empty output")
-			return output
+			return input
 		}
 
 		inventoryItem := new(InventoryItem)
 		err = json.Unmarshal(data, inventoryItem)
 		if err != nil {
 			log.Println("Failed to unmarshal Assort Item to Inventory Item, returning empty output")
-			return output
+			return input
 		}
 
 		newId := tools.GenerateMongoID()
 		convertedIDs[inventoryItem.ID] = newId
 		inventoryItem.ID = newId
 
-		if *inventoryItem.SlotID == "hideout" && *inventoryItem.ParentID == "hideout" {
-			inventoryItem.ParentID = stashID
+		if inventoryItem.SlotID == "hideout" && inventoryItem.ParentID == "hideout" {
+			inventoryItem.ParentID = *stashID
 
-			parent = inventoryItem
+			parent = *inventoryItem
 			continue
 		}
 
-		output = append(output, *inventoryItem)
+		input = append(input, *inventoryItem)
 	}
 
-	output = append(output, *parent)
+	input = append(input, parent)
 
-	for _, item := range output {
-		CID, ok := convertedIDs[*item.ParentID]
-		if !ok {
+	//TODO: items are not assigning their id's properly
+	output := make([]InventoryItem, 0, len(assortItems))
+	for _, item := range input {
+		if CID, ok := convertedIDs[item.ParentID]; !ok {
 			continue
+		} else {
+			item.ParentID = CID
+			output = append(output, item)
 		}
-		item.ParentID = &CID
 	}
+
+	output = append(output, parent)
 	return output
 }
 
@@ -495,11 +509,11 @@ func AssignNewIDs(inventoryItems []InventoryItem) []InventoryItem {
 	}
 
 	for _, item := range output {
-		CID, ok := convertedIDs[*item.ParentID]
+		CID, ok := convertedIDs[item.ParentID]
 		if !ok {
 			continue
 		}
-		item.ParentID = &CID
+		item.ParentID = CID
 	}
 	return output
 }
@@ -519,11 +533,11 @@ func GetInventoryItemFamilyTreeIDs(items []InventoryItem, parent string) []strin
 	var list []string
 
 	for _, childItem := range items {
-		if childItem.ParentID == nil {
+		if childItem.ParentID == "" {
 			continue
 		}
 
-		if *childItem.ParentID == parent {
+		if childItem.ParentID == parent {
 			list = append(list, GetInventoryItemFamilyTreeIDs(items, childItem.ID)...)
 		}
 	}
@@ -591,7 +605,7 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 		if parentFolded || childFolded {
 			continue
 		} else if (foldablePropertyExists && canFold) &&
-			*itemInInventory.SlotID == foldedSlotID &&
+			itemInInventory.SlotID == foldedSlotID &&
 			(parentFolded || childFolded) {
 			continue
 		}
@@ -678,7 +692,7 @@ func MeasurePurchaseForInventoryMapping(items []InventoryItem) (int8, int8) {
 		if parentFolded || childFolded {
 			continue
 		} else if (foldablePropertyExists && canFold) &&
-			*item.SlotID == foldedSlotID &&
+			item.SlotID == foldedSlotID &&
 			(parentFolded || childFolded) {
 			continue
 		}

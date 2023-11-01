@@ -11,7 +11,7 @@ import (
 )
 
 var questsQuery = map[string]*Quest{}
-var quests = map[string]interface{}{}
+var quests = map[string]any{}
 
 // #region Quests getters
 
@@ -28,7 +28,7 @@ func GetQuestFromQueryByQID(qid string) *Quest {
 	return query
 }
 
-func GetQuestByQID(qid string) interface{} {
+func GetQuestByQID(qid string) any {
 	quest, ok := quests[qid]
 	if !ok {
 		fmt.Println("Quest", qid, "does not exist in quests")
@@ -37,7 +37,7 @@ func GetQuestByQID(qid string) interface{} {
 	return quest
 }
 
-func GetQuests() map[string]interface{} {
+func GetQuests() map[string]any {
 	return quests
 }
 
@@ -60,7 +60,7 @@ func setQuests() {
 		log.Fatalln(err)
 	}
 
-	dynamic := make(map[string]map[string]interface{})
+	dynamic := make(map[string]map[string]any)
 	err = json.Unmarshal(raw, &dynamic)
 	if err != nil {
 		log.Fatalln(err)
@@ -73,7 +73,7 @@ func setQuests() {
 		quest.Trader = v["traderId"].(string)
 		quest.Dialogue = setQuestDialogue(v)
 
-		questConditions, ok := v["conditions"].(map[string]interface{})
+		questConditions, ok := v["conditions"].(map[string]any)
 		if ok {
 			conditions := &QuestAvailabilityConditions{}
 			process := setQuestConditions(questConditions)
@@ -97,7 +97,7 @@ func setQuests() {
 			fmt.Println("Conditions don't exist? Check " + k)
 		}
 
-		questRewards, ok := v["rewards"].(map[string]interface{})
+		questRewards, ok := v["rewards"].(map[string]any)
 		if ok {
 			rewards := &QuestRewardAvailabilityConditions{}
 			process := setQuestRewards(questRewards)
@@ -117,7 +117,7 @@ func setQuests() {
 	//_ = tools.WriteToFile("questsDatabase.json", questsQuery)
 }
 
-func setQuestDialogue(quest map[string]interface{}) QuestDialogues {
+func setQuestDialogue(quest map[string]any) QuestDialogues {
 	dialogues := new(QuestDialogues)
 
 	description, ok := quest["description"].(string)
@@ -166,14 +166,14 @@ const (
 	props  string = "_props"
 )
 
-func setQuestConditions(conditions map[string]interface{}) map[string]map[string]interface{} {
-	output := make(map[string]map[string]interface{})
+func setQuestConditions(conditions map[string]any) map[string]map[string]any {
+	output := make(map[string]map[string]any)
 
-	processCategory := func(category string, conditionList []interface{}) {
-		processedCategory := make(map[string]interface{})
+	processCategory := func(category string, conditionList []any) {
+		processedCategory := make(map[string]any)
 
 		for _, condition := range conditionList {
-			conditionMap, ok := condition.(map[string]interface{})
+			conditionMap, ok := condition.(map[string]any)
 			if !ok || len(conditionMap) == 0 {
 				continue
 			}
@@ -194,13 +194,13 @@ func setQuestConditions(conditions map[string]interface{}) map[string]map[string
 		}
 	}
 
-	fails, _ := conditions[Fail].([]interface{})
+	fails, _ := conditions[Fail].([]any)
 	processCategory(Fail, fails)
 
-	starts, _ := conditions[ForStart].([]interface{})
+	starts, _ := conditions[ForStart].([]any)
 	processCategory(ForStart, starts)
 
-	successes, _ := conditions[ForFinish].([]interface{})
+	successes, _ := conditions[ForFinish].([]any)
 	processCategory(ForFinish, successes)
 
 	return output
@@ -219,10 +219,10 @@ var QuestStatus = map[int8]string{
 	9: "AvailableAfter",
 }
 
-func processQuestCondition(name string, conditions map[string]interface{}) interface{} {
+func processQuestCondition(name string, conditions map[string]any) any {
 
-	output := make(map[string]interface{})
-	props, _ := conditions[props].(map[string]interface{})
+	output := make(map[string]any)
+	props, _ := conditions[props].(map[string]any)
 
 	switch name {
 	case "Level":
@@ -255,7 +255,7 @@ func processQuestCondition(name string, conditions map[string]interface{}) inter
 		previousQuestID, _ := props["target"].(string)
 		condition.PreviousQuestID = previousQuestID
 
-		value, _ := props["status"].([]interface{})[0].(float64)
+		value, _ := props["status"].([]any)[0].(float64)
 		condition.Status = QuestStatus[int8(value)]
 
 		output[questID] = condition
@@ -291,7 +291,7 @@ func processQuestCondition(name string, conditions map[string]interface{}) inter
 
 		handoverID, _ := props["id"].(string)
 
-		itemID, _ := props["target"].([]interface{})[0].(string)
+		itemID, _ := props["target"].([]any)[0].(string)
 		handover.ItemToHandover = itemID
 
 		ifString, _ := props["value"].(string)
@@ -332,18 +332,18 @@ const (
 	_type string = "type"
 )
 
-func setQuestRewards(rewards map[string]interface{}) map[string]interface{} {
-	output := make(map[string]interface{})
+func setQuestRewards(rewards map[string]any) map[string]any {
+	output := make(map[string]any)
 
-	fails, ok := rewards[Fail].([]interface{})
+	fails, ok := rewards[Fail].([]any)
 	if ok && len(fails) != 0 {
-		succ := make(map[string]interface{})
+		succ := make(map[string]any)
 
 		for _, fail := range fails {
-			if len(fail.(map[string]interface{})) == 0 {
+			if len(fail.(map[string]any)) == 0 {
 				continue
 			}
-			reward := fail.(map[string]interface{})
+			reward := fail.(map[string]any)
 
 			name := reward[_type].(string)
 			succ[name] = setQuestReward(name, reward)
@@ -351,15 +351,15 @@ func setQuestRewards(rewards map[string]interface{}) map[string]interface{} {
 		output[Fail] = succ
 	}
 
-	starts, ok := rewards[Started].([]interface{})
+	starts, ok := rewards[Started].([]any)
 	if ok && len(starts) != 0 {
-		succ := make(map[string]interface{})
+		succ := make(map[string]any)
 
 		for _, start := range starts {
-			if len(start.(map[string]interface{})) == 0 {
+			if len(start.(map[string]any)) == 0 {
 				continue
 			}
-			reward := start.(map[string]interface{})
+			reward := start.(map[string]any)
 
 			name := reward[_type].(string)
 			succ[name] = setQuestReward(name, reward)
@@ -367,16 +367,16 @@ func setQuestRewards(rewards map[string]interface{}) map[string]interface{} {
 		output[Started] = succ
 	}
 
-	successes, ok := rewards[Success].([]interface{})
+	successes, ok := rewards[Success].([]any)
 	if ok && len(successes) != 0 {
-		succ := make(map[string]interface{})
+		succ := make(map[string]any)
 
 		for _, success := range successes {
-			if len(success.(map[string]interface{})) == 0 {
+			if len(success.(map[string]any)) == 0 {
 				continue
 			}
 
-			reward := success.(map[string]interface{})
+			reward := success.(map[string]any)
 
 			name := reward[_type].(string)
 			succ[name] = setQuestReward(name, reward)
@@ -386,8 +386,8 @@ func setQuestRewards(rewards map[string]interface{}) map[string]interface{} {
 	return output
 }
 
-func setQuestReward(name string, reward map[string]interface{}) interface{} {
-	output := make(map[string]interface{})
+func setQuestReward(name string, reward map[string]any) any {
+	output := make(map[string]any)
 
 	switch name {
 	case "Experience":
@@ -406,10 +406,10 @@ func setQuestReward(name string, reward map[string]interface{}) interface{} {
 
 		itemID, _ := reward["target"].(string)
 
-		idems, _ := reward["items"].([]interface{})
-		questRewardItem.Items = make([]map[string]interface{}, 0, len(idems))
+		idems, _ := reward["items"].([]any)
+		questRewardItem.Items = make([]map[string]any, 0, len(idems))
 		for _, idem := range idems {
-			idem := idem.(map[string]interface{})
+			idem := idem.(map[string]any)
 			questRewardItem.Items = append(questRewardItem.Items, idem)
 		}
 
@@ -479,7 +479,7 @@ func setQuestReward(name string, reward map[string]interface{}) interface{} {
 			scheme.AreaID = ifInt
 		}
 
-		item, ok := reward["items"].([]interface{})[0].(map[string]interface{})["_tpl"].(string)
+		item, ok := reward["items"].([]any)[0].(map[string]any)["_tpl"].(string)
 		if ok {
 			scheme.Item = item
 		}
@@ -578,12 +578,12 @@ type QuestRewardProductionScheme struct {
 
 type QuestRewardItem struct {
 	FindInRaid bool
-	Items      []map[string]interface{}
+	Items      []map[string]any
 	Value      int
 }
 
 type QuestRewardAssortUnlock struct {
-	Items        []map[string]interface{}
+	Items        []map[string]any
 	LoyaltyLevel int
 }
 

@@ -19,15 +19,13 @@ const routeNotImplemented = "Route is not implemented yet, using empty values in
 
 // GetBundleList returns a list of custom bundles to the client
 func GetBundleList(w http.ResponseWriter, r *http.Request) {
-	defer database.ClearBundleManifests()
-	output := make([]*database.Manifest, 0)
-
 	manifests := database.GetBundleManifests()
-	if len(manifests) != 0 {
-		output = manifests
-	}
+	services.ZlibJSONReply(w, r.RequestURI, manifests)
+}
 
-	services.ZlibJSONReply(w, r.RequestURI, output)
+func GetBrandName(w http.ResponseWriter, r *http.Request) {
+	brand := map[string]string{"name": database.GetServerConfig().BrandName}
+	services.ZlibJSONReply(w, r.URL.Path, brand)
 }
 
 func ShowPersonKilledMessage(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +33,7 @@ func ShowPersonKilledMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainGameStart(w http.ResponseWriter, r *http.Request) {
-	data := map[string]interface{}{
+	data := map[string]any{
 		"utc_time": tools.GetCurrentTimeInSeconds(),
 	}
 
@@ -157,7 +155,7 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 	character := database.GetCharacterByUID(sessionID)
 
 	if character == nil || character.ID == "" {
-		profiles := services.ApplyResponseBody([]interface{}{})
+		profiles := services.ApplyResponseBody([]any{})
 		services.ZlibJSONReply(w, r.RequestURI, profiles)
 		fmt.Println("Character doesn't exist, begin creation")
 	} else {
@@ -167,7 +165,7 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 		playerScav.AID = character.AID
 		playerScav.ID = *character.Savage
 
-		slice := []interface{}{*playerScav, *character}
+		slice := []any{*playerScav, *character}
 		body := services.ApplyResponseBody(slice)
 		services.ZlibJSONReply(w, r.RequestURI, body)
 	}
@@ -220,7 +218,7 @@ func MainNicknameReserved(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
-	parsedData := services.GetParsedBody(r).(map[string]interface{})
+	parsedData := services.GetParsedBody(r).(map[string]any)
 
 	nickname, ok := parsedData["nickname"]
 	if !ok {
@@ -302,14 +300,14 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 
 	stats := &pmc.Stats.Eft
 	stats.SessionCounters = nil
-	stats.OverallCounters = map[string]interface{}{"Items": []interface{}{}}
+	stats.OverallCounters = map[string]any{"Items": []any{}}
 	stats.Aggressor = nil
-	stats.DroppedItems = make([]interface{}, 0)
-	stats.FoundInRaidItems = make([]interface{}, 0)
-	stats.Victims = make([]interface{}, 0)
-	stats.CarriedQuestItems = make([]interface{}, 0)
-	stats.DamageHistory = map[string]interface{}{
-		"BodyParts":        []interface{}{},
+	stats.DroppedItems = make([]any, 0)
+	stats.FoundInRaidItems = make([]any, 0)
+	stats.Victims = make([]any, 0)
+	stats.CarriedQuestItems = make([]any, 0)
+	stats.DamageHistory = map[string]any{
+		"BodyParts":        []any{},
 		"LethalDamage":     nil,
 		"LethalDamagePart": "Head",
 	}
@@ -325,7 +323,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	resizedAreas = append(resizedAreas, hideout.Areas...)
 	hideout.Areas = resizedAreas
 
-	hideout.Improvement = make(map[string]interface{})
+	hideout.Improvement = make(map[string]any)
 
 	profile.Character = &pmc
 	profile.Cache = profile.SetCache()
@@ -445,14 +443,14 @@ func MainQuestList(w http.ResponseWriter, r *http.Request) {
 
 func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
 	group := &CurrentGroup{
-		Squad: []interface{}{},
+		Squad: []any{},
 	}
 	body := services.ApplyResponseBody(group)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
-	body := services.ApplyResponseBody([]interface{}{})
+	body := services.ApplyResponseBody([]any{})
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
@@ -482,21 +480,21 @@ func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
 func MainLogout(w http.ResponseWriter, r *http.Request) {
 	database.GetProfileByUID(services.GetSessionID(r)).SaveProfile()
 
-	body := services.ApplyResponseBody(map[string]interface{}{"status": "ok"})
+	body := services.ApplyResponseBody(map[string]any{"status": "ok"})
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainPrices(w http.ResponseWriter, r *http.Request) {
-	prices := *database.GetPrices()
+	prices := database.GetPrices()
 	nextResupply := database.SetResupplyTimer()
 
 	supplyData := &SupplyData{
 		SupplyNextTime: nextResupply,
 		Prices:         prices,
 		CurrencyCourses: CurrencyCourses{
-			RUB: prices["5449016a4bdc2d6f028b456f"],
-			EUR: prices["569668774bdc2da2298b4568"],
-			DOL: prices["5696686a4bdc2da3298b456a"],
+			RUB: *prices["5449016a4bdc2d6f028b456f"],
+			EUR: *prices["569668774bdc2da2298b4568"],
+			DOL: *prices["5696686a4bdc2da3298b456a"],
 		},
 	}
 
@@ -504,67 +502,77 @@ func MainPrices(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-var actionHandlers = map[string]func(map[string]interface{}, *database.Character, *database.ProfileChangesEvent){
-	"QuestAccept": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+var actionHandlers = map[string]func(map[string]any, *database.Character, *database.ProfileChangesEvent){
+	"QuestAccept": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.QuestAccept(moveAction["qid"].(string), profileChangeEvent)
 	},
-	"Examine": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"Examine": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.ExamineItem(moveAction)
 	},
-	"Move": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"Move": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.MoveItemInStash(moveAction, profileChangeEvent)
 	},
-	"Swap": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"Swap": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.SwapItemInStash(moveAction, profileChangeEvent)
 	},
-	"Fold": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"Fold": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.FoldItem(moveAction, profileChangeEvent)
 	},
-	"Merge": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"Merge": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.MergeItem(moveAction, profileChangeEvent)
 	},
-	"Transfer": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"Transfer": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.TransferItem(moveAction)
 	},
-	"Split": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"Split": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.SplitItem(moveAction, profileChangeEvent)
 	},
-	"ApplyInventoryChanges": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"ApplyInventoryChanges": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.ApplyInventoryChanges(moveAction)
 	},
-	"ReadEncyclopedia": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"ReadEncyclopedia": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.ReadEncyclopedia(moveAction)
 	},
-	"TradingConfirm": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"TradingConfirm": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.TradingConfirm(moveAction, profileChangeEvent)
 	},
-	"Remove": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"Remove": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.RemoveItem(moveAction, profileChangeEvent)
 	},
-	"CustomizationBuy": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"CustomizationBuy": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.CustomizationBuy(moveAction)
 	},
-	"CustomizationWear": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"CustomizationWear": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.CustomizationWear(moveAction)
 	},
-	"HideoutUpgrade": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"Bind": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.BindItem(moveAction)
+	},
+	"Tag": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.TagItem(moveAction)
+	},
+	"Toggle": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.ToggleItem(moveAction)
+	},
+	"HideoutUpgrade": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.HideoutUpgrade(moveAction, profileChangeEvent)
 	},
 	//HideoutUpgradeComplete
-	"HideoutUpgradeComplete": func(moveAction map[string]interface{}, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+	"HideoutUpgradeComplete": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
 		character.HideoutUpgradeComplete(moveAction, profileChangeEvent)
 	},
 }
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
-	data := services.GetParsedBody(r).(map[string]interface{})["data"].([]interface{})
+	parsed := services.GetParsedBody(r)
+	data := parsed.(map[string]any)["data"].([]any)
 	length := int8(len(data)) - 1
 
 	character := database.GetCharacterByUID(services.GetSessionID(r))
 	profileChangeEvent := database.CreateProfileChangesEvent(character)
 
 	for i, move := range data {
-		moveAction := move.(map[string]interface{})
+		moveAction := move.(map[string]any)
 		action := moveAction["Action"].(string)
 		log.Println("[", i, "/", length, "] Action: ", action)
 
@@ -646,7 +654,11 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 
 	Traders := make(map[string]traderInsuranceInfo)
 	for _, TID := range insuranceListCost.Traders {
-		trader := database.GetTraderByUID(TID)
+		trader, err := database.GetTraderByUID(TID)
+		if err != nil {
+			log.Fatalln("InsuranceListCost:", err)
+		}
+
 		loyaltyLevel := trader.GetTraderLoyaltyLevel(character)
 
 		Traders[TID] = traderInsuranceInfo{
@@ -686,25 +698,25 @@ func MatchAvailable(w http.ResponseWriter, r *http.Request) {
 }
 
 func RaidNotReady(w http.ResponseWriter, r *http.Request) {
-	body := services.ApplyResponseBody(map[string]interface{}{})
+	body := services.ApplyResponseBody(map[string]any{})
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func RaidReady(w http.ResponseWriter, r *http.Request) {
-	body := services.ApplyResponseBody(map[string]interface{}{})
+	body := services.ApplyResponseBody(map[string]any{})
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 type groupStatus struct {
-	Players []interface{} `json:"players"`
-	Invite  []interface{} `json:"invite"`
-	Group   []interface{} `json:"group"`
+	Players []any `json:"players"`
+	Invite  []any `json:"invite"`
+	Group   []any `json:"group"`
 }
 
 var groupStatusOutput = groupStatus{
-	Players: make([]interface{}, 0),
-	Invite:  make([]interface{}, 0),
-	Group:   make([]interface{}, 0),
+	Players: make([]any, 0),
+	Invite:  make([]any, 0),
+	Group:   make([]any, 0),
 }
 
 func GroupStatus(w http.ResponseWriter, r *http.Request) {
@@ -752,7 +764,7 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 	//TODO: Send bots lol
-	body := services.ApplyResponseBody([]interface{}{})
+	body := services.ApplyResponseBody([]any{})
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 

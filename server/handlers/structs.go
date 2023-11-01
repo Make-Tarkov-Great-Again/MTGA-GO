@@ -7,9 +7,9 @@ type QuestAccept struct{}
 // #endregion
 
 type SupplyData struct {
-	SupplyNextTime  int              `json:"supplyNextTime"`
-	Prices          map[string]int32 `json:"prices"`
-	CurrencyCourses CurrencyCourses  `json:"currencyCourses"`
+	SupplyNextTime  int               `json:"supplyNextTime"`
+	Prices          map[string]*int32 `json:"prices"`
+	CurrencyCourses CurrencyCourses   `json:"currencyCourses"`
 }
 
 type CurrencyCourses struct {
@@ -29,7 +29,7 @@ type ServerListing struct {
 }
 
 type CurrentGroup struct {
-	Squad []interface{} `json:"squad"`
+	Squad []any `json:"squad"`
 }
 
 type ProfileStatuses struct {
@@ -38,12 +38,12 @@ type ProfileStatuses struct {
 }
 
 type ProfileStatus struct {
-	ProfileID    string      `json:"profileid"`
-	ProfileToken interface{} `json:"profileToken"`
-	Status       string      `json:"status"`
-	SID          string      `json:"sid"`
-	IP           string      `json:"ip"`
-	Port         int         `json:"port"`
+	ProfileID    string `json:"profileid"`
+	ProfileToken any    `json:"profileToken"`
+	Status       string `json:"status"`
+	SID          string `json:"sid"`
+	IP           string `json:"ip"`
+	Port         int    `json:"port"`
 }
 
 type Notifier struct {
@@ -107,6 +107,6 @@ type DialogView struct {
 }
 
 type FriendRequestMailbox struct {
-	Err  int           `json:"err"`
-	Data []interface{} `json:"data"`
+	Err  int   `json:"err"`
+	Data []any `json:"data"`
 }
