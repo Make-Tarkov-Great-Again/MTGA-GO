@@ -322,11 +322,63 @@ var HQImprovisedArmorRig = map[string]*database.CustomItemAPI{
 			"armorClass":    5,
 			"armorZone": []string{
 				"Chest",
-				"Wallet",
 				"Stomach",
 			},
 			"Prefab": database.Prefab{
-				Path: "assets/content/items/barter/ration-card/item_barter_valuable_bitcoin.bundle",
+				Path: "assets/content/items/equipment/armor_improvised/efh_improsived_armor.bundle",
+			},
+		},
+	},
+	"efh_improvised_armor_low_quality": {
+		API: "item",
+		Parameters: database.CustomItemParams{
+			ReferenceItemTPL: "5d5d646386f7742797261fd9",
+			HandbookPrice:    42420,
+			ModifierType:     "clone",
+			AddToTrader: map[string][]*database.CustomItemAddToTrader{
+				"Ragman": {
+					{
+						LoyaltyLevel: 0,
+						BarterScheme: map[string]float32{
+							"5fd4c4fa16cac650092f6771": 1,
+							"591094e086f7747caa7bb2ef": 1,
+							"57347c1124597737fb1379e3": 3,
+							"5449016a4bdc2d6f028b456f": 6000,
+						},
+						AmountInStock: 999,
+					},
+					{
+						LoyaltyLevel: 2,
+						BarterScheme: map[string]float32{
+							"5449016a4bdc2d6f028b456f": 47000,
+						},
+						AmountInStock: 2,
+					},
+				},
+			},
+		},
+		Locale: map[string]*database.CustomItemLocale{
+			"en": {
+				Name:        "[EFH] Improvised Armored Carrier",
+				ShortName:   "IAC",
+				Description: "This Improvised Armored Carrier is a testament to craftsmanship and innovation in a world defined by scarcity. Its foundation is built upon sturdy cargo tarp, repurposed from the shelves of \"IDEA,\". This trap, known for its flexibility and durability, forms the resilient core of the carrier to hold your magazines, and whatever else, you could need to cary on the battlefield.\nFor added protection, this variant features Level 5A armored plates salvaged from somewhere within the Tarkov region. Meticulously integrated into the structure, these plates are bound together through a combination of expert sewing, precise riveting, and cold-welding techniques. The result is a meticulously crafted carrier that offers dependable shielding and versatility, capable of withstanding even some of the strongest bullets.\nAs you finish examining the object, you ponder who made was the master improvisor who put this thing together.",
+			},
+			"ru": {
+				Name:        "[EFH] Самодельный Бронированный Несущий",
+				ShortName:   "СБН",
+				Description: "Этот Самодельный Бронированный Несущий - свидетельство искусства и инноваций в мире, определенном нехваткой. Его основа построена на прочном грузовом тенте, переделанном с полок магазина \"IDEA\". Этот тент, известный своей гибкостью и прочностью, формирует устойчивое ядро несущего, предназначенного для хранения ваших магазинов и всего, что вам может понадобиться на поле боя.\nДля дополнительной защиты эта модификация включает в себя броневые пластины уровня 5А, извлеченные откуда-то в регионе Таркова. Эти пластины тщательно интегрированы в структуру с помощью опытного шитья, точного заклепывания и методов холодной сварки. Результатом является метикулезно сделанный несущий, обеспечивающий надежную защиту и универсальность, способный выдерживать даже некоторые из самых сильных пуль.\nЗавершая осмотр объекта, вы размышляете о том, кто был мастером-импровизатором, создавшим это удивительное изделие.",
+			},
+		},
+		Overrides: map[string]any{
+			"MaxDurability": 45,
+			"Weight":        13.1,
+			"armorClass":    4,
+			"armorZone": []string{
+				"Chest",
+				"Stomach",
+			},
+			"Prefab": database.Prefab{
+				Path: "assets/content/items/equipment/armor_improvised/efh_improsived_armor.bundle",
 			},
 		},
 	},
