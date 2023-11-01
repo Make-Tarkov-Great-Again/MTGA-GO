@@ -67,8 +67,6 @@ func SetBundleManifests() {
 	bundleLoaded := 0
 	totalBundles := 0
 
-	fmt.Printf("\n[BUNDLELOADER : BEGIN]\n")
-
 	isLocal := GetServerConfig().IP == "127.0.0.1"
 	var mainAddress string
 	if !isLocal {
@@ -131,8 +129,9 @@ func SetBundleManifests() {
 			}
 		}
 	}
+
 	endTime := time.Now()
-	fmt.Printf("[BUNDLELOADER : COMPLETE] %d of %d bundles loaded in %s\n\n", bundleLoaded, totalBundles, endTime.Sub(startTime))
+	fmt.Printf("[BUNDLE LOADER : COMPLETE] %d of %d bundles loaded in %s\n", bundleLoaded, totalBundles, endTime.Sub(startTime))
 
 }
 
@@ -201,8 +200,9 @@ func SortAndQueueCustomItems(modName string, items map[string]*CustomItemAPI) {
 }
 
 func (i *DatabaseItem) GenerateTraderAssortSingleItem() []*AssortItem {
+	itemId := tools.GenerateMongoID()
 	assortItem := &AssortItem{
-		ID:       tools.GenerateMongoID(),
+		ID:       itemId,
 		Tpl:      i.ID,
 		ParentID: "hideout",
 		SlotID:   "hideout",
@@ -213,6 +213,44 @@ func (i *DatabaseItem) GenerateTraderAssortSingleItem() []*AssortItem {
 	} else {
 		assortItem.Upd = upd
 	}
+
+	return []*AssortItem{assortItem}
+}
+
+func (i *DatabaseItem) GenerateTraderAssortParentItem() []*AssortItem {
+	itemId := tools.GenerateMongoID()
+	assortItem := &AssortItem{
+		ID:       itemId,
+		Tpl:      i.ID,
+		ParentID: "hideout",
+		SlotID:   "hideout",
+	}
+
+	presetItem := &itemPresetItem{
+		ID:  itemId,
+		Tpl: i.ID,
+	}
+
+	if upd, err := i.GenerateNewUPD(); err != nil {
+		return []*AssortItem{assortItem}
+	} else {
+		assortItem.Upd = upd
+		presetItem.Upd = upd
+
+		if presetItem.Upd.StackObjectsCount != 0 {
+			presetItem.Upd.StackObjectsCount = 0
+		}
+
+		if presetItem.Upd.BuyRestrictionMax != 0 {
+			presetItem.Upd.BuyRestrictionMax = 0
+		}
+
+		if presetItem.Upd.BuyRestrictionCurrent != 0 {
+			presetItem.Upd.BuyRestrictionCurrent = 0
+		}
+	}
+
+	globalPresetItems = append(globalPresetItems, presetItem)
 
 	return []*AssortItem{assortItem}
 }
@@ -229,13 +267,23 @@ func ProcessCustomItemSet(parentId string, set map[string]any) []*AssortItem {
 			fmt.Println()
 		}
 
-		attachment := &AssortItem{
-			ID:       tools.GenerateMongoID(),
+		id := tools.GenerateMongoID()
+		preset := &itemPresetItem{
+			ID:       id,
 			Tpl:      setData["_tpl"].(string),
 			ParentID: parentId,
 			SlotID:   slotId,
 		}
+
+		attachment := &AssortItem{
+			ID:       id,
+			Tpl:      setData["_tpl"].(string),
+			ParentID: parentId,
+			SlotID:   slotId,
+		}
+
 		output = append(output, attachment)
+		globalPresetItems = append(globalPresetItems, preset)
 
 		attachments, ok := setData["attachments"].(map[string]any)
 		if !ok {
@@ -249,11 +297,49 @@ func ProcessCustomItemSet(parentId string, set map[string]any) []*AssortItem {
 	return output
 }
 
-func (i *DatabaseItem) GenerateTraderAssortPresetItem(set map[string]any) []*AssortItem {
-	parent := i.GenerateTraderAssortSingleItem()
-	children := ProcessCustomItemSet(parent[0].ID, set)
-	parent = append(parent, children...)
-	return parent
+var globalPresetItems []*itemPresetItem
+
+type globalItemPreset struct {
+	Id               string            `json:"_id"`
+	Type             string            `json:"_type"`
+	ChangeWeaponName bool              `json:"_changeWeaponName"`
+	Name             string            `json:"_name"`
+	Encyclopedia     string            `json:"_encyclopedia"`
+	Parent           string            `json:"_parent"`
+	Items            []*itemPresetItem `json:"_items"`
+}
+
+type itemPresetItem struct {
+	ID       string      `json:"_id"`
+	Tpl      string      `json:"_tpl"`
+	ParentID string      `json:"parentId,omitempty"`
+	SlotID   string      `json:"slotId,omitempty"`
+	Upd      *ItemUpdate `json:"upd,omitempty"`
+}
+
+func GenerateGlobalsItemPresetEntry(preset *CustomItemPreset) {
+	presetId := tools.GenerateMongoID()
+
+	gIP := &globalItemPreset{
+		Id:               presetId,
+		Type:             "Preset",
+		ChangeWeaponName: preset.ChangeWeaponName,
+		Name:             preset.Name,
+		Items:            globalPresetItems,
+	}
+
+	AddToItemPresets(presetId, *gIP)
+	globalPresetItems = nil
+}
+
+func (i *DatabaseItem) GenerateTraderAssortPresetItem(preset *CustomItemPreset) []*AssortItem {
+	globalPresetItems = make([]*itemPresetItem, 0, len(preset.Items))
+
+	family := i.GenerateTraderAssortParentItem()
+	children := ProcessCustomItemSet(family[0].ID, preset.Items)
+	family = append(family, children...)
+
+	return family
 }
 
 func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
@@ -272,8 +358,9 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 
 		for _, barter := range traderParams {
 			var assortItem []*AssortItem
-			if barter.Set != nil {
-				assortItem = i.GenerateTraderAssortPresetItem(barter.Set)
+			if barter.Preset != nil {
+				assortItem = i.GenerateTraderAssortPresetItem(barter.Preset)
+				GenerateGlobalsItemPresetEntry(barter.Preset)
 			} else {
 				assortItem = i.GenerateTraderAssortSingleItem()
 			}
@@ -282,9 +369,9 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 
 			parent := assortItem[0]
 			if parent.Upd == nil {
-				parent.Upd = new(AssortItemUpd)
+				parent.Upd = new(ItemUpdate)
 			}
-			parent.Upd.StackObjectsCount = int(barter.AmountInStock)
+			parent.Upd.StackObjectsCount = int32(barter.AmountInStock)
 
 			if trader.Assort.BarterScheme[parent.ID] == nil {
 				trader.Assort.BarterScheme[parent.ID] = make([][]*Scheme, 0, 1)
@@ -339,6 +426,8 @@ const (
 )
 
 func ProcessCustomItems() {
+	startTime := time.Now()
+
 	itemsDatabase := GetItems()
 	handbookItemsDatabase := GetHandbook().Items
 
@@ -375,6 +464,9 @@ func ProcessCustomItems() {
 	/*	for uid, api := range itemsEdit {
 
 		}*/
+
+	endTime := time.Now()
+	fmt.Printf("[CUSTOM ITEM LOADER : COMPLETE] in %s\n\n", endTime.Sub(startTime))
 }
 
 func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
@@ -436,18 +528,19 @@ type CustomItemParams struct {
 }
 
 type CustomItemPreset struct {
-	Id               string           `json:"_id"`
-	Type             string           `json:"_type"`
-	ChangeWeaponName bool             `json:"_changeWeaponName"`
-	Name             string           `json:"_name"`
-	Encyclopedia     string           `json:"_encyclopedia"`
-	Parent           string           `json:"_parent"`
-	Items            []*InventoryItem `json:"_items"`
+	Id               string         `json:"_id"`
+	Type             string         `json:"_type"`
+	ChangeWeaponName bool           `json:"_changeWeaponName"`
+	Name             string         `json:"_name"`
+	Encyclopedia     string         `json:"_encyclopedia"`
+	Parent           string         `json:"_parent"`
+	Items            map[string]any `json:"_items"`
 }
 
 type CustomItemAddToTrader struct {
 	//Set allows you to create a full weapon for the trader
-	Set           map[string]any `json:",omitempty"`
+	Preset        *CustomItemPreset `json:",omitempty"`
+	Set           map[string]any    `json:",omitempty"`
 	LoyaltyLevel  int8
 	BarterScheme  map[string]float32
 	AmountInStock int16

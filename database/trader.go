@@ -649,11 +649,11 @@ type Assort struct {
 }
 
 type AssortItem struct {
-	ID       string         `json:"_id"`
-	Tpl      string         `json:"_tpl"`
-	ParentID string         `json:"parentId"`
-	SlotID   string         `json:"slotId"`
-	Upd      *AssortItemUpd `json:"upd,omitempty"`
+	ID       string      `json:"_id"`
+	Tpl      string      `json:"_tpl"`
+	ParentID string      `json:"parentId"`
+	SlotID   string      `json:"slotId"`
+	Upd      *ItemUpdate `json:"upd,omitempty"`
 }
 
 type AssortItemUpd struct {

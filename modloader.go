@@ -154,12 +154,11 @@ import (
 
 func Init() {
 	startTime := time.Now()
-	fmt.Printf("\n[MODLOADER : BEGIN]\n")
 
 	%s
         
 	endTime := time.Now()
-	fmt.Printf("[MODLOADER : COMPLETE] %%s\n\n", endTime.Sub(startTime))
+	fmt.Printf("\n[MOD LOADER : COMPLETE] in %%s\n", endTime.Sub(startTime))
 }`,
 		strings.Join(imports, "\n\t"),
 		strings.Join(variables, "\n"),

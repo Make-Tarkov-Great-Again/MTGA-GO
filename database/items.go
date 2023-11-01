@@ -401,7 +401,7 @@ func (i *DatabaseItem) GenerateNewUPD() (*AssortItemUpd, error) {
 				return nil, fmt.Errorf("i.Props[\"StackMaxSize\"] is not a float64")
 			}
 
-			itemUpd.StackObjectsCount = int(stackMaxSize)
+			itemUpd.StackObjectsCount = int32(stackMaxSize)
 			return itemUpd, nil
 		}
 	case "55818b084bdc2d5b648b4571", "55818b164bdc2ddc698b456c":

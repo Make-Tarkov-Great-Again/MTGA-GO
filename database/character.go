@@ -532,7 +532,7 @@ func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *Pr
 	mergeWithIndex := *inventoryCache.GetIndexOfItemByUID(merge.With)
 	mergeWith := &c.Inventory.Items[mergeWithIndex]
 
-	*mergeWith.UPD.StackObjectsCount += *toMerge.UPD.StackObjectsCount
+	mergeWith.UPD.StackObjectsCount += toMerge.UPD.StackObjectsCount
 
 	inventoryCache.ClearItemFromContainer(toMerge.ID)
 	c.Inventory.RemoveSingleItemFromInventoryByIndex(toMergeIndex)
@@ -590,8 +590,8 @@ func (c *Character) TransferItem(moveAction map[string]any) {
 	mergeWithIndex := *inventoryCache.GetIndexOfItemByUID(transfer.With)
 	mergeWith := &c.Inventory.Items[mergeWithIndex]
 
-	*toMerge.UPD.StackObjectsCount -= transfer.Count
-	*mergeWith.UPD.StackObjectsCount += transfer.Count
+	toMerge.UPD.StackObjectsCount -= transfer.Count
+	mergeWith.UPD.StackObjectsCount += transfer.Count
 }
 
 type split struct {
@@ -613,7 +613,7 @@ func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *Pr
 	invCache := *GetCacheByUID(c.ID).Inventory
 
 	originalItem := &c.Inventory.Items[*invCache.GetIndexOfItemByUID(split.SplitItem)]
-	*originalItem.UPD.StackObjectsCount -= split.Count
+	originalItem.UPD.StackObjectsCount -= split.Count
 
 	newItem := &InventoryItem{
 		ID:       split.NewItem,
@@ -623,7 +623,7 @@ func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *Pr
 		SlotID:   split.Container.Container,
 	}
 
-	*newItem.UPD.StackObjectsCount = split.Count
+	newItem.UPD.StackObjectsCount = split.Count
 
 	if split.Container.Location != nil {
 		newItem.Location = &InventoryItemLocation{
@@ -860,7 +860,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 		}
 
 		stackObjectsCount := stack
-		mainItem.UPD.StackObjectsCount = &stackObjectsCount
+		mainItem.UPD.StackObjectsCount = stackObjectsCount
 		mainItem.Location = &InventoryItemLocation{
 			IsSearched: true,
 			R:          float64(0),
@@ -898,17 +898,17 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 			}
 		}
 
-		if itemInInventory.UPD != nil && itemInInventory.UPD.StackObjectsCount != nil {
+		if itemInInventory.UPD != nil && itemInInventory.UPD.StackObjectsCount != 0 {
 			var remainingBalance = scheme.Count
 
-			if *itemInInventory.UPD.StackObjectsCount > remainingBalance {
-				*itemInInventory.UPD.StackObjectsCount -= remainingBalance
+			if itemInInventory.UPD.StackObjectsCount > remainingBalance {
+				itemInInventory.UPD.StackObjectsCount -= remainingBalance
 
 				profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, &itemInInventory)
-			} else if *itemInInventory.UPD.StackObjectsCount == remainingBalance {
+			} else if itemInInventory.UPD.StackObjectsCount == remainingBalance {
 				toDelete[itemInInventory.ID] = *index
 			} else {
-				remainingBalance -= *itemInInventory.UPD.StackObjectsCount
+				remainingBalance -= itemInInventory.UPD.StackObjectsCount
 
 				toDelete[itemInInventory.ID] = *index
 
@@ -920,18 +920,18 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 						continue
 					}
 
-					change := *item.UPD.StackObjectsCount - remainingBalance
+					change := item.UPD.StackObjectsCount - remainingBalance
 					if change > 0 {
-						remainingBalance -= *item.UPD.StackObjectsCount
+						remainingBalance -= item.UPD.StackObjectsCount
 						toDelete[item.ID] = int16(idx)
 						continue
 					} else if change == 0 {
-						remainingBalance -= *item.UPD.StackObjectsCount
+						remainingBalance -= item.UPD.StackObjectsCount
 						toDelete[item.ID] = int16(idx)
 						break
 					}
 
-					*item.UPD.StackObjectsCount = change
+					item.UPD.StackObjectsCount = change
 					toChange = append(toChange, &item)
 					break
 				}
@@ -1004,18 +1004,18 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 			break
 		}
 
-		if item.TPL != saleCurrency || *item.UPD.StackObjectsCount == stackMaxSize {
+		if item.TPL != saleCurrency || item.UPD.StackObjectsCount == stackMaxSize {
 			continue
 		}
 
-		if *item.UPD.StackObjectsCount+remainingBalance > stackMaxSize {
-			remainingBalance -= stackMaxSize - *item.UPD.StackObjectsCount
-			*item.UPD.StackObjectsCount = stackMaxSize
+		if item.UPD.StackObjectsCount+remainingBalance > stackMaxSize {
+			remainingBalance -= stackMaxSize - item.UPD.StackObjectsCount
+			item.UPD.StackObjectsCount = stackMaxSize
 
 			toChange = append(toChange, &item)
 			continue
 		} else {
-			*item.UPD.StackObjectsCount += remainingBalance
+			item.UPD.StackObjectsCount += remainingBalance
 			remainingBalance = 0
 			toChange = append(toChange, &item)
 			break
@@ -1042,8 +1042,7 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 				return
 			}
 
-			stackObjectsCount := stack
-			mainItem.UPD.StackObjectsCount = &stackObjectsCount
+			mainItem.UPD.StackObjectsCount = stack
 			mainItem.Location = &InventoryItemLocation{
 				IsSearched: true,
 				R:          float64(0),
