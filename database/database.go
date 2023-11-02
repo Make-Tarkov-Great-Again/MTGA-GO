@@ -124,4 +124,17 @@ type Prefab struct {
 	Rcid string `json:"rcid"`
 }
 
+type Value struct {
+	Value int `json:"value"`
+}
+
+type PriceModifier struct {
+	PriceModifier float64 `json:"PriceModifier"`
+}
+
+type RepairStrategy struct {
+	BuffTypes []string `json:"BuffTypes"`
+	Filter    []string `json:"Filter"`
+}
+
 // #endregion

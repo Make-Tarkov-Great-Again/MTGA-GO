@@ -883,8 +883,6 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 
 		itemInInventory := copyOfItems[*index]
 
-		//TODO: YOU'RE DELETING ALL MY FUCKIN MONEY
-		// the only reason this is here is to convert barter items to currency
 		currency := *GetCurrencyByName(trader.Base.Currency)
 		if IsCurrencyByUID(itemInInventory.TPL) {
 			traderRelations.SalesSum += float32(scheme.Count)
