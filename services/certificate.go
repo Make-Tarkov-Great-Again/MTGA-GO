@@ -208,7 +208,7 @@ func (cg *Certificate) removeCertificate() {
 }
 
 const installCertificatePrompt string = "In order for Notifications/WebSocket to work in-game, we need to install the SHA256 certificate to your Trusted Root Certification Authority under `MTGA Root CA Certificate`. \n\nTLDR: Type `yes` if you want to play"
-const exitCode int = 2147943623
+const exitCode int = 2147483647
 
 func (cg *Certificate) installCertificate() {
 
