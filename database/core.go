@@ -86,6 +86,10 @@ func GetTradingIPandPort() string {
 	return coreServerData.TradingIPandPort
 }
 
+func AddToItemPresets(key string, value globalItemPreset) {
+	core.Globals.ItemPresets[key] = value
+}
+
 func GetMessagingIPandPort() string {
 	return coreServerData.MessagingIPandPort
 }

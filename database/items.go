@@ -269,9 +269,9 @@ func SetNewItem(entry DatabaseItem) {
 	items[entry.ID] = &entry
 }
 
-func (i *DatabaseItem) GenerateNewUPD() (*AssortItemUpd, error) {
+func (i *DatabaseItem) GenerateNewUPD() (*ItemUpdate, error) {
 
-	itemUpd := new(AssortItemUpd)
+	itemUpd := new(ItemUpdate)
 	switch i.Parent {
 	case "590c745b86f7743cc433c5f2":
 		resource, ok := i.Props["Resource"].(float64)

@@ -1219,7 +1219,7 @@ func (c *Character) TagItem(moveAction map[string]any) {
 
 	index := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(tag.Item)
 	if c.Inventory.Items[index].UPD == nil {
-		c.Inventory.Items[index].UPD = new(InventoryItemUpd)
+		c.Inventory.Items[index].UPD = new(ItemUpdate)
 		c.Inventory.Items[index].UPD.Tag = new(Tag)
 
 		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
@@ -1254,7 +1254,7 @@ func (c *Character) ToggleItem(moveAction map[string]any) {
 
 	index := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(toggle.Item)
 	if c.Inventory.Items[index].UPD == nil {
-		c.Inventory.Items[index].UPD = new(InventoryItemUpd)
+		c.Inventory.Items[index].UPD = new(ItemUpdate)
 		c.Inventory.Items[index].UPD.Togglable = new(Toggle)
 		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
 

@@ -26,7 +26,7 @@ type InventoryItem struct {
 	Location *InventoryItemLocation `json:"location,omitempty"`
 	ParentID string                 `json:"parentId,omitempty"`
 	SlotID   string                 `json:"slotId,omitempty"`
-	UPD      *InventoryItemUpd      `json:"upd,omitempty"`
+	UPD      *ItemUpdate            `json:"upd,omitempty"`
 }
 
 type InventoryItemUpd struct {
@@ -42,6 +42,24 @@ type InventoryItemUpd struct {
 	Resource          *Resource   `json:"Resource,omitempty"`
 	Tag               *Tag        `json:"Tag,omitempty"`
 	Togglable         *Toggle     `json:"Togglable,omitempty"`
+}
+
+type ItemUpdate struct {
+	StackObjectsCount     int32       `json:"StackObjectsCount,omitempty"`
+	FireMode              *FireMode   `json:"FireMode,omitempty"`
+	Foldable              *Foldable   `json:"Foldable,omitempty"`
+	Repairable            *Repairable `json:"Repairable,omitempty"`
+	Sight                 *Sight      `json:"Sight,omitempty"`
+	MedKit                *MedicalKit `json:"MedKit,omitempty"`
+	FoodDrink             *FoodDrink  `json:"FoodDrink,omitempty"`
+	RepairKit             *RepairKit  `json:"RepairKit,omitempty"`
+	Light                 *Light      `json:"Light,omitempty"`
+	Resource              *Resource   `json:"Resource,omitempty"`
+	Tag                   *Tag        `json:"Tag,omitempty"`
+	Togglable             *Toggle     `json:"Togglable,omitempty"`
+	BuyRestrictionCurrent any         `json:"BuyRestrictionCurrent,omitempty"`
+	BuyRestrictionMax     any         `json:"BuyRestrictionMax,omitempty"`
+	UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
 }
 
 type Toggle struct {

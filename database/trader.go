@@ -656,22 +656,6 @@ type AssortItem struct {
 	Upd      *ItemUpdate `json:"upd,omitempty"`
 }
 
-type AssortItemUpd struct {
-	BuyRestrictionCurrent any         `json:"BuyRestrictionCurrent,omitempty"`
-	BuyRestrictionMax     any         `json:"BuyRestrictionMax,omitempty"`
-	StackObjectsCount     int         `json:"StackObjectsCount,omitempty"`
-	UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
-	FireMode              *FireMode   `json:"FireMode,omitempty"`
-	Foldable              *Foldable   `json:"Foldable,omitempty"`
-	Resource              *Resource   `json:"Resource,omitempty"`
-	FoodDrink             *FoodDrink  `json:"FoodDrink,omitempty"`
-	Repairable            *Repairable `json:"Repairable,omitempty"`
-	Sight                 *Sight      `json:"Sight,omitempty"`
-	RepairKit             *RepairKit  `json:"RepairKit,omitempty"`
-	Light                 *Light      `json:"Light,omitempty"`
-	MedKit                *MedicalKit `json:"MedKit,omitempty"`
-}
-
 type Scheme struct {
 	Tpl   string  `json:"_tpl"`
 	Count float32 `json:"count"`
