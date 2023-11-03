@@ -92,6 +92,8 @@ func logAndDecompress(next http.Handler) http.Handler {
 	})
 }
 
+var CW = &ConnectionWatcher{}
+
 func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
@@ -193,8 +195,6 @@ func SetServer() {
 	close(serverReady)
 	fmt.Println()
 }
-
-var CW *ConnectionWatcher
 
 type ConnectionWatcher struct {
 	n int64
