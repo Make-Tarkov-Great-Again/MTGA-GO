@@ -1,11 +1,10 @@
 package database
 
 import (
+	"MT-GO/tools"
 	"fmt"
 	"log"
 	"math"
-
-	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -56,12 +55,14 @@ func ItemClone(item string) *DatabaseItem {
 	input := GetItemByUID(item)
 	clone := new(DatabaseItem)
 
-	clone.ID = input.ID
-	clone.Name = input.Name
-	clone.Parent = input.Parent
-	clone.Type = input.Type
-	clone.Props = input.Props
-	clone.Proto = input.Proto
+	data, err := json.Marshal(input)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := json.Unmarshal(data, &clone); err != nil {
+		log.Fatal(err)
+	}
 
 	return clone
 }

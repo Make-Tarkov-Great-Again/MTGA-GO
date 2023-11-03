@@ -23,12 +23,14 @@ func main() {
 	//TODO: Squeeze MS where possible, investigate TraderIndex if possible
 
 	database.SetDatabase()
+
 	mods.Init()
-	database.SetBundleManifests()
-	database.ProcessCustomItems()
+
+	database.LoadBundleManifests()
+	database.LoadCustomItems()
+
 	database.SetTraderIndex()
 	database.SetProfiles()
-
 	server.SetServer()
 
 	endTime := time.Now()

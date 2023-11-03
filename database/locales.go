@@ -1,12 +1,11 @@
 package database
 
 import (
+	"MT-GO/tools"
 	"fmt"
 	"log"
 	"path/filepath"
 	"strings"
-
-	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )

@@ -1,11 +1,10 @@
 package database
 
 import (
+	"MT-GO/tools"
 	"fmt"
 	"log"
 	"strconv"
-
-	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -53,7 +52,6 @@ const (
 )
 
 func setQuests() {
-
 	raw := tools.GetJSONRawMessage(questsPath)
 	err := json.Unmarshal(raw, &quests)
 	if err != nil {
@@ -114,7 +112,6 @@ func setQuests() {
 
 		questsQuery[k] = quest
 	}
-	//_ = tools.WriteToFile("questsDatabase.json", questsQuery)
 }
 
 func setQuestDialogue(quest map[string]any) QuestDialogues {

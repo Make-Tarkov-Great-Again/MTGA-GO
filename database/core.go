@@ -262,6 +262,10 @@ func setGlobals() *Globals {
 	return &global
 }
 
+func SetNewWeaponMastery(name string) {
+
+}
+
 // #endregion
 
 // #region Core structs

@@ -175,7 +175,7 @@ func MainAccountCustomization(w http.ResponseWriter, r *http.Request) {
 	customization := database.GetCustomizations()
 	var output []string
 	for id, c := range customization {
-		if c.Props.Side != nil && len(*c.Props.Side) > 0 {
+		if c.Props.Side != nil && len(c.Props.Side) > 0 {
 			output = append(output, id)
 		}
 	}

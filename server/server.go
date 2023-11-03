@@ -202,9 +202,9 @@ type ConnectionWatcher struct {
 
 func (cw *ConnectionWatcher) OnStateChange(conn net.Conn, state http.ConnState) {
 	switch state {
-	case http.StateNew: //Conection open
+	case http.StateNew: //Connection open
 		cw.Add(1)
-	case http.StateHijacked, http.StateClosed: //Conenction Closed
+	case http.StateHijacked, http.StateClosed: //Connection Closed
 		cw.Add(-1)
 	}
 }

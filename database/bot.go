@@ -1,11 +1,10 @@
 package database
 
 import (
+	"MT-GO/tools"
 	"log"
 	"path/filepath"
 	"strings"
-
-	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -47,7 +46,6 @@ func GetBotTypeDifficultyByName(name string, diff string) any {
 // #region Bot setters
 
 func setBots() {
-
 	bots.BotTypes = setBotTypes()
 	bots.BotAppearance = setBotAppearance()
 	bots.BotNames = setBotNames()

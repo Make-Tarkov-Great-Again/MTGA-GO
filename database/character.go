@@ -1143,13 +1143,13 @@ func (c *Character) CustomizationWear(moveAction map[string]any) {
 		parentID := customization.Parent
 
 		if parentID == lowerParentID {
-			c.Customization.Feet = *customization.Props.Feet
+			c.Customization.Feet = customization.Props.Feet
 			continue
 		}
 
 		if parentID == upperParentID {
-			c.Customization.Body = *customization.Props.Body
-			c.Customization.Hands = *customization.Props.Hands
+			c.Customization.Body = customization.Props.Body
+			c.Customization.Hands = customization.Props.Hands
 			continue
 		}
 	}

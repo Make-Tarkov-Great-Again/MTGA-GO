@@ -635,8 +635,8 @@ type SuitItemRequirements struct {
 type SuitRequirements struct {
 	LoyaltyLevel         int8                   `json:"loyaltyLevel"`
 	ProfileLevel         int8                   `json:"profileLevel"`
-	Standing             int8                   `json:"standing"`
-	SkillRequirements    []any                  `json:"skillRequirements"`
+	Standing             float32                `json:"standing"`
+	SkillRequirements    []map[string]int8      `json:"skillRequirements"`
 	QuestRequirements    []string               `json:"questRequirements"`
 	SuitItemRequirements []SuitItemRequirements `json:"itemRequirements"`
 }
