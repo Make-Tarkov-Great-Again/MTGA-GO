@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 )
 
 var cachedZlib = map[string][]byte{
@@ -32,11 +33,10 @@ func ZlibJSONReply(w http.ResponseWriter, path string, data any) {
 }
 
 func ZlibInflate(r *http.Request) *bytes.Buffer {
-	acceptEncoding := r.Header.Get("Accept-Encoding") == "deflate"
-	contentEncoding := r.Header.Get("Content-Encoding") == "deflate"
+	acceptEncoding := strings.Contains(r.Header.Get("Accept-Encoding"), "deflate")
 	sessionID := GetSessionID(r) != ""
 	// Check if the request header includes "Unity"
-	if sessionID && contentEncoding && acceptEncoding {
+	if sessionID && acceptEncoding {
 		buffer := &bytes.Buffer{}
 
 		// Inflate r.Body with zlib

@@ -83,21 +83,28 @@ func (i *DatabaseItem) Clone() *DatabaseItem {
 }
 
 func ConvertFromRouble(amount int32, currency string) float64 {
-	price := GetPriceByID(currency)
-	if price == nil {
-		return 0
+	price, err := GetPriceByID(currency)
+	if err != nil {
+		log.Fatalln(err)
 	}
 	return math.Round(float64(amount / *price))
 }
 
 func ConvertToRoubles(amount int32, currency string) float64 {
-	price := *GetPriceByID(currency)
-	return math.Round(float64(amount * price))
+	price, err := GetPriceByID(currency)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return math.Round(float64(amount * (*price)))
 }
 
 // GetItemPrice Gets item... price...
-func (i *DatabaseItem) GetItemPrice() *int32 {
-	return GetPriceByID(i.ID)
+func (i *DatabaseItem) GetItemPrice() (*int32, error) {
+	price, err := GetPriceByID(i.ID)
+	if err != nil {
+		return nil, err
+	}
+	return price, nil
 }
 
 // GetItemSize Get item height and width

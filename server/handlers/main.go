@@ -700,10 +700,13 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 
 	for _, itemID := range insuranceListCost.Items {
 		itemInInventory := character.Inventory.Items[*invCache.GetIndexOfItemByUID(itemID)]
-		itemPrice := *database.GetPriceByID(itemInInventory.TPL)
+		itemPrice, err := database.GetPriceByID(itemInInventory.TPL)
+		if err != nil {
+			log.Fatalln(err)
+		}
 
 		for key, insuranceInfo := range Traders {
-			insuranceCost := int32(math.Round(float64(itemPrice) * 0.3))
+			insuranceCost := int32(math.Round(float64(*itemPrice) * 0.3))
 			if insuranceInfo.PriceCoef > 0 {
 				insuranceCost *= int32(1 - insuranceInfo.PriceCoef/100)
 			}

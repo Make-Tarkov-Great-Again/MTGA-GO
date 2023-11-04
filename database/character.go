@@ -894,12 +894,15 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 		if IsCurrencyByUID(itemInInventory.TPL) {
 			traderRelations.SalesSum += float32(scheme.Count)
 		} else {
-			priceOfItem := *GetPriceByID(itemInInventory.TPL)
+			priceOfItem, err := GetPriceByID(itemInInventory.TPL)
+			if err != nil {
+				log.Fatalln(err)
+			}
 			if "RUB" != trader.Base.Currency {
-				conversion := ConvertFromRouble(priceOfItem, currency)
+				conversion := ConvertFromRouble(*priceOfItem, currency)
 				traderRelations.SalesSum += float32(conversion)
 			} else {
-				traderRelations.SalesSum += float32(priceOfItem)
+				traderRelations.SalesSum += float32(*priceOfItem)
 			}
 		}
 

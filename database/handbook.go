@@ -24,14 +24,16 @@ func GetPrices() map[string]*int32 {
 	return prices
 }
 
+const priceNotFound string = "Price of %s not found"
+
 // GetPriceByID Get item price by ID
-func GetPriceByID(id string) *int32 {
+func GetPriceByID(id string) (*int32, error) {
 	price, ok := prices[id]
 	if !ok {
-		fmt.Println("Price of ", id, " not found, returning -1")
-		return nil
+
+		return nil, fmt.Errorf(priceNotFound, id)
 	}
-	return price
+	return price, nil
 }
 
 // #endregion
@@ -51,18 +53,22 @@ func setHandbook() {
 	}
 }
 
+const handbookItemEntryNotExist string = "Handbook Item for %s entry doesn't exist"
+
 func (i *DatabaseItem) GetHandbookItemEntry() (*HandbookItem, error) {
 	idx, ok := handbookIndex[i.ID]
 	if !ok {
-		return nil, fmt.Errorf("Handbook Item for %s entry doesn't exist", i.ID)
+		return nil, fmt.Errorf(handbookItemEntryNotExist, i.ID)
 	}
 	return &handbook.Items[idx], nil
 }
 
+const couldNotCreateClone string = "Could not create clone of entry, %s"
+
 func (i *DatabaseItem) CloneHandbookItemEntry() (*HandbookItem, error) {
 	handbookEntry, err := i.GetHandbookItemEntry()
 	if err != nil {
-		return nil, fmt.Errorf("Could not create clone of entry, %s", err)
+		return nil, fmt.Errorf(couldNotCreateClone, err)
 	}
 	return &HandbookItem{Id: "", ParentId: handbookEntry.ParentId, Price: 0}, nil
 }
