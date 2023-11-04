@@ -5,17 +5,25 @@ import (
 	"MT-GO/services"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
 func MessagingFriendList(w http.ResponseWriter, r *http.Request) {
-	friends := database.GetAccountByUID(services.GetSessionID(r)).Friends
-	body := services.ApplyResponseBody(friends)
+	profile, err := database.GetAccountByUID(services.GetSessionID(r))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	body := services.ApplyResponseBody(profile.Friends)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
-	dialogues := database.GetDialogueByUID(services.GetSessionID(r))
+	dialogues, err := database.GetDialogueByUID(services.GetSessionID(r))
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	data := make([]*database.DialogueInfo, 0, len(*dialogues))
 	for _, dialogue := range *dialogues {
@@ -29,17 +37,25 @@ func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
 }
 
 func MessagingFriendRequestInbox(w http.ResponseWriter, r *http.Request) {
-	friends := database.GetAccountByUID(services.GetSessionID(r)).FriendRequestInbox
+	profile, err := database.GetAccountByUID(services.GetSessionID(r))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	body := &FriendRequestMailbox{
-		Data: friends,
+		Data: profile.FriendRequestInbox,
 	}
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingFriendRequestOutbox(w http.ResponseWriter, r *http.Request) {
-	friends := database.GetAccountByUID(services.GetSessionID(r)).FriendRequestOutbox
+	profile, err := database.GetAccountByUID(services.GetSessionID(r))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	body := &FriendRequestMailbox{
-		Data: friends,
+		Data: profile.FriendRequestOutbox,
 	}
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
@@ -48,8 +64,12 @@ func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
 	parsedData := services.GetParsedBody(r)
 	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
 
-	dialogues := *database.GetDialogueByUID(services.GetSessionID(r))
-	dialog, ok := dialogues[dialogId]
+	dialogues, err := database.GetDialogueByUID(services.GetSessionID(r))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	dialog, ok := (*dialogues)[dialogId]
 	if !ok {
 		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
 		return
@@ -73,8 +93,12 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 
 	data := new(database.DialogMessageView)
 
-	dialogues := *database.GetDialogueByUID(sessionID)
-	dialog, ok := dialogues[request.DialogID]
+	dialogues, err := database.GetDialogueByUID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	dialog, ok := (*dialogues)[request.DialogID]
 	if !ok {
 		fmt.Println("Dialogue does not exist, check ID:", request.DialogID, ".")
 		data.Messages = make([]database.DialogMessage, 0)
@@ -116,8 +140,12 @@ func MessagingMailDialogPin(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	dialogId := services.GetParsedBody(r).(map[string]any)["dialogId"].(string)
 
-	dialogues := *database.GetDialogueByUID(sessionID)
-	dialog, ok := dialogues[dialogId]
+	dialogues, err := database.GetDialogueByUID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	dialog, ok := (*dialogues)[dialogId]
 	if !ok {
 		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
 		return
@@ -136,8 +164,12 @@ func MessagingMailDialogUnpin(w http.ResponseWriter, r *http.Request) {
 	parsedData := services.GetParsedBody(r)
 	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
 
-	dialogues := *database.GetDialogueByUID(sessionID)
-	dialog, ok := dialogues[dialogId]
+	dialogues, err := database.GetDialogueByUID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	dialog, ok := (*dialogues)[dialogId]
 	if !ok {
 		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
 		return
@@ -156,8 +188,12 @@ func MessagingMailDialogRemove(w http.ResponseWriter, r *http.Request) {
 	parsedData := services.GetParsedBody(r)
 	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
 
-	dialogues := *database.GetDialogueByUID(sessionID)
-	delete(dialogues, dialogId)
+	dialogues, err := database.GetDialogueByUID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	delete(*dialogues, dialogId)
 
 	dialogues.SaveDialogue(sessionID)
 

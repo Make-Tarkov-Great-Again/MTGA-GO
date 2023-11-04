@@ -349,23 +349,25 @@ func (i *DatabaseItem) GenerateTraderAssortPresetItem(preset *CustomItemPreset) 
 	return family
 }
 
-func GetTraderFromNameOrUID(input string) *Trader {
+func GetTraderFromNameOrUID(input string) (*Trader, error) {
 	var trader *Trader
 	trader, err := GetTraderByUID(input)
 	if err != nil {
 		trader, err = GetTraderByName(input)
 		if err != nil {
-			// TODO: Inform about error
-			fmt.Println("TraderId/Name", input, "is not valid, returning...")
-			return nil
+			return nil, err
 		}
 	}
-	return trader
+	return trader, nil
 }
 
 func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 	for tid, traderParams := range params.AddToTrader {
-		trader := GetTraderFromNameOrUID(tid)
+		trader, err := GetTraderFromNameOrUID(tid)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
 
 		for _, barter := range traderParams {
 			var assortItem []*AssortItem
@@ -442,6 +444,38 @@ func LoadCustomItems() {
 	itemsDatabase := GetItems()
 	handbookItemsDatabase := GetHandbook().Items
 
+	custBody, err := GetCustomization("64ef3efdb63b74469b6c1499")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	custHands, err := GetCustomization("64ef3efdb63b74469b6c1499")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	custUpper, err := GetCustomization("64ef3efdb63b74469b6c1499")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	custFeet, err := GetCustomization("5d5e7f4986f7746956659f8a")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	custLower, err := GetCustomization("5cd946231388ce000d572fe3")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	customization := GetCustomizations()
+
 	for uid, api := range itemsClone {
 		switch {
 		case api.Parameters.ItemParameters != nil:
@@ -451,6 +485,10 @@ func LoadCustomItems() {
 			}
 
 			original := itemsDatabase[api.Parameters.ItemParameters.ReferenceItemTPL]
+			if original == nil {
+				fmt.Println("ReferenceItemTPL:", api.Parameters.ItemParameters.ReferenceItemTPL, "for UID:", uid, "is invalid, skipping...")
+				continue
+			}
 			itemClone := original.Clone()
 			itemClone.ID = uid
 
@@ -459,10 +497,17 @@ func LoadCustomItems() {
 				itemClone.SetCustomOverrides(api.Overrides)
 			}
 
+			handbookEntry, err := original.GetHandbookItemEntry()
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+
 			itemsDatabase[uid] = itemClone
+
 			handbookItemsDatabase = append(handbookItemsDatabase, HandbookItem{
 				Id:       uid,
-				ParentId: original.GetHandbookItemEntry().ParentId,
+				ParentId: handbookEntry.ParentId,
 				Price:    int32(api.Parameters.HandbookPrice),
 			})
 
@@ -480,10 +525,9 @@ func LoadCustomItems() {
 				continue
 			}
 
-			customization := GetCustomizations()
 			locales := map[string]string{}
-
 			if params.UpperBody != nil {
+
 				locales[params.UpperBody.Id] = params.UpperBody.Name
 				upperBodySuit := TraderSuits{
 					ID:       params.UpperBody.Body.Id,
@@ -492,9 +536,13 @@ func LoadCustomItems() {
 				}
 
 				for tid, scheme := range params.UpperBody.AddToTrader {
-					trader := GetTraderFromNameOrUID(tid)
-					if trader.Suits == nil {
+					trader, err := GetTraderFromNameOrUID(tid)
+					if err != nil {
+						fmt.Println(err)
+						continue
+					} else if trader.Suits == nil {
 						fmt.Println(tid, "does not have suits assort, skipping...")
+						continue
 					}
 
 					upperBodySuit.Tid = trader.Base.ID
@@ -523,7 +571,10 @@ func LoadCustomItems() {
 					}
 				}
 
-				body := GetCustomization("64ef3efdb63b74469b6c1499").Clone()
+				body := custBody.Clone()
+				hands := custHands.Clone()
+				upper := custUpper.Clone()
+
 				body.ID = params.UpperBody.Body.Id
 				body.Name = params.UpperBody.Body.Id
 				body.Props.Prefab = map[string]any{
@@ -531,9 +582,7 @@ func LoadCustomItems() {
 					"rcid": "",
 				}
 				body.Props.Side = params.Side
-				customization[body.ID] = body
 
-				hands := GetCustomization("64ef3f3739e45b527a7c40ae").Clone()
 				hands.ID = params.UpperBody.Hands.Id
 				hands.Name = params.UpperBody.Hands.Id
 				hands.Props.Side = params.Side
@@ -541,15 +590,15 @@ func LoadCustomItems() {
 					"path": params.UpperBody.Hands.Prefab,
 					"rcid": "",
 				}
-				customization[hands.ID] = hands
 
-				upper := GetCustomization("5d1f623e86f7744bce0ef705").Clone()
 				upper.ID = params.UpperBody.Id
 				upper.Name = params.UpperBody.Id
 				upper.Props.Body = body.ID
 				upper.Props.Hands = hands.ID
 				upper.Props.Side = params.Side
 
+				customization[body.ID] = body
+				customization[hands.ID] = hands
 				customization[upper.ID] = upper
 			}
 
@@ -562,9 +611,13 @@ func LoadCustomItems() {
 				}
 
 				for tid, scheme := range params.LowerBody.AddToTrader {
-					trader := GetTraderFromNameOrUID(tid)
-					if trader.Suits == nil {
+					trader, err := GetTraderFromNameOrUID(tid)
+					if err != nil {
+						fmt.Println(err)
+						continue
+					} else if trader.Suits == nil {
 						fmt.Println(tid, "does not have suits assort, skipping...")
+						continue
 					}
 
 					lowerBodySuit.Tid = trader.Base.ID
@@ -593,7 +646,7 @@ func LoadCustomItems() {
 					}
 				}
 
-				feet := GetCustomization("5d5e7f4986f7746956659f8a").Clone()
+				feet := custFeet.Clone()
 				feet.ID = params.LowerBody.Feet.Id
 				feet.Name = params.LowerBody.Feet.Id
 				feet.Props.Side = params.Side
@@ -603,7 +656,7 @@ func LoadCustomItems() {
 				}
 				customization[feet.ID] = feet
 
-				lower := GetCustomization("5cd946231388ce000d572fe3").Clone()
+				lower := custLower.Clone()
 				lower.ID = params.LowerBody.Id
 				lower.Name = params.LowerBody.Id
 				lower.Props.Side = params.Side
@@ -634,12 +687,24 @@ func LoadCustomItems() {
 	fmt.Printf("[CUSTOM ITEM LOADER : COMPLETE] in %s\n\n", endTime.Sub(startTime))
 }
 
-func setCustomClothingLocation(uids map[string]string) {
-	locales := GetLocales()
-	for _, data := range locales {
-		for key, value := range uids {
-			data.Locale[fmt.Sprintf(localeName, key)] = value
-			data.Locale[fmt.Sprintf(localeShortName, key)] = ""
+var mainLocales = [4]string{"en", "ge", "fr", "ru"}
+
+func setCustomClothingLocation(ids map[string]string) {
+	formatted := make(map[string]string)
+	for key, value := range ids {
+		formatted[fmt.Sprintf(localeName, key)] = value
+		formatted[fmt.Sprintf(localeShortName, key)] = ""
+	}
+
+	for _, lang := range mainLocales {
+		data, err := GetLocalesLocaleByName(lang)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		for name, value := range formatted {
+			data[name] = value
 		}
 	}
 }
@@ -650,16 +715,6 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 	localeDescription := fmt.Sprintf(localeDescription, uid)
 
 	if len(apiLocale) == 1 {
-		modname, ok := itemModificationLog[uid]
-		if !ok {
-			fmt.Println("how")
-		}
-		if _, ok := modCritiqueLog[modname]; !ok {
-			modCritiqueLog[modname] = make([]string, 0)
-		}
-		modCritiqueLog[modname] = append(modCritiqueLog[modname], "It is encouraged to have en, de, fr, ru locales!")
-
-		locales := GetLocales()
 		var nameValue string
 		var shortNameValue string
 		var descriptionValue string
@@ -670,14 +725,24 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 			descriptionValue = value.Description
 		}
 
-		for _, data := range locales {
-			data.Locale[localeName] = nameValue
-			data.Locale[localeShortName] = shortNameValue
-			data.Locale[localeDescription] = descriptionValue
+		for _, lang := range mainLocales {
+			data, err := GetLocalesLocaleByName(lang)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			data[localeName] = nameValue
+			data[localeShortName] = shortNameValue
+			data[localeDescription] = descriptionValue
 		}
 	} else {
 		for lang, value := range apiLocale {
-			locale := GetLocalesLocaleByName(lang)
+			locale, err := GetLocalesLocaleByName(lang)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+
 			locale[localeName] = value.Name
 			locale[localeShortName] = value.ShortName
 			locale[localeDescription] = value.Description
@@ -686,10 +751,9 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 }
 
 type ModdingAPI struct {
-	Parameters  Parameters
-	Overrides   map[string]any               `json:"overrides,omitempty"`
-	Locale      map[string]*CustomItemLocale `json:"locale,omitempty"`
-	ItemPresets map[string]*CustomItemPreset `json:",omitempty"`
+	Parameters Parameters
+	Overrides  map[string]any               `json:"overrides,omitempty"`
+	Locale     map[string]*CustomItemLocale `json:"locale,omitempty"`
 }
 
 type Parameters struct {

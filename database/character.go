@@ -227,20 +227,27 @@ func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesE
 		// CreateNPCMessageWithReward()
 	}
 
-	dialogue := *GetDialogueByUID(c.ID)
+	dialogue, err := GetDialogueByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	dialog, message := CreateQuestDialogue(c.ID, "QuestStart", query.Trader, query.Dialogue.Description)
 	dialog.New++
 	dialog.Messages = append(dialog.Messages, *message)
 
-	dialogue[query.Trader] = dialog
+	(*dialogue)[query.Trader] = dialog
 
 	notification := CreateNotification(message)
 
 	connection := GetConnection(c.ID)
 	if connection == nil {
 		fmt.Println("Can't send message to character because connection is nil, storing...")
-		storage := GetStorageByUID(c.ID)
+		storage, err := GetStorageByUID(c.ID)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		storage.Mailbox = append(storage.Mailbox, notification)
 		storage.SaveStorage(c.ID)
 	} else {
@@ -1106,7 +1113,11 @@ func (c *Character) CustomizationBuy(moveAction map[string]any) {
 	suitsIndex := trader.Index.Suits[customizationBuy.Offer]
 	suitID := trader.Suits[suitsIndex].SuiteID
 
-	storage := GetStorageByUID(c.ID)
+	storage, err := GetStorageByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	if !slices.Contains(storage.Suites, suitID) {
 		//TODO: Pay for suite before appending to profile
 		if len(customizationBuy.Items) == 0 {
@@ -1139,7 +1150,11 @@ func (c *Character) CustomizationWear(moveAction map[string]any) {
 	}
 
 	for _, SID := range customizationWear.Suites {
-		customization := GetCustomization(SID)
+		customization, err := GetCustomization(SID)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		parentID := customization.Parent
 
 		if parentID == lowerParentID {

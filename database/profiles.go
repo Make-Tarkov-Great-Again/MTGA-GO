@@ -44,22 +44,24 @@ func GetProfiles() map[string]*Profile {
 	return profiles
 }
 
-func GetProfileByUID(uid string) *Profile {
+func GetProfileByUID(uid string) (*Profile, error) {
 	if profile, ok := profiles[uid]; ok {
-		return profile
+		return profile, nil
 	}
-
-	fmt.Println("No profile with UID ", uid, ".")
-	return nil
+	return nil, fmt.Errorf("Profile for", uid, "does not exist")
 }
 
-func GetStorageByUID(uid string) *Storage {
-	if profile, ok := profiles[uid]; ok {
-		return profile.Storage
+func GetStorageByUID(uid string) (*Storage, error) {
+	profile, err := GetProfileByUID(uid)
+	if err != nil {
+		return nil, err
 	}
 
-	fmt.Println("Profile with UID ", uid, " does not have a storage")
-	return nil
+	if profile.Storage != nil {
+		return profile.Storage, nil
+	}
+
+	return nil, fmt.Errorf("Storage for UID", uid, "does not exist")
 }
 
 // #endregion

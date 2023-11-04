@@ -4,6 +4,7 @@ import (
 	"MT-GO/database"
 	"MT-GO/services"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -16,7 +17,10 @@ func LobbyPushNotifier(w http.ResponseWriter, r *http.Request) {
 func LobbyGetWebSocket(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Get Websocket for, " + r.URL.String())
 	sessionID := services.GetSessionID(r)
-	storage := database.GetStorageByUID(sessionID)
+	storage, err := database.GetStorageByUID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	connection := database.GetConnection(sessionID)
 	for _, v := range storage.Mailbox {

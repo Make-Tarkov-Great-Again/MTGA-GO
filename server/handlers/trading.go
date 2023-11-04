@@ -10,14 +10,17 @@ import (
 
 func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	suites := database.GetStorageByUID(sessionID).Suites
-
-	storage := map[string]any{
-		"_id":    sessionID,
-		"suites": suites,
+	storage, err := database.GetStorageByUID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
 	}
 
-	body := services.ApplyResponseBody(storage)
+	suitesStorage := map[string]any{
+		"_id":    sessionID,
+		"suites": storage.Suites,
+	}
+
+	body := services.ApplyResponseBody(suitesStorage)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 

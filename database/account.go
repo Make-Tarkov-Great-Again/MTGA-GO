@@ -8,14 +8,17 @@ import (
 	"MT-GO/tools"
 )
 
-func GetAccountByUID(uid string) *Account {
-	profile := GetProfileByUID(uid)
-	if profile.Account != nil {
-		return profile.Account
+func GetAccountByUID(uid string) (*Account, error) {
+	profile, err := GetProfileByUID(uid)
+	if err != nil {
+		return nil, err
 	}
 
-	fmt.Println("Profile with UID ", uid, " does not have an account, how the fuck did you get here????!?!?!?!?!?")
-	return nil
+	if profile.Account != nil {
+		return profile.Account, nil
+	}
+
+	return nil, fmt.Errorf("Account for ", uid, " does not exist")
 }
 
 func (a *Account) SaveAccount() {

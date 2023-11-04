@@ -51,26 +51,20 @@ func setHandbook() {
 	}
 }
 
-func (i *DatabaseItem) GetHandbookItemEntry() *HandbookItem {
+func (i *DatabaseItem) GetHandbookItemEntry() (*HandbookItem, error) {
 	idx, ok := handbookIndex[i.ID]
 	if !ok {
-		fmt.Println("Entry doesn't exist, returning nil")
-		return nil
+		return nil, fmt.Errorf("Handbook Item entry doesn't exist")
 	}
-	return &handbook.Items[idx]
+	return &handbook.Items[idx], nil
 }
 
-func (i *DatabaseItem) CloneHandbookItemEntry() *HandbookItem {
-	handbookEntry := i.GetHandbookItemEntry()
-	if handbookEntry == nil {
-		fmt.Println("Could not create clone of entry, returning nil")
-		return nil
+func (i *DatabaseItem) CloneHandbookItemEntry() (*HandbookItem, error) {
+	handbookEntry, err := i.GetHandbookItemEntry()
+	if err != nil {
+		return nil, fmt.Errorf("Could not create clone of entry, %s", err)
 	}
-	return &HandbookItem{
-		Id:       "",
-		ParentId: handbookEntry.ParentId,
-		Price:    0,
-	}
+	return &HandbookItem{Id: "", ParentId: handbookEntry.ParentId, Price: 0}, nil
 }
 
 func (hbi *HandbookItem) SetHandbookItemEntry() {

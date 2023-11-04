@@ -47,8 +47,14 @@ func MainPutMetrics(w http.ResponseWriter, r *http.Request) {
 
 func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
 	lang := strings.TrimPrefix(r.URL.Path, "/client/menu/locale/")
-	menu := services.ApplyResponseBody(database.GetLocalesMenuByName(lang))
-	services.ZlibJSONReply(w, r.RequestURI, menu)
+	menu, err := database.GetLocalesMenuByName(lang)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+
+	body := services.ApplyResponseBody(menu)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainVersionValidate(w http.ResponseWriter, r *http.Request) {
@@ -62,9 +68,11 @@ func MainLanguages(w http.ResponseWriter, r *http.Request) {
 
 func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	lang := database.GetAccountByUID(sessionID).Lang
-	if lang == "" {
-		lang = "en"
+	lang := "en"
+	if account, err := database.GetAccountByUID(sessionID); err != nil {
+		log.Fatalln(err)
+	} else if account.Lang != "" {
+		lang = account.Lang
 	}
 
 	gameConfig := services.ApplyResponseBody(&GameConfig{
@@ -194,7 +202,12 @@ func MainLocale(w http.ResponseWriter, r *http.Request) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainLocaleRoute))
 			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
-			body := services.ApplyCRCResponseBody(database.GetLocalesLocaleByName(lang), services.GetCachedCRC(MainLocaleRoute))
+			locale, err := database.GetLocalesLocaleByName(lang)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			body := services.ApplyCRCResponseBody(locale, services.GetCachedCRC(MainLocaleRoute))
 			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
@@ -264,7 +277,10 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 
 	sessionID := services.GetSessionID(r)
 
-	profile := database.GetProfileByUID(sessionID)
+	profile, err := database.GetProfileByUID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	edition := database.GetEdition("Edge Of Darkness")
 	if edition == nil {
@@ -290,7 +306,12 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	pmc.Info.Nickname = request.Nickname
 
 	pmc.Info.LowerNickname = strings.ToLower(request.Nickname)
-	pmc.Info.Voice = database.GetCustomization(request.VoiceID).Name
+
+	if customization, err := database.GetCustomization(request.VoiceID); err != nil {
+		log.Fatalln(err)
+	} else {
+		pmc.Info.Voice = customization.Name
+	}
 
 	time := int32(tools.GetCurrentTimeInSeconds())
 	pmc.Info.RegistrationDate = time
@@ -429,8 +450,12 @@ func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainBuildsList(w http.ResponseWriter, r *http.Request) {
-	builds := database.GetProfileByUID(services.GetSessionID(r)).Storage.Builds
-	body := services.ApplyResponseBody(builds)
+	storage, err := database.GetStorageByUID(services.GetSessionID(r))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	body := services.ApplyResponseBody(storage.Builds)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
@@ -478,7 +503,11 @@ func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainLogout(w http.ResponseWriter, r *http.Request) {
-	database.GetProfileByUID(services.GetSessionID(r)).SaveProfile()
+	if profile, err := database.GetProfileByUID(services.GetSessionID(r)); err != nil {
+		log.Fatalln(err)
+	} else {
+		profile.SaveProfile()
+	}
 
 	body := services.ApplyResponseBody(map[string]any{"status": "ok"})
 	services.ZlibJSONReply(w, r.RequestURI, body)

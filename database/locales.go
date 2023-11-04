@@ -59,30 +59,38 @@ func GetLocales() map[string]*LocaleData {
 	return localeMap
 }
 
-func GetLocaleByName(input string) *LocaleData {
+func GetLocaleByName(input string) (*LocaleData, error) {
 	name := strings.ToLower(input)
-
 	if locale, ok := localeMap[name]; ok {
-		return locale
+		return locale, nil
 	}
-	fmt.Println("Locale doesnt exist, returning EN")
-	return &locales.EN
+	return nil, fmt.Errorf("Locale", name, "doesn't exist")
 }
 
-func GetLocalesMenuByName(name string) *LocaleMenu {
-	if locale, ok := localeMap[name]; ok {
-		return locale.Menu
+func GetLocalesMenuByName(name string) (*LocaleMenu, error) {
+	locale, err := GetLocaleByName(name)
+	if err != nil {
+		return nil, err
 	}
-	fmt.Println("Locale menu doesnt exist , returning EN")
-	return locales.EN.Menu
+
+	if locale.Menu != nil {
+		return locale.Menu, nil
+	}
+
+	return nil, fmt.Errorf("Locale", name, "menu doesn't exist")
 }
 
-func GetLocalesLocaleByName(name string) map[string]any {
-	if locale, ok := localeMap[name]; ok {
-		return locale.Locale
+func GetLocalesLocaleByName(name string) (map[string]any, error) {
+	locale, err := GetLocaleByName(name)
+	if err != nil {
+		return nil, err
 	}
-	fmt.Println("Locale doesnt exist, returning EN")
-	return locales.EN.Locale
+
+	if locale.Locale != nil {
+		return locale.Locale, nil
+	}
+
+	return nil, fmt.Errorf("Locale", name, "globals doesn't exist")
 }
 
 // #endregion

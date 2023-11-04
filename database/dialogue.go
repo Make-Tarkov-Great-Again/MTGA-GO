@@ -186,13 +186,17 @@ func (d *Dialog) GetActiveMessages() []DialogMessage {
 	return messages
 }
 
-func GetDialogueByUID(uid string) *Dialogue {
-	if profile, ok := profiles[uid]; ok {
-		return profile.Dialogue
+func GetDialogueByUID(uid string) (*Dialogue, error) {
+	profile, err := GetProfileByUID(uid)
+	if err != nil {
+		return nil, err
 	}
 
-	fmt.Println("Profile with UID ", uid, " does not have dialogue")
-	return nil
+	if profile.Dialogue != nil {
+		return profile.Dialogue, nil
+	}
+
+	return nil, fmt.Errorf("Dialogue for", uid, "does not exist")
 }
 
 func (d Dialogue) SaveDialogue(sessionID string) {

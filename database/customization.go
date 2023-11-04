@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 
 	"MT-GO/tools"
@@ -16,17 +17,20 @@ func GetCustomizations() map[string]*Customization {
 	return customizations
 }
 
-func GetCustomization(id string) *Customization {
+func GetCustomization(id string) (*Customization, error) {
 	customization, ok := customizations[id]
 	if !ok {
-		log.Println("Customization with ID", id, "does not exist, returning nil!")
-		return nil
+		return nil, fmt.Errorf("Customization with ID", id, "does not exist")
 	}
-	return customization
+	return customization, nil
 }
 
 func CustomizationClone(item string) *Customization {
-	input := GetCustomization(item)
+	input, err := GetCustomization(item)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	clone := new(Customization)
 
 	data, err := json.Marshal(input)

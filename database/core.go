@@ -234,15 +234,6 @@ func setMatchMetrics() *MatchMetrics {
 
 var weaponMastering map[string]int16
 
-func GetWeaponMasteryByUID(uid string) (map[string]any, error) {
-	_, ok := weaponMastering[uid]
-	if !ok {
-		return nil, fmt.Errorf("uid does not exist in weapon mastery")
-	} //core.Globals.Config["Mastering"].([]map[string]any)[idx].(map[string]any)
-
-	return nil, nil
-}
-
 func setGlobals() *Globals {
 	raw := tools.GetJSONRawMessage(globalsFilePath)
 
@@ -267,6 +258,15 @@ func SetNewWeaponMastery(name string) {
 }
 
 // #endregion
+
+func GetWeaponMasteryByUID(uid string) (*configMastering, error) {
+	idx, ok := weaponMastering[uid]
+	if !ok {
+		return nil, fmt.Errorf("uid does not exist in weapon mastery")
+	}
+
+	return &core.Globals.Config.Mastering[idx], nil
+}
 
 // #region Core structs
 
