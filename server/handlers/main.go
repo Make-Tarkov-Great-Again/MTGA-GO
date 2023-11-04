@@ -763,12 +763,34 @@ func LookingForGroupStop(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
-	parsedBody := services.GetParsedBody(r).(map[string]string)
-	fmt.Println(parsedBody)
+type botDifficulties struct {
+	Easy       any `json:"easy"`
+	Normal     any `json:"normal"`
+	Hard       any `json:"hard"`
+	Impossible any `json:"impossible"`
+}
 
-	body := services.ApplyResponseBody(nil)
-	services.ZlibJSONReply(w, r.RequestURI, body)
+func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
+	parsedBody := services.GetParsedBody(r).(map[string]any)
+	bot := database.GetBotTypeByName(strings.ToLower(parsedBody["name"].(string)))
+
+	difficulties := new(botDifficulties)
+	if bot != nil {
+		if easy, ok := bot.Difficulties["easy"]; ok {
+			difficulties.Easy = easy
+		}
+		if normal, ok := bot.Difficulties["normal"]; ok {
+			difficulties.Normal = normal
+		}
+		if hard, ok := bot.Difficulties["hard"]; ok {
+			difficulties.Hard = hard
+		}
+		if impossible, ok := bot.Difficulties["impossible"]; ok {
+			difficulties.Impossible = impossible
+		}
+	}
+
+	services.ZlibJSONReply(w, r.RequestURI, difficulties)
 }
 
 type botConditions struct {
