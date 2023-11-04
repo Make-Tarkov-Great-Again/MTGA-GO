@@ -63,6 +63,28 @@ func GetTraderByName(name string) (*Trader, error) {
 	return traders[tid], nil
 }
 
+func CloneTrader(name string) *Trader {
+	nt := new(Trader)
+	tc, err := GetTraderByName(name)
+	if err != nil {
+		fmt.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
+		return nil
+	}
+
+	TraderJSON, err := json.Marshal(tc)
+	if err != nil {
+		fmt.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
+		return nil
+	}
+
+	if err := json.Unmarshal(TraderJSON, &nt); err != nil {
+		fmt.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
+		return nil
+	}
+	return nt
+
+}
+
 // GetAssortItemByID returns entire item from assort as a slice (to get parent item use [0] when calling)
 func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 	item, ok := t.Index.Assort.Items[id]
