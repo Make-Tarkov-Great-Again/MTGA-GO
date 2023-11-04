@@ -3,12 +3,10 @@ package services
 import (
 	"bytes"
 	"compress/zlib"
+	"github.com/goccy/go-json"
 	"io"
 	"log"
 	"net/http"
-	"strings"
-
-	"github.com/goccy/go-json"
 )
 
 var cachedZlib = map[string][]byte{
@@ -34,9 +32,11 @@ func ZlibJSONReply(w http.ResponseWriter, path string, data any) {
 }
 
 func ZlibInflate(r *http.Request) *bytes.Buffer {
-
+	acceptEncoding := r.Header.Get("Accept-Encoding") == "deflate"
+	contentEncoding := r.Header.Get("Content-Encoding") == "deflate"
+	sessionID := GetSessionID(r) != ""
 	// Check if the request header includes "Unity"
-	if strings.Contains(r.Header.Get("User-Agent"), "Unity") {
+	if sessionID && contentEncoding && acceptEncoding {
 		buffer := &bytes.Buffer{}
 
 		// Inflate r.Body with zlib

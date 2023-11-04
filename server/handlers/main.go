@@ -764,7 +764,7 @@ func LookingForGroupStop(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
-	parsedBody := services.GetParsedBody(r)
+	parsedBody := services.GetParsedBody(r).(map[string]string)
 	fmt.Println(parsedBody)
 
 	body := services.ApplyResponseBody(nil)
