@@ -834,9 +834,41 @@ func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
+type raidProfileSave struct {
+	Exit                  string         `json:"exit"`
+	Profile               map[string]any `json:"profile"`
+	IsPlayerScav          bool           `json:"isPlayerScav"`
+	Health                saveHealth     `json:"health"`
+	DisableProgressionNow bool           `json:"disableProgressionNow"`
+}
+
+type saveHealth struct {
+	IsAlive     bool
+	Health      map[string]healthPart
+	Hydration   float64
+	Energy      float64
+	Temperature float64
+}
+
+type healthPart struct {
+	Maximum float64
+	Current float64
+	Effects map[string]any
+}
+
 func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
-	//parsedBody := services.GetParsedBody(r)
+	save := new(raidProfileSave)
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = json.Unmarshal(data, &save)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	//TODO: Raid Profile Save
+	fmt.Println(save)
 	fmt.Println("Raid Profile Save not implemented yet!")
 	body := services.ApplyResponseBody(nil)
 	services.ZlibJSONReply(w, r.RequestURI, body)

@@ -1,7 +1,6 @@
 package server
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
@@ -54,22 +53,25 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+const incomingRoute string = "[%s] %s on %s\n"
+
 func logAndDecompress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the incoming request URL
-		fmt.Println("Incoming [" + r.Method + "] Request URL: [" + r.URL.Path + "] on [" + strings.TrimPrefix(r.Host, "127.0.0.1") + "]")
+		fmt.Printf(incomingRoute, r.Method, r.URL.Path, strings.TrimPrefix(r.Host, "127.0.0.1"))
 
 		if websocket.IsWebSocketUpgrade(r) {
 			upgradeToWebsocket(w, r)
 		} else {
-			buffer := &bytes.Buffer{}
+			acceptEncoding := strings.Contains(r.Header.Get("Accept-Encoding"), "deflate")
+			//sessionID := services.GetSessionID(r) != ""
 
-			if r.Header.Get("Content-Type") != "application/json" {
+			if r.Header.Get("Content-Type") != "application/json" && !acceptEncoding {
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			buffer = services.ZlibInflate(r)
+			buffer := services.ZlibInflate(r)
 			if buffer == nil || buffer.Len() == 0 {
 				next.ServeHTTP(w, r)
 				return

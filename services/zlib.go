@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
 )
 
 var cachedZlib = map[string][]byte{
@@ -33,33 +32,28 @@ func ZlibJSONReply(w http.ResponseWriter, path string, data any) {
 }
 
 func ZlibInflate(r *http.Request) *bytes.Buffer {
-	acceptEncoding := strings.Contains(r.Header.Get("Accept-Encoding"), "deflate")
-	sessionID := GetSessionID(r) != ""
-	// Check if the request header includes "Unity"
-	if sessionID && acceptEncoding {
-		buffer := &bytes.Buffer{}
+	buffer := &bytes.Buffer{}
 
-		// Inflate r.Body with zlib
-		reader, err := zlib.NewReader(r.Body)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		defer func(reader io.ReadCloser) {
-			err := reader.Close()
-			if err != nil {
-				log.Fatalln(err)
-			}
-		}(reader)
-
-		// Read the decompressed data
-		_, err = io.Copy(buffer, reader)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		return buffer
+	// Inflate r.Body with zlib
+	reader, err := zlib.NewReader(r.Body)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	return nil
+	defer func(reader io.ReadCloser) {
+		err := reader.Close()
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}(reader)
+
+	// Read the decompressed data
+	_, err = io.Copy(buffer, reader)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return buffer
+
 }
 
 func zlibDeflate(w http.ResponseWriter, path string, data any) {

@@ -88,7 +88,6 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/game/bot/generate": handlers.BotGenerate,
 
 	"/raid/profile/save":           handlers.RaidProfileSave,
-	"/client/raid/profile/save":    handlers.RaidProfileSave,
 	"/singleplayer/airdrop/config": handlers.AirdropConfig,
 }
 
