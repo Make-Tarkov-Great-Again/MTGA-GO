@@ -9,8 +9,9 @@ import (
 )
 
 var mainRouteHandlers = map[string]http.HandlerFunc{
-	"/getBrandName":  handlers.GetBrandName,
-	"/getBundleList": handlers.GetBundleList,
+	"/getBrandName":              handlers.GetBrandName,
+	"/sp/config/bots/difficulty": handlers.GetBotDifficulty,
+	"/getBundleList":             handlers.GetBundleList,
 
 	"/client/raid/person/killed/showMessage":      handlers.ShowPersonKilledMessage,
 	"/client/game/start":                          handlers.MainGameStart,
@@ -84,8 +85,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/location/getLocalloot":     handlers.GetLocalLoot,
 	"/client/insurance/items/list/cost": handlers.InsuranceListCost,
 
-	"/singleplayer/settings/bot/difficulty/": handlers.GetBotDifficulty,
-	"/client/game/bot/generate":              handlers.BotGenerate,
+	"/client/game/bot/generate": handlers.BotGenerate,
 
 	"/raid/profile/save":           handlers.RaidProfileSave,
 	"/client/raid/profile/save":    handlers.RaidProfileSave,

@@ -764,10 +764,10 @@ func LookingForGroupStop(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
-	difficulties := strings.Split(strings.TrimPrefix(r.RequestURI, "/singleplayer/settings/bot/difficulty/"), "/")
-	difficulty := database.GetBotTypeDifficultyByName(strings.ToLower(difficulties[0]), difficulties[1])
+	parsedBody := services.GetParsedBody(r)
+	fmt.Println(parsedBody)
 
-	body := services.ApplyResponseBody(difficulty)
+	body := services.ApplyResponseBody(nil)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
