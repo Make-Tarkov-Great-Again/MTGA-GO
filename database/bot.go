@@ -2,6 +2,7 @@ package database
 
 import (
 	"MT-GO/tools"
+	"fmt"
 	"log"
 	"path/filepath"
 	"strings"
@@ -17,28 +18,26 @@ func GetBots() *Bots {
 	return &bots
 }
 
-func GetBotTypeByName(name string) *BotType {
+func GetBotTypeByName(name string) (*BotType, error) {
 	botType, ok := bots.BotTypes[name]
 	if !ok {
-		log.Println("Bot of Type Name", name, "does not exist, returning nil!")
-		return nil
+		return nil, fmt.Errorf("Bot", name, "does not exist")
 	}
-	return botType
+	return botType, nil
 }
 
-func GetBotTypeDifficultyByName(name string, diff string) any {
-	botType := GetBotTypeByName(name)
-	if botType == nil {
-		return nil
+func GetBotTypeDifficultyByName(name string, diff string) (any, error) {
+	botType, err := GetBotTypeByName(name)
+	if err != nil {
+		return nil, err
 	}
 
 	difficulty, ok := botType.Difficulties[diff]
 	if !ok {
-		log.Println("Difficulty", diff, "does not exist on Bot Type", name, ",returning nil!")
-		return nil
+		return nil, fmt.Errorf("Difficulty", diff, "does not exist on Bot", name)
 	}
 
-	return difficulty
+	return difficulty, nil
 }
 
 // #endregion

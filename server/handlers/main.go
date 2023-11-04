@@ -771,23 +771,12 @@ type botDifficulties struct {
 }
 
 func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
-	parsedBody := services.GetParsedBody(r).(map[string]any)
-	bot := database.GetBotTypeByName(strings.ToLower(parsedBody["name"].(string)))
-
 	difficulties := new(botDifficulties)
-	if bot != nil {
-		if easy, ok := bot.Difficulties["easy"]; ok {
-			difficulties.Easy = easy
-		}
-		if normal, ok := bot.Difficulties["normal"]; ok {
-			difficulties.Normal = normal
-		}
-		if hard, ok := bot.Difficulties["hard"]; ok {
-			difficulties.Hard = hard
-		}
-		if impossible, ok := bot.Difficulties["impossible"]; ok {
-			difficulties.Impossible = impossible
-		}
+	if bot, _ := database.GetBotTypeByName(strings.ToLower(services.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
+		difficulties.Easy = bot.Difficulties["easy"]
+		difficulties.Normal = bot.Difficulties["normal"]
+		difficulties.Hard = bot.Difficulties["hard"]
+		difficulties.Impossible = bot.Difficulties["impossible"]
 	}
 
 	services.ZlibJSONReply(w, r.RequestURI, difficulties)

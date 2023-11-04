@@ -54,7 +54,7 @@ func setHandbook() {
 func (i *DatabaseItem) GetHandbookItemEntry() (*HandbookItem, error) {
 	idx, ok := handbookIndex[i.ID]
 	if !ok {
-		return nil, fmt.Errorf("Handbook Item entry doesn't exist")
+		return nil, fmt.Errorf("Handbook Item for %s entry doesn't exist", i.ID)
 	}
 	return &handbook.Items[idx], nil
 }
