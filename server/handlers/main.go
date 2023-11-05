@@ -679,7 +679,11 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	output := make(map[string]map[string]int32)
 	character := database.GetCharacterByUID(sessionID)
-	invCache := database.GetCacheByUID(sessionID).Inventory
+
+	invCache, err := database.GetInventoryCacheByUID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	Traders := make(map[string]traderInsuranceInfo)
 	for _, TID := range insuranceListCost.Traders {
@@ -885,6 +889,10 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: Raid Profile Save
+	err = tools.WriteToFile("/faggot.json", save)
+	if err != nil {
+		return
+	}
 
 	fmt.Println("Raid Profile Save not implemented yet!")
 	body := services.ApplyResponseBody(nil)

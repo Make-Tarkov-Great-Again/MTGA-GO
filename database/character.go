@@ -29,7 +29,11 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 
 	query := GetQuestsQuery()
 
-	cachedQuests := GetQuestCacheByUID(c.ID)
+	cachedQuests, err := GetQuestCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	characterHasQuests := len(cachedQuests.Index) != 0
 
 	for key, value := range query {
@@ -179,7 +183,10 @@ func (c *Character) SaveCharacter(sessionID string) {
 // QuestAccept updates an existing Accepted quest, or creates and appends new Accepted Quest to cache and Character
 func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesEvent) {
 
-	cachedQuests := GetQuestCacheByUID(c.ID)
+	cachedQuests, err := GetQuestCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	length := len(cachedQuests.Index)
 	time := int(tools.GetCurrentTimeInSeconds())
 
@@ -286,7 +293,12 @@ func (c *Character) ExamineItem(moveAction map[string]any) {
 	var item *DatabaseItem
 	if examine.FromOwner == nil {
 		fmt.Println("Examining Item from Player Inventory")
-		if index := GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(examine.Item); index != nil {
+		cache, err := GetInventoryCacheByUID(c.ID)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		if index := cache.GetIndexOfItemByUID(examine.Item); index != nil {
 			itemInInventory := c.Inventory.Items[*index]
 			item = GetItemByUID(itemInInventory.TPL)
 		} else {
@@ -361,7 +373,11 @@ func (c *Character) MoveItemInStash(moveAction map[string]any, profileChangesEve
 		log.Fatalln(err)
 	}
 
-	cache := *GetCacheByUID(c.ID).Inventory
+	cache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	index := cache.GetIndexOfItemByUID(move.Item)
 	itemInInventory := &c.Inventory.Items[*index]
 
@@ -416,8 +432,13 @@ func (c *Character) SwapItemInStash(moveAction map[string]any, profileChangesEve
 		log.Fatalln(err)
 	}
 
-	cache := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(swap.Item)
-	itemInInventory := &c.Inventory.Items[cache]
+	cache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	index := *cache.GetIndexOfItemByUID(swap.Item)
+	itemInInventory := &c.Inventory.Items[index]
 
 	if swap.To.Location != nil {
 		moveToLocation := swap.To.Location
@@ -441,8 +462,8 @@ func (c *Character) SwapItemInStash(moveAction map[string]any, profileChangesEve
 	itemInInventory.ParentID = swap.To.ID
 	itemInInventory.SlotID = swap.To.Container
 
-	cache = GetCacheByUID(c.ID).Inventory.Lookup.Forward[swap.Item2]
-	itemInInventory = &c.Inventory.Items[cache]
+	index = cache.Lookup.Forward[swap.Item2]
+	itemInInventory = &c.Inventory.Items[index]
 
 	if swap.To2.Location != nil {
 		moveToLocation := swap.To2.Location
@@ -483,7 +504,11 @@ func (c *Character) FoldItem(moveAction map[string]any, profileChangesEvent *Pro
 		log.Fatalln(err)
 	}
 
-	inventoryCache := GetCacheByUID(c.ID).Inventory
+	inventoryCache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	index := inventoryCache.GetIndexOfItemByUID(fold.Item)
 	if index == nil {
 		log.Fatalln("Item", fold.Item, "does not exist in cache!")
@@ -531,7 +556,10 @@ func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *Pr
 		log.Fatalln(err)
 	}
 
-	inventoryCache := GetCacheByUID(c.ID).Inventory
+	inventoryCache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	toMergeIndex := *inventoryCache.GetIndexOfItemByUID(merge.Item)
 	toMerge := &c.Inventory.Items[toMergeIndex]
@@ -589,7 +617,10 @@ func (c *Character) TransferItem(moveAction map[string]any) {
 		log.Fatalln(err)
 	}
 
-	inventoryCache := GetCacheByUID(c.ID).Inventory
+	inventoryCache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	toMergeIndex := *inventoryCache.GetIndexOfItemByUID(transfer.Item)
 	toMerge := &c.Inventory.Items[toMergeIndex]
@@ -617,7 +648,10 @@ func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *Pr
 		log.Fatalln(err)
 	}
 
-	invCache := *GetCacheByUID(c.ID).Inventory
+	invCache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	originalItem := &c.Inventory.Items[*invCache.GetIndexOfItemByUID(split.SplitItem)]
 	originalItem.UPD.StackObjectsCount -= split.Count
@@ -670,7 +704,10 @@ func (c *Character) RemoveItem(moveAction map[string]any, profileChangesEvent *P
 		log.Fatalln(err)
 	}
 
-	inventoryCache := GetCacheByUID(c.ID).Inventory
+	inventoryCache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	itemChildren := GetInventoryItemFamilyTreeIDs(c.Inventory.Items, remove.ItemId)
 
 	var itemIndex int16
@@ -703,7 +740,11 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]any) {
 		log.Fatalln(err)
 	}
 
-	cache := *GetCacheByUID(c.ID).Inventory
+	cache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	for _, item := range applyInventoryChanges.ChangedItems {
 		properties, ok := item.(map[string]any)
 		if !ok {
@@ -791,7 +832,10 @@ type soldItems struct {
 func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	//TODO: Make everything purchased NOT free lol
 
-	invCache := GetCacheByUID(c.ID).Inventory
+	invCache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	switch moveAction["type"] {
 	case "buy_from_trader":
@@ -995,7 +1039,10 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 	var remainingBalance = tradeConfirm.Price
 	stackMaxSize := *GetItemByUID(saleCurrency).GetStackMaxSize()
 
-	cache := GetCacheByUID(c.ID).Inventory
+	cache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	copyOfMap := invCache.Stash.Container
 	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items))
 	copyOfItems = append(copyOfItems, c.Inventory.Items...)
@@ -1235,7 +1282,12 @@ func (c *Character) TagItem(moveAction map[string]any) {
 		log.Fatalln(err)
 	}
 
-	index := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(tag.Item)
+	cache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	index := *cache.GetIndexOfItemByUID(tag.Item)
 	if c.Inventory.Items[index].UPD == nil {
 		c.Inventory.Items[index].UPD = new(ItemUpdate)
 		c.Inventory.Items[index].UPD.Tag = new(Tag)
@@ -1270,7 +1322,12 @@ func (c *Character) ToggleItem(moveAction map[string]any) {
 		log.Fatalln(err)
 	}
 
-	index := *GetCacheByUID(c.ID).Inventory.GetIndexOfItemByUID(toggle.Item)
+	cache, err := GetInventoryCacheByUID(c.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	index := *cache.GetIndexOfItemByUID(toggle.Item)
 	if c.Inventory.Items[index].UPD == nil {
 		c.Inventory.Items[index].UPD = new(ItemUpdate)
 		c.Inventory.Items[index].UPD.Togglable = new(Toggle)

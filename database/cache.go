@@ -5,27 +5,57 @@ import (
 	"sync"
 )
 
-func GetCacheByUID(uid string) *Cache {
+const cacheNotExist string = "Cache for %s does not exist"
+
+func GetCacheByUID(uid string) (*Cache, error) {
 	if profile, ok := profiles[uid]; ok {
-		return profile.Cache
+		return profile.Cache, nil
 	}
 
-	fmt.Println("Profile with UID ", uid, " does not have cache")
-	return nil
+	return nil, fmt.Errorf(cacheNotExist, uid)
 }
 
-func GetQuestCacheByUID(uid string) *QuestCache {
-	if profile, ok := profiles[uid]; ok {
-		return profile.Cache.Quests
+const questCacheNotExist string = "Quest Cache for %s does not exist"
+
+func GetQuestCacheByUID(uid string) (*QuestCache, error) {
+	cache, err := GetCacheByUID(uid)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+
+	if cache.Quests != nil {
+		return cache.Quests, nil
+	}
+
+	return nil, fmt.Errorf(questCacheNotExist, uid)
 }
 
-func GetTraderCacheByUID(uid string) *TraderCache {
-	if profile, ok := profiles[uid]; ok {
-		return profile.Cache.Traders
+const traderCacheNotExist string = "Trader Cache for %s does not exist"
+
+func GetTraderCacheByUID(uid string) (*TraderCache, error) {
+	cache, err := GetCacheByUID(uid)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+
+	if cache.Traders != nil {
+		return cache.Traders, nil
+	}
+	return nil, fmt.Errorf(traderCacheNotExist, uid)
+}
+
+const inventoryCacheNotExist string = "Inventory Cache for %s does not exist"
+
+func GetInventoryCacheByUID(uid string) (*InventoryContainer, error) {
+	cache, err := GetCacheByUID(uid)
+	if err != nil {
+		return nil, err
+	}
+
+	if cache.Inventory != nil {
+		return cache.Inventory, nil
+	}
+	return nil, fmt.Errorf(inventoryCacheNotExist, uid)
 }
 
 func (profile *Profile) SetCache() *Cache {

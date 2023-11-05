@@ -18,13 +18,17 @@ func GetBots() *Bots {
 	return &bots
 }
 
+const botNotExist string = "Bot %s does not exist"
+
 func GetBotTypeByName(name string) (*BotType, error) {
 	botType, ok := bots.BotTypes[name]
 	if !ok {
-		return nil, fmt.Errorf("Bot", name, "does not exist")
+		return nil, fmt.Errorf(botNotExist, name)
 	}
 	return botType, nil
 }
+
+const difficultyNotExist string = "Difficulty %s does not exist on Bot %s"
 
 func GetBotTypeDifficultyByName(name string, diff string) (any, error) {
 	botType, err := GetBotTypeByName(name)
@@ -34,7 +38,7 @@ func GetBotTypeDifficultyByName(name string, diff string) (any, error) {
 
 	difficulty, ok := botType.Difficulties[diff]
 	if !ok {
-		return nil, fmt.Errorf("Difficulty", diff, "does not exist on Bot", name)
+		return nil, fmt.Errorf(difficultyNotExist, diff, name)
 	}
 
 	return difficulty, nil

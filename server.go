@@ -30,6 +30,7 @@ func main() {
 	database.LoadCustomItems()
 
 	database.SetTraderIndex()
+	//TODO: All profiles do not need to be set
 	database.SetProfiles()
 	server.SetServer()
 

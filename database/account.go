@@ -1,11 +1,11 @@
 package database
 
 import (
+	"MT-GO/tools"
 	"fmt"
+	"github.com/google/uuid"
 	"log"
 	"path/filepath"
-
-	"MT-GO/tools"
 )
 
 func GetAccountByUID(uid string) (*Account, error) {
@@ -72,6 +72,12 @@ type FriendRequestProfile struct {
 		Level          int8           `json:"Level"`
 		MemberCategory MemberCategory `json:"MemberCategory"`
 	}
+}
+
+type TokenPayload struct {
+	Sub uuid.UUID
+	Iat int
+	Exp int
 }
 
 // #endregion

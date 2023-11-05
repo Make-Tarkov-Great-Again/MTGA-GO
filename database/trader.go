@@ -116,7 +116,11 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 	traderID := t.Base.ID
 
-	cache := GetTraderCacheByUID(character.ID)
+	cache, err := GetTraderCacheByUID(character.ID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	cachedAssort, ok := cache.Assorts[traderID]
 	if ok {
 		return cachedAssort
@@ -267,6 +271,7 @@ func (t *Trader) GetTraderLoyaltyLevel(character *Character) {
 
 			traderInfo.LoyaltyLevel = idx
 			character.TradersInfo[traderID] = traderInfo
+			return
 		}
 	}
 }

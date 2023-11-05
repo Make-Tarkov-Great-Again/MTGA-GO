@@ -44,12 +44,16 @@ func GetProfiles() map[string]*Profile {
 	return profiles
 }
 
+const profileNotExist string = "Profile for %s does not exist"
+
 func GetProfileByUID(uid string) (*Profile, error) {
 	if profile, ok := profiles[uid]; ok {
 		return profile, nil
 	}
-	return nil, fmt.Errorf("Profile for", uid, "does not exist")
+	return nil, fmt.Errorf(profileNotExist, uid)
 }
+
+const storageNotExist string = "Storage for UID %s does not exist"
 
 func GetStorageByUID(uid string) (*Storage, error) {
 	profile, err := GetProfileByUID(uid)
@@ -61,7 +65,7 @@ func GetStorageByUID(uid string) (*Storage, error) {
 		return profile.Storage, nil
 	}
 
-	return nil, fmt.Errorf("Storage for UID", uid, "does not exist")
+	return nil, fmt.Errorf(storageNotExist, uid)
 }
 
 // #endregion
