@@ -135,9 +135,8 @@ type HideoutCache struct {
 }
 
 type TraderCache struct {
-	Index         map[string]*AssortIndex
-	Assorts       map[string]*Assort
-	LoyaltyLevels map[string]int8
+	Index   map[string]*AssortIndex
+	Assorts map[string]*Assort
 }
 
 type QuestCache struct {

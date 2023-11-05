@@ -35,7 +35,7 @@ func main() {
 	server.SetServer()
 
 	endTime := time.Now()
-	fmt.Printf("\nDatabase initialized in %s\n\n", endTime.Sub(startTime))
+	fmt.Printf("Database initialized in %s\n\n", endTime.Sub(startTime))
 
 	startHome()
 }
