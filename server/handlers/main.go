@@ -688,11 +688,11 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 			log.Fatalln("InsuranceListCost:", err)
 		}
 
-		loyaltyLevel := trader.GetTraderLoyaltyLevel(character)
+		trader.GetTraderLoyaltyLevel(character)
 
 		Traders[TID] = traderInsuranceInfo{
-			LoyaltyLevel: loyaltyLevel,
-			PriceCoef:    trader.Base.LoyaltyLevels[loyaltyLevel].InsurancePriceCoef,
+			LoyaltyLevel: character.TradersInfo[TID].LoyaltyLevel,
+			PriceCoef:    trader.Base.LoyaltyLevels[character.TradersInfo[TID].LoyaltyLevel].InsurancePriceCoef,
 		}
 
 		output[TID] = make(map[string]int32)
@@ -774,6 +774,23 @@ type botDifficulties struct {
 }
 
 func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
+	//TODO: For change
+	/*
+		bots := services.GetParsedBody(r).([]string)
+			data := make(map[string]*botDifficulties)
+			for _, key := range bots {
+				difficulties := new(botDifficulties)
+				if bot, _ := database.GetBotTypeByName(strings.ToLower(services.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
+					difficulties.Easy = bot.Difficulties["easy"]
+					difficulties.Normal = bot.Difficulties["normal"]
+					difficulties.Hard = bot.Difficulties["hard"]
+					difficulties.Impossible = bot.Difficulties["impossible"]
+				}
+				data[key] = difficulties
+			}
+			services.ZlibJSONReply(w, r.RequestURI, data)
+	*/
+
 	difficulties := new(botDifficulties)
 	if bot, _ := database.GetBotTypeByName(strings.ToLower(services.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
 		difficulties.Easy = bot.Difficulties["easy"]
@@ -868,7 +885,11 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: Raid Profile Save
-	fmt.Println(save)
+	err = tools.WriteToFile("/faggot.json", save)
+	if err != nil {
+		return
+	}
+
 	fmt.Println("Raid Profile Save not implemented yet!")
 	body := services.ApplyResponseBody(nil)
 	services.ZlibJSONReply(w, r.RequestURI, body)

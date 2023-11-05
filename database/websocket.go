@@ -17,6 +17,9 @@ func DeleteConnection(sessionID string) {
 	_, ok := connections[sessionID]
 	if ok {
 		log.Println("Connection deleted")
+
+		//TODO: Check if they were in raid, if they were they lose their stuff
+
 		delete(connections, sessionID)
 		return
 	}

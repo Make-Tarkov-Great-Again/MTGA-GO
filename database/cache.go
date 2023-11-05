@@ -42,9 +42,8 @@ func (profile *Profile) SetCache() *Cache {
 				Index: make(map[string]int8),
 			},
 			Traders: &TraderCache{
-				Index:         make(map[string]*AssortIndex),
-				Assorts:       make(map[string]*Assort),
-				LoyaltyLevels: make(map[string]int8),
+				Index:   make(map[string]*AssortIndex),
+				Assorts: make(map[string]*Assort),
 			},
 		}
 	} else {

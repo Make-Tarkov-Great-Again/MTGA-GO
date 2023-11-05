@@ -32,8 +32,6 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 	cachedQuests := GetQuestCacheByUID(c.ID)
 	characterHasQuests := len(cachedQuests.Index) != 0
 
-	traderStandings := make(map[string]*float64) //temporary
-
 	for key, value := range query {
 
 		if services.CheckIfQuestForOtherFaction(c.Info.Side, key) {
@@ -71,19 +69,20 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 		if forStart.TraderLoyalty != nil {
 			for trader, loyalty := range forStart.TraderLoyalty {
 
-				if traderStandings[trader] == nil {
+				traderInfo, ok := c.TradersInfo[trader]
+				if !ok || traderInfo.LoyaltyLevel == 0 {
 					if data, err := GetTraderByUID(trader); err != nil {
 						log.Fatalln(err)
 					} else {
-						loyaltyLevel := float64(data.GetTraderLoyaltyLevel(c))
-						traderStandings[trader] = &loyaltyLevel
+						data.GetTraderLoyaltyLevel(c)
 					}
 				}
 
 				loyaltyCheck = services.LevelComparisonCheck(
 					loyalty.Level,
-					*traderStandings[trader],
-					loyalty.CompareMethod)
+					float64(traderInfo.LoyaltyLevel),
+					loyalty.CompareMethod,
+				)
 			}
 
 			if !loyaltyCheck {
@@ -95,19 +94,20 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 		if forStart.TraderStanding != nil {
 			for trader, loyalty := range forStart.TraderStanding {
 
-				if traderStandings[trader] == nil {
+				traderInfo, ok := c.TradersInfo[trader]
+				if !ok || traderInfo.LoyaltyLevel == 0 {
 					if data, err := GetTraderByUID(trader); err != nil {
 						log.Fatalln(err)
 					} else {
-						loyaltyLevel := float64(data.GetTraderLoyaltyLevel(c))
-						traderStandings[trader] = &loyaltyLevel
+						data.GetTraderLoyaltyLevel(c)
 					}
 				}
 
 				standingCheck = services.LevelComparisonCheck(
 					loyalty.Level,
-					*traderStandings[trader],
-					loyalty.CompareMethod)
+					float64(traderInfo.LoyaltyLevel),
+					loyalty.CompareMethod,
+				)
 			}
 
 			if !standingCheck {
@@ -1324,7 +1324,11 @@ type Character struct {
 	Hideout           PlayerHideout       `json:"Hideout"`
 	Bonuses           []Bonus             `json:"Bonuses"`
 	Notes             struct {
-		Notes [][]any `json:"Notes"`
+		Notes                [][]any `json:"Notes"`
+		TransactionInProcess struct {
+			HasCheckChanges bool `json:"HasCheckChanges"`
+			HasHandlers     bool `json:"HasHandlers"`
+		} `json:"TransactionInProcess,omitempty"`
 	} `json:"Notes"`
 	Quests       []CharacterQuest             `json:"Quests"`
 	RagfairInfo  PlayerRagfairInfo            `json:"RagfairInfo"`
@@ -1336,10 +1340,12 @@ type Character struct {
 }
 
 type PlayerTradersInfo struct {
-	Unlocked bool    `json:"unlocked"`
-	Disabled bool    `json:"disabled"`
-	SalesSum float32 `json:"salesSum"`
-	Standing float32 `json:"standing"`
+	Unlocked     bool    `json:"unlocked"`
+	Disabled     bool    `json:"disabled"`
+	SalesSum     float32 `json:"salesSum"`
+	Standing     float32 `json:"standing"`
+	LoyaltyLevel int8    `json:"loyaltyLevel"`
+	NextResupply int     `json:"nextResupply"`
 }
 
 type PlayerRagfairInfo struct {
@@ -1349,6 +1355,7 @@ type PlayerRagfairInfo struct {
 }
 
 type PlayerHideoutArea struct {
+	AreaType              string `json:"AreaType,omitempty"`
 	Type                  int    `json:"type"`
 	Level                 int    `json:"level"`
 	Active                bool   `json:"active"`
@@ -1362,7 +1369,7 @@ type PlayerHideout struct {
 	Production  map[string]any      `json:"Production"`
 	Areas       []PlayerHideoutArea `json:"Areas"`
 	Improvement map[string]any      `json:"Improvement"`
-	//Seed        int                    `json:"Seed"`
+	Seed        int                 `json:"Seed,omitempty"`
 }
 
 type ConditionCounters struct {
@@ -1463,26 +1470,36 @@ type InsuredItem struct {
 }
 
 type Bonus struct {
-	ID         string `json:"id"`
-	Type       string `json:"type"`
-	TemplateID string `json:"templateId"`
+	ID              string `json:"id"`
+	Type            string `json:"type"`
+	TemplateID      string `json:"templateId"`
+	IsPositive      bool   `json:"IsPositive,omitempty"`
+	LocalizationKey string `json:"LocalizationKey,omitempty"`
+	Passive         bool   `json:"passive,omitempty"`
+	Production      bool   `json:"production,omitempty"`
+	Value           int    `json:"value,omitempty"`
+	Visible         bool   `json:"visible,omitempty"`
 }
 
 type HealthInfo struct {
 	Hydration   CurrMaxHealth   `json:"Hydration"`
 	Energy      CurrMaxHealth   `json:"Energy"`
 	Temperature CurrMaxHealth   `json:"Temperature"`
+	Poison      CurrMaxHealth   `json:"Poison,omitempty"`
 	BodyParts   BodyPartsHealth `json:"BodyParts"`
 	UpdateTime  int32           `json:"UpdateTime"`
 }
 
 type HealthOf struct {
-	Health CurrMaxHealth `json:"Health"`
+	Effects map[string]any `json:"Effects,omitempty"`
+	Health  CurrMaxHealth  `json:"Health"`
 }
 
 type CurrMaxHealth struct {
-	Current float32 `json:"Current"`
-	Maximum float32 `json:"Maximum"`
+	Current                      float32 `json:"Current"`
+	Maximum                      float32 `json:"Maximum"`
+	Minimum                      float32 `json:"Minimum,omitempty"`
+	OverDamageReceivedMultiplier float32 `json:"OverDamageReceivedMultiplier,omitempty"`
 }
 
 type BodyPartsHealth struct {

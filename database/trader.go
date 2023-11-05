@@ -122,11 +122,11 @@ func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 		return cachedAssort
 	}
 
-	_, ok = cache.LoyaltyLevels[traderID]
-	if !ok {
-		cache.LoyaltyLevels[traderID] = t.GetTraderLoyaltyLevel(character) // check loyalty level
+	traderInfo, ok := character.TradersInfo[traderID]
+	if !ok || traderInfo.LoyaltyLevel == 0 {
+		t.GetTraderLoyaltyLevel(character) // check loyalty level
 	}
-	loyaltyLevel := cache.LoyaltyLevels[traderID]
+	loyaltyLevel := character.TradersInfo[traderID].LoyaltyLevel
 
 	assortIndex := AssortIndex{
 		Items:       map[string]int16{},
@@ -248,27 +248,27 @@ func SetResupplyTimer() int {
 //TODO: Store this information somewhere
 
 // GetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
-func (t *Trader) GetTraderLoyaltyLevel(character *Character) int8 {
+func (t *Trader) GetTraderLoyaltyLevel(character *Character) {
 	loyaltyLevels := t.Base.LoyaltyLevels
 	traderID := t.Base.ID
 
-	_, ok := character.TradersInfo[traderID]
+	traderInfo, ok := character.TradersInfo[traderID]
 	if !ok {
-		return -1
+		return
 	}
 
-	length := len(loyaltyLevels)
-	for index := 0; index < length; index++ {
-		loyalty := loyaltyLevels[index]
+	length := int8(len(loyaltyLevels))
+	for idx := traderInfo.LoyaltyLevel; idx < length; idx++ {
+		loyalty := loyaltyLevels[idx]
+
 		if character.Info.Level < loyalty.MinLevel ||
 			character.TradersInfo[traderID].SalesSum < loyalty.MinSalesSum ||
 			character.TradersInfo[traderID].Standing < loyalty.MinStanding {
 
-			return int8(index)
+			traderInfo.LoyaltyLevel = idx
+			character.TradersInfo[traderID] = traderInfo
 		}
 	}
-
-	return int8(length)
 }
 
 /*
