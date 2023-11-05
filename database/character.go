@@ -170,8 +170,8 @@ func (inv *Inventory) CleanInventoryOfDeletedItemMods() bool {
 
 }
 
-func (c *Character) SaveCharacter(sessionID string) {
-	characterFilePath := filepath.Join(profilesPath, sessionID, "character.json")
+func (c *Character) SaveCharacter() {
+	characterFilePath := filepath.Join(profilesPath, c.ID, "character.json")
 
 	err := tools.WriteToFile(characterFilePath, c)
 	if err != nil {
@@ -179,6 +179,16 @@ func (c *Character) SaveCharacter(sessionID string) {
 	}
 	fmt.Println("Character saved")
 }
+
+/*func (c *Character) SaveCharacter(sessionID string) {
+	characterFilePath := filepath.Join(profilesPath, sessionID, "character.json")
+
+	err := tools.WriteToFile(characterFilePath, c)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("Character saved")
+}*/
 
 // QuestAccept updates an existing Accepted quest, or creates and appends new Accepted Quest to cache and Character
 func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesEvent) {
@@ -265,7 +275,7 @@ func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesE
 	profileChangesEvent.ProfileChanges[c.ID].Quests = c.GetQuestsAvailableToPlayer()
 
 	dialogue.SaveDialogue(c.ID)
-	c.SaveCharacter(c.ID)
+	c.SaveCharacter()
 }
 
 func (c *Character) ApplyQuestRewardsToCharacter(rewards *QuestRewards) {

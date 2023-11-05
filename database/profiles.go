@@ -98,11 +98,13 @@ func SetProfiles() {
 			}
 
 			if profile.Character.Inventory.CleanInventoryOfDeletedItemMods() {
-				profile.Character.SaveCharacter(profile.Character.ID)
+				profile.Character.SaveCharacter()
 			}
 
 		} else {
-			profile.Character = &Character{}
+			profile.Character = &Character{
+				ID: profile.Account.UID,
+			}
 		}
 
 		path = filepath.Join(userPath, "storage.json")
@@ -215,7 +217,7 @@ func (profile *Profile) SaveProfile() {
 	}
 
 	profile.Account.SaveAccount()
-	profile.Character.SaveCharacter(sessionID)
+	profile.Character.SaveCharacter()
 	profile.Dialogue.SaveDialogue(sessionID)
 	profile.Storage.SaveStorage(sessionID)
 	profile.Friends.SaveFriends(sessionID)

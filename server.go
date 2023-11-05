@@ -113,7 +113,9 @@ func registerAccount() {
 
 	profiles[UID] = &database.Profile{}
 	profiles[UID].Account = &account
-	profiles[UID].Character = &database.Character{}
+	profiles[UID].Character = &database.Character{
+		ID: UID,
+	}
 	profiles[UID].Storage = &database.Storage{
 		Suites: []string{},
 		Builds: database.Builds{

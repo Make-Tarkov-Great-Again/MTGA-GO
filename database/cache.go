@@ -80,7 +80,7 @@ func (profile *Profile) SetCache() *Cache {
 		cache = profile.Cache
 	}
 
-	if profile.Character.ID != "" {
+	if profile.Character.Info.Nickname != "" {
 		var wg sync.WaitGroup
 
 		// Define a function to update the quests map

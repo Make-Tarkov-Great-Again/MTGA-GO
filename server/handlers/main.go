@@ -162,7 +162,7 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	character := database.GetCharacterByUID(sessionID)
 
-	if character == nil || character.ID == "" {
+	if character == nil || character.Info.Nickname == "" {
 		profiles := services.ApplyResponseBody([]any{})
 		services.ZlibJSONReply(w, r.RequestURI, profiles)
 		fmt.Println("Character doesn't exist, begin creation")
@@ -612,7 +612,7 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	character.SaveCharacter(character.ID)
+	character.SaveCharacter()
 	services.ZlibJSONReply(w, r.RequestURI, services.ApplyResponseBody(profileChangeEvent))
 }
 
