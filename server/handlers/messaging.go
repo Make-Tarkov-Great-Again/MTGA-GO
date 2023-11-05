@@ -9,13 +9,23 @@ import (
 	"net/http"
 )
 
+type friendsList struct {
+	Friends      []database.FriendRequest
+	Ignore       []string
+	InIgnoreList []string
+}
+
 func MessagingFriendList(w http.ResponseWriter, r *http.Request) {
-	profile, err := database.GetAccountByUID(services.GetSessionID(r))
+	friends, err := database.GetFriendsByUID(services.GetSessionID(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	body := services.ApplyResponseBody(profile.Friends)
+	body := services.ApplyResponseBody(friendsList{
+		Friends:      friends.Friends,
+		Ignore:       friends.Ignore,
+		InIgnoreList: friends.InIgnoreList,
+	})
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
@@ -37,25 +47,25 @@ func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
 }
 
 func MessagingFriendRequestInbox(w http.ResponseWriter, r *http.Request) {
-	profile, err := database.GetAccountByUID(services.GetSessionID(r))
+	friends, err := database.GetFriendsByUID(services.GetSessionID(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	body := &FriendRequestMailbox{
-		Data: profile.FriendRequestInbox,
+		Data: friends.FriendRequestInbox,
 	}
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MessagingFriendRequestOutbox(w http.ResponseWriter, r *http.Request) {
-	profile, err := database.GetAccountByUID(services.GetSessionID(r))
+	friends, err := database.GetFriendsByUID(services.GetSessionID(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	body := &FriendRequestMailbox{
-		Data: profile.FriendRequestOutbox,
+		Data: friends.FriendRequestOutbox,
 	}
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }

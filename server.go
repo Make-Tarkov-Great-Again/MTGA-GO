@@ -111,15 +111,6 @@ func registerAccount() {
 	account.UID = UID
 	account.AID = len(profiles)
 
-	account.Friends = database.Friends{
-		Friends:      []database.FriendRequest{},
-		Ignore:       []string{},
-		InIgnoreList: []string{},
-	}
-
-	account.FriendRequestInbox = []any{}
-	account.FriendRequestOutbox = []any{}
-
 	profiles[UID] = &database.Profile{}
 	profiles[UID].Account = &account
 	profiles[UID].Character = &database.Character{}
@@ -133,6 +124,14 @@ func registerAccount() {
 		Mailbox:   []*database.Notification{},
 	}
 	profiles[UID].Dialogue = &database.Dialogue{}
+	profiles[UID].Friends = &database.Friends{
+		Friends:             []database.FriendRequest{},
+		Ignore:              []string{},
+		InIgnoreList:        []string{},
+		Matching:            database.Matching{},
+		FriendRequestInbox:  []any{},
+		FriendRequestOutbox: []any{},
+	}
 
 	//save account
 	fmt.Println()

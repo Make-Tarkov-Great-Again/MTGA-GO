@@ -127,6 +127,13 @@ func SetProfiles() {
 			profile.Dialogue = &Dialogue{}
 		}
 
+		path = filepath.Join(userPath, "friends.json")
+		if tools.FileExist(path) {
+			profile.Friends = setFriends(path)
+		} else {
+			profile.Friends = &Friends{}
+		}
+
 		profile.Cache = profile.SetCache()
 
 		profiles[user] = profile
@@ -181,6 +188,18 @@ func setDialogue(path string) *Dialogue {
 	return &output
 }
 
+func setFriends(path string) *Friends {
+	output := new(Friends)
+
+	data := tools.GetJSONRawMessage(path)
+	err := json.Unmarshal(data, &output)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return output
+}
+
 // #endregion
 
 // #region Profile save
@@ -199,6 +218,7 @@ func (profile *Profile) SaveProfile() {
 	profile.Character.SaveCharacter(sessionID)
 	profile.Dialogue.SaveDialogue(sessionID)
 	profile.Storage.SaveStorage(sessionID)
+	profile.Friends.SaveFriends(sessionID)
 
 	fmt.Println()
 	fmt.Println("Profile saved")
@@ -209,6 +229,7 @@ func (profile *Profile) SaveProfile() {
 type Profile struct {
 	Account   *Account
 	Character *Character
+	Friends   *Friends
 	Storage   *Storage
 	Dialogue  *Dialogue
 	Cache     *Cache
@@ -217,6 +238,37 @@ type Profile struct {
 type Dialogue map[string]*Dialog
 
 var Nicknames = make(map[string]*struct{})
+
+type Friends struct {
+	Friends             []FriendRequest `json:"Friends"`
+	Ignore              []string        `json:"Ignore"`
+	InIgnoreList        []string        `json:"InIgnoreList"`
+	Matching            Matching        `json:"Matching"`
+	FriendRequestInbox  []any           `json:"friendRequestInbox"`
+	FriendRequestOutbox []any           `json:"friendRequestOutbox"`
+}
+
+type Matching struct {
+	LookingForGroup bool `json:"LookingForGroup"`
+}
+
+type FriendRequest struct {
+	ID      string               `json:"_id"`
+	From    string               `json:"from"`
+	To      string               `json:"to"`
+	Date    int32                `json:"date"`
+	Profile FriendRequestProfile `json:"profile"`
+}
+
+type FriendRequestProfile struct {
+	ID   int32
+	Info struct {
+		Nickname       string         `json:"Nickname"`
+		Side           string         `json:"Side"`
+		Level          int8           `json:"Level"`
+		MemberCategory MemberCategory `json:"MemberCategory"`
+	}
+}
 
 type Storage struct {
 	//ID        string                 `json:"_id"`
