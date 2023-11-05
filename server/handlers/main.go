@@ -885,10 +885,6 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: Raid Profile Save
-	err = tools.WriteToFile("/faggot.json", save)
-	if err != nil {
-		return
-	}
 
 	fmt.Println("Raid Profile Save not implemented yet!")
 	body := services.ApplyResponseBody(nil)
