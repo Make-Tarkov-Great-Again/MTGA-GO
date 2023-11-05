@@ -128,7 +128,7 @@ func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 
 	traderInfo, ok := character.TradersInfo[traderID]
 	if !ok || traderInfo.LoyaltyLevel == 0 {
-		t.GetTraderLoyaltyLevel(character) // check loyalty level
+		t.SetTraderLoyaltyLevel(character) // check loyalty level
 	}
 	loyaltyLevel := character.TradersInfo[traderID].LoyaltyLevel
 
@@ -251,8 +251,8 @@ func SetResupplyTimer() int {
 
 //TODO: Store this information somewhere
 
-// GetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
-func (t *Trader) GetTraderLoyaltyLevel(character *Character) {
+// SetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
+func (t *Trader) SetTraderLoyaltyLevel(character *Character) {
 	loyaltyLevels := t.Base.LoyaltyLevels
 	traderID := t.Base.ID
 

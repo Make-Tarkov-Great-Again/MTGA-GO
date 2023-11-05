@@ -692,7 +692,7 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 			log.Fatalln("InsuranceListCost:", err)
 		}
 
-		trader.GetTraderLoyaltyLevel(character)
+		trader.SetTraderLoyaltyLevel(character)
 
 		Traders[TID] = traderInsuranceInfo{
 			LoyaltyLevel: character.TradersInfo[TID].LoyaltyLevel,

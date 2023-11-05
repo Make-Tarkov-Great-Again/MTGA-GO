@@ -78,7 +78,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 					if data, err := GetTraderByUID(trader); err != nil {
 						log.Fatalln(err)
 					} else {
-						data.GetTraderLoyaltyLevel(c)
+						data.SetTraderLoyaltyLevel(c)
 					}
 				}
 
@@ -103,7 +103,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 					if data, err := GetTraderByUID(trader); err != nil {
 						log.Fatalln(err)
 					} else {
-						data.GetTraderLoyaltyLevel(c)
+						data.SetTraderLoyaltyLevel(c)
 					}
 				}
 
