@@ -513,17 +513,27 @@ func MainLogout(w http.ResponseWriter, r *http.Request) {
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
+var supplyData *SupplyData
+
 func MainPrices(w http.ResponseWriter, r *http.Request) {
+	if supplyData != nil {
+		supplyData.SupplyNextTime = database.SetResupplyTimer()
+
+		body := services.ApplyResponseBody(supplyData)
+		services.ZlibJSONReply(w, r.RequestURI, body)
+		return
+	}
+
 	prices := database.GetPrices()
 	nextResupply := database.SetResupplyTimer()
 
-	supplyData := &SupplyData{
+	supplyData = &SupplyData{
 		SupplyNextTime: nextResupply,
 		Prices:         prices,
 		CurrencyCourses: CurrencyCourses{
-			RUB: *prices["5449016a4bdc2d6f028b456f"],
-			EUR: *prices["569668774bdc2da2298b4568"],
-			DOL: *prices["5696686a4bdc2da3298b456a"],
+			RUB: prices[*database.GetCurrencyByName("RUB")],
+			EUR: prices[*database.GetCurrencyByName("EUR")],
+			DOL: prices[*database.GetCurrencyByName("USD")],
 		},
 	}
 

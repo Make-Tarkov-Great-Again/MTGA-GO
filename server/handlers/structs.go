@@ -7,9 +7,9 @@ type QuestAccept struct{}
 // #endregion
 
 type SupplyData struct {
-	SupplyNextTime  int               `json:"supplyNextTime"`
-	Prices          map[string]*int32 `json:"prices"`
-	CurrencyCourses CurrencyCourses   `json:"currencyCourses"`
+	SupplyNextTime  int              `json:"supplyNextTime"`
+	Prices          map[string]int32 `json:"prices"`
+	CurrencyCourses CurrencyCourses  `json:"currencyCourses"`
 }
 
 type CurrencyCourses struct {

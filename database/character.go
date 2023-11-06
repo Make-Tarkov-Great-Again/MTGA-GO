@@ -1035,7 +1035,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	profileChangesEvent.ProfileChanges[c.ID].TraderRelations[tradeConfirm.TID] = traderRelations
 	c.TradersInfo[tradeConfirm.TID] = traderRelations
 
-	fmt.Println(len(toAdd), "of Item", tradeConfirm.ItemID, "purchased!")
+	fmt.Println(len(stackSlice), "of Item", tradeConfirm.ItemID, "purchased!")
 }
 
 func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {

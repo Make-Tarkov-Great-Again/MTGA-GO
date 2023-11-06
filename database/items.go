@@ -35,7 +35,7 @@ var currencyName = map[string]string{
 var currencyByID = map[string]struct{}{
 	"5449016a4bdc2d6f028b456f": {}, //RUB
 	"569668774bdc2da2298b4568": {}, //EUR
-	"5696686a4bdc2da3298b456a": {}, //DOL
+	"5696686a4bdc2da3298b456a": {}, //USD
 }
 
 func IsCurrencyByUID(UID string) bool {
