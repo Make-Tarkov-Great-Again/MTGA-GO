@@ -511,7 +511,6 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 
 	input = append(input, parent)
 
-	//TODO: items are not assigning their id's properly
 	output := make([]InventoryItem, 0, len(assortItems))
 	for _, item := range input {
 		if CID, ok := convertedIDs[item.ParentID]; !ok {
@@ -663,8 +662,6 @@ func (ic *InventoryContainer) SetSingleInventoryIndex(UID string, index int16) {
 	ic.Lookup.Forward[UID] = index
 	ic.Lookup.Reverse[index] = UID
 }
-
-//TODO: Figure out a better way to reset Inventory Index
 
 // SetInventoryIndex set/reset InventoryContainer.Lookup for fast Inventory.Items lookup
 func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {

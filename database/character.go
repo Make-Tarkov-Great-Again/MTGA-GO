@@ -840,8 +840,6 @@ type soldItems struct {
 }
 
 func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
-	//TODO: Make everything purchased NOT free lol
-
 	invCache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
 		log.Fatalln(err)
