@@ -24,8 +24,26 @@ func main() {
 	// Get the path of the "mods" folder in the same directory as the executable.
 
 	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	modDir := filepath.Join(wd, "user", "mods")
+	user := filepath.Join(wd, "user")
+
+	if !tools.FileExist(user) {
+		if err := tools.CreateDirectory(user); err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	profilesPath := filepath.Join(user, "profiles")
+	if !tools.FileExist(profilesPath) {
+		if err := tools.CreateDirectory(profilesPath); err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	modDir := filepath.Join(user, "mods")
 	fmt.Println("Mod directory:", modDir)
 	if !tools.FileExist(modDir) {
 		if err := tools.CreateDirectory(modDir); err != nil {

@@ -18,8 +18,6 @@ import (
 func main() {
 	startTime := time.Now()
 
-	setRequiredFolders()
-
 	//TODO: Squeeze MS where possible, investigate TraderIndex if possible
 
 	database.SetDatabase()
@@ -38,25 +36,6 @@ func main() {
 	fmt.Printf("Database initialized in %s\n\n", endTime.Sub(startTime))
 
 	startHome()
-}
-
-func setRequiredFolders() {
-	var user = "user"
-
-	if !tools.FileExist(user) {
-		err := os.Mkdir(user, 0755)
-		if err != nil {
-			log.Fatalln(err)
-		}
-	}
-
-	profilesPath := filepath.Join(user, "profiles")
-	if !tools.FileExist(profilesPath) {
-		err := os.Mkdir(profilesPath, 0755)
-		if err != nil {
-			log.Fatalln(err)
-		}
-	}
 }
 
 func startHome() {
