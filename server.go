@@ -297,7 +297,12 @@ func wipeYoAss(account *database.Account) {
 	loggedIn(account)
 }
 
-//tarkovPath + ' -bC5vLmcuaS5u={"email":"' + userAccount.email + '","password":"' + userAccount.password + '","toggle":true,"timestamp":0} -token=' + sessionID + ' -config={"BackendUrl":"https://' + serverConfig.ip + ':' + serverConfig.mainPort + '","Version":"live"}'
+// tarkovPath + ' -bC5vLmcuaS5u={"email":"' + userAccount.email + '","password":"' + userAccount.password + '","toggle":true,"timestamp":0} -token=' + sessionID + ' -config={"BackendUrl":"https://' + serverConfig.ip + ':' + serverConfig.mainPort + '","Version":"live"}'
+const (
+	config = "-config={'BackendUrl':'%s','Version':'live'}"
+	token  = "-token=%s"
+	email  = "-bC5vLmcuaS5u={'email':'%s','password': '%s','toggle':true,'timestamp':0}"
+)
 
 func launchTarkov(account *database.Account) {
 	if account.TarkovPath == "" || !tools.FileExist(account.TarkovPath) {
@@ -326,9 +331,9 @@ func launchTarkov(account *database.Account) {
 	}
 
 	cmdArgs := []string{
-		"-bC5vLmcuaS5u={'email':'" + account.Username + "','password':'" + account.Password + "','toggle':true,'timestamp':0}",
-		"-token=" + account.UID,
-		"-config={'BackendUrl':'" + database.GetMainAddress() + "','Version':'live'}",
+		fmt.Sprintf(email, account.Username, account.Password),
+		fmt.Sprintf(token, account.UID),
+		fmt.Sprintf(config, database.GetMainAddress()),
 	}
 
 	cmd := exec.Command(account.TarkovPath, cmdArgs...)

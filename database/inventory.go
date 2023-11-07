@@ -23,9 +23,9 @@ type Inventory struct {
 type InventoryItem struct {
 	ID       string                 `json:"_id"`
 	TPL      string                 `json:"_tpl,omitempty"`
-	Location *InventoryItemLocation `json:"location,omitempty"`
 	ParentID string                 `json:"parentId,omitempty"`
 	SlotID   string                 `json:"slotId,omitempty"`
+	Location *InventoryItemLocation `json:"location,omitempty"`
 	UPD      *ItemUpdate            `json:"upd,omitempty"`
 }
 
@@ -428,7 +428,14 @@ func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) *
 
 	var counter int8
 columnLoop:
-	for column := int16(0); column <= length; column++ {
+	for column := int16(0); column < length; column++ {
+
+		if column%stride == 9 && counter != width {
+			position.MapInfo = []int16{}
+			counter = 0
+			continue
+		}
+
 		if itemID = containerMap[column]; itemID != "" {
 			position.MapInfo = []int16{}
 			counter = 0
@@ -489,8 +496,12 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 
 		if inventoryItem.SlotID == "hideout" && inventoryItem.ParentID == "hideout" {
 			inventoryItem.ParentID = *stashID
+
+			inventoryItem.UPD.StackObjectsCount = 0
 			inventoryItem.UPD.BuyRestrictionMax = nil
 			inventoryItem.UPD.BuyRestrictionCurrent = nil
+			inventoryItem.UPD.UnlimitedCount = false
+
 			parent = *inventoryItem
 			continue
 		}
@@ -516,7 +527,7 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 }
 
 func AssignNewIDs(inventoryItems []InventoryItem) []InventoryItem {
-	output := make([]InventoryItem, 0, len(inventoryItems))
+	input := make([]InventoryItem, 0, len(inventoryItems))
 	convertedIDs := make(map[string]string)
 
 	for _, inventoryItem := range inventoryItems {
@@ -524,16 +535,25 @@ func AssignNewIDs(inventoryItems []InventoryItem) []InventoryItem {
 		convertedIDs[inventoryItem.ID] = newId
 		inventoryItem.ID = newId
 
-		output = append(output, inventoryItem)
+		input = append(input, inventoryItem)
 	}
 
-	for _, item := range output {
+	output := make([]InventoryItem, 0, len(inventoryItems))
+	var parent InventoryItem
+	for _, item := range input {
+		if item.SlotID == "hideout" {
+			parent = item
+		}
+
 		CID, ok := convertedIDs[item.ParentID]
 		if !ok {
 			continue
 		}
 		item.ParentID = CID
+		output = append(output, item)
+
 	}
+	output = append(output, parent)
 	return output
 }
 

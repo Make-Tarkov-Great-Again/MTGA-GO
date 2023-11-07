@@ -575,7 +575,7 @@ func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *Pr
 	toMerge := &c.Inventory.Items[toMergeIndex]
 
 	mergeWithIndex := *inventoryCache.GetIndexOfItemByUID(merge.With)
-	mergeWith := &c.Inventory.Items[mergeWithIndex]
+	mergeWith := c.Inventory.Items[mergeWithIndex]
 
 	mergeWith.UPD.StackObjectsCount += toMerge.UPD.StackObjectsCount
 
@@ -584,7 +584,7 @@ func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *Pr
 	inventoryCache.SetInventoryIndex(&c.Inventory)
 
 	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, mergeWith)
-	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: toMerge.ID})
+	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, InventoryItem{ID: toMerge.ID})
 }
 
 // RemoveSingleItemFromInventoryByIndex takes the existing Inventory.Items and removes an InventoryItem at its index
@@ -697,8 +697,8 @@ func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *Pr
 	c.Inventory.Items = append(c.Inventory.Items, *newItem)
 	invCache.SetSingleInventoryIndex(newItem.ID, int16(len(c.Inventory.Items)-1))
 
-	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, originalItem)
-	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
+	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, *originalItem)
+	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
 }
 
 type remove struct {
@@ -731,7 +731,7 @@ func (c *Character) RemoveItem(moveAction map[string]any, profileChangesEvent *P
 	c.Inventory.RemoveItemsFromInventoryByIndices(toDelete)
 	inventoryCache.SetInventoryIndex(&c.Inventory)
 
-	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: remove.ItemId})
+	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, InventoryItem{ID: remove.ItemId})
 
 }
 
@@ -892,7 +892,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	// Basically gets the correct amount of items to be created, based on StackSize
 
 	//Create copy-of Character.Inventory.Items for modification in the case of any failures to assign later
-	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items)+len(inventoryItems))
+	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items)+(len(inventoryItems)*len(stackSlice)))
 	copyOfItems = append(copyOfItems, c.Inventory.Items...)
 	//Create copy-of invCache.Stash.Container for modification in the case of any failures to assign later
 	copyOfMap := invCache.Stash.Container
@@ -905,7 +905,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 
 	for _, stack := range stackSlice {
 		var copyOfInventoryItems []InventoryItem
-		if len(stackSlice) != 1 {
+		if len(stackSlice) >= 1 {
 			copyOfInventoryItems = AssignNewIDs(inventoryItems)
 		} else {
 			copyOfInventoryItems = inventoryItems
@@ -920,8 +920,9 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 			return
 		}
 
-		stackObjectsCount := stack
-		mainItem.UPD.StackObjectsCount = stackObjectsCount
+		if stackMaxSize > 1 {
+			mainItem.UPD.StackObjectsCount = stack
+		}
 		mainItem.Location = &InventoryItemLocation{
 			IsSearched: true,
 			R:          float64(0),
@@ -966,7 +967,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 			if itemInInventory.UPD.StackObjectsCount > remainingBalance {
 				itemInInventory.UPD.StackObjectsCount -= remainingBalance
 
-				profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, &itemInInventory)
+				profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, itemInInventory)
 			} else if itemInInventory.UPD.StackObjectsCount == remainingBalance {
 				toDelete[itemInInventory.ID] = *index
 			} else {
@@ -976,7 +977,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 
 				//TODO: Consider creating a look-up cache for mergable Inventory.Items
 
-				var toChange []*InventoryItem
+				var toChange []InventoryItem
 				for idx, item := range copyOfItems {
 					if _, ok := toDelete[item.ID]; ok || item.TPL != currency {
 						continue
@@ -994,7 +995,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 					}
 
 					item.UPD.StackObjectsCount = change
-					toChange = append(toChange, &item)
+					toChange = append(toChange, item)
 					break
 				}
 				if remainingBalance > 0 {
@@ -1011,11 +1012,19 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	}
 
 	// Add all items from toAdd to Copy of Inventory.Items
-	for _, invItem := range toAdd {
-		copyOfItems = append(copyOfItems, invItem)
-		profileChangeItem := invItem //assign to variable to be pointed too for profileChangeEvents
-		profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &profileChangeItem)
+	if len(toAdd) == 0 {
+		log.Fatalln("balls")
 	}
+
+	copyOfItems = append(copyOfItems, toAdd...)
+	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, toAdd...)
+	/*	for i := len(inventoryItems) - 1; i < len(toAdd); i += len(inventoryItems) {
+		if toAdd[i].Location == nil && toAdd[i].SlotID != "hideout" {
+			continue
+		}
+		profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, toAdd[i])
+
+	}*/
 
 	//Assign copy-of Character.Inventory.Items to original Character.Inventory.Items
 	c.Inventory.Items = copyOfItems
@@ -1026,7 +1035,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 			invCache.ClearItemFromContainer(id)
 			indices = append(indices, idx)
 
-			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: id})
+			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, InventoryItem{ID: id})
 		}
 		c.Inventory.RemoveItemsFromInventoryByIndices(indices)
 	}
@@ -1063,7 +1072,7 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 		toDelete[item.ID] = index
 	}
 
-	toChange := make([]*InventoryItem, 0)
+	toChange := make([]InventoryItem, 0)
 	for _, item := range copyOfItems {
 		if remainingBalance == 0 {
 			break
@@ -1077,12 +1086,12 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 			remainingBalance -= stackMaxSize - item.UPD.StackObjectsCount
 			item.UPD.StackObjectsCount = stackMaxSize
 
-			toChange = append(toChange, &item)
+			toChange = append(toChange, item)
 			continue
 		} else {
 			item.UPD.StackObjectsCount += remainingBalance
 			remainingBalance = 0
-			toChange = append(toChange, &item)
+			toChange = append(toChange, item)
 			break
 		}
 	}
@@ -1122,12 +1131,8 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 			toAdd = append(toAdd, mainItem)
 		}
 
-		for _, invItem := range toAdd {
-			copyOfItems = append(copyOfItems, invItem)
-			profileChangeItem := invItem //assign to variable to be pointed too for profileChangeEvents
-			profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, &profileChangeItem)
-		}
-
+		copyOfItems = append(copyOfItems, toAdd...)
+		profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, toAdd...)
 	}
 
 	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, toChange...)
@@ -1139,7 +1144,7 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 			invCache.ClearItemFromContainer(id)
 			indices = append(indices, idx)
 
-			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, &InventoryItem{ID: id})
+			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, InventoryItem{ID: id})
 		}
 		c.Inventory.RemoveItemsFromInventoryByIndices(indices)
 	}

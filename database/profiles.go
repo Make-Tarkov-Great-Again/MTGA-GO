@@ -319,9 +319,9 @@ type Warning struct {
 }
 
 type ItemChanges struct {
-	New    []*InventoryItem `json:"new,omitempty"`
-	Change []*InventoryItem `json:"change,omitempty"`
-	Del    []*InventoryItem `json:"del,omitempty"`
+	New    []InventoryItem `json:"new,omitempty"`
+	Change []InventoryItem `json:"change,omitempty"`
+	Del    []InventoryItem `json:"del,omitempty"`
 }
 
 type ItemLocation struct {
