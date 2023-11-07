@@ -5,6 +5,7 @@ import (
 	"MT-GO/tools"
 	"fmt"
 	"github.com/goccy/go-json"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,6 +27,11 @@ func main() {
 
 	modDir := filepath.Join(wd, "user", "mods")
 	fmt.Println("Mod directory:", modDir)
+	if !tools.FileExist(modDir) {
+		if err := tools.CreateDirectory(modDir); err != nil {
+			log.Fatalln(err)
+		}
+	}
 
 	// List all subdirectories in the "mods" folder.
 	modSubDirs, err := tools.GetDirectoriesFrom(modDir)
