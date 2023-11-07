@@ -1136,17 +1136,14 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, toChange...)
 	c.Inventory.Items = copyOfItems
 
-	//TODO Need to keep track of what is bought in the case that someone sells something like
-	// a gasblock with a handguard, then the handguard
-	// [Error  : Unity Log] Exception: Trying to get owner of discarded item:
-	// container.Container.ID=mod_handguard container.Container.ParentItem.Id=e629647af1a768658f2576a9
-
 	if len(toDelete) != 0 {
 		indices := make([]int16, 0, len(toDelete))
 		for id, idx := range toDelete {
 			invCache.ClearItemFromContainer(id)
 			indices = append(indices, idx)
-
+			if _, ok := toDelete[c.Inventory.Items[idx].ParentID]; ok {
+				continue
+			}
 			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, InventoryItem{ID: id})
 		}
 		c.Inventory.RemoveItemsFromInventoryByIndices(indices)
