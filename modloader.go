@@ -143,9 +143,9 @@ func main() {
 	}
 
 	// Start the main Go instance in a new cmd instance.
-	mainGoFile := filepath.Join(filepath.Dir(exeDir), "server.go")
+	mainGoFile := filepath.Join(filepath.Dir(exeDir), "backend.go")
 	log.Println("Starting main Go instance:", mainGoFile)
-	cmd := exec.Command("cmd", "/c", "start", "cmd", "/k", "go run "+"server.go")
+	cmd := exec.Command("cmd", "/c", "start", "cmd", "/k", "go run "+"backend.go")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
