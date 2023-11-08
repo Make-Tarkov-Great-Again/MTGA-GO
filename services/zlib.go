@@ -95,7 +95,7 @@ func zlibDeflate(w http.ResponseWriter, path string, data any) {
 
 func compressZlib(data []byte) []byte {
 	buffer := &bytes.Buffer{}
-	writer := zlib.NewWriter(buffer)
+	writer, _ := zlib.NewWriterLevel(buffer, zlib.BestSpeed)
 
 	defer func(writer *zlib.Writer) {
 		err := writer.Close()
