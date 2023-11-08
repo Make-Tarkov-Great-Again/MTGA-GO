@@ -842,13 +842,19 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	//TODO: Send bots lol
-	sb := database.GetSacrificialBot()
-	bots := make([]any, 0, 50)
+	bot := database.GetSacrificialBot()
+
+	bots := make([]map[string]any, 0, 50)
 	for _, condition := range conditions.Conditions {
-		//sb.Info.Settings["Role"] = condition.Role
-		//sb.Info.Settings["BotDifficulty"] = condition.Difficulty
 		for i := int8(0); i < condition.Limit; i++ {
-			bots = append(bots, *sb)
+			clone := make(map[string]interface{})
+			for key, value := range *bot {
+				clone[key] = value
+			}
+			clone["Id"] = tools.GenerateMongoID()
+			clone["Info"].(map[string]any)["Settings"].(map[string]any)["Role"] = condition.Role
+			clone["Info"].(map[string]any)["Settings"].(map[string]any)["BotDifficulty"] = condition.Difficulty
+			bots = append(bots, clone)
 		}
 	}
 	body := services.ApplyResponseBody(bots)

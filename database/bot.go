@@ -13,9 +13,9 @@ import (
 // #region Bot getters
 
 var bots = Bots{}
-var sacrificialBot any
+var sacrificialBot map[string]any
 
-func GetSacrificialBot() *any {
+func GetSacrificialBot() *map[string]any {
 	return &sacrificialBot
 }
 func setSacrificialBot() {
