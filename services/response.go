@@ -1,80 +1,103 @@
 package services
 
 import (
-	"MT-GO/tools"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"MT-GO/tools"
 )
 
 type ResponseBody struct {
-	Err    int         `json:"err"`
-	Errmsg interface{} `json:"errmsg"`
-	Data   interface{} `json:"data"`
+	Err    int `json:"err"`
+	Errmsg any `json:"errmsg"`
+	Data   any `json:"data"`
 }
 
 type CRCResponseBody struct {
-	Err    int         `json:"err"`
-	Errmsg interface{} `json:"errmsg"`
-	Data   interface{} `json:"data"`
-	Crc    *uint32     `json:"crc"`
+	Err    int     `json:"err"`
+	Errmsg any     `json:"errmsg"`
+	Data   any     `json:"data"`
+	Crc    *uint32 `json:"crc"`
 }
 
+const (
+	sessionIDHeader string = "Sessionid"
+	cookieHeader    string = "Cookie"
+	phpsessIDHeader string = "PHPSESSID="
+)
+
+// GetSessionID returns current sessionID from the header, if available
 func GetSessionID(r *http.Request) string {
-	coogie := strings.Join(r.Header["Cookie"], ", ")
-	sessionID := strings.TrimPrefix(coogie, "PHPSESSID=")
+	var sessionID = ""
+
+	sessionID = r.Header.Get(sessionIDHeader)
+	if sessionID != "" {
+		return sessionID
+	}
+
+	cookie := r.Header.Get(cookieHeader)
+	if cookie != "" {
+		cookie = cookie[len(cookie)-24:]
+		return strings.TrimPrefix(cookie, phpsessIDHeader)
+	}
+
 	return sessionID
 }
-func ApplyCRCResponseBody(data interface{}, crc *uint32) *CRCResponseBody {
+
+// ApplyCRCResponseBody appends data to CRCResponseBody and returns it
+func ApplyCRCResponseBody(data any, crc *uint32) *CRCResponseBody {
 	body := &CRCResponseBody{}
 	body.Data = data
 	body.Crc = crc
 	return body
 }
 
-// ApplyResponseBody applies the response body necessary to parse the response
-func ApplyResponseBody(data interface{}) *ResponseBody {
+// ApplyResponseBody appends data to ResponseBody and returns it
+func ApplyResponseBody(data any) *ResponseBody {
 	body := &ResponseBody{}
 	body.Data = data
 	return body
 }
 
-var cachedCRC = map[string]*uint32{}
-
-var cachableRoutes = map[string]struct{}{
-	"/client/settings":      {},
-	"/client/customization": {},
-	"/client/locale/":       {},
-	"/client/items":         {},
-	"/client/globals":       {},
-	"/client/locations":     {},
-	"/client/game/config":   {},
-	"/client/languages":     {},
-	"/client/menu/locale/":  {},
+var cachedCRC = map[string]*uint32{
+	"/client/settings":      nil,
+	"/client/customization": nil,
+	"/client/locale/":       nil,
+	"/client/items":         nil,
+	"/client/globals":       nil,
+	"/client/locations":     nil,
+	"/client/game/config":   nil,
+	"/client/languages":     nil,
+	"/client/menu/locale/":  nil,
 	//"/client/location/getLocalloot": {}, don't fully understand why this would be cached
 }
 
-const prod string = "https://prod.escapefromtarkov.com"
-const imagesPath string = "assets/images/"
+const (
+	prod       string = "https://prod.escapefromtarkov.com"
+	imagesPath string = "assets/images/"
+)
 
-var mime = map[string]string{".jpg": "image/jpeg", ".png": "image/png"}
-var extensions = []string{".jpg", ".png"}
+var mime = map[string]string{
+	".jpg": "image/jpeg",
+	".png": "image/png",
+}
 
 func ServeFiles(w http.ResponseWriter, r *http.Request) {
 	icon := strings.Split(r.RequestURI, "/")
 	imagePath := filepath.Join(imagesPath, icon[2], icon[3], strings.TrimSuffix(icon[4], ".jpg"))
 
-	for _, ext := range extensions {
+	for ext, mimeType := range mime {
 		path := imagePath + ext
 		if !tools.FileExist(path) {
 			continue
 		}
 
-		fmt.Println("Image exists in ", path, " serving...")
-		ServeFile(w, path, mime[ext])
+		log.Println("Image exists in ", path, " serving...")
+		ServeFile(w, path, mimeType)
 		return
 	}
 
@@ -82,51 +105,59 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 		client := &http.Client{}
 		prodURL := prod + strings.TrimSuffix(r.RequestURI, ".jpg")
 
-		for _, ext := range extensions {
+		for ext, mimeType := range mime {
 			path := prodURL + ext
 
 			req, err := http.NewRequest("GET", path, nil)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
 
 			req.Header.Set("User-Agent", "ballsack")
 			response, err := client.Do(req)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				if err != nil {
+					log.Fatalln(err)
+				}
+			}(response.Body)
 
 			if response.StatusCode != http.StatusOK {
-				response.Body.Close()
+				err := response.Body.Close()
+				if err != nil {
+					log.Fatalln(err)
+				}
 				continue
 			}
-			defer response.Body.Close()
 
 			imagePath = imagePath + ext
 			dir := filepath.Dir(imagePath)
 			err = os.MkdirAll(dir, os.ModePerm)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
 
 			file, err := os.Create(imagePath)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
-			defer file.Close()
+			defer func(file *os.File) {
+				err := file.Close()
+				if err != nil {
+					log.Fatalln(err)
+				}
+			}(file)
 
 			_, err = io.Copy(file, response.Body)
 			if err != nil {
-				fmt.Println(err.Error())
-				break
+				log.Fatalln(err)
 			}
 
-			fmt.Println("Successfully downloaded to ", imagePath)
-			ServeFile(w, imagePath, mime[ext])
+			log.Println("Successfully downloaded to", imagePath)
+			ServeFile(w, imagePath, mimeType)
 			return
 		}
 	}
@@ -135,33 +166,46 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 func ServeFile(w http.ResponseWriter, imagePath, mime string) {
 	file, err := os.Open(imagePath)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}(file)
 
 	w.Header().Set("Content-Type", mime)
 	_, err = io.Copy(w, file)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 
 func CheckIfResponseCanBeCached(string string) bool {
-	_, ok := cachableRoutes[string]
+	_, ok := cachedCRC[string]
 	if ok {
-		fmt.Println("Response for", string, "can be cached!")
+		log.Println("Response for", string, "can be cached!")
+		return ok
 	}
 	return ok
 }
 
 func CheckIfResponseIsCached(key string) bool {
-	_, ok := cachedCRC[key]
-	return ok
+	value, _ := cachedCRC[key]
+	if value != nil {
+		return true
+	}
+	return false
 }
 
 func GetCachedCRC(key string) *uint32 {
 	crc, ok := cachedCRC[key]
 	if !ok {
+		log.Println("Key does not exist in CRC Cache, returning nil")
+		return nil
+	}
+	if crc == nil {
 		cachedCRC[key] = CalculateCRC32(key)
 		return cachedCRC[key]
 	}
@@ -173,7 +217,7 @@ type contextKey string
 
 const ParsedBodyKey contextKey = "ParsedBody"
 
-func GetParsedBody(r *http.Request) interface{} {
+func GetParsedBody(r *http.Request) any {
 	return r.Context().Value(ParsedBodyKey)
 }
 
@@ -244,3 +288,13 @@ func CalculateCRC32(input string) *uint32 {
 
 	return &crc32
 }
+
+//TODO: I think this is for generating a CRC32 name for the cache files? BSG uses the return of this
+// concatenates the directory + return
+
+/*func GetMd5Hash(input string) string {
+	hash := md5.New()
+	_, _ = io.WriteString(hash, input)
+	hashInBytes := hash.Sum(nil)
+	return hex.EncodeToString(hashInBytes)
+}*/

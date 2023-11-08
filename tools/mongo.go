@@ -2,31 +2,25 @@ package tools
 
 import (
 	"crypto/rand"
-	"errors"
 	"math"
 )
-
-const alphabet string = "abcdef0123456789"
 
 // taken from https://github.com/matoous/go-nanoid/blob/master/gonanoid.go
 // because i didnt need to use the whole package 8===D
 
-// GenerateMongoId returns a random string of length 24
-func GenerateMongoID() (string, error) {
-	chars := []rune(alphabet)
-	size := 24
+const size int = 24
 
-	if len(alphabet) == 0 || len(alphabet) > 255 {
-		return "", errors.New("alphabet must not be empty and contain no more than 255 chars")
-	}
-	if size <= 0 {
-		return "", errors.New("size must be positive integer")
-	}
+var chars = []rune("abcdef0123456789")
+var alphabetLength = len(chars)
 
-	mask := getMask(len(chars))
+//var length int = len(chars)
+
+// GenerateMongoID returns a random string of length 24
+func GenerateMongoID() string {
+	mask := getMask(alphabetLength)
 	// estimate how many random bytes we will need for the ID, we might actually need more but this is tradeoff
 	// between average case and worst case
-	ceilArg := 1.6 * float64(mask*size) / float64(len(alphabet))
+	ceilArg := 1.6 * float64(mask*size) / float64(alphabetLength)
 	step := int(math.Ceil(ceilArg))
 
 	id := make([]rune, size)
@@ -34,15 +28,15 @@ func GenerateMongoID() (string, error) {
 	for j := 0; ; {
 		_, err := rand.Read(bytes)
 		if err != nil {
-			return "", err
+			return ""
 		}
 		for i := 0; i < step; i++ {
 			currByte := bytes[i] & byte(mask)
-			if currByte < byte(len(chars)) {
+			if currByte < byte(alphabetLength) {
 				id[j] = chars[currByte]
 				j++
 				if j == size {
-					return string(id[:size]), nil
+					return string(id[:size])
 				}
 			}
 		}

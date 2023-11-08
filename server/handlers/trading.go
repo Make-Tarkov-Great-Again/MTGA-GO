@@ -1,57 +1,59 @@
 package handlers
 
 import (
+	"log"
+	"net/http"
+
 	"MT-GO/database"
 	"MT-GO/services"
-	"net/http"
-	"strings"
 )
 
 func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-
-	suites := database.GetProfileByUID(sessionID).Storage.Suites
-
-	storage := map[string]interface{}{
-		"_id":    sessionID,
-		"suites": suites,
+	storage, err := database.GetStorageByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
 	}
 
-	body := services.ApplyResponseBody(storage)
-	services.ZlibJSONReply(w, body)
+	suitesStorage := map[string]any{
+		"_id":    sessionID,
+		"suites": storage.Suites,
+	}
+
+	body := services.ApplyResponseBody(suitesStorage)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func TradingTraderSettings(w http.ResponseWriter, r *http.Request) {
 	traders := database.GetTraders()
-	data := make([]map[string]interface{}, 0, len(traders))
+	data := make([]*database.TraderBase, 0, len(traders))
 
 	for _, trader := range traders {
 		data = append(data, trader.Base)
 	}
 
 	body := services.ApplyResponseBody(&data)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-const (
-	customizationPrefix string = "/client/trading/customization/"
-	customizationSuffix string = "/offers"
-)
-
 func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
-	traderId := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, customizationPrefix), customizationSuffix)
+	traderId := r.URL.Path[30:54] //30:54
 
 	suits := database.GetTraders()[traderId].Suits
 	body := services.ApplyResponseBody(suits)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-const assort string = "/client/trading/api/getTraderAssort/"
-
 func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
-	traderId := strings.TrimPrefix(r.URL.Path, assort)
+	tid := r.URL.Path[36:]
+	trader, err := database.GetTraderByUID(tid)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	assort := database.GetTraders()[traderId].Assort
+	character := database.GetCharacterByID(services.GetSessionID(r))
+	var assort = trader.GetStrippedAssort(character)
+
 	body := services.ApplyResponseBody(assort)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }

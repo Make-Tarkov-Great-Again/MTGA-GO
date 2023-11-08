@@ -1,13 +1,14 @@
 package tools
 
 import (
+	"log"
 	"strings"
 
 	"github.com/goccy/go-json"
 )
 
 // Stringify returns a string representation of the given data.
-func Stringify(data interface{}, oneline bool) string {
+func Stringify(data any, oneline bool) string {
 	if oneline {
 		jsonBytes, err := json.Marshal(data)
 		if err != nil {
@@ -30,17 +31,17 @@ type Data struct {
 }
 
 func GetJSONRawMessage(path string) json.RawMessage {
-	byte, err := ReadFile(path)
+	b, err := ReadFile(path)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
-	rawJson := json.RawMessage(byte)
+	rawJson := json.RawMessage(b)
 	var data Data
 	if strings.Contains(string(rawJson), "\"data\"") {
 		err := json.Unmarshal(rawJson, &data)
 		if err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 		return data.Data
 	}

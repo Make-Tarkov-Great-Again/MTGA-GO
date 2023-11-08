@@ -2,8 +2,6 @@
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
 # Binaries for programs and plugins
-*.exe
-*.exe~
 *.dll
 *.so
 *.dylib
@@ -21,6 +19,11 @@
 go.work
 user/profiles/
 user/cert/
+user/backup/
+user/mods/
 questsDatabase.json
 *.png
 *.jpg
+.idea/
+vscode/
+*.xml

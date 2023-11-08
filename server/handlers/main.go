@@ -1,89 +1,78 @@
 package handlers
 
 import (
-	"MT-GO/database"
-	"MT-GO/services"
-	"MT-GO/structs"
-	"MT-GO/tools"
 	"fmt"
+	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"MT-GO/database"
+	"MT-GO/services"
+	"MT-GO/tools"
+
 	"github.com/goccy/go-json"
 )
 
-const route_not_implemented = "Route is not implemented yet, using empty values instead"
+const routeNotImplemented = "Route is not implemented yet, using empty values instead"
 
 // GetBundleList returns a list of custom bundles to the client
-func GetBundleList(w http.ResponseWriter, _ *http.Request) {
-	fmt.Println(route_not_implemented)
-	services.ZlibJSONReply(w, []string{})
+func GetBundleList(w http.ResponseWriter, r *http.Request) {
+	manifests := database.GetBundleManifests()
+	services.ZlibJSONReply(w, r.RequestURI, manifests)
 }
 
-/* func GetWebSocketAddress(w http.ResponseWriter, r *http.Request) {
-	sessionID := services.GetSessionID(r)
-	database.SetWebSocketAddress(sessionID)
-	websocketURL := database.GetWebSocketAddress()
-	services.ZlibReply(w, websocketURL)
-} */
-
-func ShowPersonKilledMessage(w http.ResponseWriter, _ *http.Request) {
-	services.ZlibJSONReply(w, "true")
+func GetBrandName(w http.ResponseWriter, r *http.Request) {
+	brand := map[string]string{"name": database.GetServerConfig().BrandName}
+	services.ZlibJSONReply(w, r.URL.Path, brand)
 }
 
-func MainGameStart(w http.ResponseWriter, _ *http.Request) {
-	data := map[string]interface{}{
+func ShowPersonKilledMessage(w http.ResponseWriter, r *http.Request) {
+	services.ZlibJSONReply(w, r.RequestURI, "true")
+}
+
+func MainGameStart(w http.ResponseWriter, r *http.Request) {
+	data := map[string]any{
 		"utc_time": tools.GetCurrentTimeInSeconds(),
 	}
 
 	start := services.ApplyResponseBody(data)
-	services.ZlibJSONReply(w, start)
+	services.ZlibJSONReply(w, r.RequestURI, start)
+}
+
+func MainPutMetrics(w http.ResponseWriter, r *http.Request) {
+	services.ZlibJSONReply(w, r.RequestURI, services.ApplyResponseBody(nil))
 }
 
 func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
 	lang := strings.TrimPrefix(r.URL.Path, "/client/menu/locale/")
-	menu := services.ApplyResponseBody(database.GetLocalesMenuByName(lang))
-	services.ZlibJSONReply(w, menu)
+	menu, err := database.GetLocalesMenuByName(lang)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+
+	body := services.ApplyResponseBody(menu)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainVersionValidate(w http.ResponseWriter, _ *http.Request) {
-	services.ZlibJSONReply(w, services.ApplyResponseBody(nil))
+func MainVersionValidate(w http.ResponseWriter, r *http.Request) {
+	services.ZlibJSONReply(w, r.RequestURI, services.ApplyResponseBody(nil))
 }
 
 func MainLanguages(w http.ResponseWriter, r *http.Request) {
 	languages := services.ApplyResponseBody(database.GetLanguages())
-	services.ZlibJSONReply(w, languages)
-}
-
-type Backend struct {
-	Lobby     string `json:"Lobby"`
-	Trading   string `json:"Trading"`
-	Messaging string `json:"Messaging"`
-	Main      string `json:"Main"`
-	RagFair   string `json:"RagFair"`
-}
-
-type GameConfig struct {
-	Aid               string            `json:"aid"`
-	Lang              string            `json:"lang"`
-	Languages         map[string]string `json:"languages"`
-	NdaFree           bool              `json:"ndaFree"`
-	Taxonomy          int               `json:"taxonomy"`
-	ActiveProfileID   string            `json:"activeProfileId"`
-	Backend           Backend           `json:"backend"`
-	UseProtobuf       bool              `json:"useProtobuf"`
-	UtcTime           float64           `json:"utc_time"`
-	TotalInGame       int               `json:"totalInGame"`
-	ReportAvailable   bool              `json:"reportAvailable"`
-	TwitchEventMember bool              `json:"twitchEventMember"`
+	services.ZlibJSONReply(w, r.RequestURI, languages)
 }
 
 func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	lang := database.GetAccountByUID(sessionID).Lang
-	if lang == "" {
-		lang = "en"
+	lang := "en"
+	if account, err := database.GetAccountByID(sessionID); err != nil {
+		log.Fatalln(err)
+	} else if account.Lang != "" {
+		lang = account.Lang
 	}
 
 	gameConfig := services.ApplyResponseBody(&GameConfig{
@@ -94,54 +83,48 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 		Taxonomy:        6,
 		ActiveProfileID: sessionID,
 		Backend: Backend{
-			Lobby:     database.GetMainAddress(),
+			Lobby:     database.GetLobbyAddress(),
 			Trading:   database.GetTradingAddress(),
 			Messaging: database.GetMessageAddress(),
 			Main:      database.GetMainAddress(),
 			RagFair:   database.GetRagFairAddress(),
 		},
 		UseProtobuf:       false,
-		UtcTime:           float64(tools.GetCurrentTimeInSeconds()),
+		UtcTime:           tools.GetCurrentTimeInSeconds(),
 		TotalInGame:       0, //account.GetTotalInGame
 		ReportAvailable:   true,
 		TwitchEventMember: false,
 	})
 
-	services.ZlibJSONReply(w, gameConfig)
+	services.ZlibJSONReply(w, r.RequestURI, gameConfig)
 }
 
 const itemsRoute string = "/client/items"
 
 func MainItems(w http.ResponseWriter, r *http.Request) {
-	ok := services.CheckIfResponseCanBeCached(itemsRoute)
-	if ok {
-
-		ok = services.CheckIfResponseIsCached(itemsRoute)
-		if ok {
+	if services.CheckIfResponseCanBeCached(itemsRoute) {
+		if services.CheckIfResponseIsCached(itemsRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(itemsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
 			body := services.ApplyCRCResponseBody(database.GetItems(), services.GetCachedCRC(itemsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 
-	fmt.Println("You know you're going to have to go back and try creating structs in your database, you lazy twit!")
+	log.Println("You know you're going to have to go back and try creating structs in your database, you lazy twit!")
 }
 
 const customizationRoute string = "/client/customization"
 
 func MainCustomization(w http.ResponseWriter, r *http.Request) {
-	ok := services.CheckIfResponseCanBeCached(customizationRoute)
-	if ok {
-
-		ok = services.CheckIfResponseIsCached(customizationRoute)
-		if ok {
+	if services.CheckIfResponseCanBeCached(customizationRoute) {
+		if services.CheckIfResponseIsCached(customizationRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(customizationRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
 			body := services.ApplyCRCResponseBody(database.GetCustomizations(), services.GetCachedCRC(customizationRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 }
@@ -149,16 +132,13 @@ func MainCustomization(w http.ResponseWriter, r *http.Request) {
 const globalsRoute string = "/client/globals"
 
 func MainGlobals(w http.ResponseWriter, r *http.Request) {
-	ok := services.CheckIfResponseCanBeCached(globalsRoute)
-	if ok {
-
-		ok = services.CheckIfResponseIsCached(globalsRoute)
-		if ok {
+	if services.CheckIfResponseCanBeCached(globalsRoute) {
+		if services.CheckIfResponseIsCached(globalsRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(globalsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
 			body := services.ApplyCRCResponseBody(database.GetGlobals(), services.GetCachedCRC(globalsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 }
@@ -166,16 +146,13 @@ func MainGlobals(w http.ResponseWriter, r *http.Request) {
 const MainSettingsRoute string = "/client/settings"
 
 func MainSettings(w http.ResponseWriter, r *http.Request) {
-	ok := services.CheckIfResponseCanBeCached(MainSettingsRoute)
-	if ok {
-
-		ok = services.CheckIfResponseIsCached(MainSettingsRoute)
-		if ok {
+	if services.CheckIfResponseCanBeCached(MainSettingsRoute) {
+		if services.CheckIfResponseIsCached(MainSettingsRoute) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainSettingsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
 			body := services.ApplyCRCResponseBody(database.GetMainSettings(), services.GetCachedCRC(MainSettingsRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 }
@@ -183,49 +160,36 @@ func MainSettings(w http.ResponseWriter, r *http.Request) {
 func MainProfileList(w http.ResponseWriter, r *http.Request) {
 
 	sessionID := services.GetSessionID(r)
-	character := database.GetCharacterByUID(sessionID)
+	character := database.GetCharacterByID(sessionID)
 
-	if character.ID == "" {
-		profiles := services.ApplyResponseBody([]interface{}{})
-		services.ZlibJSONReply(w, profiles)
-		fmt.Println("Character doesn't exist, begin creation")
+	if character == nil || character.Info.Nickname == "" {
+		profiles := services.ApplyResponseBody([]any{})
+		services.ZlibJSONReply(w, r.RequestURI, profiles)
+		log.Println("Character doesn't exist, begin creation")
 	} else {
 
 		playerScav := database.GetPlayerScav()
-		playerScav.Info.RegistrationDate = int(tools.GetCurrentTimeInSeconds())
+		playerScav.Info.RegistrationDate = int32(tools.GetCurrentTimeInSeconds())
 		playerScav.AID = character.AID
 		playerScav.ID = *character.Savage
 
-		slice := []interface{}{*playerScav, *character}
+		slice := []any{*playerScav, *character}
 		body := services.ApplyResponseBody(slice)
-		services.ZlibJSONReply(w, body)
+		services.ZlibJSONReply(w, r.RequestURI, body)
 	}
 }
 
 func MainAccountCustomization(w http.ResponseWriter, r *http.Request) {
 	customization := database.GetCustomizations()
-	output := []string{}
+	var output []string
 	for id, c := range customization {
-		custom, ok := c.(map[string]interface{})
-		if !ok {
-			panic("customization is not a map[string]interface{}")
-		}
-		props, ok := custom["_props"].(map[string]interface{})
-		if !ok {
-			panic("customization properties are not map[string]interface{}")
-		}
-		side, ok := props["Side"].([]interface{})
-		if !ok {
-			continue
-		}
-
-		if side != nil && len(side) > 0 {
+		if c.Props.Side != nil && len(c.Props.Side) > 0 {
 			output = append(output, id)
 		}
 	}
 
 	custom := services.ApplyResponseBody(output)
-	services.ZlibJSONReply(w, custom)
+	services.ZlibJSONReply(w, r.RequestURI, custom)
 }
 
 const MainLocaleRoute string = "/client/locale/"
@@ -233,45 +197,45 @@ const MainLocaleRoute string = "/client/locale/"
 func MainLocale(w http.ResponseWriter, r *http.Request) {
 	lang := strings.TrimPrefix(r.URL.Path, MainLocaleRoute)
 
-	ok := services.CheckIfResponseCanBeCached(MainLocaleRoute)
-	if ok {
-
-		ok = services.CheckIfResponseIsCached(r.URL.Path)
-		if ok {
+	if services.CheckIfResponseCanBeCached(MainLocaleRoute) {
+		if services.CheckIfResponseIsCached(r.URL.Path) {
 			body := services.ApplyCRCResponseBody(nil, services.GetCachedCRC(MainLocaleRoute))
-			services.ZlibJSONReply(w, body)
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		} else {
-			body := services.ApplyCRCResponseBody(database.GetLocalesLocaleByName(lang), services.GetCachedCRC(MainLocaleRoute))
-			services.ZlibJSONReply(w, body)
+			locale, err := database.GetLocalesLocaleByName(lang)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			body := services.ApplyCRCResponseBody(locale, services.GetCachedCRC(MainLocaleRoute))
+			services.ZlibJSONReply(w, r.RequestURI, body)
 		}
 	}
 }
 
+var keepAlive = &KeepAlive{
+	Msg:     "OK",
+	UtcTime: 0,
+}
+
 func MainKeepAlive(w http.ResponseWriter, r *http.Request) {
+	keepAlive.UtcTime = tools.GetCurrentTimeInSeconds()
 
-	data := struct {
-		Msg     string `json:"msg"`
-		UtcTime int    `json:"utc_time"`
-	}{
-		Msg:     "OK",
-		UtcTime: int(tools.GetCurrentTimeInSeconds()),
-	}
-
-	body := services.ApplyResponseBody(data)
-	services.ZlibJSONReply(w, body)
+	body := services.ApplyResponseBody(keepAlive)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainNicknameReserved(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody("")
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
-	context := services.GetParsedBody(r).(map[string]interface{})
+	parsedData := services.GetParsedBody(r).(map[string]any)
 
-	nickname, ok := context["nickname"]
+	nickname, ok := parsedData["nickname"]
 	if !ok {
-		fmt.Println("For whatever reason, the nickname does not exist.")
+		log.Println("For whatever reason, the nickname does not exist.")
 	}
 
 	if len(nickname.(string)) == 0 {
@@ -279,177 +243,145 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 		body.Err = 226
 		body.Errmsg = "226 - "
 
-		services.ZlibJSONReply(w, body)
+		services.ZlibJSONReply(w, r.RequestURI, body)
 		return
 	}
 
-	if !services.IsNicknameAvailable(nickname.(string), database.GetProfiles()) {
+	_, ok = database.Nicknames[nickname.(string)]
+	if ok {
 		body := services.ApplyResponseBody(nil)
 		body.Err = 225
 		body.Errmsg = "225 - "
 
-		services.ZlibJSONReply(w, body)
+		services.ZlibJSONReply(w, r.RequestURI, body)
 		return
 	}
 
-	status := struct {
-		Status interface{} `json:"status"`
-	}{
+	status := &NicknameValidate{
 		Status: "ok",
 	}
 	body := services.ApplyResponseBody(status)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-type ProfileCreateRequest struct {
-	Side     string `json:"side"`
-	Nickname string `json:"nickname"`
-	HeadID   string `json:"headId"`
-	VoiceID  string `json:"voiceId"`
+type profileCreate struct {
+	UID string `json:"uid"`
 }
 
 func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
-	request := &ProfileCreateRequest{}
-	body, err := json.Marshal(services.GetParsedBody(r))
-	if err != nil {
-		panic(err)
-	}
-
-	err = json.Unmarshal(body, request)
-	if err != nil {
-		panic(err)
+	request := new(ProfileCreateRequest)
+	body, _ := json.Marshal(services.GetParsedBody(r))
+	if err := json.Unmarshal(body, request); err != nil {
+		log.Fatalln(err)
 	}
 
 	sessionID := services.GetSessionID(r)
 
-	profile := database.GetProfileByUID(sessionID)
-	if profile.Storage == nil {
-		profile.Storage = &structs.Storage{}
+	profile, err := database.GetProfileByUID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
 	}
 
-	editions := database.GetEdition("Edge Of Darkness")
-	var pmc structs.PlayerTemplate
+	edition := database.GetEditionByName("Edge Of Darkness")
+	if edition == nil {
+		log.Fatalln("[MainProfileCreate] Edition is nil, this ain't good fella!")
+	}
+	var pmc database.Character
 
 	if request.Side == "Bear" {
-		pmc = *editions.Bear
-		profile.Storage.Suites = editions.Storage.Bear
+		pmc = *edition.Bear
+		profile.Storage.Suites = edition.Storage.Bear
 	} else {
-		pmc = *editions.Usec
-		profile.Storage.Suites = editions.Storage.Usec
+		pmc = *edition.Usec
+		profile.Storage.Suites = edition.Storage.Usec
 	}
 
 	pmc.ID = sessionID
 	pmc.AID = profile.Account.AID
-	sid, _ := tools.GenerateMongoID()
+
+	sid := tools.GenerateMongoID()
 	pmc.Savage = &sid
 
 	pmc.Info.Side = request.Side
 	pmc.Info.Nickname = request.Nickname
 
 	pmc.Info.LowerNickname = strings.ToLower(request.Nickname)
-	pmc.Info.Voice = database.GetCustomization(request.VoiceID)["_name"].(string)
 
-	time := int(tools.GetCurrentTimeInSeconds())
+	if customization, err := database.GetCustomizationByID(request.VoiceID); err != nil {
+		log.Fatalln(err)
+	} else {
+		pmc.Info.Voice = customization.Name
+	}
+
+	time := int32(tools.GetCurrentTimeInSeconds())
 	pmc.Info.RegistrationDate = time
-
 	pmc.Health.UpdateTime = time
 
 	pmc.Customization.Head = request.HeadID
 
 	stats := &pmc.Stats.Eft
 	stats.SessionCounters = nil
-	stats.OverallCounters = map[string]interface{}{"Items": []interface{}{}}
+	stats.OverallCounters = map[string]any{"Items": []any{}}
 	stats.Aggressor = nil
-	stats.DroppedItems = make([]interface{}, 0, 0)
-	stats.FoundInRaidItems = make([]interface{}, 0, 0)
-	stats.Victims = make([]interface{}, 0, 0)
-	stats.CarriedQuestItems = make([]interface{}, 0, 0)
-	stats.DamageHistory = map[string]interface{}{
-		"BodyParts":        []interface{}{},
+	stats.DroppedItems = make([]any, 0)
+	stats.FoundInRaidItems = make([]any, 0)
+	stats.Victims = make([]any, 0)
+	stats.CarriedQuestItems = make([]any, 0)
+	stats.DamageHistory = map[string]any{
+		"BodyParts":        []any{},
 		"LethalDamage":     nil,
 		"LethalDamagePart": "Head",
 	}
 	stats.SurvivorClass = "Unknown"
 
-	commonSkills := make([]structs.SkillsCommon, 0, len(pmc.Skills.Common))
-	for _, skill := range pmc.Skills.Common {
-		commonSkills = append(commonSkills, skill)
-	}
+	commonSkills := make([]database.SkillsCommon, 0, len(pmc.Skills.Common))
+	commonSkills = append(commonSkills, pmc.Skills.Common...)
 	pmc.Skills.Common = commonSkills
 
 	hideout := &pmc.Hideout
-	resizedAreas := make([]structs.PlayerHideoutArea, 0, len(hideout.Areas))
-	for _, area := range hideout.Areas {
-		resizedAreas = append(resizedAreas, area)
-	}
 
+	resizedAreas := make([]database.PlayerHideoutArea, 0, len(hideout.Areas))
+	resizedAreas = append(resizedAreas, hideout.Areas...)
 	hideout.Areas = resizedAreas
-	hideout.Improvement = make(map[string]interface{})
+
+	hideout.Improvement = make(map[string]any)
 
 	profile.Character = &pmc
-	services.SaveProfile(profile)
+	profile.Cache = profile.SetCache()
+	profile.SaveProfile()
 
-	data := services.ApplyResponseBody(map[string]interface{}{"uid": sessionID})
-	services.ZlibJSONReply(w, data)
-}
-
-type Notifier struct {
-	Server         string `json:"server"`
-	ChannelID      string `json:"channel_id"`
-	URL            string `json:"url"`
-	NotifierServer string `json:"notifierServer"`
-	WS             string `json:"ws"`
-}
-
-type Channel struct {
-	Status         string   `json:"status"`
-	Notifier       Notifier `json:"notifier"`
-	NotifierServer string   `json:"notifierServer"`
+	data := services.ApplyResponseBody(&profileCreate{UID: sessionID})
+	services.ZlibJSONReply(w, r.RequestURI, data)
 }
 
 var channel = &Channel{}
 
 func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
 	body := services.ApplyResponseBody(channel.Notifier)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
-func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 
+func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 
-	notiServer := fmt.Sprintf("%s/push/notifier/get/%s", database.GetMainAddress(), sessionID)
+	notifierServer := fmt.Sprintf("%s/push/notifier/get/%s", database.GetLobbyIPandPort(), sessionID)
 	wssServer := fmt.Sprintf("%s/push/notifier/getwebsocket/%s", database.GetWebSocketAddress(), sessionID)
 
 	channel.Status = "ok"
 	Notifier := &channel.Notifier
 
-	Notifier.Server = database.GetMainIPandPort() //probably will be lobby server
-	fmt.Println("Probably need to set this to Lobby Server in the future")
+	Notifier.Server = database.GetLobbyIPandPort()
 	Notifier.ChannelID = sessionID
-	Notifier.NotifierServer = notiServer
+	Notifier.NotifierServer = notifierServer
 	Notifier.WS = wssServer
 
 	body := services.ApplyResponseBody(channel)
-	services.ZlibJSONReply(w, body)
-}
-
-type ProfileStatuses struct {
-	MaxPVECountExceeded bool            `json:"maxPveCountExceeded"`
-	Profiles            []ProfileStatus `json:"profiles"`
-}
-
-type ProfileStatus struct {
-	ProfileID    string      `json:"profileid"`
-	ProfileToken interface{} `json:"profileToken"`
-	Status       string      `json:"status"`
-	SID          string      `json:"sid"`
-	IP           string      `json:"ip"`
-	Port         int         `json:"port"`
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
 
-	character := database.GetCharacterByUID(services.GetSessionID(r))
+	character := database.GetCharacterByID(services.GetSessionID(r))
 
 	scavProfile := &ProfileStatus{
 		ProfileID: *character.Savage,
@@ -466,94 +398,93 @@ func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := services.ApplyResponseBody(statuses)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainWeather(w http.ResponseWriter, r *http.Request) {
 	weather := database.GetWeather()
 	body := services.ApplyResponseBody(weather)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainLocations(w http.ResponseWriter, r *http.Request) {
 	locations := database.GetLocations()
 	body := services.ApplyResponseBody(locations)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainTemplates(w http.ResponseWriter, r *http.Request) {
 	templates := database.GetHandbook()
 	body := services.ApplyResponseBody(templates)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainHideoutAreas(w http.ResponseWriter, r *http.Request) {
 	areas := database.GetHideout().Areas
 	body := services.ApplyResponseBody(areas)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainHideoutQTE(w http.ResponseWriter, r *http.Request) {
 	qte := database.GetHideout().QTE
 	body := services.ApplyResponseBody(qte)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
 	settings := database.GetHideout().Settings
 	body := services.ApplyResponseBody(settings)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
 	recipes := database.GetHideout().Recipes
 	body := services.ApplyResponseBody(recipes)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
-	scavCaseRecipies := database.GetHideout().ScavCase
-	body := services.ApplyResponseBody(scavCaseRecipies)
-	services.ZlibJSONReply(w, body)
+	scavCaseRecipes := database.GetHideout().ScavCase
+	body := services.ApplyResponseBody(scavCaseRecipes)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainBuildsList(w http.ResponseWriter, r *http.Request) {
-	builds := database.GetProfileByUID(services.GetSessionID(r)).Storage.Builds
-	body := services.ApplyResponseBody(builds)
-	services.ZlibJSONReply(w, body)
+	storage, err := database.GetStorageByID(services.GetSessionID(r))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	body := services.ApplyResponseBody(storage.Builds)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	quests := services.GetQuestsAvailableToPlayer(database.GetCharacterByUID(sessionID))
+	quests, err := database.GetCharacterByID(sessionID).GetQuestsAvailableToPlayer()
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	body := services.ApplyResponseBody(quests)
-	services.ZlibJSONReply(w, body)
-}
-
-type CurrentGroup struct {
-	Squad []interface{} `json:"squad"`
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
 	group := &CurrentGroup{
-		Squad: []interface{}{},
+		Squad: []any{},
 	}
 	body := services.ApplyResponseBody(group)
-	services.ZlibJSONReply(w, body)
-}
-func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Sending empty array for right now because I don't feel like doing repeatables rn")
-	body := services.ApplyResponseBody([]interface{}{})
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-type ServerListing struct {
-	IP   string `json:"ip"`
-	Port int    `json:"port"`
+func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody([]any{})
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainServerList(w http.ResponseWriter, r *http.Request) {
-	serverListings := []ServerListing{}
+	var serverListings []ServerListing
 	port, _ := strconv.Atoi(database.GetServerConfig().Ports.Main)
 
 	serverListings = append(serverListings, ServerListing{
@@ -562,62 +493,427 @@ func MainServerList(w http.ResponseWriter, r *http.Request) {
 	})
 
 	body := services.ApplyResponseBody(serverListings)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
-	check := strings.TrimPrefix(r.Header["App-Version"][0], "EFT Client ")
-	version := struct {
-		IsValid       bool   `json:"isValid"`
-		LatestVersion string `json:"latestVersion"`
-	}{
+	check := strings.TrimPrefix(r.Header.Get("App-Version"), "EFT Client ")
+	version := &Version{
 		IsValid:       true,
 		LatestVersion: check,
 	}
 	body := services.ApplyResponseBody(version)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainLogoout(w http.ResponseWriter, r *http.Request) {
-	sessionID := services.GetSessionID(r)
-	services.SaveProfile(database.GetProfileByUID(sessionID))
+func MainLogout(w http.ResponseWriter, r *http.Request) {
+	if profile, err := database.GetProfileByUID(services.GetSessionID(r)); err != nil {
+		log.Fatalln(err)
+	} else {
+		profile.SaveProfile()
+	}
 
-	body := services.ApplyResponseBody(map[string]interface{}{"status": "ok"})
-	services.ZlibJSONReply(w, body)
+	body := services.ApplyResponseBody(map[string]any{"status": "ok"})
+	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-type SupplyData struct {
-	SupplyNextTime  int            `json:"supplyNextTime"`
-	Prices          map[string]int `json:"prices"`
-	CurrencyCourses struct {
-		RUB int `json:"5449016a4bdc2d6f028b456f"`
-		EUR int `json:"569668774bdc2da2298b4568"`
-		DOL int `json:"5696686a4bdc2da3298b456a"`
-	} `json:"currencyCourses"`
-}
-
-const pricesRoute string = "/client/items/prices/"
+var supplyData *SupplyData
 
 func MainPrices(w http.ResponseWriter, r *http.Request) {
-	traderID := strings.TrimPrefix(r.RequestURI, pricesRoute)
-	fmt.Println("Get Trader ", traderID, " Resupply to provide proper information to client")
+	if supplyData != nil {
+		supplyData.SupplyNextTime = database.SetResupplyTimer()
 
-	prices := *database.GetPrices()
+		body := services.ApplyResponseBody(supplyData)
+		services.ZlibJSONReply(w, r.RequestURI, body)
+		return
+	}
 
-	supplyData := &SupplyData{
-		SupplyNextTime: 1672236024,
+	prices := database.GetPrices()
+	nextResupply := database.SetResupplyTimer()
+
+	supplyData = &SupplyData{
+		SupplyNextTime: nextResupply,
 		Prices:         prices,
-		CurrencyCourses: struct {
-			RUB int `json:"5449016a4bdc2d6f028b456f"`
-			EUR int `json:"569668774bdc2da2298b4568"`
-			DOL int `json:"5696686a4bdc2da3298b456a"`
-		}{
-			RUB: prices["5449016a4bdc2d6f028b456f"],
-			EUR: prices["569668774bdc2da2298b4568"],
-			DOL: prices["5696686a4bdc2da3298b456a"],
+		CurrencyCourses: CurrencyCourses{
+			RUB: prices[*database.GetCurrencyByName("RUB")],
+			EUR: prices[*database.GetCurrencyByName("EUR")],
+			DOL: prices[*database.GetCurrencyByName("USD")],
 		},
 	}
 
 	body := services.ApplyResponseBody(supplyData)
-	services.ZlibJSONReply(w, body)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+var actionHandlers = map[string]func(map[string]any, *database.Character, *database.ProfileChangesEvent){
+	"QuestAccept": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.QuestAccept(moveAction["qid"].(string), profileChangeEvent)
+	},
+	"Examine": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.ExamineItem(moveAction)
+	},
+	"Move": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.MoveItemInStash(moveAction, profileChangeEvent)
+	},
+	"Swap": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.SwapItemInStash(moveAction, profileChangeEvent)
+	},
+	"Fold": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.FoldItem(moveAction, profileChangeEvent)
+	},
+	"Merge": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.MergeItem(moveAction, profileChangeEvent)
+	},
+	"Transfer": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.TransferItem(moveAction)
+	},
+	"Split": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.SplitItem(moveAction, profileChangeEvent)
+	},
+	"ApplyInventoryChanges": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.ApplyInventoryChanges(moveAction)
+	},
+	"ReadEncyclopedia": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.ReadEncyclopedia(moveAction)
+	},
+	"TradingConfirm": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.TradingConfirm(moveAction, profileChangeEvent)
+	},
+	"Remove": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.RemoveItem(moveAction, profileChangeEvent)
+	},
+	"CustomizationBuy": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.CustomizationBuy(moveAction)
+	},
+	"CustomizationWear": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.CustomizationWear(moveAction)
+	},
+	"Bind": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.BindItem(moveAction)
+	},
+	"Tag": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.TagItem(moveAction)
+	},
+	"Toggle": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.ToggleItem(moveAction)
+	},
+	"HideoutUpgrade": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.HideoutUpgrade(moveAction, profileChangeEvent)
+	},
+	//HideoutUpgradeComplete
+	"HideoutUpgradeComplete": func(moveAction map[string]any, character *database.Character, profileChangeEvent *database.ProfileChangesEvent) {
+		character.HideoutUpgradeComplete(moveAction, profileChangeEvent)
+	},
+}
+
+func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
+	parsed := services.GetParsedBody(r)
+	data := parsed.(map[string]any)["data"].([]any)
+	length := int8(len(data)) - 1
+
+	character := database.GetCharacterByID(services.GetSessionID(r))
+	profileChangeEvent := database.CreateProfileChangesEvent(character)
+
+	for i, move := range data {
+		moveAction := move.(map[string]any)
+		action := moveAction["Action"].(string)
+		log.Println("[", i, "/", length, "] Action: ", action)
+
+		if handler, ok := actionHandlers[action]; ok {
+			handler(moveAction, character, profileChangeEvent)
+		} else {
+			log.Println(action, "is not supported, sending empty response")
+		}
+	}
+
+	character.SaveCharacter()
+	services.ZlibJSONReply(w, r.RequestURI, services.ApplyResponseBody(profileChangeEvent))
+}
+
+func ExitFromMenu(w http.ResponseWriter, r *http.Request) {
+	//TODO: IDK WHAT SIT NEEDS HERE
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+type localLoot struct {
+	LocationID string `json:"locationId"`
+	VariantID  int8   `json:"variantId"`
+}
+
+func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
+	localloot := new(localLoot)
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.Unmarshal(data, localloot)
+	if err != nil {
+		log.Println(err)
+	}
+
+	loot := database.GetLocalLootByNameAndIndex(localloot.LocationID, localloot.VariantID)
+	body := services.ApplyResponseBody(loot)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+func RaidConfiguration(w http.ResponseWriter, r *http.Request) {
+	/*
+		TODO: Pre-raid nonsense that we might need to do
+		AKI does some shit with setting difficulties to bots or something? IDK
+		IDC
+		IM THE GREATEST
+	*/
+
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+type insuranceList struct {
+	Traders []string `json:"traders"`
+	Items   []string `json:"items"`
+}
+
+type traderInsuranceInfo struct {
+	LoyaltyLevel int8
+	PriceCoef    int16
+}
+
+func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
+	insuranceListCost := new(insuranceList)
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.Unmarshal(data, insuranceListCost)
+	if err != nil {
+		log.Println(err)
+	}
+
+	sessionID := services.GetSessionID(r)
+	output := make(map[string]map[string]int32)
+	character := database.GetCharacterByID(sessionID)
+
+	invCache, err := database.GetInventoryCacheByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	Traders := make(map[string]traderInsuranceInfo)
+	for _, TID := range insuranceListCost.Traders {
+		trader, err := database.GetTraderByUID(TID)
+		if err != nil {
+			log.Fatalln("InsuranceListCost:", err)
+		}
+
+		trader.SetTraderLoyaltyLevel(character)
+
+		Traders[TID] = traderInsuranceInfo{
+			LoyaltyLevel: character.TradersInfo[TID].LoyaltyLevel,
+			PriceCoef:    trader.Base.LoyaltyLevels[character.TradersInfo[TID].LoyaltyLevel].InsurancePriceCoef,
+		}
+
+		output[TID] = make(map[string]int32)
+	}
+
+	for _, itemID := range insuranceListCost.Items {
+		itemInInventory := character.Inventory.Items[*invCache.GetIndexOfItemByID(itemID)]
+		itemPrice, err := database.GetPriceByID(itemInInventory.TPL)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		for key, insuranceInfo := range Traders {
+			insuranceCost := int32(math.Round(float64(*itemPrice) * 0.3))
+			if insuranceInfo.PriceCoef > 0 {
+				insuranceCost *= int32(1 - insuranceInfo.PriceCoef/100)
+			}
+
+			output[key][itemInInventory.TPL] = insuranceCost
+		}
+	}
+
+	body := services.ApplyResponseBody(output)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+func InviteCancelAll(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+func MatchAvailable(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(false)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+func RaidNotReady(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(map[string]any{})
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+func RaidReady(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(map[string]any{})
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+type groupStatus struct {
+	Players []any `json:"players"`
+	Invite  []any `json:"invite"`
+	Group   []any `json:"group"`
+}
+
+var groupStatusOutput = groupStatus{
+	Players: make([]any, 0),
+	Invite:  make([]any, 0),
+	Group:   make([]any, 0),
+}
+
+func GroupStatus(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(groupStatusOutput)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+func LookingForGroupStart(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+func LookingForGroupStop(w http.ResponseWriter, r *http.Request) {
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+type botDifficulties struct {
+	Easy       any `json:"easy"`
+	Normal     any `json:"normal"`
+	Hard       any `json:"hard"`
+	Impossible any `json:"impossible"`
+}
+
+func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
+	//TODO: For change
+	/*
+		bots := services.GetParsedBody(r).([]string)
+			data := make(map[string]*botDifficulties)
+			for _, key := range bots {
+				difficulties := new(botDifficulties)
+				if bot, _ := database.GetBotByName(strings.ToLower(services.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
+					difficulties.Easy = bot.Difficulties["easy"]
+					difficulties.Normal = bot.Difficulties["normal"]
+					difficulties.Hard = bot.Difficulties["hard"]
+					difficulties.Impossible = bot.Difficulties["impossible"]
+				}
+				data[key] = difficulties
+			}
+			services.ZlibJSONReply(w, r.RequestURI, data)
+	*/
+
+	difficulties := new(botDifficulties)
+	if bot, _ := database.GetBotByName(strings.ToLower(services.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
+		difficulties.Easy = bot.Difficulties["easy"]
+		difficulties.Normal = bot.Difficulties["normal"]
+		difficulties.Hard = bot.Difficulties["hard"]
+		difficulties.Impossible = bot.Difficulties["impossible"]
+	}
+
+	services.ZlibJSONReply(w, r.RequestURI, difficulties)
+}
+
+type botConditions struct {
+	Conditions []botCondition `json:"conditions"`
+}
+type botCondition struct {
+	Role       string
+	Limit      int8
+	Difficulty string
+}
+
+func BotGenerate(w http.ResponseWriter, r *http.Request) {
+	parsedBody := services.GetParsedBody(r)
+
+	conditions := new(botConditions)
+	data, err := json.Marshal(parsedBody)
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.Unmarshal(data, &conditions)
+	if err != nil {
+		log.Println(err)
+	}
+	//TODO: Send bots lol
+	body := services.ApplyResponseBody([]any{})
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+type offlineMatchEnd struct {
+	ExitName    string  `json:"exitName"`
+	ExitStatus  string  `json:"exitStatus"`
+	RaidSeconds float64 `json:"raidSeconds"`
+}
+
+func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
+	matchEnd := new(offlineMatchEnd)
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.Unmarshal(data, &matchEnd)
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println("\n:::::::::::: Offline Match Status ::::::::::::\nExitName:", matchEnd.ExitName, "\nExitStatus:", matchEnd.ExitStatus, "\nRaidSeconds:", matchEnd.RaidSeconds)
+	log.Println()
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+type raidProfileSave struct {
+	Exit                  string         `json:"exit"`
+	Profile               map[string]any `json:"profile"`
+	IsPlayerScav          bool           `json:"isPlayerScav"`
+	Health                saveHealth     `json:"health"`
+	DisableProgressionNow bool           `json:"disableProgressionNow"`
+}
+
+type saveHealth struct {
+	IsAlive     bool
+	Health      map[string]healthPart
+	Hydration   float64
+	Energy      float64
+	Temperature float64
+}
+
+type healthPart struct {
+	Maximum float64
+	Current float64
+	Effects map[string]any
+}
+
+func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
+	save := new(raidProfileSave)
+	data, err := json.Marshal(services.GetParsedBody(r))
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.Unmarshal(data, &save)
+	if err != nil {
+		log.Println(err)
+	}
+
+	//TODO: Raid Profile Save
+	err = tools.WriteToFile("/faggot.json", save)
+	if err != nil {
+		return
+	}
+
+	log.Println("Raid Profile Save not implemented yet!")
+	body := services.ApplyResponseBody(nil)
+	services.ZlibJSONReply(w, r.RequestURI, body)
+}
+
+func AirdropConfig(w http.ResponseWriter, r *http.Request) {
+	airdropParams := database.GetAirdropParameters()
+	services.ZlibJSONReply(w, r.RequestURI, airdropParams)
 }

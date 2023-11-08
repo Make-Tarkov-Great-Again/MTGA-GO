@@ -4,14 +4,18 @@ package server
 import (
 	"MT-GO/server/handlers"
 	"MT-GO/services"
-	"fmt"
+	"log"
 	"net/http"
 )
 
 var mainRouteHandlers = map[string]http.HandlerFunc{
-	"/getBundleList":                              handlers.GetBundleList,
+	"/getBrandName":              handlers.GetBrandName,
+	"/sp/config/bots/difficulty": handlers.GetBotDifficulty,
+	"/getBundleList":             handlers.GetBundleList,
+
 	"/client/raid/person/killed/showMessage":      handlers.ShowPersonKilledMessage,
 	"/client/game/start":                          handlers.MainGameStart,
+	"/client/putMetrics":                          handlers.MainPutMetrics,
 	"/client/menu/locale/":                        handlers.MainMenuLocale,
 	"/client/game/version/validate":               handlers.MainVersionValidate,
 	"/client/languages":                           handlers.MainLanguages,
@@ -38,25 +42,72 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/hideout/production/recipes":          handlers.MainHideoutRecipes,
 	"/client/hideout/production/scavcase/recipes": handlers.MainHideoutScavRecipes,
 	"/client/handbook/builds/my/list":             handlers.MainBuildsList,
-	"/client/notifier/channel/create":             handlers.MainChannelCreate,
 	"/client/quest/list":                          handlers.MainQuestList,
 	"/client/match/group/current":                 handlers.MainCurrentGroup,
 	"/client/repeatalbeQuests/activityPeriods":    handlers.MainRepeatableQuests,
 	"/client/server/list":                         handlers.MainServerList,
 	"/client/checkVersion":                        handlers.MainCheckVersion,
-	"/client/game/logout":                         handlers.MainLogoout,
+	"/client/game/logout":                         handlers.MainLogout,
 	"/client/items/prices/":                       handlers.MainPrices,
-	"/files/":                                     services.ServeFiles,
-	//Incoming [GET] Request URL: [/files/quest/icon/59689e1c86f7740d14064725.jpg] on [:8080]
+	"/client/notifier/channel/create":             handlers.MainChannelCreate,
+
+	"/files/": services.ServeFiles,
+
+	"/client/game/profile/items/moving": handlers.MainItemsMoving,
+
+	"/client/match/offline/end": handlers.OfflineMatchEnd,
+	//"/client/match/available": handlers.MatchAvailable,
+	//"/client/match/updatePing": handlers.MatchUpdatePing,
+	//"/client/match/exit": handlers.MatchExit,
+	//"/client/match/join": handlers.MatchJoin,
+	"/client/match/group/exit_from_menu":    handlers.ExitFromMenu,
+	"/client/match/group/invite/cancel-all": handlers.InviteCancelAll,
+	"/client/match/available":               handlers.MatchAvailable,
+	"/client/match/raid/not-ready":          handlers.RaidNotReady,
+	"/client/match/raid/ready":              handlers.RaidReady,
+	"/client/match/group/status":            handlers.GroupStatus,
+	"/client/match/group/looking/start":     handlers.LookingForGroupStart,
+	"/client/match/group/looking/stop":      handlers.LookingForGroupStop,
+	//"/client/match/group/invite/send": handlers.GroupInviteSend,
+	//"/client/match/group/invite/accept": handlers.GroupInviteAccept,
+	//"/client/match/group/invite/cancel": handlers.GroupInviteCancel,
+	//"/client/match/group/transfer": handlers.GroupTransfer,
+	//"/client/match/group/leave": handlers.GroupLeave,
+	//"/client/match/group/delete": handlers.GroupDelete,
+	//"/client/match/group/create": handlers.GroupCreate,
+	//"/client/match/group/player/remove": handlers.GroupPlayerRemove,
+	//"/client/match/group/start_game": handlers.GroupStartGame,
+
+	//"/client/raid/createFriendlyAI": handlers.CreateFriendlyAI,
+	//"/client/raid/person/killed": handlers.PersonKilled,
+	"/client/raid/configuration": handlers.RaidConfiguration,
+
+	"/client/location/getLocalloot":     handlers.GetLocalLoot,
+	"/client/insurance/items/list/cost": handlers.InsuranceListCost,
+
+	"/client/game/bot/generate": handlers.BotGenerate,
+
+	"/raid/profile/save": handlers.RaidProfileSave,
+	"/sp/airdrop/config": handlers.AirdropConfig,
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {
 	_, ok := mainRouteHandlers[route]
 	if ok {
-		fmt.Println("URL already registered")
+		log.Println("URL already registered")
 		return
 	}
 
+	mainRouteHandlers[route] = handler
+}
+
+func OverrideMainRoute(route string, handler http.HandlerFunc) {
+	if _, ok := mainRouteHandlers[route]; !ok {
+		log.Println("URL doesn't exist")
+		return
+	}
+
+	log.Println("URL override for", route, "registered")
 	mainRouteHandlers[route] = handler
 }
 
@@ -77,10 +128,20 @@ var tradingRouteHandlers = map[string]http.HandlerFunc{
 func AddTradingRoute(route string, handler http.HandlerFunc) {
 	_, ok := tradingRouteHandlers[route]
 	if ok {
-		fmt.Println("URL already registered")
+		log.Println("URL already registered")
 		return
 	}
 
+	tradingRouteHandlers[route] = handler
+}
+
+func OverrideTradingRoute(route string, handler http.HandlerFunc) {
+	if _, ok := tradingRouteHandlers[route]; !ok {
+		log.Println("URL doesn't exist")
+		return
+	}
+
+	log.Println("URL override for", route, "registered")
 	tradingRouteHandlers[route] = handler
 }
 
@@ -90,10 +151,26 @@ func setTradingRoutes(mux *http.ServeMux) {
 	}
 }
 
+var ragfairRouteHandlers = map[string]http.HandlerFunc{
+	//"/client/ragfair/offer/findbyid"
+	//"/client/ragfair/itemMarketPrice"
+	"/client/ragfair/find": handlers.RagfairFind,
+}
+
 func setRagfairRoutes(mux *http.ServeMux) {
-	/* 	 "/client/ragfair/offer/findbyid"
-	   	 "/client/ragfair/itemMarketPrice"
-	   	 "/client/ragfair/find" */
+	for route, handler := range ragfairRouteHandlers {
+		mux.HandleFunc(route, handler)
+	}
+}
+
+func OverrideRagfairRoute(route string, handler http.HandlerFunc) {
+	if _, ok := ragfairRouteHandlers[route]; !ok {
+		log.Println("URL doesn't exist")
+		return
+	}
+
+	log.Println("URL override for", route, "registered")
+	ragfairRouteHandlers[route] = handler
 }
 
 var messagingRouteHandlers = map[string]http.HandlerFunc{
@@ -101,6 +178,12 @@ var messagingRouteHandlers = map[string]http.HandlerFunc{
 	"/client/mail/dialog/list":           handlers.MessagingDialogList,
 	"/client/friend/request/list/inbox":  handlers.MessagingFriendRequestInbox,
 	"/client/friend/request/list/outbox": handlers.MessagingFriendRequestOutbox,
+	"/client/mail/dialog/info":           handlers.MessagingMailDialogInfo,
+	"/client/mail/dialog/view":           handlers.MessagingMailDialogView,
+	"/client/mail/dialog/pin":            handlers.MessagingMailDialogPin,
+	"/client/mail/dialog/unpin":          handlers.MessagingMailDialogUnpin,
+	"/client/mail/dialog/remove":         handlers.MessagingMailDialogRemove,
+	"/client/mail/dialog/clear":          handlers.MessagingMailDialogClear,
 }
 
 func setMessagingRoutes(mux *http.ServeMux) {
@@ -121,11 +204,6 @@ func setMessagingRoutes(mux *http.ServeMux) {
 
 	// "/client/mail/dialog/getAllAttachments"
 	// "/client/mail/dialog/clear"
-	// "/client/mail/dialog/remove"
-	// "/client/mail/dialog/view"
-	// "/client/mail/dialog/pin"
-	// "/client/mail/dialog/unpin"
-	// "/client/mail/dialog/info"
 	// "/client/mail/dialog/read"
 
 	// "/client/mail/dialog/group/create"
@@ -138,4 +216,35 @@ func setMessagingRoutes(mux *http.ServeMux) {
 
 	// "/client/mail/msg/send"
 
+}
+
+func OverrideMessagingRoute(route string, handler http.HandlerFunc) {
+	if _, ok := messagingRouteHandlers[route]; !ok {
+		log.Println("URL doesn't exist")
+		return
+	}
+
+	log.Println("URL override for", route, "registered")
+	messagingRouteHandlers[route] = handler
+}
+
+var lobbyRouteHandlers = map[string]http.HandlerFunc{
+	"/push/notifier/get/":          handlers.LobbyPushNotifier,
+	"/push/notifier/getwebsocket/": handlers.LobbyGetWebSocket,
+}
+
+func setLobbyRoutes(mux *http.ServeMux) {
+	for route, handler := range lobbyRouteHandlers {
+		mux.HandleFunc(route, handler)
+	}
+}
+
+func OverrideLobbyRoute(route string, handler http.HandlerFunc) {
+	if _, ok := lobbyRouteHandlers[route]; !ok {
+		log.Println("URL doesn't exist")
+		return
+	}
+
+	log.Println("URL override for", route, "registered")
+	lobbyRouteHandlers[route] = handler
 }

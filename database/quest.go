@@ -1,31 +1,47 @@
 package database
 
 import (
-	"MT-GO/structs"
 	"MT-GO/tools"
-	"fmt"
+	"log"
 	"strconv"
-	"strings"
 
 	"github.com/goccy/go-json"
 )
 
-// var quests map[string]interface{}
-var questsQuery = map[string]*structs.Quest{}
-var quests = map[string]interface{}{}
+var questsQuery = map[string]*Quest{}
+var quests = map[string]any{}
 
-func GetQuestsQuery() map[string]*structs.Quest {
+// #region Quests getters
+
+func GetQuestsQuery() map[string]*Quest {
 	return questsQuery
 }
 
-func GetQuestByQID(qid string) interface{} {
-	return quests[qid]
+func GetQuestFromQueryByID(qid string) *Quest {
+	query, ok := questsQuery[qid]
+	if !ok {
+		log.Println("Quest", qid, "does not exist in quests query")
+		return nil
+	}
+	return query
 }
 
-func GetQuests() map[string]interface{} {
+func GetQuestByID(qid string) any {
+	quest, ok := quests[qid]
+	if !ok {
+		log.Println("Quest", qid, "does not exist in quests")
+		return nil
+	}
+	return quest
+}
+
+func GetQuests() map[string]any {
 	return quests
 }
 
+// #endregion
+
+// region Quest setters
 const (
 	ForFinish string = "AvailableForFinish"
 	ForStart  string = "AvailableForStart"
@@ -35,94 +51,108 @@ const (
 )
 
 func setQuests() {
-
 	raw := tools.GetJSONRawMessage(questsPath)
 	err := json.Unmarshal(raw, &quests)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
-	dynamic := make(map[string]map[string]interface{})
+	dynamic := make(map[string]map[string]any)
 	err = json.Unmarshal(raw, &dynamic)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	for k, v := range dynamic {
-		var quest = &structs.Quest{}
+		var quest = &Quest{}
 
 		quest.Name = v["QuestName"].(string)
-		quest.Dialogue = processDialogue(v)
+		quest.Trader = v["traderId"].(string)
+		quest.Dialogue = setQuestDialogue(v)
 
-		questConditions, ok := v["conditions"].(map[string]interface{})
+		questConditions, ok := v["conditions"].(map[string]any)
 		if ok {
-			conditions := &structs.QuestAvailabilityConditions{}
-			process := processConditions(questConditions)
+			conditions := &QuestAvailabilityConditions{}
+			process := setQuestConditions(questConditions)
 
 			data, err := json.Marshal(process)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			err = json.Unmarshal(data, conditions)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 
-			empty := structs.QuestAvailabilityConditions{}
+			empty := QuestAvailabilityConditions{}
 			if *conditions == empty {
 				quest.Conditions = nil
 			} else {
 				quest.Conditions = conditions
 			}
 		} else {
-			fmt.Println("Conditions don't exist? Check " + k)
+			log.Println("Conditions don't exist? Check " + k)
 		}
 
-		questRewards, ok := v["rewards"].(map[string]interface{})
+		questRewards, ok := v["rewards"].(map[string]any)
 		if ok {
-			rewards := &structs.QuestRewardAvailabilityConditions{}
-			process := processQuestRewards(questRewards)
+			rewards := &QuestRewardAvailabilityConditions{}
+			process := setQuestRewards(questRewards)
 			data, err := json.Marshal(process)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			err = json.Unmarshal(data, rewards)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			quest.Rewards = *rewards
-
-			/* 			empty := &structs.QuestRewardAvailabilityConditions{}
-			   			if rewards != empty {
-			   			} */
-
 		}
 
 		questsQuery[k] = quest
 	}
-	//_ = tools.WriteToFile("questsDatabase.json", questsQuery)
 }
 
-func processDialogue(quest map[string]interface{}) structs.QuestDialogues {
-	dialogues := &structs.QuestDialogues{}
+func setQuestDialogue(quest map[string]any) QuestDialogues {
+	dialogues := new(QuestDialogues)
 
-	description, _ := quest["description"].(string)
+	description, ok := quest["description"].(string)
+	if !ok {
+		log.Println("quest[`description`]")
+	}
 	dialogues.Description = description
 
-	complete, _ := quest["completePlayerMessage"].(string)
-	dialogues.Complete = complete
+	//TODO: remove if not needed
+	/* 	complete, ok := quest["completePlayerMessage"].(string)
+	   	if !ok {
+	   		log.Println("quest[`completePlayerMessage`]")
+	   	}
+	   	dialogues.Complete = complete */
 
-	fail, _ := quest["failMessageText"].(string)
+	fail, ok := quest["failMessageText"].(string)
+	if !ok {
+		log.Println("quest[`failMessageText`]")
+	}
 	dialogues.Fail = fail
 
-	started, _ := quest["startedMessageText"].(string)
+	started, ok := quest["startedMessageText"].(string)
+	if !ok {
+		log.Println("quest[`startedMessageText`]")
+	}
 	dialogues.Started = started
 
-	success, _ := quest["successMessageText"].(string)
+	success, ok := quest["successMessageText"].(string)
+	if !ok {
+		log.Println("quest[`successMessageText`]")
+	}
 	dialogues.Success = success
 
-	accepted, _ := quest["acceptPlayerMessage"].(string)
-	dialogues.Accepted = accepted
+	//TODO: remove if not needed
+	/* 	accepted, ok := quest["acceptPlayerMessage"].(string)
+	   	if !ok {
+	   		log.Println("quest[`acceptPlayerMessage`]")
+	   	}
+	   	dialogues.Accepted = accepted */
 
 	return *dialogues
 }
@@ -132,14 +162,14 @@ const (
 	props  string = "_props"
 )
 
-func processConditions(conditions map[string]interface{}) map[string]map[string]interface{} {
-	output := make(map[string]map[string]interface{})
+func setQuestConditions(conditions map[string]any) map[string]map[string]any {
+	output := make(map[string]map[string]any)
 
-	processCategory := func(category string, conditionList []interface{}) {
-		processedCategory := make(map[string]interface{})
+	processCategory := func(category string, conditionList []any) {
+		processedCategory := make(map[string]any)
 
 		for _, condition := range conditionList {
-			conditionMap, ok := condition.(map[string]interface{})
+			conditionMap, ok := condition.(map[string]any)
 			if !ok || len(conditionMap) == 0 {
 				continue
 			}
@@ -150,7 +180,7 @@ func processConditions(conditions map[string]interface{}) map[string]map[string]
 				continue
 			}
 
-			process := processCondition(name, conditionMap)
+			process := processQuestCondition(name, conditionMap)
 			processedCategory[name] = process
 
 		}
@@ -160,26 +190,39 @@ func processConditions(conditions map[string]interface{}) map[string]map[string]
 		}
 	}
 
-	fails, _ := conditions[Fail].([]interface{})
+	fails, _ := conditions[Fail].([]any)
 	processCategory(Fail, fails)
 
-	starts, _ := conditions[ForStart].([]interface{})
+	starts, _ := conditions[ForStart].([]any)
 	processCategory(ForStart, starts)
 
-	successes, _ := conditions[ForFinish].([]interface{})
+	successes, _ := conditions[ForFinish].([]any)
 	processCategory(ForFinish, successes)
 
 	return output
 }
 
-func processCondition(name string, conditions map[string]interface{}) interface{} {
+var QuestStatus = map[int8]string{
+	0: "Locked",
+	1: "AvailableForStart",
+	2: "Started",
+	3: "AvailableForFinish",
+	4: "Success",
+	5: "Fail",
+	6: "FailRestartable",
+	7: "MarkedAsFailed",
+	8: "Expired",
+	9: "AvailableAfter",
+}
 
-	output := make(map[string]interface{})
-	props, _ := conditions[props].(map[string]interface{})
+func processQuestCondition(name string, conditions map[string]any) any {
+
+	output := make(map[string]any)
+	props, _ := conditions[props].(map[string]any)
 
 	switch name {
 	case "Level":
-		levelCondition := &structs.LevelCondition{}
+		levelCondition := &LevelCondition{}
 		compare, _ := props["compareMethod"].(string)
 		levelCondition.CompareMethod = compare
 
@@ -197,14 +240,19 @@ func processCondition(name string, conditions map[string]interface{}) interface{
 		}
 
 	case "Quest":
-		condition := &structs.QuestCondition{}
+		condition := &QuestCondition{}
 		questID, _ := props["id"].(string)
+
+		isFloat, ok := props["availableAfter"].(float64)
+		if ok {
+			condition.AvailableAfter = int(isFloat)
+		}
 
 		previousQuestID, _ := props["target"].(string)
 		condition.PreviousQuestID = previousQuestID
 
-		value, _ := props["status"].([]interface{})[0].(float64)
-		condition.Status = int(value)
+		value, _ := props["status"].([]any)[0].(float64)
+		condition.Status = QuestStatus[int8(value)]
 
 		output[questID] = condition
 		return output
@@ -212,7 +260,7 @@ func processCondition(name string, conditions map[string]interface{}) interface{
 	case "TraderLoyalty", "TraderStanding":
 		traderID, _ := props["target"].(string)
 
-		levelCondition := &structs.LevelCondition{}
+		levelCondition := &LevelCondition{}
 		compare, _ := props["compareMethod"].(string)
 		levelCondition.CompareMethod = compare
 
@@ -235,11 +283,11 @@ func processCondition(name string, conditions map[string]interface{}) interface{
 
 	case "HandoverItem", "WeaponAssembly", "FindItem":
 
-		handover := &structs.HandoverCondition{}
+		handover := &HandoverCondition{}
 
 		handoverID, _ := props["id"].(string)
 
-		itemID, _ := props["target"].([]interface{})[0].(string)
+		itemID, _ := props["target"].([]any)[0].(string)
 		handover.ItemToHandover = itemID
 
 		ifString, _ := props["value"].(string)
@@ -251,7 +299,7 @@ func processCondition(name string, conditions map[string]interface{}) interface{
 
 	case "Skill":
 		skillName, _ := props["target"].(string)
-		levelCondition := &structs.LevelCondition{}
+		levelCondition := &LevelCondition{}
 
 		float, ok := props["value"].(float64)
 		if ok {
@@ -271,7 +319,7 @@ func processCondition(name string, conditions map[string]interface{}) interface{
 		return output
 
 	default:
-		fmt.Println(name + " condition, probably not needed")
+		log.Println(name + " condition, probably not needed")
 	}
 	return output
 }
@@ -280,62 +328,62 @@ const (
 	_type string = "type"
 )
 
-func processQuestRewards(rewards map[string]interface{}) map[string]interface{} {
-	output := make(map[string]interface{})
+func setQuestRewards(rewards map[string]any) map[string]any {
+	output := make(map[string]any)
 
-	fails, ok := rewards[Fail].([]interface{})
+	fails, ok := rewards[Fail].([]any)
 	if ok && len(fails) != 0 {
-		succ := make(map[string]interface{})
+		succ := make(map[string]any)
 
 		for _, fail := range fails {
-			if len(fail.(map[string]interface{})) == 0 {
+			if len(fail.(map[string]any)) == 0 {
 				continue
 			}
-			reward := fail.(map[string]interface{})
+			reward := fail.(map[string]any)
 
 			name := reward[_type].(string)
-			succ[name] = processQuestReward(name, reward)
+			succ[name] = setQuestReward(name, reward)
 		}
 		output[Fail] = succ
 	}
 
-	starts, ok := rewards[Started].([]interface{})
+	starts, ok := rewards[Started].([]any)
 	if ok && len(starts) != 0 {
-		succ := make(map[string]interface{})
+		succ := make(map[string]any)
 
 		for _, start := range starts {
-			if len(start.(map[string]interface{})) == 0 {
+			if len(start.(map[string]any)) == 0 {
 				continue
 			}
-			reward := start.(map[string]interface{})
+			reward := start.(map[string]any)
 
 			name := reward[_type].(string)
-			succ[name] = processQuestReward(name, reward)
+			succ[name] = setQuestReward(name, reward)
 		}
 		output[Started] = succ
 	}
 
-	successes, ok := rewards[Success].([]interface{})
+	successes, ok := rewards[Success].([]any)
 	if ok && len(successes) != 0 {
-		succ := make(map[string]interface{})
+		succ := make(map[string]any)
 
 		for _, success := range successes {
-			if len(success.(map[string]interface{})) == 0 {
+			if len(success.(map[string]any)) == 0 {
 				continue
 			}
 
-			reward := success.(map[string]interface{})
+			reward := success.(map[string]any)
 
 			name := reward[_type].(string)
-			succ[name] = processQuestReward(name, reward)
+			succ[name] = setQuestReward(name, reward)
 		}
 		output[Success] = succ
 	}
 	return output
 }
 
-func processQuestReward(name string, reward map[string]interface{}) interface{} {
-	output := make(map[string]interface{})
+func setQuestReward(name string, reward map[string]any) any {
+	output := make(map[string]any)
 
 	switch name {
 	case "Experience":
@@ -350,14 +398,14 @@ func processQuestReward(name string, reward map[string]interface{}) interface{} 
 			return exp
 		}
 	case "Item":
-		questRewardItem := &structs.QuestRewardItem{}
+		questRewardItem := &QuestRewardItem{}
 
 		itemID, _ := reward["target"].(string)
 
-		idems, _ := reward["items"].([]interface{})
-		questRewardItem.Items = make([]map[string]interface{}, 0, len(idems))
+		idems, _ := reward["items"].([]any)
+		questRewardItem.Items = make([]map[string]any, 0, len(idems))
 		for _, idem := range idems {
-			idem := idem.(map[string]interface{})
+			idem := idem.(map[string]any)
 			questRewardItem.Items = append(questRewardItem.Items, idem)
 		}
 
@@ -382,14 +430,14 @@ func processQuestReward(name string, reward map[string]interface{}) interface{} 
 
 		float, ok := reward["value"].(float64)
 		if ok {
-			output[traderID] = float32(float)
+			output[traderID] = float
 			return output
 		}
 
 		str, ok := reward["value"].(string)
 		if ok {
-			value, _ := strconv.Atoi(str)
-			output[traderID] = float32(value)
+			value, _ := strconv.ParseFloat(str, 64)
+			output[traderID] = value
 			return output
 		}
 
@@ -411,7 +459,7 @@ func processQuestReward(name string, reward map[string]interface{}) interface{} 
 		return output
 	case "ProductionScheme":
 		schemeID, _ := reward["target"].(string)
-		scheme := &structs.QuestRewardProductionScheme{}
+		scheme := &QuestRewardProductionScheme{}
 
 		loyaltyLevel, _ := reward["loyaltyLevel"].(float64)
 		scheme.LoyaltyLevel = int(loyaltyLevel)
@@ -427,7 +475,7 @@ func processQuestReward(name string, reward map[string]interface{}) interface{} 
 			scheme.AreaID = ifInt
 		}
 
-		item, ok := reward["items"].([]interface{})[0].(map[string]interface{})["_tpl"].(string)
+		item, ok := reward["items"].([]any)[0].(map[string]any)["_tpl"].(string)
 		if ok {
 			scheme.Item = item
 		}
@@ -437,109 +485,102 @@ func processQuestReward(name string, reward map[string]interface{}) interface{} 
 		traderID, _ := reward["target"].(string)
 		return traderID
 	default:
-		fmt.Println(name + " reward")
+		log.Println(name + " reward")
 	}
 
 	return output
 }
 
-func _setQuests() {
+// #endregion
 
-	raw := tools.GetJSONRawMessage(questsPath)
+// #region Quest functions
 
-	dynamic := make(map[string]interface{})
-	err := json.Unmarshal(raw, &dynamic)
-	if err != nil {
-		panic(err)
-	}
+// #endregion
 
-	for _, v := range dynamic {
-		quest := v.(map[string]interface{})
+// #region Quest structs
 
-		conditions, ok := quest["conditions"].(map[string]interface{})
-		if !ok {
-			panic("quests.conditions is not a map")
-		}
-
-		for _, v := range conditions {
-			conditionType := v.([]interface{})
-
-			for _, v := range conditionType {
-				condition := v.(map[string]interface{})
-
-				properties, ok := condition[props].(map[string]interface{})
-				if !ok {
-					continue
-				}
-
-				value, ok := properties["value"].(string)
-				if ok {
-					properties["value"], err = strconv.ParseFloat(value, 32)
-					if err != nil {
-						panic(err)
-					}
-				}
-
-				counter, ok := properties["counter"].(map[string]interface{})
-				if !ok {
-					continue
-				}
-
-				conditions := counter["conditions"].([]interface{})
-
-				for _, v := range conditions {
-					condition := v.(map[string]interface{})
-
-					properties, ok := condition[props].(map[string]interface{})
-					if !ok {
-						continue
-					}
-
-					value, ok := properties["value"].(string)
-					if !ok {
-						continue
-					}
-
-					properties["value"], err = strconv.ParseFloat(value, 32)
-					if err != nil {
-						panic(err)
-					}
-				}
-
-			}
-		}
-
-		rewards, ok := quest["rewards"].(map[string]interface{})
-		if !ok {
-			panic("quests.rewards is not a map")
-		}
-
-		for _, v := range rewards {
-			rewardType := v.([]interface{})
-
-			for _, v := range rewardType {
-				reward := v.(map[string]interface{})
-
-				value, ok := reward["value"].(string)
-				if ok {
-					value = strings.TrimSpace(value)
-					reward["value"], err = strconv.ParseFloat(value, 32)
-					if err != nil {
-						panic(err)
-					}
-				}
-			}
-		}
-
-	}
-
-	jsonData, err := json.Marshal(dynamic)
-	if err != nil {
-		panic(err)
-	}
-
-	err = json.Unmarshal(jsonData, &quests)
-	if err != nil {
-		panic(err)
-	}
+type Quest struct {
+	Name       string
+	Trader     string
+	Dialogue   QuestDialogues                    `json:",omitempty"`
+	Conditions *QuestAvailabilityConditions      `json:",omitempty"`
+	Rewards    QuestRewardAvailabilityConditions `json:",omitempty"`
 }
+
+type QuestDialogues struct {
+	Description string
+	//Accepted    string
+	Started string
+	//Complete    string
+	Success string
+	Fail    string
+}
+
+type QuestAvailabilityConditions struct {
+	AvailableForStart  *QuestConditionTypes `json:"AvailableForStart,omitempty"`
+	AvailableForFinish *QuestConditionTypes `json:"AvailableForFinish,omitempty"`
+	Fail               *QuestConditionTypes `json:"Fail,omitempty"`
+}
+
+type QuestConditionTypes struct {
+	Level          *LevelCondition               `json:"Level,omitempty"`
+	Quest          map[string]*QuestCondition    `json:"Quest,omitempty"`
+	TraderLoyalty  map[string]*LevelCondition    `json:"TraderLoyalty,omitempty"`
+	TraderStanding map[string]*LevelCondition    `json:"TraderStanding,omitempty"`
+	HandoverItem   map[string]*HandoverCondition `json:"HandoverItem,omitempty"`
+	WeaponAssembly map[string]*HandoverCondition `json:"WeaponAssembly,omitempty"`
+	FindItem       map[string]*HandoverCondition `json:"FindItem,omitempty"`
+	Skills         map[string]*LevelCondition    `json:"Skill,omitempty"`
+}
+
+type HandoverCondition struct {
+	ItemToHandover string
+	Amount         int
+}
+
+type QuestCondition struct {
+	Status          string
+	PreviousQuestID string
+	AvailableAfter  int `json:",omitempty"`
+}
+
+type LevelCondition struct {
+	CompareMethod string
+	Level         float64
+}
+
+type QuestRewardAvailabilityConditions struct {
+	Start   *QuestRewards `json:"Started,omitempty"`
+	Success *QuestRewards `json:"Success,omitempty"`
+	Fail    *QuestRewards `json:"Fail,omitempty"`
+}
+
+type QuestRewards struct {
+	Experience            int                                     `json:"Experience,omitempty"`
+	Items                 map[string]*QuestRewardItem             `json:"Item,omitempty"`
+	AssortmentUnlock      string                                  `json:"AssortmentUnlock,omitempty"`
+	TraderStanding        map[string]*float64                     `json:"TraderStanding,omitempty"`
+	TraderStandingRestore map[string]*float64                     `json:"TraderStandingRestore,omitempty"`
+	TraderUnlock          string                                  `json:"TraderUnlock,omitempty"`
+	Skills                map[string]*int                         `json:"Skills,omitempty"`
+	ProductionScheme      map[string]*QuestRewardProductionScheme `json:"ProductionScheme,omitempty"`
+}
+
+type QuestRewardProductionScheme struct {
+	Item         string
+	LoyaltyLevel int
+	AreaID       int
+}
+
+type QuestRewardItem struct {
+	FindInRaid bool
+	Items      []map[string]any
+	Value      int
+}
+
+type QuestRewardAssortUnlock struct {
+	Items        []map[string]any
+	LoyaltyLevel int
+}
+
+// #endregion
