@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"path/filepath"
 
@@ -13,7 +12,8 @@ func (storage *Storage) SaveStorage(sessionID string) {
 
 	err := tools.WriteToFile(storageFilePath, storage)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
-	fmt.Println("Storage saved")
+	log.Println("Storage saved")
 }

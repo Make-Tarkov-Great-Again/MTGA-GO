@@ -97,7 +97,7 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		fmt.Println("Image exists in ", path, " serving...")
+		log.Println("Image exists in ", path, " serving...")
 		ServeFile(w, path, mimeType)
 		return
 	}
@@ -157,7 +157,7 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 				log.Fatalln(err)
 			}
 
-			fmt.Println("Successfully downloaded to", imagePath)
+			log.Println("Successfully downloaded to", imagePath)
 			ServeFile(w, imagePath, mimeType)
 			return
 		}
@@ -186,7 +186,7 @@ func ServeFile(w http.ResponseWriter, imagePath, mime string) {
 func CheckIfResponseCanBeCached(string string) bool {
 	_, ok := cachedCRC[string]
 	if ok {
-		fmt.Println("Response for", string, "can be cached!")
+		log.Println("Response for", string, "can be cached!")
 		return ok
 	}
 	return ok

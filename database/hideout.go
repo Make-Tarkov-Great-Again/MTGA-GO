@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 
 	"MT-GO/tools"
@@ -30,7 +29,7 @@ func GetHideout() *Hideout {
 func GetHideoutAreaByAreaType(_type int8) *map[string]any {
 	index, ok := hideout.Index.Areas[_type]
 	if !ok {
-		fmt.Println("Area Type ", _type, " does not exist")
+		log.Println("Area Type ", _type, " does not exist")
 		return nil
 	}
 
@@ -42,13 +41,13 @@ func GetHideoutAreaByAreaType(_type int8) *map[string]any {
 func GetHideoutAreaByName(name string) *map[string]any {
 	area, ok := HideoutAreaNames[name]
 	if !ok {
-		fmt.Println("Hideout Area ", name, " does not exist")
+		log.Println("Hideout Area ", name, " does not exist")
 		return nil
 	}
 
 	index, ok := hideout.Index.Areas[area]
 	if !ok {
-		fmt.Println("Area Type ", area, " does not exist")
+		log.Println("Area Type ", area, " does not exist")
 		return nil
 	}
 
@@ -63,7 +62,7 @@ func GetHideoutRecipeByID(rid string) *map[string]any {
 		recipe := hideout.Recipes[index]
 		return &recipe
 	}
-	fmt.Println("Recipe ", rid, " does not exist")
+	log.Println("Recipe ", rid, " does not exist")
 	return nil
 }
 
@@ -74,7 +73,7 @@ func GetScavCaseRecipeByID(rid string) *map[string]any {
 		recipe := hideout.ScavCase[index]
 		return &recipe
 	}
-	fmt.Println("ScavCase recipe ", rid, " does not exist")
+	log.Println("ScavCase recipe ", rid, " does not exist")
 	return nil
 }
 

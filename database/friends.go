@@ -28,5 +28,5 @@ func (friends *Friends) SaveFriends(sessionID string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println("Friends saved")
+	log.Println("Friends saved")
 }

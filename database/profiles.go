@@ -222,8 +222,8 @@ func (profile *Profile) SaveProfile() {
 	profile.Storage.SaveStorage(sessionID)
 	profile.Friends.SaveFriends(sessionID)
 
-	fmt.Println()
-	fmt.Println("Profile saved")
+	log.Println()
+	log.Println("Profile saved")
 }
 
 // #endregion

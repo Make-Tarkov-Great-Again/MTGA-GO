@@ -20,7 +20,7 @@ func GetItems() map[string]*DatabaseItem {
 func GetItemByUID(uid string) *DatabaseItem {
 	item, ok := items[uid]
 	if !ok {
-		fmt.Println("Item:", uid, " not found in database")
+		log.Println("Item:", uid, " not found in database")
 		return nil
 	}
 	return item
@@ -32,10 +32,10 @@ var currencyName = map[string]string{
 	"USD": "5696686a4bdc2da3298b456a",
 }
 
-var currencyByID = map[string]struct{}{
-	"5449016a4bdc2d6f028b456f": {}, //RUB
-	"569668774bdc2da2298b4568": {}, //EUR
-	"5696686a4bdc2da3298b456a": {}, //USD
+var currencyByID = map[string]*struct{}{
+	"5449016a4bdc2d6f028b456f": nil, //RUB
+	"569668774bdc2da2298b4568": nil, //EUR
+	"5696686a4bdc2da3298b456a": nil, //USD
 }
 
 func IsCurrencyByUID(UID string) bool {
@@ -82,15 +82,15 @@ func (i *DatabaseItem) Clone() *DatabaseItem {
 	return clone
 }
 
-func ConvertFromRouble(amount int32, currency string) float64 {
+func ConvertFromRouble(amount int32, currency string) (float64, error) {
 	price, err := GetPriceByID(currency)
 	if err != nil {
-		log.Fatalln(err)
+		return -1, err
 	}
-	return math.Round(float64(amount / *price))
+	return math.Round(float64(amount / *price)), nil
 }
 
-func ConvertToRoubles(amount int32, currency string) float64 {
+func ConvertToRouble(amount int32, currency string) float64 {
 	price, err := GetPriceByID(currency)
 	if err != nil {
 		log.Fatalln(err)
@@ -111,13 +111,13 @@ func (i *DatabaseItem) GetItemPrice() (*int32, error) {
 func (i *DatabaseItem) GetItemSize() (int8, int8) {
 	height, ok := i.Props["Height"].(float64)
 	if !ok {
-		fmt.Println("Item:", i.ID, " does not have a height")
+		log.Println("Item:", i.ID, " does not have a height")
 		return -1, -1
 	}
 
 	width, ok := i.Props["Width"].(float64)
 	if !ok {
-		fmt.Println("Item:", i.ID, " does not have a width")
+		log.Println("Item:", i.ID, " does not have a width")
 		return -1, -1
 	}
 
@@ -189,8 +189,11 @@ type GridProps struct {
 // GetItemGrids Get the grid property from the item if it exists
 func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 	grids, ok := i.Props["Grids"].([]any)
-	if !ok || len(grids) == 0 {
-		fmt.Println("Item:", i.ID, " does not have Grid property")
+	if !ok {
+		log.Println("Item:", i.ID, " does not have Grid property")
+		return nil
+	} else if len(grids) == 0 {
+		log.Println("Item:", i.ID, " does not have any Grid components")
 		return nil
 	}
 
@@ -231,8 +234,11 @@ type SlotProps struct {
 // GetItemSlots Get the slot property from the item if it exists
 func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 	slots, ok := i.Props["Slots"].([]any)
-	if !ok || len(slots) == 0 {
-		fmt.Println("Item:", i.ID, " does not have Grid property")
+	if !ok {
+		log.Println("Item:", i.ID, " does not have Slot property")
+		return nil
+	} else if len(slots) == 0 {
+		log.Println("Item:", i.ID, " does not have Slot components")
 		return nil
 	}
 
@@ -277,7 +283,7 @@ func SetNewItem(entry DatabaseItem) {
 	items[entry.ID] = &entry
 }
 
-func (i *DatabaseItem) GenerateNewUPD() (*ItemUpdate, error) {
+func (i *DatabaseItem) CreateItemUPD() (*ItemUpdate, error) {
 
 	itemUpd := new(ItemUpdate)
 	switch i.Parent {
@@ -429,7 +435,7 @@ const weaponBaseClass = "5422acb9af1c889c16000029"
 
 func (i *DatabaseItem) IsWeapon() bool {
 	if i.ID == weaponBaseClass {
-		fmt.Println("Why are you looking at the node?")
+		log.Println("Why are you looking at the node?")
 		return false
 	}
 

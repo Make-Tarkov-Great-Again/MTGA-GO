@@ -81,7 +81,7 @@ func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
 
 	dialog, ok := (*dialogues)[dialogId]
 	if !ok {
-		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
+		log.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
 		return
 	}
 
@@ -98,7 +98,7 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 	rBody, _ := json.Marshal(services.GetParsedBody(r))
 	err := json.Unmarshal(rBody, request)
 	if err != nil {
-		fmt.Println("Data invalid in MessagingMailDialogView")
+		log.Println("Data invalid in MessagingMailDialogView")
 	}
 
 	data := new(database.DialogMessageView)
@@ -110,7 +110,7 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 
 	dialog, ok := (*dialogues)[request.DialogID]
 	if !ok {
-		fmt.Println("Dialogue does not exist, check ID:", request.DialogID, ".")
+		log.Println("Dialogue does not exist, check ID:", request.DialogID, ".")
 		data.Messages = make([]database.DialogMessage, 0)
 		data.Profiles = make([]database.DialogUserInfo, 0)
 		data.HasMessageWithRewards = false
@@ -127,14 +127,14 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 		data.HasMessageWithRewards = dialog.HasMessagesWithRewards()
 	case 1:
 	case 6:
-		fmt.Println("WE HAVENT GOTTEN HERE YET BUDDY")
+		log.Println("WE HAVENT GOTTEN HERE YET BUDDY")
 
 		data.Messages = dialog.Messages
 		//TODO: handle profiles
 		data.Profiles = make([]database.DialogUserInfo, 0)
 		data.HasMessageWithRewards = dialog.HasMessagesWithRewards()
 	default:
-		fmt.Println("Request Type:", request.Type, "unsupported at the moment!")
+		log.Println("Request Type:", request.Type, "unsupported at the moment!")
 	}
 
 	body := services.ApplyResponseBody(data)
@@ -157,7 +157,7 @@ func MessagingMailDialogPin(w http.ResponseWriter, r *http.Request) {
 
 	dialog, ok := (*dialogues)[dialogId]
 	if !ok {
-		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
+		log.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
 		return
 	}
 
@@ -181,7 +181,7 @@ func MessagingMailDialogUnpin(w http.ResponseWriter, r *http.Request) {
 
 	dialog, ok := (*dialogues)[dialogId]
 	if !ok {
-		fmt.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
+		log.Println("Dialogue does not exist, check ID:", dialogId, ". We crash!")
 		return
 	}
 

@@ -109,7 +109,7 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *services.Certificate, 
 		Handler: logAndDecompress(mux.mux),
 	}
 
-	fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
+	log.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
 	serverReady <- struct{}{}
 
 	err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
@@ -126,7 +126,7 @@ func startHTTPServer(serverReady chan<- struct{}, mux *muxt) {
 		Handler: logAndDecompress(mux.mux),
 	}
 
-	fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
+	log.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
 	serverReady <- struct{}{}
 
 	err := httpsServer.ListenAndServe()
@@ -195,7 +195,7 @@ func SetServer() {
 	}
 
 	close(serverReady)
-	fmt.Println()
+	log.Println()
 }
 
 type ConnectionWatcher struct {

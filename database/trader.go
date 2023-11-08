@@ -67,18 +67,18 @@ func CloneTrader(name string) *Trader {
 	nt := new(Trader)
 	tc, err := GetTraderByName(name)
 	if err != nil {
-		fmt.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
+		log.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
 		return nil
 	}
 
 	TraderJSON, err := json.Marshal(tc)
 	if err != nil {
-		fmt.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
+		log.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
 		return nil
 	}
 
 	if err := json.Unmarshal(TraderJSON, &nt); err != nil {
-		fmt.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
+		log.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
 		return nil
 	}
 	return nt
@@ -94,7 +94,7 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 
 	parentItems, parentOK := t.Index.Assort.ParentItems[id]
 	if !parentOK {
-		fmt.Println("Assort Item", id, "does not exist for", t.Base.Nickname)
+		log.Println("Assort Item", id, "does not exist for", t.Base.Nickname)
 		return nil
 	}
 

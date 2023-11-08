@@ -125,7 +125,7 @@ func (cg *Certificate) setCertificate(ip string) {
 		log.Fatalln(err)
 	}
 
-	fmt.Println("Certificate and key generated successfully")
+	log.Println("Certificate and key generated successfully")
 }
 
 var certFileExist bool
@@ -147,7 +147,7 @@ func (cg *Certificate) verifyCertificate() bool {
 
 	if caCertInstalled {
 		if !cg.isCertificateExpired() {
-			fmt.Println("Certificate is valid.")
+			log.Println("Certificate is valid.")
 			return true
 		}
 
@@ -163,7 +163,7 @@ const deleteCertificatePrompt string = "Certificate is expired and needs to be r
 func (cg *Certificate) removeCertificate() {
 
 	var input string
-	fmt.Println(deleteCertificatePrompt)
+	log.Println(deleteCertificatePrompt)
 	for {
 		fmt.Printf("> ")
 		fmt.Scanln(&input)
@@ -171,7 +171,7 @@ func (cg *Certificate) removeCertificate() {
 			if certFileExist {
 				err := os.Remove(cg.CertFile)
 				if err != nil {
-					fmt.Println("Failed to remove the certificate")
+					log.Println("Failed to remove the certificate")
 					log.Fatalln(err)
 				}
 			}
@@ -179,7 +179,7 @@ func (cg *Certificate) removeCertificate() {
 			if keyFileExist {
 				err := os.Remove(cg.KeyFile)
 				if err != nil {
-					fmt.Println("Failed to remove the certificate")
+					log.Println("Failed to remove the certificate")
 					log.Fatalln(err)
 				}
 			}
@@ -190,17 +190,17 @@ func (cg *Certificate) removeCertificate() {
 				if err != nil {
 					exitErr, _ := err.(*exec.ExitError)
 					if exitErr.ProcessState.Exited() {
-						fmt.Println("User cancelled the deletion of the certificate")
+						log.Println("User cancelled the deletion of the certificate")
 						os.Exit(0)
 					}
-					fmt.Println(output)
+					log.Println(output)
 					log.Fatalln(err)
 				}
-				fmt.Println("Certificate removed from System")
+				log.Println("Certificate removed from System")
 			}
 			return
 		} else {
-			fmt.Println("User doesn't want to delete the expired certificate, disconnecting...")
+			log.Println("User doesn't want to delete the expired certificate, disconnecting...")
 			os.Exit(0)
 		}
 	}
@@ -213,7 +213,7 @@ const installCertificatePrompt string = "In order for Notifications/WebSocket to
 
 func (cg *Certificate) installCertificate() {
 
-	fmt.Println(installCertificatePrompt)
+	log.Println(installCertificatePrompt)
 	var input string
 
 	for {
@@ -225,16 +225,16 @@ func (cg *Certificate) installCertificate() {
 			if err != nil {
 				exitErr, _ := err.(*exec.ExitError)
 				if exitErr.ProcessState.Exited() {
-					fmt.Println("User cancelled the installation")
+					log.Println("User cancelled the installation")
 					os.Exit(0)
 				}
-				fmt.Println("Failed to install the certificate.")
+				log.Println("Failed to install the certificate.")
 				log.Fatalln(err)
 			}
-			fmt.Println("Certificate installed.")
+			log.Println("Certificate installed.")
 			return
 		} else {
-			fmt.Println("User doesn't want to install the certificate, disconnecting...")
+			log.Println("User doesn't want to install the certificate, disconnecting...")
 			os.Exit(0)
 		}
 	}
@@ -253,10 +253,10 @@ func (cg *Certificate) isCertificateInstalled() bool {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		if strings.Contains(string(output), "Object was not found") {
-			fmt.Println("Certificate is not installed.")
+			log.Println("Certificate is not installed.")
 			return false
 		}
-		fmt.Println("Failed to verify if the certificate is installed.")
+		log.Println("Failed to verify if the certificate is installed.")
 		return false
 	}
 

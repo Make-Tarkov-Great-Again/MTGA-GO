@@ -44,7 +44,7 @@ func main() {
 	}
 
 	modDir := filepath.Join(user, "mods")
-	fmt.Println("Mod directory:", modDir)
+	log.Println("Mod directory:", modDir)
 	if !tools.FileExist(modDir) {
 		if err := tools.CreateDirectory(modDir); err != nil {
 			log.Fatalln(err)
@@ -54,7 +54,7 @@ func main() {
 	// List all subdirectories in the "mods" folder.
 	modSubDirs, err := tools.GetDirectoriesFrom(modDir)
 	if err != nil {
-		fmt.Println("Error listing subdirectories in the 'mods' folder:", err)
+		log.Println("Error listing subdirectories in the 'mods' folder:", err)
 		return
 	}
 
@@ -71,12 +71,12 @@ func main() {
 
 	if len(modSubDirs) != 0 {
 		for name := range modSubDirs {
-			fmt.Println("Checking directory:", name)
+			log.Println("Checking directory:", name)
 
 			// Check if there's a "mod-info.json" file in the subdirectory.
 			ModInfoPath := filepath.Join(modDir, name, "mod-info.json")
 			if !tools.FileExist(ModInfoPath) {
-				fmt.Println("Did not find 'mod-info.json' in:", name, ", continuing...")
+				log.Println("Did not find 'mod-info.json' in:", name, ", continuing...")
 				continue
 			}
 
@@ -103,7 +103,7 @@ func main() {
 				bundleName := filepath.Join(dir, "bundles")
 				fixed := "\n\t\"" + strings.Replace(bundleName, "\\", "\\\\", -1) + "\""
 				bundlesToLoad = append(bundlesToLoad, fixed)
-				fmt.Println()
+				log.Println()
 			}
 
 			var modImport string
@@ -129,34 +129,34 @@ func main() {
 
 	// Update the "mods.go" file.
 	modFile := filepath.Join(modDir, "mods.go")
-	fmt.Println("Updating 'mods.go' file:", modFile)
+	log.Println("Updating 'mods.go' file:", modFile)
 	err = updateModsFile(modFile, imports, variables, calls)
 	if err != nil {
-		fmt.Println("Error updating mods.go:", err)
+		log.Println("Error updating mods.go:", err)
 		return
 	}
 
 	exeDir, err := os.Executable()
 	if err != nil {
-		fmt.Println("Error getting the executable path:", err)
+		log.Println("Error getting the executable path:", err)
 		return
 	}
 
 	// Start the main Go instance in a new cmd instance.
 	mainGoFile := filepath.Join(filepath.Dir(exeDir), "server.go")
-	fmt.Println("Starting main Go instance:", mainGoFile)
+	log.Println("Starting main Go instance:", mainGoFile)
 	cmd := exec.Command("cmd", "/c", "start", "cmd", "/k", "go run "+"server.go")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	// Run the new cmd instance to start the main Go program.
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Error starting the main Go instance:", err)
+		log.Println("Error starting the main Go instance:", err)
 		return
 	}
 
 	// Close the updater executable.
-	fmt.Println("Updater finished.")
+	log.Println("Updater finished.")
 	os.Exit(1)
 
 }

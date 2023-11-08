@@ -19,7 +19,7 @@ func RagfairFind(w http.ResponseWriter, r *http.Request) {
 		SelectedCategory: "",
 	}
 
-	fmt.Println(routeNotImplemented)
+	log.Println(routeNotImplemented)
 	body := services.ApplyResponseBody(output)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }

@@ -25,9 +25,10 @@ func (a *Account) SaveAccount() {
 
 	err := tools.WriteToFile(accountFilePath, a)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
-	fmt.Println("Account saved")
+	log.Println("Account saved")
 }
 
 // #region Account structs

@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"path/filepath"
 	"strings"
@@ -41,13 +40,13 @@ var localLoot = make(map[string][]any)
 func GetLocalLootByNameAndIndex(name string, index int8) any {
 	location, ok := localLoot[name]
 	if !ok {
-		fmt.Println("Location", name, "doesn't exist in localLoot map")
+		log.Println("Location", name, "doesn't exist in localLoot map")
 		return nil
 	}
 
 	loot := location[index]
 	if loot == nil {
-		fmt.Println("Loot at index", index, "does not exist")
+		log.Println("Loot at index", index, "does not exist")
 		return nil
 	}
 
@@ -57,7 +56,7 @@ func GetLocalLootByNameAndIndex(name string, index int8) any {
 func setLocalLoot() {
 	files, err := tools.GetFilesFrom("/locationTest")
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	for file := range files {
@@ -72,11 +71,11 @@ func setLocalLoot() {
 		formatt := new(any)
 		readFile, err := tools.ReadFile(filePath)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 		err = json.Unmarshal(readFile, formatt)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 
 		localLoot[name] = append(localLoot[name], formatt)

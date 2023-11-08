@@ -9,13 +9,13 @@ import (
 )
 
 func LobbyPushNotifier(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Push notification")
+	log.Println("Push notification")
 	body := services.ApplyResponseBody([]any{})
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func LobbyGetWebSocket(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Get Websocket for, " + r.URL.String())
+	log.Println("Get Websocket for, " + r.URL.String())
 	sessionID := services.GetSessionID(r)
 	storage, err := database.GetStorageByUID(sessionID)
 	if err != nil {

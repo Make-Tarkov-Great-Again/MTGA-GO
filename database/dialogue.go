@@ -111,7 +111,7 @@ func (d *Dialog) CreateQuestDialogueInfo() *DialogueInfo {
 
 	if d.Users != nil && len(d.Users) > 0 {
 		//TODO: DEAL WITH USERS
-		fmt.Println("No users were created")
+		log.Println("No users were created")
 	}
 
 	return info
@@ -127,7 +127,7 @@ func (d *Dialog) CreateDialogListEntry() *DialogueInfo {
 	}
 
 	if d.Type == 1 {
-		fmt.Println("NOT DONE YET")
+		log.Println("NOT DONE YET")
 	} else {
 		info.Message = d.CreateDialogueInfoMessage()
 	}
@@ -206,7 +206,7 @@ func (d Dialogue) SaveDialogue(sessionID string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println("Dialogue saved")
+	log.Println("Dialogue saved")
 }
 
 // TODO: remove this and put in config (hours x 3600)

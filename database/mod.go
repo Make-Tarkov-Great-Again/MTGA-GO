@@ -76,7 +76,7 @@ func LoadBundleManifests() {
 	for _, path := range modBundleDirPaths {
 		bundlesSubDirectories, err := tools.GetDirectoriesFrom(path)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return
 		}
 
@@ -85,14 +85,14 @@ func LoadBundleManifests() {
 			bundlesJsonPath := filepath.Join(bundleMainDirPath, "bundles.json")
 			if !tools.FileExist(bundlesJsonPath) {
 				err = fmt.Errorf("bundles.json file not located in %s, returning", path)
-				fmt.Println(err)
+				log.Println(err)
 				return
 			}
 
 			manifests := new(Manifests)
 			data := tools.GetJSONRawMessage(bundlesJsonPath)
 			if err := json.Unmarshal(data, &manifests); err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				return
 			}
 
@@ -112,7 +112,7 @@ func LoadBundleManifests() {
 				if !tools.FileExist(bundlePath) {
 					err := fmt.Sprintf("bundle %s does not exist in %s", manifest.Key, bundlesFolder)
 					modCritiqueLog[subDir] = append(modCritiqueLog[subDir], err)
-					fmt.Println(err)
+					log.Println(err)
 					continue
 				}
 
@@ -184,7 +184,7 @@ func SortAndQueueCustomItems(modName string, items map[string]*ModdingAPI) {
 		if customItem.Parameters.ItemParameters != nil {
 			if mod, ok := itemModificationLog[customItem.Parameters.ItemParameters.ReferenceItemTPL]; ok {
 				err := fmt.Sprintf(overwriteNotification, modName, mod, customItem.Parameters.ItemParameters.ReferenceItemTPL)
-				fmt.Println(err)
+				log.Println(err)
 
 				modCritiqueLog[modName] = append(modCritiqueLog[modName], err)
 
@@ -193,7 +193,7 @@ func SortAndQueueCustomItems(modName string, items map[string]*ModdingAPI) {
 				}
 				modCritiqueLog[mod] = append(modCritiqueLog[mod], err)
 
-				fmt.Println("Skipping overwrite, continuing...")
+				log.Println("Skipping overwrite, continuing...")
 				continue
 			}
 			itemModificationLog[customItem.Parameters.ItemParameters.ReferenceItemTPL] = modName
@@ -215,7 +215,7 @@ func (i *DatabaseItem) GenerateTraderAssortSingleItem() []*AssortItem {
 		SlotID:   "hideout",
 	}
 
-	if upd, err := i.GenerateNewUPD(); err != nil {
+	if upd, err := i.CreateItemUPD(); err != nil {
 		return []*AssortItem{assortItem}
 	} else {
 		assortItem.Upd = upd
@@ -238,7 +238,7 @@ func (i *DatabaseItem) GenerateTraderAssortParentItem() []*AssortItem {
 		Tpl: i.ID,
 	}
 
-	if upd, err := i.GenerateNewUPD(); err != nil {
+	if upd, err := i.CreateItemUPD(); err != nil {
 		return []*AssortItem{assortItem}
 	} else {
 		assortItem.Upd = upd
@@ -271,7 +271,7 @@ func ProcessCustomItemSet(parentId string, set map[string]any) []*AssortItem {
 	for slotId, value := range set {
 		setData, ok := value.(map[string]any)
 		if !ok {
-			fmt.Println()
+			log.Println()
 		}
 
 		id := tools.GenerateMongoID()
@@ -365,7 +365,7 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 	for tid, traderParams := range params.AddToTrader {
 		trader, err := GetTraderFromNameOrUID(tid)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 
@@ -423,7 +423,7 @@ func (i *DatabaseItem) SetCustomOverrides(overrides map[string]any) {
 			continue
 		default:
 			if _, ok := i.Props[key]; !ok {
-				fmt.Println("Could not override property", key, "because it does not exist on the item")
+				log.Println("Could not override property", key, "because it does not exist on the item")
 			} else {
 				i.Props[key] = value
 			}
@@ -480,13 +480,13 @@ func LoadCustomItems() {
 		switch {
 		case api.Parameters.ItemParameters != nil:
 			if api.Locale == nil || len(api.Locale) == 0 {
-				fmt.Println(uid, "does not have a locale, skipping...")
+				log.Println(uid, "does not have a locale, skipping...")
 				continue
 			}
 
 			original := itemsDatabase[api.Parameters.ItemParameters.ReferenceItemTPL]
 			if original == nil {
-				fmt.Println("ReferenceItemTPL:", api.Parameters.ItemParameters.ReferenceItemTPL, "for UID:", uid, "is invalid, skipping...")
+				log.Println("ReferenceItemTPL:", api.Parameters.ItemParameters.ReferenceItemTPL, "for UID:", uid, "is invalid, skipping...")
 				continue
 			}
 			itemClone := original.Clone()
@@ -499,7 +499,7 @@ func LoadCustomItems() {
 
 			handbookEntry, err := original.GetHandbookItemEntry()
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				continue
 			}
 
@@ -515,13 +515,13 @@ func LoadCustomItems() {
 			break
 		case api.Parameters.ClothingParameters != nil:
 			if api.Parameters.ClothingParameters.Side == nil || len(api.Parameters.ClothingParameters.Side) == 0 {
-				fmt.Println(uid, "does not have Side, skipping...")
+				log.Println(uid, "does not have Side, skipping...")
 				continue
 			}
 
 			params := api.Parameters.ClothingParameters
 			if params.LowerBody == nil && params.UpperBody == nil {
-				fmt.Println(uid, "does not have LowerBody or UpperBody entries, skipping...")
+				log.Println(uid, "does not have LowerBody or UpperBody entries, skipping...")
 				continue
 			}
 
@@ -538,10 +538,10 @@ func LoadCustomItems() {
 				for tid, scheme := range params.UpperBody.AddToTrader {
 					trader, err := GetTraderFromNameOrUID(tid)
 					if err != nil {
-						fmt.Println(err)
+						log.Println(err)
 						continue
 					} else if trader.Suits == nil {
-						fmt.Println(tid, "does not have suits assort, skipping...")
+						log.Println(tid, "does not have suits assort, skipping...")
 						continue
 					}
 
@@ -613,10 +613,10 @@ func LoadCustomItems() {
 				for tid, scheme := range params.LowerBody.AddToTrader {
 					trader, err := GetTraderFromNameOrUID(tid)
 					if err != nil {
-						fmt.Println(err)
+						log.Println(err)
 						continue
 					} else if trader.Suits == nil {
-						fmt.Println(tid, "does not have suits assort, skipping...")
+						log.Println(tid, "does not have suits assort, skipping...")
 						continue
 					}
 
@@ -672,7 +672,7 @@ func LoadCustomItems() {
 		//case api.Parameters.???Parameters != nil
 		//case api.Parameters.???Parameters != nil
 		default:
-			fmt.Println("HAHHAHAHAHAHAHA")
+			log.Println("HAHHAHAHAHAHAHA")
 			continue
 		}
 	}
@@ -699,7 +699,7 @@ func setCustomClothingLocation(ids map[string]string) {
 	for _, lang := range mainLocales {
 		data, err := GetLocalesLocaleByName(lang)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 
@@ -728,7 +728,7 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 		for _, lang := range mainLocales {
 			data, err := GetLocalesLocaleByName(lang)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				continue
 			}
 			data[localeName] = nameValue
@@ -739,7 +739,7 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 		for lang, value := range apiLocale {
 			locale, err := GetLocalesLocaleByName(lang)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				continue
 			}
 

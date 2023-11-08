@@ -39,7 +39,7 @@ func LevelComparisonCheck(requiredLevel float64, currentLevel float64, compareMe
 	case "=":
 		return currentLevel == requiredLevel
 	default:
-		fmt.Println("Unknown comparison method of " + compareMethod)
+		log.Println("Unknown comparison method of " + compareMethod)
 		return false
 	}
 }

@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"path/filepath"
 	"slices"
@@ -20,18 +19,18 @@ func GetCharacterByUID(uid string) *Character {
 		return profile.Character
 	}
 
-	fmt.Println("Profile with UID ", uid, " does not have a character")
+	log.Println("Profile with UID ", uid, " does not have a character")
 	return nil
 }
 
-func (c *Character) GetQuestsAvailableToPlayer() []any {
+func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 	var output []any
 
 	query := GetQuestsQuery()
 
 	cachedQuests, err := GetQuestCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	characterHasQuests := len(cachedQuests.Index) != 0
@@ -76,7 +75,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 				traderInfo, ok := c.TradersInfo[trader]
 				if !ok || traderInfo.LoyaltyLevel == 0 {
 					if data, err := GetTraderByUID(trader); err != nil {
-						log.Fatalln(err)
+						return nil, err
 					} else {
 						data.SetTraderLoyaltyLevel(c)
 					}
@@ -101,7 +100,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 				traderInfo, ok := c.TradersInfo[trader]
 				if !ok || traderInfo.LoyaltyLevel == 0 {
 					if data, err := GetTraderByUID(trader); err != nil {
-						log.Fatalln(err)
+						return nil, err
 					} else {
 						data.SetTraderLoyaltyLevel(c)
 					}
@@ -127,7 +126,7 @@ func (c *Character) GetQuestsAvailableToPlayer() []any {
 		}
 	}
 
-	return output
+	return output, nil
 }
 
 func (c *Character) CompletedPreviousQuestCheck(quests map[string]*QuestCondition, cachedQuests *QuestCache) bool {
@@ -162,7 +161,7 @@ func (inv *Inventory) CleanInventoryOfDeletedItemMods() bool {
 	}
 
 	if cleaned != 0 {
-		fmt.Println("Removed", cleaned, "modded item(s) from your inventory")
+		log.Println("Removed", cleaned, "modded item(s) from your inventory")
 		inv.Items = newItems
 		return true
 	}
@@ -175,9 +174,10 @@ func (c *Character) SaveCharacter() {
 
 	err := tools.WriteToFile(characterFilePath, c)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
-	fmt.Println("Character saved")
+	log.Println("Character saved")
 }
 
 /*func (c *Character) SaveCharacter(sessionID string) {
@@ -185,9 +185,10 @@ func (c *Character) SaveCharacter() {
 
 	err := tools.WriteToFile(characterFilePath, c)
 	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println("Character saved")
+			log.Println(err)
+			return
+		}
+	log.Println("Character saved")
 }*/
 
 // QuestAccept updates an existing Accepted quest, or creates and appends new Accepted Quest to cache and Character
@@ -195,7 +196,8 @@ func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesE
 
 	cachedQuests, err := GetQuestCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 	length := len(cachedQuests.Index)
 	time := int(tools.GetCurrentTimeInSeconds())
@@ -235,8 +237,8 @@ func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesE
 	}
 
 	if query.Rewards.Start != nil {
-		fmt.Println("There are rewards heeyrrrr!")
-		fmt.Println(profileChangesEvent.ProfileChanges[c.ID].ID)
+		log.Println("There are rewards heeyrrrr!")
+		log.Println(profileChangesEvent.ProfileChanges[c.ID].ID)
 
 		// TODO: Apply then Get Quest rewards and then route messages from there
 		// Character.ApplyQuestRewardsToCharacter()  applies the given reward
@@ -246,7 +248,8 @@ func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesE
 
 	dialogue, err := GetDialogueByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	dialog, message := CreateQuestDialogue(c.ID, "QuestStart", query.Trader, query.Dialogue.Description)
@@ -259,10 +262,11 @@ func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesE
 
 	connection := GetConnection(c.ID)
 	if connection == nil {
-		fmt.Println("Can't send message to character because connection is nil, storing...")
+		log.Println("Can't send message to character because connection is nil, storing...")
 		storage, err := GetStorageByUID(c.ID)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return
 		}
 
 		storage.Mailbox = append(storage.Mailbox, notification)
@@ -272,14 +276,19 @@ func (c *Character) QuestAccept(qid string, profileChangesEvent *ProfileChangesE
 	}
 
 	//TODO: Get new player quests from database now that we've accepted one
-	profileChangesEvent.ProfileChanges[c.ID].Quests = c.GetQuestsAvailableToPlayer()
+	quests, err := c.GetQuestsAvailableToPlayer()
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
+	profileChangesEvent.ProfileChanges[c.ID].Quests = quests
 	dialogue.SaveDialogue(c.ID)
 	c.SaveCharacter()
 }
 
 func (c *Character) ApplyQuestRewardsToCharacter(rewards *QuestRewards) {
-	fmt.Println()
+	log.Println()
 }
 
 type examine struct {
@@ -294,25 +303,30 @@ type fromOwner struct {
 
 func (c *Character) ExamineItem(moveAction map[string]any) {
 	examine := new(examine)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &examine)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &examine); err != nil {
+		log.Println(err)
+		return
 	}
 
 	var item *DatabaseItem
 	if examine.FromOwner == nil {
-		fmt.Println("Examining Item from Player Inventory")
+		log.Println("Examining Item from Player Inventory")
 		cache, err := GetInventoryCacheByUID(c.ID)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return
 		}
 
 		if index := cache.GetIndexOfItemByUID(examine.Item); index != nil {
 			itemInInventory := c.Inventory.Items[*index]
 			item = GetItemByUID(itemInInventory.TPL)
 		} else {
-			fmt.Println("[EXAMINE] Examining Item", examine.Item, " from Player Inventory failed, does not exist!")
+			log.Println("[EXAMINE] Examining Item", examine.Item, " from Player Inventory failed, does not exist!")
 			return
 		}
 	} else {
@@ -320,7 +334,8 @@ func (c *Character) ExamineItem(moveAction map[string]any) {
 		case "Trader":
 			data, err := GetTraderByUID(examine.FromOwner.ID)
 			if err != nil {
-				log.Fatalln(err)
+				log.Println(err)
+				return
 			}
 
 			assortItem := data.GetAssortItemByID(examine.Item)
@@ -333,23 +348,23 @@ func (c *Character) ExamineItem(moveAction map[string]any) {
 
 		case "RagFair":
 		default:
-			fmt.Println("[EXAMINE] FromOwner.Type: ", examine.FromOwner.Type, "is not supported, returning...")
+			log.Println("[EXAMINE] FromOwner.Type: ", examine.FromOwner.Type, "is not supported, returning...")
 			return
 		}
 	}
 
 	if item == nil {
-		fmt.Println("[EXAMINE] Examining Item", examine.Item, "failed, does not exist in Item Database")
+		log.Println("[EXAMINE] Examining Item", examine.Item, "failed, does not exist in Item Database")
 		return
 	}
 
 	c.Encyclopedia[item.ID] = true
-	fmt.Println("[EXAMINE] Encyclopedia entry added for", item.ID)
+	log.Println("[EXAMINE] Encyclopedia entry added for", item.ID)
 
 	//add experience
 	experience, ok := item.Props["ExamineExperience"].(float64)
 	if !ok {
-		fmt.Println("[EXAMINE] Item", examine.Item, "does not have ExamineExperience property, returning...")
+		log.Println("[EXAMINE] Item", examine.Item, "does not have ExamineExperience property, returning...")
 		return
 	}
 
@@ -377,15 +392,20 @@ type moveToLocation struct {
 
 func (c *Character) MoveItemInStash(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	move := new(move)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &move)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &move); err != nil {
+		log.Println(err)
+		return
 	}
 
 	cache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	index := cache.GetIndexOfItemByUID(move.Item)
@@ -436,15 +456,20 @@ type swap struct {
 
 func (c *Character) SwapItemInStash(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	swap := new(swap)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &swap)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &swap); err != nil {
+		log.Println(err)
+		return
 	}
 
 	cache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	index := *cache.GetIndexOfItemByUID(swap.Item)
@@ -508,24 +533,31 @@ type foldItem struct {
 
 func (c *Character) FoldItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	fold := new(foldItem)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &fold)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &fold); err != nil {
+		log.Println(err)
+		return
 	}
 
 	inventoryCache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	index := inventoryCache.GetIndexOfItemByUID(fold.Item)
 	if index == nil {
-		log.Fatalln("Item", fold.Item, "does not exist in cache!")
+		log.Println("Item", fold.Item, "does not exist in cache!")
+		return
 	}
 	itemInInventory := &c.Inventory.Items[*index]
 	if itemInInventory.UPD == nil || itemInInventory.UPD.Foldable == nil {
-		log.Fatalln(itemInInventory.ID, "cannot be folded!")
+		log.Println(itemInInventory.ID, "cannot be folded!")
+		return
 	}
 
 	itemInInventory.UPD.Foldable.Folded = fold.Value
@@ -541,10 +573,14 @@ type readEncyclopedia struct {
 
 func (c *Character) ReadEncyclopedia(moveAction map[string]any) {
 	readEncyclopedia := new(readEncyclopedia)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &readEncyclopedia)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &readEncyclopedia); err != nil {
+		log.Println(err)
+		return
 	}
 
 	for _, id := range readEncyclopedia.IDs {
@@ -560,15 +596,20 @@ type merge struct {
 
 func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	merge := new(merge)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &merge)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &merge); err != nil {
+		log.Println(err)
+		return
 	}
 
 	inventoryCache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	toMergeIndex := *inventoryCache.GetIndexOfItemByUID(merge.Item)
@@ -591,7 +632,8 @@ func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *Pr
 // by shifting the indexes to the left
 func (inv *Inventory) RemoveSingleItemFromInventoryByIndex(index int16) {
 	if index < 0 || index >= int16(len(inv.Items)) {
-		log.Fatalln("[RemoveSingleItemFromInventoryByIndex] Index out of Range")
+		log.Println("[RemoveSingleItemFromInventoryByIndex] Index out of Range")
+		return
 	}
 
 	copy(inv.Items[index:], inv.Items[index+1:])
@@ -621,15 +663,20 @@ type transfer struct {
 
 func (c *Character) TransferItem(moveAction map[string]any) {
 	transfer := new(transfer)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &transfer)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &transfer); err != nil {
+		log.Println(err)
+		return
 	}
 
 	inventoryCache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	toMergeIndex := *inventoryCache.GetIndexOfItemByUID(transfer.Item)
@@ -652,15 +699,20 @@ type split struct {
 
 func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	split := new(split)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &split)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &split); err != nil {
+		log.Println(err)
+		return
 	}
 
 	invCache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	originalItem := &c.Inventory.Items[*invCache.GetIndexOfItemByUID(split.SplitItem)]
@@ -708,15 +760,20 @@ type remove struct {
 
 func (c *Character) RemoveItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	remove := new(remove)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &remove)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &remove); err != nil {
+		log.Println(err)
+		return
 	}
 
 	inventoryCache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 	itemChildren := GetInventoryItemFamilyTreeIDs(c.Inventory.Items, remove.ItemId)
 
@@ -747,35 +804,41 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]any) {
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &applyInventoryChanges)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	cache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	for _, item := range applyInventoryChanges.ChangedItems {
 		properties, ok := item.(map[string]any)
 		if !ok {
-			log.Fatalln("Cannot type assert item from Auto-Sort items slice")
+			log.Println("Cannot type assert item from Auto-Sort items slice")
+			return
 		}
 
 		UID, ok := properties["_id"].(string)
 		if !ok {
-			log.Fatalln("Cannot type assert item `_id` property from Auto-Sort items slice")
+			log.Println("Cannot type assert item `_id` property from Auto-Sort items slice")
+			return
 		}
 		itemInInventory := &c.Inventory.Items[*cache.GetIndexOfItemByUID(UID)]
 
 		parent, ok := properties["parentId"].(string)
 		if !ok {
-			log.Fatalln("Cannot type assert item `parentId` property from Auto-Sort items slice")
+			log.Println("Cannot type assert item `parentId` property from Auto-Sort items slice")
+			return
 		}
 		itemInInventory.ParentID = parent
 
 		slotId, ok := properties["slotId"].(string)
 		if !ok {
-			log.Fatalln("Cannot type assert item `slotId` property from Auto-Sort items slice")
+			log.Println("Cannot type assert item `slotId` property from Auto-Sort items slice")
+			return
 		}
 		itemInInventory.SlotID = slotId
 
@@ -786,7 +849,8 @@ func (c *Character) ApplyInventoryChanges(moveAction map[string]any) {
 		} else {
 			r, ok := location["r"].(string)
 			if !ok {
-				log.Fatalln("Cannot type assert item.Location `r` property from Auto-Sort items slice")
+				log.Println("Cannot type assert item.Location `r` property from Auto-Sort items slice")
+				return
 			}
 
 			if r == "Horizontal" || r == "1" {
@@ -842,7 +906,8 @@ type soldItems struct {
 func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	invCache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	switch moveAction["type"] {
@@ -851,7 +916,8 @@ func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEven
 		data, _ := json.Marshal(moveAction)
 		err := json.Unmarshal(data, &buy)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return
 		}
 
 		c.BuyFromTrader(buy, invCache, profileChangesEvent)
@@ -860,29 +926,33 @@ func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEven
 		data, _ := json.Marshal(moveAction)
 		err := json.Unmarshal(data, &sell)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return
 		}
 
 		c.SellToTrader(sell, invCache, profileChangesEvent)
 	default:
-		fmt.Println("YO! TRADINGCONFIRM.", moveAction["type"], "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
+		log.Println("YO! TRADINGCONFIRM.", moveAction["type"], "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
 	}
 }
 
 func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
 	trader, err := GetTraderByUID(tradeConfirm.TID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	assortItem := trader.GetAssortItemByID(tradeConfirm.ItemID)
 	if assortItem == nil {
-		log.Fatalln("Item of", tradeConfirm.ItemID, "does not exist in trader assort, killing!")
+		log.Println("Item of", tradeConfirm.ItemID, "does not exist in trader assort, killing!")
+		return
 	}
 
 	inventoryItems := ConvertAssortItemsToInventoryItem(assortItem, &c.Inventory.Stash)
 	if len(inventoryItems) == 0 {
-		log.Fatalln("Converting Assort Item to Inventory Item failed, killing")
+		log.Println("Converting Assort Item to Inventory Item failed, killing")
+		return
 	}
 
 	var stackMaxSize = *GetItemByUID(inventoryItems[len(inventoryItems)-1].TPL).GetStackMaxSize()
@@ -913,7 +983,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 
 		validLocation := invCache.GetValidLocationForItem(height, width)
 		if validLocation == nil {
-			fmt.Println("Item", tradeConfirm.ItemID, "was not purchased because we could not find a position in your inventory!!")
+			log.Println("Item", tradeConfirm.ItemID, "was not purchased because we could not find a position in your inventory!!")
 			invCache.Stash.Container = copyOfMap //if failure, assign old map
 			return
 		}
@@ -938,7 +1008,8 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	for _, scheme := range tradeConfirm.SchemeItems {
 		index := invCache.GetIndexOfItemByUID(scheme.ID)
 		if index == nil {
-			log.Fatalln("Index of", scheme.ID, "does not exist in cache, killing!")
+			log.Println("Index of", scheme.ID, "does not exist in cache, killing!")
+			return
 		}
 
 		itemInInventory := copyOfItems[*index]
@@ -949,11 +1020,17 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 		} else {
 			priceOfItem, err := GetPriceByID(itemInInventory.TPL)
 			if err != nil {
-				log.Fatalln(err)
+				log.Println(err)
+				return
 			}
+
 			if "RUB" != trader.Base.Currency {
-				conversion := ConvertFromRouble(*priceOfItem, currency)
-				traderRelations.SalesSum += float32(conversion)
+				if conversion, err := ConvertFromRouble(*priceOfItem, currency); err == nil {
+					traderRelations.SalesSum += float32(conversion)
+				} else {
+					log.Println(err)
+					return
+				}
 			} else {
 				traderRelations.SalesSum += float32(*priceOfItem)
 			}
@@ -997,7 +1074,7 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 					break
 				}
 				if remainingBalance > 0 {
-					fmt.Println("Insufficient funds to purchase item, returning")
+					log.Println("Insufficient funds to purchase item, returning")
 					invCache.Stash.Container = copyOfMap
 					return
 				}
@@ -1011,7 +1088,8 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 
 	// Add all items from toAdd to Copy of Inventory.Items
 	if len(toAdd) == 0 {
-		log.Fatalln("balls")
+		log.Println("balls")
+		return
 	}
 
 	copyOfItems = append(copyOfItems, toAdd...)
@@ -1042,23 +1120,25 @@ func (c *Character) BuyFromTrader(tradeConfirm *buyFromTrader, invCache *Invento
 	profileChangesEvent.ProfileChanges[c.ID].TraderRelations[tradeConfirm.TID] = traderRelations
 	c.TradersInfo[tradeConfirm.TID] = traderRelations
 
-	fmt.Println(len(stackSlice), "of Item", tradeConfirm.ItemID, "purchased!")
+	log.Println(len(stackSlice), "of Item", tradeConfirm.ItemID, "purchased!")
 }
 
 func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *InventoryContainer, profileChangesEvent *ProfileChangesEvent) {
 	trader, err := GetTraderByUID(tradeConfirm.TID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	saleCurrency := *GetCurrencyByName(trader.Base.Currency)
 
-	var remainingBalance = tradeConfirm.Price
+	remainingBalance := tradeConfirm.Price
 	stackMaxSize := *GetItemByUID(saleCurrency).GetStackMaxSize()
 
 	cache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 	copyOfMap := invCache.Stash.Container
 	copyOfItems := make([]InventoryItem, 0, len(c.Inventory.Items))
@@ -1097,7 +1177,7 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 	if remainingBalance != 0 {
 		var toAdd []InventoryItem
 
-		fmt.Println("If a new stack isn't made, we cry")
+		//log.Println("If a new stack isn't made, we cry")
 
 		stackSlice := services.GetCorrectAmountOfItemsPurchased(remainingBalance, stackMaxSize)
 		item := []InventoryItem{*CreateNewItem(saleCurrency, c.Inventory.Stash)}
@@ -1109,7 +1189,7 @@ func (c *Character) SellToTrader(tradeConfirm *sellToTrader, invCache *Inventory
 
 			validLocation := invCache.GetValidLocationForItem(height, width)
 			if validLocation == nil {
-				fmt.Println("Item", mainItem.ID, "was not created because we could not find a position in your inventory!")
+				log.Println("Item", mainItem.ID, "was not created because we could not find a position in your inventory!")
 				invCache.Stash.Container = copyOfMap //if failure, assign old map
 				return
 			}
@@ -1168,19 +1248,22 @@ func (c *Character) CustomizationBuy(moveAction map[string]any) {
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &customizationBuy)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	trader, err := GetTraderByName("Ragman")
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 	suitsIndex := trader.Index.Suits[customizationBuy.Offer]
 	suitID := trader.Suits[suitsIndex].SuiteID
 
 	storage, err := GetStorageByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	if !slices.Contains(storage.Suites, suitID) {
@@ -1211,13 +1294,15 @@ func (c *Character) CustomizationWear(moveAction map[string]any) {
 	data, _ := json.Marshal(moveAction)
 	err := json.Unmarshal(data, &customizationWear)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	for _, SID := range customizationWear.Suites {
 		customization, err := GetCustomization(SID)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return
 		}
 
 		parentID := customization.Parent
@@ -1243,18 +1328,21 @@ type hideoutUpgrade struct {
 }
 
 func (c *Character) HideoutUpgrade(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
-	fmt.Println("HideoutUpgrade")
+	log.Println("HideoutUpgrade")
 	upgrade := new(hideoutUpgrade)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &upgrade)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &upgrade); err != nil {
+		log.Println(err)
+		return
 	}
 
 	hideoutArea := GetHideoutAreaByAreaType(upgrade.AreaType)
 
-	fmt.Println(hideoutArea)
-	fmt.Println()
+	log.Println(hideoutArea)
 }
 
 type bindItem struct {
@@ -1265,10 +1353,14 @@ type bindItem struct {
 
 func (c *Character) BindItem(moveAction map[string]any) {
 	bind := new(bindItem)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &bind)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &bind); err != nil {
+		log.Println(err)
+		return
 	}
 
 	if _, ok := c.Inventory.FastPanel[bind.Index]; !ok {
@@ -1291,15 +1383,20 @@ type tagItem struct {
 
 func (c *Character) TagItem(moveAction map[string]any) {
 	tag := new(tagItem)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &tag)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &tag); err != nil {
+		log.Println(err)
+		return
 	}
 
 	cache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	index := *cache.GetIndexOfItemByUID(tag.Item)
@@ -1331,15 +1428,20 @@ type toggleItem struct {
 
 func (c *Character) ToggleItem(moveAction map[string]any) {
 	toggle := new(toggleItem)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &toggle)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+	if err := json.Unmarshal(data, &toggle); err != nil {
+		log.Println(err)
+		return
 	}
 
 	cache, err := GetInventoryCacheByUID(c.ID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	index := *cache.GetIndexOfItemByUID(toggle.Item)
@@ -1364,15 +1466,19 @@ type hideoutUpgradeComplete struct {
 }
 
 func (c *Character) HideoutUpgradeComplete(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
-	fmt.Println("HideoutUpgradeComplete")
+	log.Println("HideoutUpgradeComplete")
 	upgradeComplete := new(hideoutUpgradeComplete)
-	data, _ := json.Marshal(moveAction)
-	err := json.Unmarshal(data, &upgradeComplete)
+	data, err := json.Marshal(moveAction)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
-	fmt.Println(upgradeComplete)
-	fmt.Println()
+	if err := json.Unmarshal(data, &upgradeComplete); err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println(upgradeComplete)
 }
 
 // #endregion

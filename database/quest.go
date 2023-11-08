@@ -2,7 +2,6 @@ package database
 
 import (
 	"MT-GO/tools"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -21,7 +20,7 @@ func GetQuestsQuery() map[string]*Quest {
 func GetQuestFromQueryByQID(qid string) *Quest {
 	query, ok := questsQuery[qid]
 	if !ok {
-		fmt.Println("Quest", qid, "does not exist in quests query")
+		log.Println("Quest", qid, "does not exist in quests query")
 		return nil
 	}
 	return query
@@ -30,7 +29,7 @@ func GetQuestFromQueryByQID(qid string) *Quest {
 func GetQuestByQID(qid string) any {
 	quest, ok := quests[qid]
 	if !ok {
-		fmt.Println("Quest", qid, "does not exist in quests")
+		log.Println("Quest", qid, "does not exist in quests")
 		return nil
 	}
 	return quest
@@ -78,11 +77,11 @@ func setQuests() {
 
 			data, err := json.Marshal(process)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			err = json.Unmarshal(data, conditions)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 
 			empty := QuestAvailabilityConditions{}
@@ -92,7 +91,7 @@ func setQuests() {
 				quest.Conditions = conditions
 			}
 		} else {
-			fmt.Println("Conditions don't exist? Check " + k)
+			log.Println("Conditions don't exist? Check " + k)
 		}
 
 		questRewards, ok := v["rewards"].(map[string]any)
@@ -101,11 +100,11 @@ func setQuests() {
 			process := setQuestRewards(questRewards)
 			data, err := json.Marshal(process)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			err = json.Unmarshal(data, rewards)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			quest.Rewards = *rewards
 		}
@@ -119,39 +118,39 @@ func setQuestDialogue(quest map[string]any) QuestDialogues {
 
 	description, ok := quest["description"].(string)
 	if !ok {
-		fmt.Println("quest[`description`]")
+		log.Println("quest[`description`]")
 	}
 	dialogues.Description = description
 
 	//TODO: remove if not needed
 	/* 	complete, ok := quest["completePlayerMessage"].(string)
 	   	if !ok {
-	   		fmt.Println("quest[`completePlayerMessage`]")
+	   		log.Println("quest[`completePlayerMessage`]")
 	   	}
 	   	dialogues.Complete = complete */
 
 	fail, ok := quest["failMessageText"].(string)
 	if !ok {
-		fmt.Println("quest[`failMessageText`]")
+		log.Println("quest[`failMessageText`]")
 	}
 	dialogues.Fail = fail
 
 	started, ok := quest["startedMessageText"].(string)
 	if !ok {
-		fmt.Println("quest[`startedMessageText`]")
+		log.Println("quest[`startedMessageText`]")
 	}
 	dialogues.Started = started
 
 	success, ok := quest["successMessageText"].(string)
 	if !ok {
-		fmt.Println("quest[`successMessageText`]")
+		log.Println("quest[`successMessageText`]")
 	}
 	dialogues.Success = success
 
 	//TODO: remove if not needed
 	/* 	accepted, ok := quest["acceptPlayerMessage"].(string)
 	   	if !ok {
-	   		fmt.Println("quest[`acceptPlayerMessage`]")
+	   		log.Println("quest[`acceptPlayerMessage`]")
 	   	}
 	   	dialogues.Accepted = accepted */
 
@@ -320,7 +319,7 @@ func processQuestCondition(name string, conditions map[string]any) any {
 		return output
 
 	default:
-		fmt.Println(name + " condition, probably not needed")
+		log.Println(name + " condition, probably not needed")
 	}
 	return output
 }
@@ -486,7 +485,7 @@ func setQuestReward(name string, reward map[string]any) any {
 		traderID, _ := reward["target"].(string)
 		return traderID
 	default:
-		fmt.Println(name + " reward")
+		log.Println(name + " reward")
 	}
 
 	return output

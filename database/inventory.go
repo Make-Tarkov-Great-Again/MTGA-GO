@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"slices"
 
@@ -684,7 +683,7 @@ func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {
 func (ic *InventoryContainer) GetIndexOfItemByUID(UID string) *int16 {
 	index, ok := ic.Lookup.Forward[UID]
 	if !ok {
-		fmt.Println("Item of UID", UID, "does not exist in cache. Returning -1")
+		log.Println("Item of UID", UID, "does not exist in cache. Returning -1")
 		return nil
 	}
 	return &index

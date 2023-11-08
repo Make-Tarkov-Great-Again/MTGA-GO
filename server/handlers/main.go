@@ -112,7 +112,7 @@ func MainItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Println("You know you're going to have to go back and try creating structs in your database, you lazy twit!")
+	log.Println("You know you're going to have to go back and try creating structs in your database, you lazy twit!")
 }
 
 const customizationRoute string = "/client/customization"
@@ -165,7 +165,7 @@ func MainProfileList(w http.ResponseWriter, r *http.Request) {
 	if character == nil || character.Info.Nickname == "" {
 		profiles := services.ApplyResponseBody([]any{})
 		services.ZlibJSONReply(w, r.RequestURI, profiles)
-		fmt.Println("Character doesn't exist, begin creation")
+		log.Println("Character doesn't exist, begin creation")
 	} else {
 
 		playerScav := database.GetPlayerScav()
@@ -235,7 +235,7 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 
 	nickname, ok := parsedData["nickname"]
 	if !ok {
-		fmt.Println("For whatever reason, the nickname does not exist.")
+		log.Println("For whatever reason, the nickname does not exist.")
 	}
 
 	if len(nickname.(string)) == 0 {
@@ -618,7 +618,7 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 		if handler, ok := actionHandlers[action]; ok {
 			handler(moveAction, character, profileChangeEvent)
 		} else {
-			fmt.Println(action, "is not supported, sending empty response")
+			log.Println(action, "is not supported, sending empty response")
 		}
 	}
 
@@ -641,11 +641,11 @@ func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 	localloot := new(localLoot)
 	data, err := json.Marshal(services.GetParsedBody(r))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	err = json.Unmarshal(data, localloot)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	loot := database.GetLocalLootByNameAndIndex(localloot.LocationID, localloot.VariantID)
@@ -679,11 +679,11 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	insuranceListCost := new(insuranceList)
 	data, err := json.Marshal(services.GetParsedBody(r))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	err = json.Unmarshal(data, insuranceListCost)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	sessionID := services.GetSessionID(r)
@@ -831,11 +831,11 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 	conditions := new(botConditions)
 	data, err := json.Marshal(parsedBody)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	err = json.Unmarshal(data, &conditions)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	//TODO: Send bots lol
 	body := services.ApplyResponseBody([]any{})
@@ -852,15 +852,15 @@ func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
 	matchEnd := new(offlineMatchEnd)
 	data, err := json.Marshal(services.GetParsedBody(r))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	err = json.Unmarshal(data, &matchEnd)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
-	fmt.Println("\n:::::::::::: Offline Match Status ::::::::::::\nExitName:", matchEnd.ExitName, "\nExitStatus:", matchEnd.ExitStatus, "\nRaidSeconds:", matchEnd.RaidSeconds)
-	fmt.Println()
+	log.Println("\n:::::::::::: Offline Match Status ::::::::::::\nExitName:", matchEnd.ExitName, "\nExitStatus:", matchEnd.ExitStatus, "\nRaidSeconds:", matchEnd.RaidSeconds)
+	log.Println()
 	body := services.ApplyResponseBody(nil)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
@@ -891,11 +891,11 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	save := new(raidProfileSave)
 	data, err := json.Marshal(services.GetParsedBody(r))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	err = json.Unmarshal(data, &save)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	//TODO: Raid Profile Save
@@ -904,7 +904,7 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Raid Profile Save not implemented yet!")
+	log.Println("Raid Profile Save not implemented yet!")
 	body := services.ApplyResponseBody(nil)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }

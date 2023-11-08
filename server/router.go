@@ -94,7 +94,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 func AddMainRoute(route string, handler http.HandlerFunc) {
 	_, ok := mainRouteHandlers[route]
 	if ok {
-		fmt.Println("URL already registered")
+		log.Println("URL already registered")
 		return
 	}
 
@@ -103,11 +103,11 @@ func AddMainRoute(route string, handler http.HandlerFunc) {
 
 func OverrideMainRoute(route string, handler http.HandlerFunc) {
 	if _, ok := mainRouteHandlers[route]; !ok {
-		fmt.Println("URL doesn't exist")
+		log.Println("URL doesn't exist")
 		return
 	}
 
-	fmt.Println("URL override for", route, "registered")
+	log.Println("URL override for", route, "registered")
 	mainRouteHandlers[route] = handler
 }
 
@@ -128,7 +128,7 @@ var tradingRouteHandlers = map[string]http.HandlerFunc{
 func AddTradingRoute(route string, handler http.HandlerFunc) {
 	_, ok := tradingRouteHandlers[route]
 	if ok {
-		fmt.Println("URL already registered")
+		log.Println("URL already registered")
 		return
 	}
 
@@ -137,11 +137,11 @@ func AddTradingRoute(route string, handler http.HandlerFunc) {
 
 func OverrideTradingRoute(route string, handler http.HandlerFunc) {
 	if _, ok := tradingRouteHandlers[route]; !ok {
-		fmt.Println("URL doesn't exist")
+		log.Println("URL doesn't exist")
 		return
 	}
 
-	fmt.Println("URL override for", route, "registered")
+	log.Println("URL override for", route, "registered")
 	tradingRouteHandlers[route] = handler
 }
 
@@ -165,11 +165,11 @@ func setRagfairRoutes(mux *http.ServeMux) {
 
 func OverrideRagfairRoute(route string, handler http.HandlerFunc) {
 	if _, ok := ragfairRouteHandlers[route]; !ok {
-		fmt.Println("URL doesn't exist")
+		log.Println("URL doesn't exist")
 		return
 	}
 
-	fmt.Println("URL override for", route, "registered")
+	log.Println("URL override for", route, "registered")
 	ragfairRouteHandlers[route] = handler
 }
 
@@ -220,11 +220,11 @@ func setMessagingRoutes(mux *http.ServeMux) {
 
 func OverrideMessagingRoute(route string, handler http.HandlerFunc) {
 	if _, ok := messagingRouteHandlers[route]; !ok {
-		fmt.Println("URL doesn't exist")
+		log.Println("URL doesn't exist")
 		return
 	}
 
-	fmt.Println("URL override for", route, "registered")
+	log.Println("URL override for", route, "registered")
 	messagingRouteHandlers[route] = handler
 }
 
@@ -241,10 +241,10 @@ func setLobbyRoutes(mux *http.ServeMux) {
 
 func OverrideLobbyRoute(route string, handler http.HandlerFunc) {
 	if _, ok := lobbyRouteHandlers[route]; !ok {
-		fmt.Println("URL doesn't exist")
+		log.Println("URL doesn't exist")
 		return
 	}
 
-	fmt.Println("URL override for", route, "registered")
+	log.Println("URL override for", route, "registered")
 	lobbyRouteHandlers[route] = handler
 }
