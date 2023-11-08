@@ -58,7 +58,7 @@ const incomingRoute string = "[%s] %s on %s\n"
 func logAndDecompress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the incoming request URL
-		fmt.Printf(incomingRoute, r.Method, r.URL.Path, strings.TrimPrefix(r.Host, "127.0.0.1"))
+		log.Printf(incomingRoute, r.Method, r.URL.Path, strings.TrimPrefix(r.Host, "127.0.0.1"))
 
 		if websocket.IsWebSocketUpgrade(r) {
 			upgradeToWebsocket(w, r)
@@ -126,7 +126,7 @@ func startHTTPServer(serverReady chan<- struct{}, mux *muxt) {
 		Handler: logAndDecompress(mux.mux),
 	}
 
-	log.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
+	fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
 	serverReady <- struct{}{}
 
 	err := httpsServer.ListenAndServe()
@@ -195,7 +195,6 @@ func SetServer() {
 	}
 
 	close(serverReady)
-	log.Println()
 }
 
 type ConnectionWatcher struct {

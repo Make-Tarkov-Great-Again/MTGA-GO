@@ -40,11 +40,10 @@ func main() {
 
 func startHome() {
 
-	log.Println("Alright fella, what now?")
-	log.Println("1. Register an Account")
-	log.Println("2. Login")
-	log.Println()
-	log.Println("69. Exit")
+	fmt.Println("Alright fella, what now?")
+	fmt.Println("1. Register an Account")
+	fmt.Println("2. Login\n")
+	fmt.Println("69. Exit")
 	var input string
 	for {
 		fmt.Printf("> ")
@@ -56,10 +55,10 @@ func startHome() {
 		case "2":
 			login()
 		case "69":
-			log.Println("Adios fella")
+			fmt.Println("Adios fella")
 			os.Exit(1)
 		default:
-			log.Println("Invalid input, intellectually less able fella")
+			fmt.Println("Invalid input, intellectually less able fella")
 		}
 	}
 }
@@ -69,19 +68,19 @@ func registerAccount() {
 	profiles := database.GetProfiles()
 	var input string
 
-	log.Println("What is your username?")
+	fmt.Println("What is your username?")
 	for {
 		fmt.Printf("> ")
 		_, _ = fmt.Scanln(&input)
 		if !validateUsername(profiles, input) {
-			log.Println("Username taken, try again")
+			fmt.Println("Username taken, try again")
 			continue
 		}
 		break
 	}
 	account.Username = input
 
-	log.Println("What is your password?")
+	fmt.Println("What is your password?")
 	_, _ = fmt.Scanln(&input)
 	fmt.Printf("> ")
 	account.Password = input
@@ -115,14 +114,10 @@ func registerAccount() {
 	}
 
 	//save account
-	log.Println()
 	profiles[UID].SaveProfile()
-	log.Println()
 
 	//login
-	log.Println("Account created, logging in...")
-	log.Println()
-
+	fmt.Println("\nAccount created, logging in...")
 	loggedIn(&account)
 }
 
@@ -136,17 +131,17 @@ func validateUsername(profiles map[string]*database.Profile, username string) bo
 }
 
 func login() {
-	log.Println()
+	fmt.Println()
 	var input string
 	var account *database.Account
 	profiles := database.GetProfiles()
 	if len(profiles) == 0 {
-		log.Println("No profiles, redirecting to Account Register...")
+		fmt.Println("No profiles, redirecting to Account Register...")
 		registerAccount()
 	}
 
 	for {
-		log.Println("What is your username?")
+		fmt.Println("What is your username?")
 		fmt.Printf("> ")
 		_, _ = fmt.Scanln(&input)
 
@@ -157,21 +152,20 @@ func login() {
 		}
 
 		if account == nil {
-			log.Println("Invalid username, try again moron")
+			fmt.Println("Invalid username, try again moron")
 			continue
 		}
 
-		log.Println("What is your password?")
+		fmt.Println("What is your password?")
 		fmt.Printf("> ")
 		_, _ = fmt.Scanln(&input)
 
 		if account.Password != input {
-			log.Println("Invalid password, try again moron")
+			fmt.Println("Invalid password, try again moron")
 			continue
 		}
 
-		log.Println("Logging in...")
-		log.Println()
+		fmt.Println("Logging in...")
 
 		loggedIn(profiles[account.UID].Account)
 		break
@@ -180,15 +174,11 @@ func login() {
 }
 
 func loggedIn(account *database.Account) {
-
-	log.Println("Alright fella, we're at the Login Menu, what now?")
-	log.Println()
-
-	log.Println("1. Launch Tarkov")
-	log.Println("2. Change Account Info")
-	log.Println("3. Wipe yo ass")
-	log.Println()
-	log.Println("69. Exit")
+	fmt.Println("\nAlright fella, we're at the Login Menu, what now?\n")
+	fmt.Println("1. Launch Tarkov")
+	fmt.Println("2. Change Account Info")
+	fmt.Println("3. Wipe yo ass\n")
+	fmt.Println("69. Exit")
 
 	for {
 		var input string
@@ -198,28 +188,23 @@ func loggedIn(account *database.Account) {
 		switch input {
 		case "1":
 			launchTarkov(account)
-			log.Println()
 		case "2":
-			log.Println()
 			editAccountInfo(account)
 		case "3":
-			log.Println()
 			wipeYoAss(account)
 		case "69":
-			log.Println("Adios faggot")
+			fmt.Println("Adios faggot")
 			return
 		default:
-			log.Println("Invalid input, retard")
+			fmt.Println("Invalid input, retard")
 		}
 	}
 }
 
 func editAccountInfo(account *database.Account) {
-	log.Println("Alright fella, what do you want to edit?")
-	log.Println()
-	log.Println("1. Change Escape From Tarkov executable path")
-	log.Println()
-	log.Println("69. Go back to Login Menu")
+	fmt.Println("\nAlright fella, what do you want to edit?")
+	fmt.Println("1. Change Escape From Tarkov executable path")
+	fmt.Println("69. Go back to Login Menu")
 
 	for {
 		var input string
@@ -232,26 +217,24 @@ func editAccountInfo(account *database.Account) {
 			for {
 				var tarkovPath string
 
-				log.Println()
-				log.Println("Set new Path to Tarkov executable")
+				fmt.Println("\nSet new Path to Tarkov executable")
 				fmt.Printf("> ")
 				_, _ = fmt.Scanln(&tarkovPath)
 				exePath := filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
 				if tools.FileExist(exePath) && exePath != account.TarkovPath {
 					account.TarkovPath = exePath
-					log.Println("Path has been set")
+					fmt.Println("Path has been set")
 
 					account.SaveAccount()
 					break
 				}
-				log.Println("Invalid path, try again")
+				fmt.Println("Invalid path, try again")
 			}
 			editAccountInfo(account)
 		case "69":
-			log.Println()
 			loggedIn(account)
 		default:
-			log.Println("Invalid input, retard")
+			fmt.Println("Invalid input, retard")
 		}
 	}
 }
@@ -271,7 +254,7 @@ func wipeYoAss(account *database.Account) {
 		Mailbox:   []*database.Notification{},
 	}
 	profiles[account.UID].Dialogue = &database.Dialogue{}
-	log.Println("Yo ass is clean")
+	fmt.Println("Yo ass is clean")
 	profiles[account.UID].SaveProfile()
 	loggedIn(account)
 }
@@ -285,25 +268,25 @@ const (
 
 func launchTarkov(account *database.Account) {
 	if account.TarkovPath == "" || !tools.FileExist(account.TarkovPath) {
-		log.Println("EscapeFromTarkov not found")
-		log.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
+		fmt.Println("EscapeFromTarkov not found")
+		fmt.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
 		for {
 			var tarkovPath string
 
 			fmt.Printf("> ")
 			_, _ = fmt.Scanln(&tarkovPath)
 			if !tools.FileExist(filepath.Join(tarkovPath, "BepInEx")) {
-				log.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
+				fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
 				continue
 			}
 
 			account.TarkovPath = filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
 			if !tools.FileExist(account.TarkovPath) {
-				log.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
+				fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
 				continue
 			}
 
-			log.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
+			fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
 			account.SaveAccount()
 			break
 		}
@@ -326,7 +309,7 @@ func launchTarkov(account *database.Account) {
 
 	err = cmd.Wait()
 	if err != nil {
-		log.Println("Client has been closed")
+		fmt.Println("Client has been closed")
 		//database.GetProfileByUID(account.UID).SaveProfile()
 		//os.Exit(0)
 	}
