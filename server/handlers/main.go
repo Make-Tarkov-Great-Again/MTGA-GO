@@ -842,7 +842,16 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	//TODO: Send bots lol
-	body := services.ApplyResponseBody([]any{})
+	sb := database.GetSacrificialBot()
+	bots := make([]any, 0, 50)
+	for _, condition := range conditions.Conditions {
+		//sb.Info.Settings["Role"] = condition.Role
+		//sb.Info.Settings["BotDifficulty"] = condition.Difficulty
+		for i := int8(0); i < condition.Limit; i++ {
+			bots = append(bots, *sb)
+		}
+	}
+	body := services.ApplyResponseBody(bots)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
 

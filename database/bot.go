@@ -13,6 +13,21 @@ import (
 // #region Bot getters
 
 var bots = Bots{}
+var sacrificialBot any
+
+func GetSacrificialBot() *any {
+	return &sacrificialBot
+}
+func setSacrificialBot() {
+	read, err := tools.ReadFile(filepath.Join(databaseLibPath, "sacrificialBot.json"))
+	if err != nil {
+		log.Println(err)
+	}
+	if err := json.Unmarshal(read, &sacrificialBot); err != nil {
+		log.Println(err)
+	}
+	return
+}
 
 func GetBots() *Bots {
 	return &bots
