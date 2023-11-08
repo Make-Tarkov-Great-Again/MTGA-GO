@@ -10,7 +10,7 @@ import (
 
 func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	storage, err := database.GetStorageByUID(sessionID)
+	storage, err := database.GetStorageByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -51,7 +51,7 @@ func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 	}
 
-	character := database.GetCharacterByUID(services.GetSessionID(r))
+	character := database.GetCharacterByID(services.GetSessionID(r))
 	var assort = trader.GetStrippedAssort(character)
 
 	body := services.ApplyResponseBody(assort)

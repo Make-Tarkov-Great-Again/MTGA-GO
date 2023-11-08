@@ -69,7 +69,7 @@ func MainLanguages(w http.ResponseWriter, r *http.Request) {
 func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	lang := "en"
-	if account, err := database.GetAccountByUID(sessionID); err != nil {
+	if account, err := database.GetAccountByID(sessionID); err != nil {
 		log.Fatalln(err)
 	} else if account.Lang != "" {
 		lang = account.Lang
@@ -160,7 +160,7 @@ func MainSettings(w http.ResponseWriter, r *http.Request) {
 func MainProfileList(w http.ResponseWriter, r *http.Request) {
 
 	sessionID := services.GetSessionID(r)
-	character := database.GetCharacterByUID(sessionID)
+	character := database.GetCharacterByID(sessionID)
 
 	if character == nil || character.Info.Nickname == "" {
 		profiles := services.ApplyResponseBody([]any{})
@@ -282,7 +282,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 	}
 
-	edition := database.GetEdition("Edge Of Darkness")
+	edition := database.GetEditionByName("Edge Of Darkness")
 	if edition == nil {
 		log.Fatalln("[MainProfileCreate] Edition is nil, this ain't good fella!")
 	}
@@ -307,7 +307,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 
 	pmc.Info.LowerNickname = strings.ToLower(request.Nickname)
 
-	if customization, err := database.GetCustomization(request.VoiceID); err != nil {
+	if customization, err := database.GetCustomizationByID(request.VoiceID); err != nil {
 		log.Fatalln(err)
 	} else {
 		pmc.Info.Voice = customization.Name
@@ -381,7 +381,7 @@ func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 
 func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
 
-	character := database.GetCharacterByUID(services.GetSessionID(r))
+	character := database.GetCharacterByID(services.GetSessionID(r))
 
 	scavProfile := &ProfileStatus{
 		ProfileID: *character.Savage,
@@ -450,7 +450,7 @@ func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainBuildsList(w http.ResponseWriter, r *http.Request) {
-	storage, err := database.GetStorageByUID(services.GetSessionID(r))
+	storage, err := database.GetStorageByID(services.GetSessionID(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -461,7 +461,7 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	quests, err := database.GetCharacterByUID(sessionID).GetQuestsAvailableToPlayer()
+	quests, err := database.GetCharacterByID(sessionID).GetQuestsAvailableToPlayer()
 	if err != nil {
 		log.Println(err)
 		return
@@ -611,7 +611,7 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	data := parsed.(map[string]any)["data"].([]any)
 	length := int8(len(data)) - 1
 
-	character := database.GetCharacterByUID(services.GetSessionID(r))
+	character := database.GetCharacterByID(services.GetSessionID(r))
 	profileChangeEvent := database.CreateProfileChangesEvent(character)
 
 	for i, move := range data {
@@ -692,9 +692,9 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 
 	sessionID := services.GetSessionID(r)
 	output := make(map[string]map[string]int32)
-	character := database.GetCharacterByUID(sessionID)
+	character := database.GetCharacterByID(sessionID)
 
-	invCache, err := database.GetInventoryCacheByUID(sessionID)
+	invCache, err := database.GetInventoryCacheByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -717,7 +717,7 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, itemID := range insuranceListCost.Items {
-		itemInInventory := character.Inventory.Items[*invCache.GetIndexOfItemByUID(itemID)]
+		itemInInventory := character.Inventory.Items[*invCache.GetIndexOfItemByID(itemID)]
 		itemPrice, err := database.GetPriceByID(itemInInventory.TPL)
 		if err != nil {
 			log.Fatalln(err)
@@ -798,7 +798,7 @@ func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
 			data := make(map[string]*botDifficulties)
 			for _, key := range bots {
 				difficulties := new(botDifficulties)
-				if bot, _ := database.GetBotTypeByName(strings.ToLower(services.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
+				if bot, _ := database.GetBotByName(strings.ToLower(services.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
 					difficulties.Easy = bot.Difficulties["easy"]
 					difficulties.Normal = bot.Difficulties["normal"]
 					difficulties.Hard = bot.Difficulties["hard"]
@@ -810,7 +810,7 @@ func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
 	*/
 
 	difficulties := new(botDifficulties)
-	if bot, _ := database.GetBotTypeByName(strings.ToLower(services.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
+	if bot, _ := database.GetBotByName(strings.ToLower(services.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
 		difficulties.Easy = bot.Difficulties["easy"]
 		difficulties.Normal = bot.Difficulties["normal"]
 		difficulties.Hard = bot.Difficulties["hard"]

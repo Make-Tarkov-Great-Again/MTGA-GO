@@ -116,7 +116,7 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 func (t *Trader) GetStrippedAssort(character *Character) *Assort {
 	traderID := t.Base.ID
 
-	cache, err := GetTraderCacheByUID(character.ID)
+	cache, err := GetTraderCacheByID(character.ID)
 	if err != nil {
 		log.Fatalln(err)
 	}

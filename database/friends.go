@@ -9,7 +9,7 @@ import (
 
 const friendsNotExist string = "Friends for %s do not exist"
 
-func GetFriendsByUID(uid string) (*Friends, error) {
+func GetFriendsByID(uid string) (*Friends, error) {
 	profile, err := GetProfileByUID(uid)
 	if err != nil {
 		log.Fatalln(err)

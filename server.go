@@ -42,8 +42,8 @@ func startHome() {
 
 	fmt.Println("Alright fella, what now?")
 	fmt.Println("1. Register an Account")
-	fmt.Println("2. Login\n")
-	fmt.Println("69. Exit")
+	fmt.Println("2. Login")
+	fmt.Println("\n69. Exit")
 	var input string
 	for {
 		fmt.Printf("> ")
@@ -174,11 +174,11 @@ func login() {
 }
 
 func loggedIn(account *database.Account) {
-	fmt.Println("\nAlright fella, we're at the Login Menu, what now?\n")
-	fmt.Println("1. Launch Tarkov")
+	fmt.Println("\nAlright fella, we're at the Login Menu, what now?")
+	fmt.Println("\n1. Launch Tarkov")
 	fmt.Println("2. Change Account Info")
-	fmt.Println("3. Wipe yo ass\n")
-	fmt.Println("69. Exit")
+	fmt.Println("3. Wipe yo ass")
+	fmt.Println("\n69. Exit")
 
 	for {
 		var input string
@@ -203,7 +203,7 @@ func loggedIn(account *database.Account) {
 
 func editAccountInfo(account *database.Account) {
 	fmt.Println("\nAlright fella, what do you want to edit?")
-	fmt.Println("1. Change Escape From Tarkov executable path")
+	fmt.Println("\n1. Change Escape From Tarkov executable path")
 	fmt.Println("69. Go back to Login Menu")
 
 	for {

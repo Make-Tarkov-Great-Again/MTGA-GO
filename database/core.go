@@ -259,7 +259,7 @@ func SetNewWeaponMastery(name string) {
 
 // #endregion
 
-func GetWeaponMasteryByUID(uid string) (*configMastering, error) {
+func GetWeaponMasteryByID(uid string) (*configMastering, error) {
 	idx, ok := weaponMastering[uid]
 	if !ok {
 		return nil, fmt.Errorf("uid does not exist in weapon mastery")

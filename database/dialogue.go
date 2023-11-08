@@ -186,7 +186,7 @@ func (d *Dialog) GetActiveMessages() []DialogMessage {
 	return messages
 }
 
-func GetDialogueByUID(uid string) (*Dialogue, error) {
+func GetDialogueByID(uid string) (*Dialogue, error) {
 	profile, err := GetProfileByUID(uid)
 	if err != nil {
 		return nil, err

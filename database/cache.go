@@ -7,7 +7,7 @@ import (
 
 const cacheNotExist string = "Cache for %s does not exist"
 
-func GetCacheByUID(uid string) (*Cache, error) {
+func GetCacheByID(uid string) (*Cache, error) {
 	if profile, ok := profiles[uid]; ok {
 		return profile.Cache, nil
 	}
@@ -17,8 +17,8 @@ func GetCacheByUID(uid string) (*Cache, error) {
 
 const questCacheNotExist string = "Quest Cache for %s does not exist"
 
-func GetQuestCacheByUID(uid string) (*QuestCache, error) {
-	cache, err := GetCacheByUID(uid)
+func GetQuestCacheByID(uid string) (*QuestCache, error) {
+	cache, err := GetCacheByID(uid)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +32,8 @@ func GetQuestCacheByUID(uid string) (*QuestCache, error) {
 
 const traderCacheNotExist string = "Trader Cache for %s does not exist"
 
-func GetTraderCacheByUID(uid string) (*TraderCache, error) {
-	cache, err := GetCacheByUID(uid)
+func GetTraderCacheByID(uid string) (*TraderCache, error) {
+	cache, err := GetCacheByID(uid)
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +46,8 @@ func GetTraderCacheByUID(uid string) (*TraderCache, error) {
 
 const inventoryCacheNotExist string = "Inventory Cache for %s does not exist"
 
-func GetInventoryCacheByUID(uid string) (*InventoryContainer, error) {
-	cache, err := GetCacheByUID(uid)
+func GetInventoryCacheByID(uid string) (*InventoryContainer, error) {
+	cache, err := GetCacheByID(uid)
 	if err != nil {
 		return nil, err
 	}

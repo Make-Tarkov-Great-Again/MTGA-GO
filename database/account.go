@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func GetAccountByUID(uid string) (*Account, error) {
+func GetAccountByID(uid string) (*Account, error) {
 	profile, err := GetProfileByUID(uid)
 	if err != nil {
 		return nil, err

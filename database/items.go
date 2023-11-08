@@ -17,7 +17,7 @@ func GetItems() map[string]*DatabaseItem {
 	return items
 }
 
-func GetItemByUID(uid string) *DatabaseItem {
+func GetItemByID(uid string) *DatabaseItem {
 	item, ok := items[uid]
 	if !ok {
 		log.Println("Item:", uid, " not found in database")
@@ -38,7 +38,7 @@ var currencyByID = map[string]*struct{}{
 	"5696686a4bdc2da3298b456a": nil, //USD
 }
 
-func IsCurrencyByUID(UID string) bool {
+func IsCurrencyByID(UID string) bool {
 	_, ok := currencyByID[UID]
 	return ok
 }
@@ -52,7 +52,7 @@ func GetCurrencyByName(name string) *string {
 }
 
 func ItemClone(item string) *DatabaseItem {
-	input := GetItemByUID(item)
+	input := GetItemByID(item)
 	clone := new(DatabaseItem)
 
 	data, err := json.Marshal(input)

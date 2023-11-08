@@ -17,7 +17,7 @@ func GetQuestsQuery() map[string]*Quest {
 	return questsQuery
 }
 
-func GetQuestFromQueryByQID(qid string) *Quest {
+func GetQuestFromQueryByID(qid string) *Quest {
 	query, ok := questsQuery[qid]
 	if !ok {
 		log.Println("Quest", qid, "does not exist in quests query")
@@ -26,7 +26,7 @@ func GetQuestFromQueryByQID(qid string) *Quest {
 	return query
 }
 
-func GetQuestByQID(qid string) any {
+func GetQuestByID(qid string) any {
 	quest, ok := quests[qid]
 	if !ok {
 		log.Println("Quest", qid, "does not exist in quests")

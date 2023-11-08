@@ -444,31 +444,31 @@ func LoadCustomItems() {
 	itemsDatabase := GetItems()
 	handbookItemsDatabase := GetHandbook().Items
 
-	custBody, err := GetCustomization("64ef3efdb63b74469b6c1499")
+	custBody, err := GetCustomizationByID("64ef3efdb63b74469b6c1499")
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	custHands, err := GetCustomization("64ef3efdb63b74469b6c1499")
+	custHands, err := GetCustomizationByID("64ef3efdb63b74469b6c1499")
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	custUpper, err := GetCustomization("64ef3efdb63b74469b6c1499")
+	custUpper, err := GetCustomizationByID("64ef3efdb63b74469b6c1499")
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	custFeet, err := GetCustomization("5d5e7f4986f7746956659f8a")
+	custFeet, err := GetCustomizationByID("5d5e7f4986f7746956659f8a")
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	custLower, err := GetCustomization("5cd946231388ce000d572fe3")
+	custLower, err := GetCustomizationByID("5cd946231388ce000d572fe3")
 	if err != nil {
 		log.Println(err)
 		return

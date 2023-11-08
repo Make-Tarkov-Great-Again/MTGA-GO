@@ -18,7 +18,7 @@ func GetEditions() map[string]*Edition {
 	return editions
 }
 
-func GetEdition(version string) *Edition {
+func GetEditionByName(version string) *Edition {
 	edition, _ := editions[version]
 	return edition
 }

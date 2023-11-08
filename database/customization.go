@@ -17,7 +17,7 @@ func GetCustomizations() map[string]*Customization {
 	return customizations
 }
 
-func GetCustomization(id string) (*Customization, error) {
+func GetCustomizationByID(id string) (*Customization, error) {
 	customization, ok := customizations[id]
 	if !ok {
 		return nil, fmt.Errorf("Customization with ID", id, "does not exist")
@@ -26,7 +26,7 @@ func GetCustomization(id string) (*Customization, error) {
 }
 
 func CustomizationClone(item string) *Customization {
-	input, err := GetCustomization(item)
+	input, err := GetCustomizationByID(item)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -55,7 +55,7 @@ func GetProfileByUID(uid string) (*Profile, error) {
 
 const storageNotExist string = "Storage for UID %s does not exist"
 
-func GetStorageByUID(uid string) (*Storage, error) {
+func GetStorageByID(uid string) (*Storage, error) {
 	profile, err := GetProfileByUID(uid)
 	if err != nil {
 		return nil, err

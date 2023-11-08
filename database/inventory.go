@@ -168,7 +168,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		ic.Stash = &Stash{}
 		stash = ic.Stash
 
-		item := GetItemByUID(inventory.Items[ic.Lookup.Forward[inventory.Stash]].TPL)
+		item := GetItemByID(inventory.Items[ic.Lookup.Forward[inventory.Stash]].TPL)
 		grids := item.GetItemGrids()
 
 		for key, value := range grids {
@@ -600,8 +600,8 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 	index := ic.Lookup.Forward[parent]
 	itemInInventory := items[index]
 
-	itemInDatabase := GetItemByUID(itemInInventory.TPL) //parent
-	height, width := itemInDatabase.GetItemSize()       //get parent as starting point
+	itemInDatabase := GetItemByID(itemInInventory.TPL) //parent
+	height, width := itemInDatabase.GetItemSize()      //get parent as starting point
 
 	if itemInDatabase.Parent == "5448e53e4bdc2d60728b4567" || //backpack
 		itemInDatabase.Parent == "566168634bdc2d144c8b456c" || //searchableItem
@@ -647,7 +647,7 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 			continue
 		}
 
-		GetItemByUID(itemInInventory.TPL).GetItemForcedSize(sizes)
+		GetItemByID(itemInInventory.TPL).GetItemForcedSize(sizes)
 	}
 
 	height += sizes.SizeUp + sizes.SizeDown + sizes.ForcedDown + sizes.ForcedUp
@@ -679,8 +679,8 @@ func (ic *InventoryContainer) SetInventoryIndex(inventory *Inventory) {
 	}
 }
 
-// GetIndexOfItemByUID retrieves cached index of the item in your Inventory by its UID in Lookup.Forward
-func (ic *InventoryContainer) GetIndexOfItemByUID(UID string) *int16 {
+// GetIndexOfItemByID retrieves cached index of the item in your Inventory by its UID in Lookup.Forward
+func (ic *InventoryContainer) GetIndexOfItemByID(UID string) *int16 {
 	index, ok := ic.Lookup.Forward[UID]
 	if !ok {
 		log.Println("Item of UID", UID, "does not exist in cache. Returning -1")
@@ -693,8 +693,8 @@ func (ic *InventoryContainer) GetIndexOfItemByUID(UID string) *int16 {
 // used for Trader/RagFair purchases; returns correct height and width based on items given
 func MeasurePurchaseForInventoryMapping(items []InventoryItem) (int8, int8) {
 	parentItem := items[len(items)-1]
-	itemInDatabase := GetItemByUID(parentItem.TPL) //parent
-	height, width := itemInDatabase.GetItemSize()  //get parent as starting point
+	itemInDatabase := GetItemByID(parentItem.TPL) //parent
+	height, width := itemInDatabase.GetItemSize() //get parent as starting point
 
 	if itemInDatabase.Parent == "5448e53e4bdc2d60728b4567" || //backpack
 		itemInDatabase.Parent == "566168634bdc2d144c8b456c" || //searchableItem
@@ -732,7 +732,7 @@ func MeasurePurchaseForInventoryMapping(items []InventoryItem) (int8, int8) {
 			continue
 		}
 
-		GetItemByUID(item.TPL).GetItemForcedSize(sizes)
+		GetItemByID(item.TPL).GetItemForcedSize(sizes)
 	}
 
 	height += sizes.SizeUp + sizes.SizeDown + sizes.ForcedDown + sizes.ForcedUp

@@ -17,7 +17,7 @@ func LobbyPushNotifier(w http.ResponseWriter, r *http.Request) {
 func LobbyGetWebSocket(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get Websocket for, " + r.URL.String())
 	sessionID := services.GetSessionID(r)
-	storage, err := database.GetStorageByUID(sessionID)
+	storage, err := database.GetStorageByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
 	}

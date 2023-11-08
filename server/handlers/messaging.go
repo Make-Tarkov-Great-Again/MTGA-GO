@@ -15,7 +15,7 @@ type friendsList struct {
 }
 
 func MessagingFriendList(w http.ResponseWriter, r *http.Request) {
-	friends, err := database.GetFriendsByUID(services.GetSessionID(r))
+	friends, err := database.GetFriendsByID(services.GetSessionID(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -29,7 +29,7 @@ func MessagingFriendList(w http.ResponseWriter, r *http.Request) {
 }
 
 func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
-	dialogues, err := database.GetDialogueByUID(services.GetSessionID(r))
+	dialogues, err := database.GetDialogueByID(services.GetSessionID(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -46,7 +46,7 @@ func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
 }
 
 func MessagingFriendRequestInbox(w http.ResponseWriter, r *http.Request) {
-	friends, err := database.GetFriendsByUID(services.GetSessionID(r))
+	friends, err := database.GetFriendsByID(services.GetSessionID(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -58,7 +58,7 @@ func MessagingFriendRequestInbox(w http.ResponseWriter, r *http.Request) {
 }
 
 func MessagingFriendRequestOutbox(w http.ResponseWriter, r *http.Request) {
-	friends, err := database.GetFriendsByUID(services.GetSessionID(r))
+	friends, err := database.GetFriendsByID(services.GetSessionID(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -73,7 +73,7 @@ func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
 	parsedData := services.GetParsedBody(r)
 	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
 
-	dialogues, err := database.GetDialogueByUID(services.GetSessionID(r))
+	dialogues, err := database.GetDialogueByID(services.GetSessionID(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -102,7 +102,7 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 
 	data := new(database.DialogMessageView)
 
-	dialogues, err := database.GetDialogueByUID(sessionID)
+	dialogues, err := database.GetDialogueByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -149,7 +149,7 @@ func MessagingMailDialogPin(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 	dialogId := services.GetParsedBody(r).(map[string]any)["dialogId"].(string)
 
-	dialogues, err := database.GetDialogueByUID(sessionID)
+	dialogues, err := database.GetDialogueByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -173,7 +173,7 @@ func MessagingMailDialogUnpin(w http.ResponseWriter, r *http.Request) {
 	parsedData := services.GetParsedBody(r)
 	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
 
-	dialogues, err := database.GetDialogueByUID(sessionID)
+	dialogues, err := database.GetDialogueByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -197,7 +197,7 @@ func MessagingMailDialogRemove(w http.ResponseWriter, r *http.Request) {
 	parsedData := services.GetParsedBody(r)
 	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
 
-	dialogues, err := database.GetDialogueByUID(sessionID)
+	dialogues, err := database.GetDialogueByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
 	}
