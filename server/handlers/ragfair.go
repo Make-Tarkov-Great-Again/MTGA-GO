@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"MT-GO/services"
-	"fmt"
+	"log"
 	"net/http"
 )
 

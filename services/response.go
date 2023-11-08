@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"

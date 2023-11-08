@@ -1,8 +1,6 @@
 package services
 
-import (
-	"fmt"
-)
+import "log"
 
 var bearOnlyQuests = map[string]bool{
 	"6179b5eabca27a099552e052": true,
@@ -18,12 +16,13 @@ var usecOnlyQuests = map[string]bool{
 	"639282134ed9512be67647ed": true,
 }
 
+//TODO: Remove hard-coded quests
+
 func CheckIfQuestForOtherFaction(side string, qid string) bool {
 	if side == "Bear" {
 		return usecOnlyQuests[qid]
-	} else {
-		return bearOnlyQuests[qid]
 	}
+	return bearOnlyQuests[qid]
 }
 
 func LevelComparisonCheck(requiredLevel float64, currentLevel float64, compareMethod string) bool {

@@ -4,7 +4,6 @@ import (
 	"MT-GO/database"
 	"MT-GO/services"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )

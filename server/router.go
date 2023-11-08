@@ -4,7 +4,7 @@ package server
 import (
 	"MT-GO/server/handlers"
 	"MT-GO/services"
-	"fmt"
+	"log"
 	"net/http"
 )
 

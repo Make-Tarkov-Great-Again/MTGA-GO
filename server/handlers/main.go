@@ -461,7 +461,11 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
-	quests := database.GetCharacterByUID(sessionID).GetQuestsAvailableToPlayer()
+	quests, err := database.GetCharacterByUID(sessionID).GetQuestsAvailableToPlayer()
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	body := services.ApplyResponseBody(quests)
 	services.ZlibJSONReply(w, r.RequestURI, body)
 }
