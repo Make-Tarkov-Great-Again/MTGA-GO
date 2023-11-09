@@ -236,7 +236,11 @@ func SetResupplyTimer() int {
 			rs.Profiles = GetProfiles()
 
 			for _, profile := range rs.Profiles {
-				traders := profile.Cache.Traders
+				traders, err := GetTraderCacheByID(profile.Character.ID)
+				if err != nil {
+					continue
+				}
+
 				for _, assort := range traders.Assorts {
 					assort.NextResupply = rs.NextResupplyTime
 				}
@@ -388,8 +392,6 @@ func setTraderBase(basePath string) *TraderBase {
 }
 
 func SetTraderIndex() {
-	traders := GetTraders()
-
 	for _, trader := range traders {
 		if trader.Assort == nil {
 			continue

@@ -68,17 +68,17 @@ func setLocalLoot() {
 		}
 		filePath := filepath.Join("/locationTest", file)
 
-		formatt := new(any)
+		format := new(any)
 		readFile, err := tools.ReadFile(filePath)
 		if err != nil {
 			log.Println(err)
 		}
-		err = json.Unmarshal(readFile, formatt)
+		err = json.Unmarshal(readFile, format)
 		if err != nil {
 			log.Println(err)
 		}
 
-		localLoot[name] = append(localLoot[name], formatt)
+		localLoot[name] = append(localLoot[name], format)
 	}
 }
 

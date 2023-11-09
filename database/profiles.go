@@ -136,9 +136,11 @@ func SetProfiles() {
 			profile.Friends = &Friends{}
 		}
 
-		profile.Cache = profile.SetCache()
-
+		CreateCacheByID(user)
 		profiles[user] = profile
+		if cache, err := GetCacheByID(user); err == nil {
+			cache.SetCache(profiles[user].Character)
+		}
 	}
 }
 
@@ -234,7 +236,6 @@ type Profile struct {
 	Friends   *Friends
 	Storage   *Storage
 	Dialogue  *Dialogue
-	Cache     *Cache
 }
 
 type Dialogue map[string]*Dialog

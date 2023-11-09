@@ -347,7 +347,11 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	hideout.Improvement = make(map[string]any)
 
 	profile.Character = &pmc
-	profile.Cache = profile.SetCache()
+
+	if cache, err := database.GetCacheByID(pmc.ID); err == nil {
+		cache.SetCache(&pmc)
+	}
+
 	profile.SaveProfile()
 
 	data := services.ApplyResponseBody(&profileCreate{UID: sessionID})
@@ -535,9 +539,9 @@ func MainPrices(w http.ResponseWriter, r *http.Request) {
 		SupplyNextTime: nextResupply,
 		Prices:         prices,
 		CurrencyCourses: CurrencyCourses{
-			RUB: prices[*database.GetCurrencyByName("RUB")],
-			EUR: prices[*database.GetCurrencyByName("EUR")],
-			DOL: prices[*database.GetCurrencyByName("USD")],
+			RUB: prices[*services.GetCurrencyByName("RUB")],
+			EUR: prices[*services.GetCurrencyByName("EUR")],
+			DOL: prices[*services.GetCurrencyByName("USD")],
 		},
 	}
 

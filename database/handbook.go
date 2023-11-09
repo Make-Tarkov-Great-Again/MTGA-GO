@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"math"
 
 	"MT-GO/tools"
 
@@ -52,24 +53,20 @@ func setHandbook() {
 	}
 }
 
-const handbookItemEntryNotExist string = "Handbook Item for %s entry doesn't exist"
-
-func (i *DatabaseItem) GetHandbookItemEntry() (*HandbookItem, error) {
-	idx, ok := handbookIndex[i.ID]
-	if !ok {
-		return nil, fmt.Errorf(handbookItemEntryNotExist, i.ID)
+func ConvertFromRouble(amount int32, currency string) (float64, error) {
+	price, err := GetPriceByID(currency)
+	if err != nil {
+		return -1, err
 	}
-	return &handbook.Items[idx], nil
+	return math.Round(float64(amount / *price)), nil
 }
 
-const couldNotCreateClone string = "Could not create clone of entry, %s"
-
-func (i *DatabaseItem) CloneHandbookItemEntry() (*HandbookItem, error) {
-	handbookEntry, err := i.GetHandbookItemEntry()
+func ConvertToRouble(amount int32, currency string) float64 {
+	price, err := GetPriceByID(currency)
 	if err != nil {
-		return nil, fmt.Errorf(couldNotCreateClone, err)
+		log.Fatalln(err)
 	}
-	return &HandbookItem{Id: "", ParentId: handbookEntry.ParentId, Price: 0}, nil
+	return math.Round(float64(amount * (*price)))
 }
 
 func (hbi *HandbookItem) SetHandbookItemEntry() {

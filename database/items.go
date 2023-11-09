@@ -3,10 +3,8 @@ package database
 import (
 	"MT-GO/tools"
 	"fmt"
-	"log"
-	"math"
-
 	"github.com/goccy/go-json"
+	"log"
 )
 
 var items map[string]*DatabaseItem
@@ -24,31 +22,6 @@ func GetItemByID(uid string) *DatabaseItem {
 		return nil
 	}
 	return item
-}
-
-var currencyName = map[string]string{
-	"RUB": "5449016a4bdc2d6f028b456f",
-	"EUR": "569668774bdc2da2298b4568",
-	"USD": "5696686a4bdc2da3298b456a",
-}
-
-var currencyByID = map[string]*struct{}{
-	"5449016a4bdc2d6f028b456f": nil, //RUB
-	"569668774bdc2da2298b4568": nil, //EUR
-	"5696686a4bdc2da3298b456a": nil, //USD
-}
-
-func IsCurrencyByID(UID string) bool {
-	_, ok := currencyByID[UID]
-	return ok
-}
-
-func GetCurrencyByName(name string) *string {
-	currency, ok := currencyName[name]
-	if ok {
-		return &currency
-	}
-	return nil
 }
 
 func ItemClone(item string) *DatabaseItem {
@@ -80,22 +53,6 @@ func (i *DatabaseItem) Clone() *DatabaseItem {
 	}
 
 	return clone
-}
-
-func ConvertFromRouble(amount int32, currency string) (float64, error) {
-	price, err := GetPriceByID(currency)
-	if err != nil {
-		return -1, err
-	}
-	return math.Round(float64(amount / *price)), nil
-}
-
-func ConvertToRouble(amount int32, currency string) float64 {
-	price, err := GetPriceByID(currency)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	return math.Round(float64(amount * (*price)))
 }
 
 // GetItemPrice Gets item... price...
@@ -148,44 +105,6 @@ func (i *DatabaseItem) GetItemForcedSize(sizes *sizes) {
 	}
 }
 
-type Cartridges struct {
-	Name     string           `json:"_name"`
-	Id       string           `json:"_id"`
-	Parent   string           `json:"_parent"`
-	MaxCount int              `json:"_max_count"`
-	Props    CartridgeFilters `json:"_props"`
-	Proto    string           `json:"_proto"`
-}
-
-type CartridgeFilters struct {
-	Filters []CartridgeFilter `json:"filters"`
-}
-
-type CartridgeFilter struct {
-	Filter []string `json:"Filter"`
-}
-
-type Grid struct {
-	Name   string    `json:"_name"`
-	ID     string    `json:"_id"`
-	Parent string    `json:"_parent"`
-	Props  GridProps `json:"_props"`
-	Proto  string    `json:"_proto"`
-}
-type GridFilters struct {
-	Filter         []string `json:"Filter"`
-	ExcludedFilter []string `json:"ExcludedFilter"`
-}
-type GridProps struct {
-	Filters        []GridFilters `json:"filters"`
-	CellsH         int8          `json:"cellsH"`
-	CellsV         int8          `json:"cellsV"`
-	MinCount       int8          `json:"minCount"`
-	MaxCount       int8          `json:"maxCount"`
-	MaxWeight      int16         `json:"maxWeight"`
-	IsSortingTable bool          `json:"isSortingTable"`
-}
-
 // GetItemGrids Get the grid property from the item if it exists
 func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 	grids, ok := i.Props["Grids"].([]any)
@@ -212,23 +131,6 @@ func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 	}
 
 	return output
-}
-
-type Slot struct {
-	Name                  string    `json:"_name"`
-	ID                    string    `json:"_id"`
-	Parent                string    `json:"_parent"`
-	Props                 SlotProps `json:"_props"`
-	Required              bool      `json:"_required"`
-	MergeSlotWithChildren bool      `json:"_mergeSlotWithChildren"`
-	Proto                 string    `json:"_proto"`
-}
-type SlotFilters struct {
-	Shift  int      `json:"Shift,omitempty"`
-	Filter []string `json:"Filter"`
-}
-type SlotProps struct {
-	Filters []SlotFilters `json:"filters"`
 }
 
 // GetItemSlots Get the slot property from the item if it exists
@@ -259,12 +161,9 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 	return output
 }
 
-func (i *DatabaseItem) GetStackMaxSize() *int32 {
-	if size, ok := i.Props["StackMaxSize"].(float64); ok {
-		value := int32(size)
-		return &value
-	}
-	return nil
+func (i *DatabaseItem) GetStackMaxSize() int32 {
+	size, _ := i.Props["StackMaxSize"].(float64)
+	return int32(size)
 }
 
 // #endregion
@@ -281,6 +180,26 @@ func setItems() {
 
 func SetNewItem(entry DatabaseItem) {
 	items[entry.ID] = &entry
+}
+
+const handbookItemEntryNotExist string = "Handbook Item for %s entry doesn't exist"
+
+func (i *DatabaseItem) GetHandbookItemEntry() (*HandbookItem, error) {
+	idx, ok := handbookIndex[i.ID]
+	if !ok {
+		return nil, fmt.Errorf(handbookItemEntryNotExist, i.ID)
+	}
+	return &handbook.Items[idx], nil
+}
+
+const couldNotCreateClone string = "Could not create clone of entry, %s"
+
+func (i *DatabaseItem) CloneHandbookItemEntry() (*HandbookItem, error) {
+	handbookEntry, err := i.GetHandbookItemEntry()
+	if err != nil {
+		return nil, fmt.Errorf(couldNotCreateClone, err)
+	}
+	return &HandbookItem{Id: "", ParentId: handbookEntry.ParentId, Price: 0}, nil
 }
 
 func (i *DatabaseItem) CreateItemUPD() (*ItemUpdate, error) {
@@ -460,5 +379,62 @@ type DatabaseItem struct {
 }
 
 type DatabaseItemProperties map[string]any
+
+type Slot struct {
+	Name                  string    `json:"_name"`
+	ID                    string    `json:"_id"`
+	Parent                string    `json:"_parent"`
+	Props                 SlotProps `json:"_props"`
+	Required              bool      `json:"_required"`
+	MergeSlotWithChildren bool      `json:"_mergeSlotWithChildren"`
+	Proto                 string    `json:"_proto"`
+}
+
+type SlotFilters struct {
+	Shift  int      `json:"Shift,omitempty"`
+	Filter []string `json:"Filter"`
+}
+
+type SlotProps struct {
+	Filters []SlotFilters `json:"filters"`
+}
+
+type Cartridges struct {
+	Name     string           `json:"_name"`
+	Id       string           `json:"_id"`
+	Parent   string           `json:"_parent"`
+	MaxCount int              `json:"_max_count"`
+	Props    CartridgeFilters `json:"_props"`
+	Proto    string           `json:"_proto"`
+}
+
+type CartridgeFilters struct {
+	Filters []CartridgeFilter `json:"filters"`
+}
+
+type CartridgeFilter struct {
+	Filter []string `json:"Filter"`
+}
+
+type Grid struct {
+	Name   string    `json:"_name"`
+	ID     string    `json:"_id"`
+	Parent string    `json:"_parent"`
+	Props  GridProps `json:"_props"`
+	Proto  string    `json:"_proto"`
+}
+type GridFilters struct {
+	Filter         []string `json:"Filter"`
+	ExcludedFilter []string `json:"ExcludedFilter"`
+}
+type GridProps struct {
+	Filters        []GridFilters `json:"filters"`
+	CellsH         int8          `json:"cellsH"`
+	CellsV         int8          `json:"cellsV"`
+	MinCount       int8          `json:"minCount"`
+	MaxCount       int8          `json:"maxCount"`
+	MaxWeight      int16         `json:"maxWeight"`
+	IsSortingTable bool          `json:"isSortingTable"`
+}
 
 // #endregion
