@@ -17,19 +17,24 @@ func GetAccountByID(uid string) (*Account, error) {
 		return profile.Account, nil
 	}
 
-	return nil, fmt.Errorf("Account for ", uid, " does not exist")
+	return nil, fmt.Errorf(accountNotExist, uid)
 }
 
-func (a *Account) SaveAccount() {
+func (a *Account) SaveAccount() error {
 	accountFilePath := filepath.Join(profilesPath, a.UID, "account.json")
 
 	err := tools.WriteToFile(accountFilePath, a)
 	if err != nil {
-		log.Println(err)
-		return
+		return fmt.Errorf(accountNotSaved, a.UID, err)
 	}
 	log.Println("Account saved")
+	return nil
 }
+
+const (
+	accountNotSaved string = "Account for %s was not saved: %s"
+	accountNotExist string = "Account for %s does not exist"
+)
 
 // #region Account structs
 

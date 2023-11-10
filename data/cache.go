@@ -179,7 +179,8 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		if itemFlatMap.Height == 0 && itemFlatMap.Width == 0 {
 			if itemID = containerMap[itemFlatMap.StartX]; itemID != "" {
-				log.Fatalln("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[itemFlatMap.StartX])
+				log.Println("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[itemFlatMap.StartX])
+				return
 			}
 			containerMap[itemFlatMap.StartX] = itemInInventory.ID
 			itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, itemFlatMap.StartX)
@@ -190,7 +191,8 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
 			if itemID = containerMap[column]; itemID != "" {
-				log.Fatalln("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[column])
+				log.Println("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[column])
+				return
 			}
 			containerMap[column] = itemInInventory.ID
 			itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, column)
@@ -198,7 +200,8 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 			for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
 				var coordinate = row*stride + column
 				if itemID = containerMap[coordinate]; itemID != "" {
-					log.Fatalln("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[coordinate])
+					log.Println("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[coordinate])
+					return
 				}
 				containerMap[coordinate] = itemInInventory.ID
 				itemFlatMap.Coordinates = append(itemFlatMap.Coordinates, coordinate)
@@ -415,7 +418,8 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 	if (foldablePropertyExists && canFold) && foldedSlotPropertyExists && parentFolded {
 		sizeReduceRight, ok := itemInDatabase.Props["SizeReduceRight"].(float64)
 		if !ok {
-			log.Fatalln("Could not type assert itemInDatabase.Props.SizeReduceRight of UID", itemInInventory.ID)
+			log.Println("Could not type assert itemInDatabase.Props.SizeReduceRight of UID", itemInInventory.ID)
+			return -1, -1
 		}
 		width -= int8(sizeReduceRight)
 	}

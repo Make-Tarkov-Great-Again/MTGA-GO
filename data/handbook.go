@@ -44,7 +44,7 @@ func setHandbook() {
 	raw := tools.GetJSONRawMessage(handbookPath)
 	err := json.Unmarshal(raw, &handbook)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	for idx, v := range handbook.Items {
@@ -64,7 +64,7 @@ func ConvertFromRouble(amount int32, currency string) (float64, error) {
 func ConvertToRouble(amount int32, currency string) float64 {
 	price, err := GetPriceByID(currency)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 	return math.Round(float64(amount * (*price)))
 }

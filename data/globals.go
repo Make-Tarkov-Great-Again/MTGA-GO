@@ -15,7 +15,7 @@ func setGlobals() *Globals {
 	var global = Globals{}
 	err := json.Unmarshal(raw, &global)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	weaponMastering = make(map[string]int16)

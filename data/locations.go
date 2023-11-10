@@ -31,7 +31,8 @@ func setLocations() {
 	raw := tools.GetJSONRawMessage(locationsFilePath)
 	err := json.Unmarshal(raw, &locations)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 }
 

@@ -30,21 +30,6 @@ func GetProfileByUID(uid string) (*Profile, error) {
 	return nil, fmt.Errorf(profileNotExist, uid)
 }
 
-const storageNotExist string = "Storage for UID %s does not exist"
-
-func GetStorageByID(uid string) (*Storage, error) {
-	profile, err := GetProfileByUID(uid)
-	if err != nil {
-		return nil, err
-	}
-
-	if profile.Storage != nil {
-		return profile.Storage, nil
-	}
-
-	return nil, fmt.Errorf(storageNotExist, uid)
-}
-
 // #endregion
 
 // #region Profile setters
@@ -52,7 +37,8 @@ func GetStorageByID(uid string) (*Storage, error) {
 func SetProfiles() {
 	users, err := tools.GetDirectoriesFrom(profilesPath)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	if len(users) == 0 {
@@ -127,55 +113,8 @@ func setAccount(path string) *Account {
 	data := tools.GetJSONRawMessage(path)
 	err := json.Unmarshal(data, output)
 	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return output
-}
-
-func setCharacter(path string) *Character {
-	output := &Character{}
-
-	data := tools.GetJSONRawMessage(path)
-	err := json.Unmarshal(data, output)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return output
-}
-
-func setStorage(path string) *Storage {
-	output := new(Storage)
-
-	data := tools.GetJSONRawMessage(path)
-	err := json.Unmarshal(data, output)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return output
-}
-
-func setDialogue(path string) *Dialogue {
-	output := make(Dialogue)
-
-	data := tools.GetJSONRawMessage(path)
-	err := json.Unmarshal(data, &output)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return &output
-}
-
-func setFriends(path string) *Friends {
-	output := new(Friends)
-
-	data := tools.GetJSONRawMessage(path)
-	err := json.Unmarshal(data, &output)
-	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 
 	return output
@@ -191,17 +130,32 @@ func (profile *Profile) SaveProfile() {
 	if !tools.FileExist(profileDirPath) {
 		err := os.Mkdir(profileDirPath, 0755)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return
 		}
 	}
 
-	profile.Account.SaveAccount()
-	profile.Character.SaveCharacter()
-	profile.Dialogue.SaveDialogue(sessionID)
-	profile.Storage.SaveStorage(sessionID)
-	profile.Friends.SaveFriends(sessionID)
+	if err := profile.Account.SaveAccount(); err != nil {
+		log.Println(err)
+		return
+	}
+	if err := profile.Character.SaveCharacter(); err != nil {
+		log.Println(err)
+		return
+	}
+	if err := profile.Dialogue.SaveDialogue(sessionID); err != nil {
+		log.Println(err)
+		return
+	}
+	if err := profile.Storage.SaveStorage(sessionID); err != nil {
+		log.Println(err)
+		return
+	}
+	if err := profile.Friends.SaveFriends(sessionID); err != nil {
+		log.Println(err)
+		return
+	}
 
-	log.Println()
 	log.Println("Profile saved")
 }
 

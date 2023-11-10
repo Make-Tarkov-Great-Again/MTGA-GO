@@ -121,11 +121,13 @@ func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 		grid := new(Grid)
 		data, err := json.MarshalNoEscape(g)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return nil
 		}
 		err = json.Unmarshal(data, grid)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return nil
 		}
 		output[grid.Name] = grid
 	}
@@ -149,11 +151,13 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 		slot := new(Slot)
 		data, err := json.MarshalNoEscape(s)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return nil
 		}
 		err = json.Unmarshal(data, slot)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return nil
 		}
 		output[slot.Name] = slot
 	}
@@ -174,7 +178,8 @@ func setItems() {
 	raw := tools.GetJSONRawMessage(itemsPath)
 	err := json.Unmarshal(raw, &items)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 }
 

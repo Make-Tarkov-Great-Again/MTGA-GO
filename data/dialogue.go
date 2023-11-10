@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"github.com/goccy/go-json"
 	"log"
 	"path/filepath"
 
@@ -186,6 +187,18 @@ func (d *Dialog) GetActiveMessages() []DialogMessage {
 	return messages
 }
 
+func setDialogue(path string) *Dialogue {
+	output := make(Dialogue)
+
+	data := tools.GetJSONRawMessage(path)
+	err := json.Unmarshal(data, &output)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return &output
+}
+
 func GetDialogueByID(uid string) (*Dialogue, error) {
 	profile, err := GetProfileByUID(uid)
 	if err != nil {
@@ -196,21 +209,25 @@ func GetDialogueByID(uid string) (*Dialogue, error) {
 		return profile.Dialogue, nil
 	}
 
-	return nil, fmt.Errorf("Dialogue for", uid, "does not exist")
+	return nil, fmt.Errorf(dialogueNotExist, uid)
 }
 
-func (d Dialogue) SaveDialogue(sessionID string) {
+func (d Dialogue) SaveDialogue(sessionID string) error {
 	dialogueFilePath := filepath.Join(profilesPath, sessionID, "dialogue.json")
 
 	err := tools.WriteToFile(dialogueFilePath, d)
 	if err != nil {
-		log.Fatalln(err)
+		return fmt.Errorf(dialogueNotSaved, sessionID, err)
 	}
 	log.Println("Dialogue saved")
+	return nil
 }
 
-// TODO: remove this and put in config (hours x 3600)
-const redeemTime int32 = 172800
+const (
+	dialogueNotSaved string = "Dialogue for %s was not saved: %s"
+	dialogueNotExist string = "Dialogue for %s does not exist"
+	redeemTime       int32  = 172800 // TODO: remove this and put in config (hours x 3600)
+)
 
 func CreateQuestDialogue(playerID string, sender string, traderID string, dialogueID string) (*Dialog, *DialogMessage) {
 	contents := &DialogueDetails{

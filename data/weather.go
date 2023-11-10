@@ -24,7 +24,8 @@ func setWeather() {
 	raw := tools.GetJSONRawMessage(weatherPath)
 	err := json.Unmarshal(raw, &weather)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 }
 

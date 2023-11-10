@@ -30,7 +30,7 @@ func GetEditionByName(version string) *Edition {
 func setEditions() {
 	directories, err := tools.GetDirectoriesFrom(editionsDirPath)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	for directory := range directories {
@@ -42,7 +42,7 @@ func setEdition(directory string, editionsDirPath string) {
 	editionPath := filepath.Join(editionsDirPath, directory)
 	files, err := tools.GetFilesFrom(editionPath)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	edition := new(Edition)
@@ -55,7 +55,7 @@ func setEdition(directory string, editionsDirPath string) {
 			template := new(Character)
 			err := json.Unmarshal(raw, template)
 			if err != nil {
-				log.Fatalln(err)
+				log.Println(err)
 			}
 
 			name := strings.TrimPrefix(removeJSON, "character_")
@@ -70,7 +70,7 @@ func setEdition(directory string, editionsDirPath string) {
 		storage := new(EditionStorage)
 		err := json.Unmarshal(raw, storage)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 		edition.Storage = storage
 	}

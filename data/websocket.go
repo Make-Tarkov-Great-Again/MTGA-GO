@@ -51,6 +51,7 @@ func GetConnection(sessionID string) *Connect {
 func (conn *Connect) SendMessage(notification *Notification) {
 	err := conn.WriteJSON(notification)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 }

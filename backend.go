@@ -225,7 +225,10 @@ func editAccountInfo(account *data.Account) {
 					account.TarkovPath = exePath
 					fmt.Println("Path has been set")
 
-					account.SaveAccount()
+					if err := account.SaveAccount(); err != nil {
+						log.Println(err)
+						return
+					}
 					break
 				}
 				fmt.Println("Invalid path, try again")
@@ -285,9 +288,12 @@ func launchTarkov(account *data.Account) {
 				fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
 				continue
 			}
-
+			if err := account.SaveAccount(); err != nil {
+				log.Println(err)
+				return
+			}
 			fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
-			account.SaveAccount()
+
 			break
 		}
 	}

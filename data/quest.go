@@ -54,13 +54,15 @@ func setQuests() {
 	raw := tools.GetJSONRawMessage(questsPath)
 	err := json.Unmarshal(raw, &quests)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	dynamic := make(map[string]map[string]any)
 	err = json.Unmarshal(raw, &dynamic)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 
 	for k, v := range dynamic {

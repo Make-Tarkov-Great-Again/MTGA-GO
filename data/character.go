@@ -1,6 +1,8 @@
 package data
 
 import (
+	"fmt"
+	"github.com/goccy/go-json"
 	"log"
 	"path/filepath"
 	"strings"
@@ -8,14 +10,24 @@ import (
 	"MT-GO/tools"
 )
 
-// #region Character getters
+func setCharacter(path string) *Character {
+	output := &Character{}
+
+	data := tools.GetJSONRawMessage(path)
+	err := json.Unmarshal(data, output)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return output
+}
 
 func GetCharacterByID(uid string) *Character {
 	if profile, ok := profiles[uid]; ok {
 		return profile.Character
 	}
 
-	log.Println("Profile with UID ", uid, " does not have a character")
+	log.Println(characterNotExist, uid)
 	return nil
 }
 
@@ -138,10 +150,6 @@ func (c *Character) IsPreviousQuestComplete(quests map[string]*QuestCondition, c
 	return previousQuestCompleted
 }
 
-// #endregion
-
-// #region Character functions
-
 func (inv *Inventory) CleanInventoryOfDeletedItemMods() bool {
 	allItems := GetItems()
 
@@ -165,20 +173,21 @@ func (inv *Inventory) CleanInventoryOfDeletedItemMods() bool {
 
 }
 
-func (c *Character) SaveCharacter() {
+func (c *Character) SaveCharacter() error {
 	characterFilePath := filepath.Join(profilesPath, c.ID, "character.json")
 
 	err := tools.WriteToFile(characterFilePath, c)
 	if err != nil {
-		log.Println(err)
-		return
+		return fmt.Errorf(characterNotSaved, c.ID, err)
 	}
 	log.Println("Character saved")
+	return nil
 }
 
-// #endregion
-
-// #region Character structs
+const (
+	characterNotSaved string = "Account for %s was not saved: %s"
+	characterNotExist string = "Profile with UID %s does not exist"
+)
 
 type Character struct {
 	ID                string              `json:"_id"`
@@ -393,5 +402,3 @@ type CharacterQuest struct {
 	CompletedConditions []string       `json:"completedConditions,omitempty"`
 	AvailableAfter      int            `json:"availableAfter,omitempty"`
 }
-
-// #endregion

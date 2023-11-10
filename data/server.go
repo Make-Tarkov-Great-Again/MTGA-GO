@@ -21,7 +21,8 @@ func setServerConfig() *ServerConfig {
 	data := new(ServerConfig)
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 
 	coreServerData.MainIPandPort = net.JoinHostPort(data.IP, data.Ports.Main)

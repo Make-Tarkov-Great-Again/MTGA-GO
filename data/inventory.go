@@ -169,7 +169,8 @@ func MeasurePurchaseForInventoryMapping(items []InventoryItem) (int8, int8) {
 	if (foldablePropertyExists && canFold) && foldedSlotPropertyExists && parentFolded {
 		sizeReduceRight, ok := itemInDatabase.Props["SizeReduceRight"].(float64)
 		if !ok {
-			log.Fatalln("Could not type assert itemInDatabase.Props.SizeReduceRight of UID", parentItem.ID)
+			log.Println("Could not type assert itemInDatabase.Props.SizeReduceRight of UID", parentItem.ID)
+			return -1, -1
 		}
 		width -= int8(sizeReduceRight)
 	}

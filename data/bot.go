@@ -72,7 +72,8 @@ func setBots() {
 func setBotTypes() map[string]*BotType {
 	directory, err := tools.GetDirectoriesFrom(botsMainDir)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 
 	// Create a channel to collect the results
@@ -105,7 +106,8 @@ func setBotType(dirPath string) *BotType {
 	var diffPath = filepath.Join(dirPath, "difficulties")
 	files, err := tools.GetFilesFrom(diffPath)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 
 	difficulties := make(map[string]json.RawMessage)
@@ -115,7 +117,8 @@ func setBotType(dirPath string) *BotType {
 		raw := tools.GetJSONRawMessage(difficultyPath)
 		name := strings.TrimSuffix(difficulty, ".json")
 		if err = json.Unmarshal(raw, &botDifficulty); err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return nil
 		}
 		difficulties[name] = raw
 	}
@@ -128,7 +131,8 @@ func setBotType(dirPath string) *BotType {
 
 		raw := tools.GetJSONRawMessage(healthPath)
 		if err = json.Unmarshal(raw, &health); err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return nil
 		}
 		botType.Health = health
 	}
@@ -138,7 +142,8 @@ func setBotType(dirPath string) *BotType {
 		loadout := new(BotLoadout)
 		raw := tools.GetJSONRawMessage(loadoutPath)
 		if err = json.Unmarshal(raw, &loadout); err != nil {
-			log.Fatalln(err)
+			log.Println(err)
+			return nil
 		}
 		botType.Loadout = loadout
 	}
@@ -152,7 +157,8 @@ func setBotAppearance() map[string]*BotAppearance {
 	raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "appearance.json"))
 	err := json.Unmarshal(raw, &botAppearance)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 	return botAppearance
 }
@@ -163,7 +169,8 @@ func setBotNames() *BotNames {
 	raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "names.json"))
 	err := json.Unmarshal(raw, names)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 	return names
 }

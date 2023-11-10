@@ -130,7 +130,7 @@ func setHideout() {
 		var areasMap []map[string]any
 		err := json.Unmarshal(areas, &areasMap)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 		setHideoutAreas(areasMap)
 	}
@@ -140,7 +140,7 @@ func setHideout() {
 		var productionsMap []map[string]any
 		err := json.Unmarshal(recipes, &productionsMap)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 		setHideoutRecipes(productionsMap)
 	}
@@ -150,7 +150,7 @@ func setHideout() {
 		var scavcaseReturns []map[string]any
 		err := json.Unmarshal(scavcase, &scavcaseReturns)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 		setHideoutScavcase(scavcaseReturns)
 	}
@@ -161,7 +161,7 @@ func setHideout() {
 
 		err := json.Unmarshal(qte, &hideout.QTE)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 	}
 
@@ -169,7 +169,7 @@ func setHideout() {
 		settings := tools.GetJSONRawMessage(hideoutSettingsPath)
 		err := json.Unmarshal(settings, &hideout.Settings)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 	}
 }

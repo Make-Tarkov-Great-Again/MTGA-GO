@@ -52,7 +52,8 @@ func setGetAirdropSettings() *AirdropParameters {
 	airDropParameters := new(AirdropParameters)
 	err := json.Unmarshal(raw, &airDropParameters)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 	return airDropParameters
 }
@@ -63,7 +64,8 @@ func setGlobalBotSettings() *map[string]any {
 	globalBotSettings := map[string]any{}
 	err := json.Unmarshal(raw, &globalBotSettings)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 	return &globalBotSettings
 }
@@ -74,7 +76,8 @@ func setPlayerScav() *Scav {
 	var playerScav Scav
 	err := json.Unmarshal(raw, &playerScav)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 	return &playerScav
 }
@@ -85,7 +88,8 @@ func setMainSettings() *MainSettings {
 	var data MainSettings
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 	return &data
 }
@@ -96,7 +100,8 @@ func setMatchMetrics() *MatchMetrics {
 	var data MatchMetrics
 	err := json.Unmarshal(raw, &data)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return nil
 	}
 	return &data
 }
