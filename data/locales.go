@@ -80,7 +80,7 @@ func GetLocalesMenuByName(name string) (*LocaleMenu, error) {
 	return nil, fmt.Errorf("Locale", name, "menu doesn't exist")
 }
 
-func GetLocalesLocaleByName(name string) (map[string]any, error) {
+func GetLocalesGlobalByName(name string) (map[string]any, error) {
 	locale, err := GetLocaleByName(name)
 	if err != nil {
 		return nil, err

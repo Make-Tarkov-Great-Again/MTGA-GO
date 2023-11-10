@@ -697,7 +697,7 @@ func setCustomClothingLocation(ids map[string]string) {
 	}
 
 	for _, lang := range mainLocales {
-		data, err := GetLocalesLocaleByName(lang)
+		data, err := GetLocalesGlobalByName(lang)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -726,7 +726,7 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 		}
 
 		for _, lang := range mainLocales {
-			data, err := GetLocalesLocaleByName(lang)
+			data, err := GetLocalesGlobalByName(lang)
 			if err != nil {
 				log.Println(err)
 				continue
@@ -737,7 +737,7 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 		}
 	} else {
 		for lang, value := range apiLocale {
-			locale, err := GetLocalesLocaleByName(lang)
+			locale, err := GetLocalesGlobalByName(lang)
 			if err != nil {
 				log.Println(err)
 				continue

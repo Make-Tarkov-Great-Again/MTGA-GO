@@ -113,7 +113,7 @@ func GetMainLocale(lang string) (*CRCResponseBody, error) {
 	if CheckIfResponseIsCached(localeRoute) {
 		return ApplyCRCResponseBody(nil, GetCachedCRC(localeRoute)), nil
 	}
-	locale, err := data.GetLocalesLocaleByName(lang)
+	locale, err := data.GetLocalesGlobalByName(lang)
 	if err != nil {
 		return nil, err
 	}
