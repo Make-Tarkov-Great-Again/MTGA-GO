@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"log"
 
 	"MT-GO/tools"
@@ -23,6 +24,46 @@ const (
 // GetHideout retrieves the current hideout configuration.
 func GetHideout() *Hideout {
 	return &hideout
+}
+
+func GetHideoutAreas() ([]map[string]any, error) {
+	if hideout.Areas != nil {
+		return hideout.Areas, nil
+	}
+
+	return nil, fmt.Errorf("Hideout areas does not exist")
+}
+
+func GetHideoutQTE() ([]map[string]any, error) {
+	if hideout.QTE != nil {
+		return hideout.QTE, nil
+	}
+
+	return nil, fmt.Errorf("Hideout QTE does not exist")
+}
+
+func GetHideoutSettings() (*HideoutSettings, error) {
+	if hideout.Settings != nil {
+		return hideout.Settings, nil
+	}
+
+	return nil, fmt.Errorf("Hideout Settings does not exist")
+}
+
+func GetHideoutRecipes() ([]map[string]any, error) {
+	if hideout.Recipes != nil {
+		return hideout.Recipes, nil
+	}
+
+	return nil, fmt.Errorf("Hideout Recipes does not exist")
+}
+
+func GetHideoutScavcase() ([]map[string]any, error) {
+	if hideout.ScavCase != nil {
+		return hideout.ScavCase, nil
+	}
+
+	return nil, fmt.Errorf("Hideout ScavCase does not exist")
 }
 
 // GetHideoutAreaByAreaType retrieves a hideout area by its type int8.

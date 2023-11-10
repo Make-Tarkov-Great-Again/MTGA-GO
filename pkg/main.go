@@ -9,10 +9,6 @@ import (
 	"strings"
 )
 
-func GetBundleManifests() []*data.Manifest {
-	return data.GetBundleManifests()
-}
-
 func GetBrandName() map[string]string {
 	config := data.GetServerConfig()
 	brand := make(map[string]string)
@@ -23,18 +19,6 @@ func GetBrandName() map[string]string {
 	}
 
 	return brand
-}
-
-func GetMainMenuLocale(lang string) (*data.LocaleMenu, error) {
-	menu, err := data.GetLocalesMenuByName(lang)
-	if err != nil {
-		return nil, err
-	}
-	return menu, nil
-}
-
-func GetMainLanguages() map[string]string {
-	return data.GetLanguages()
 }
 
 func GetGameConfig(sessionID string) (*GameConfig, error) {
@@ -71,7 +55,7 @@ func GetMainItems() *CRCResponseBody {
 	if CheckIfResponseIsCached(itemsRoute) {
 		return ApplyCRCResponseBody(nil, GetCachedCRC(itemsRoute))
 	}
-	return ApplyCRCResponseBody(GetItems(), GetCachedCRC(itemsRoute))
+	return ApplyCRCResponseBody(data.GetItems(), GetCachedCRC(itemsRoute))
 }
 
 func GetMainCustomization() *CRCResponseBody {
@@ -129,7 +113,7 @@ func GetMainLocale(lang string) (*CRCResponseBody, error) {
 	if CheckIfResponseIsCached(localeRoute) {
 		return ApplyCRCResponseBody(nil, GetCachedCRC(localeRoute)), nil
 	}
-	locale, err := GetLocalGlobalsByName(lang)
+	locale, err := data.GetLocalesLocaleByName(lang)
 	if err != nil {
 		return nil, err
 	}
@@ -290,7 +274,7 @@ func GetProfileStatuses(sessionID string) *ProfileStatuses {
 }
 
 func GetBuildsList(sessionID string) (*data.Builds, error) {
-	storage, err := GetPlayerStorage(sessionID)
+	storage, err := data.GetStorageByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -302,7 +286,7 @@ func GetBuildsList(sessionID string) (*data.Builds, error) {
 }
 
 func GetQuestList(sessionID string) ([]any, error) {
-	quests, err := GetPlayerCharacter(sessionID).GetQuestsAvailableToPlayer()
+	quests, err := data.GetCharacterByID(sessionID).GetQuestsAvailableToPlayer()
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -314,7 +298,7 @@ var supplyData *SupplyData
 
 func GetMainPrices() *SupplyData {
 	if supplyData != nil {
-		supplyData.SupplyNextTime = SetTradersResupply()
+		supplyData.SupplyNextTime = data.SetResupplyTimer()
 		return supplyData
 	}
 

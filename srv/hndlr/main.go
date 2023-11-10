@@ -1,6 +1,7 @@
 package hndlr
 
 import (
+	"MT-GO/data"
 	"log"
 	"net/http"
 	"strconv"
@@ -16,7 +17,7 @@ const routeNotImplemented = "Route is not implemented yet, using empty values in
 
 // GetBundleList returns a list of custom bundles to the client
 func GetBundleList(w http.ResponseWriter, r *http.Request) {
-	manifests := pkg.GetBundleManifests()
+	manifests := data.GetBundleManifests()
 	pkg.ZlibJSONReply(w, r.RequestURI, manifests)
 }
 
@@ -41,7 +42,7 @@ func MainPutMetrics(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
-	menu, err := pkg.GetMainMenuLocale(r.URL.Path[20:])
+	menu, err := data.GetLocalesMenuByName(r.URL.Path[20:])
 	if err != nil {
 		log.Println(err)
 	}
@@ -55,7 +56,7 @@ func MainVersionValidate(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainLanguages(w http.ResponseWriter, r *http.Request) {
-	languages := pkg.GetMainLanguages()
+	languages := data.GetLanguages()
 	body := pkg.ApplyResponseBody(languages)
 	pkg.ZlibJSONReply(w, r.RequestURI, body)
 }
@@ -193,25 +194,25 @@ func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainWeather(w http.ResponseWriter, r *http.Request) {
-	weather := pkg.GetWeather()
+	weather := data.GetWeather()
 	body := pkg.ApplyResponseBody(weather)
 	pkg.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainLocations(w http.ResponseWriter, r *http.Request) {
-	locations := pkg.GetLocations()
+	locations := data.GetLocations()
 	body := pkg.ApplyResponseBody(locations)
 	pkg.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainTemplates(w http.ResponseWriter, r *http.Request) {
-	templates := pkg.GetHandbook()
+	templates := data.GetHandbook()
 	body := pkg.ApplyResponseBody(templates)
 	pkg.ZlibJSONReply(w, r.RequestURI, body)
 }
 
 func MainHideoutAreas(w http.ResponseWriter, r *http.Request) {
-	areas, err := pkg.GetHideoutAreas()
+	areas, err := data.GetHideoutAreas()
 	if err != nil {
 		log.Println(err)
 	}
@@ -221,7 +222,7 @@ func MainHideoutAreas(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainHideoutQTE(w http.ResponseWriter, r *http.Request) {
-	qte, err := pkg.GetHideoutQTE()
+	qte, err := data.GetHideoutQTE()
 	if err != nil {
 		log.Println(err)
 	}
@@ -231,7 +232,7 @@ func MainHideoutQTE(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
-	settings, err := pkg.GetHideoutSettings()
+	settings, err := data.GetHideoutSettings()
 	if err != nil {
 		log.Println(err)
 	}
@@ -241,7 +242,7 @@ func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
-	recipes, err := pkg.GetHideoutRecipes()
+	recipes, err := data.GetHideoutRecipes()
 	if err != nil {
 		log.Println(err)
 	}
@@ -251,7 +252,7 @@ func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
-	scavCaseRecipes, err := pkg.GetHideoutScavcase()
+	scavCaseRecipes, err := data.GetHideoutScavcase()
 	if err != nil {
 		log.Println(err)
 	}
@@ -296,7 +297,7 @@ func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
 func MainServerList(w http.ResponseWriter, r *http.Request) {
 	var serverListings []ServerListing
 
-	srvcfg := pkg.GetServerConfigs()
+	srvcfg := data.GetServerConfig()
 	port, _ := strconv.Atoi(srvcfg.Ports.Main)
 
 	serverListings = append(serverListings, ServerListing{
@@ -319,7 +320,7 @@ func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainLogout(w http.ResponseWriter, r *http.Request) {
-	if profile, err := pkg.GetPlayerProfile(pkg.GetSessionID(r)); err != nil {
+	if profile, err := data.GetProfileByUID(pkg.GetSessionID(r)); err != nil {
 		log.Fatalln(err)
 	} else {
 		profile.SaveProfile()
@@ -357,7 +358,7 @@ func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	output := pkg.GetLocalLootByNameAndIndex(loot.LocationID, loot.VariantID)
+	output := data.GetLocalLootByNameAndIndex(loot.LocationID, loot.VariantID)
 	body := pkg.ApplyResponseBody(output)
 	pkg.ZlibJSONReply(w, r.RequestURI, body)
 }
@@ -471,7 +472,7 @@ func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
 	*/
 
 	difficulties := new(botDifficulties)
-	if bot, _ := pkg.GetBotByName(strings.ToLower(pkg.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
+	if bot, _ := data.GetBotByName(strings.ToLower(pkg.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
 		difficulties.Easy = bot.Difficulties["easy"]
 		difficulties.Normal = bot.Difficulties["normal"]
 		difficulties.Hard = bot.Difficulties["hard"]
@@ -501,7 +502,7 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: Send bots lol
-	bot := pkg.GetFillerBot()
+	bot := data.GetSacrificialBot()
 
 	bots := make([]map[string]any, 0, 50)
 	for _, condition := range conditions.Conditions {
@@ -586,6 +587,6 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 }
 
 func AirdropConfig(w http.ResponseWriter, r *http.Request) {
-	airdropParams := pkg.GetAirdropParameters()
+	airdropParams := data.GetAirdropParameters()
 	pkg.ZlibJSONReply(w, r.RequestURI, airdropParams)
 }
