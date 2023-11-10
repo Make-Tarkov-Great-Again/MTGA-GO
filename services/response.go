@@ -86,6 +86,12 @@ var mime = map[string]string{
 	".png": "image/png",
 }
 
+var downloadLocal bool
+
+func SetDownloadLocal(result bool) {
+	downloadLocal = result
+}
+
 func ServeFiles(w http.ResponseWriter, r *http.Request) {
 	icon := strings.Split(r.RequestURI, "/")
 	imagePath := filepath.Join(imagesPath, icon[2], icon[3], strings.TrimSuffix(icon[4], ".jpg"))
@@ -97,7 +103,7 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 		}
 
 		log.Println("Image exists in ", path, " serving...")
-		ServeFile(w, path, mimeType)
+		ServeFileLocal(w, path, mimeType)
 		return
 	}
 
@@ -133,37 +139,49 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			imagePath = imagePath + ext
-			dir := filepath.Dir(imagePath)
-			err = os.MkdirAll(dir, os.ModePerm)
-			if err != nil {
-				log.Fatalln(err)
-			}
-
-			file, err := os.Create(imagePath)
-			if err != nil {
-				log.Fatalln(err)
-			}
-			defer func(file *os.File) {
-				err := file.Close()
+			if downloadLocal {
+				imagePath = imagePath + ext
+				dir := filepath.Dir(imagePath)
+				err = os.MkdirAll(dir, os.ModePerm)
 				if err != nil {
 					log.Fatalln(err)
 				}
-			}(file)
 
-			_, err = io.Copy(file, response.Body)
-			if err != nil {
-				log.Fatalln(err)
+				file, err := os.Create(imagePath)
+				if err != nil {
+					log.Fatalln(err)
+				}
+				defer func(file *os.File) {
+					err := file.Close()
+					if err != nil {
+						log.Fatalln(err)
+					}
+				}(file)
+
+				_, err = io.Copy(file, response.Body)
+				if err != nil {
+					log.Fatalln(err)
+				}
+
+				log.Println("Successfully downloaded to", imagePath)
+				ServeFileLocal(w, imagePath, mimeType)
+			} else {
+				ServeFileURL(w, response.Body, mimeType)
 			}
-
-			log.Println("Successfully downloaded to", imagePath)
-			ServeFile(w, imagePath, mimeType)
 			return
 		}
 	}
+	return
 }
 
-func ServeFile(w http.ResponseWriter, imagePath, mime string) {
+func ServeFileURL(w http.ResponseWriter, body io.ReadCloser, mime string) {
+	w.Header().Set("Content-Type", mime)
+	if _, err := io.Copy(w, body); err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func ServeFileLocal(w http.ResponseWriter, imagePath, mime string) {
 	file, err := os.Open(imagePath)
 	if err != nil {
 		log.Fatalln(err)

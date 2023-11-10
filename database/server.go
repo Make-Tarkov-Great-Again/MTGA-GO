@@ -138,13 +138,14 @@ type serverDataHTTP struct {
 }
 
 type ServerConfig struct {
-	IP        string      `json:"ip"`
-	Hostname  string      `json:"hostname"`
-	Name      string      `json:"name"`
-	BrandName string      `json:"brandName"`
-	Version   string      `json:"version"`
-	Secure    bool        `json:"secure"`
-	Ports     ServerPorts `json:"ports"`
+	IP                 string      `json:"ip"`
+	Hostname           string      `json:"hostname"`
+	Name               string      `json:"name"`
+	BrandName          string      `json:"brandName"`
+	Version            string      `json:"version"`
+	Secure             bool        `json:"secure"`
+	DownloadImageFiles bool        `json:"downloadImageFiles"`
+	Ports              ServerPorts `json:"ports"`
 }
 
 type ServerPorts struct {
