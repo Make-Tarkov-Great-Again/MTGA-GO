@@ -1,4 +1,5 @@
 // Package main is a package declaration
+
 package main
 
 import (
@@ -33,7 +34,7 @@ func main() {
 	srv.SetServer()
 
 	endTime := time.Now()
-	fmt.Printf("Database initialized in %s\n\n", endTime.Sub(startTime))
+	fmt.Printf("\nDatabase initialized in %s\n\n", endTime.Sub(startTime))
 
 	startHome()
 }

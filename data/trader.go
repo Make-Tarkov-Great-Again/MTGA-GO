@@ -308,35 +308,54 @@ func setTraders() {
 	}
 
 	for dir := range directory {
+		done := make(chan bool)
 		trader := &Trader{}
 
 		currentTraderPath := filepath.Join(traderPath, dir)
 
-		basePath := filepath.Join(currentTraderPath, "base.json")
-		if tools.FileExist(basePath) {
-			trader.Base = setTraderBase(basePath)
-		}
+		go func() {
+			basePath := filepath.Join(currentTraderPath, "base.json")
+			if tools.FileExist(basePath) {
+				trader.Base = setTraderBase(basePath)
+			}
+			done <- true
+		}()
 
-		assortPath := filepath.Join(currentTraderPath, "assort.json")
-		if tools.FileExist(assortPath) {
-			trader.Assort = setTraderAssort(assortPath)
-		}
+		go func() {
+			assortPath := filepath.Join(currentTraderPath, "assort.json")
+			if tools.FileExist(assortPath) {
+				trader.Assort = setTraderAssort(assortPath)
+			}
+			done <- true
+		}()
 
-		questsPath := filepath.Join(currentTraderPath, "questassort.json")
-		if tools.FileExist(questsPath) {
-			trader.QuestAssort = setTraderQuestAssort(questsPath)
-		}
+		go func() {
+			questsPath := filepath.Join(currentTraderPath, "questassort.json")
+			if tools.FileExist(questsPath) {
+				trader.QuestAssort = setTraderQuestAssort(questsPath)
+			}
+			done <- true
+		}()
 
-		suitsPath := filepath.Join(currentTraderPath, "suits.json")
-		if tools.FileExist(suitsPath) {
-			trader.Suits, trader.Index.Suits = setTraderSuits(suitsPath)
-		}
+		go func() {
+			suitsPath := filepath.Join(currentTraderPath, "suits.json")
+			if tools.FileExist(suitsPath) {
+				trader.Suits, trader.Index.Suits = setTraderSuits(suitsPath)
+			}
+			done <- true
+		}()
 
-		dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
-		if tools.FileExist(dialoguesPath) {
-			trader.Dialogue = setTraderDialogues(dialoguesPath)
-		}
+		go func() {
+			dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
+			if tools.FileExist(dialoguesPath) {
+				trader.Dialogue = setTraderDialogues(dialoguesPath)
+			}
+			done <- true
+		}()
 
+		for i := 0; i < 5; i++ {
+			<-done
+		}
 		traders[dir] = trader
 	}
 }

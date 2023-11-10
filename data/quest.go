@@ -66,51 +66,63 @@ func setQuests() {
 	}
 
 	for k, v := range dynamic {
+		done := make(chan bool)
 		var quest = &Quest{}
 
 		quest.Name = v["QuestName"].(string)
 		quest.Trader = v["traderId"].(string)
-		quest.Dialogue = setQuestDialogue(v)
+		go func() {
+			quest.Dialogue = setQuestDialogue(v)
+			done <- true
+		}()
 
-		questConditions, ok := v["conditions"].(map[string]any)
-		if ok {
-			conditions := &QuestAvailabilityConditions{}
-			process := setQuestConditions(questConditions)
+		go func() {
+			questConditions, ok := v["conditions"].(map[string]any)
+			if ok {
+				conditions := &QuestAvailabilityConditions{}
+				process := setQuestConditions(questConditions)
 
-			data, err := json.MarshalNoEscape(process)
-			if err != nil {
-				log.Println(err)
-			}
-			err = json.Unmarshal(data, conditions)
-			if err != nil {
-				log.Println(err)
-			}
+				data, err := json.MarshalNoEscape(process)
+				if err != nil {
+					log.Println(err)
+				}
+				err = json.Unmarshal(data, conditions)
+				if err != nil {
+					log.Println(err)
+				}
 
-			empty := QuestAvailabilityConditions{}
-			if *conditions == empty {
-				quest.Conditions = nil
+				empty := QuestAvailabilityConditions{}
+				if *conditions == empty {
+					quest.Conditions = nil
+				} else {
+					quest.Conditions = conditions
+				}
 			} else {
-				quest.Conditions = conditions
+				log.Println("Conditions don't exist? Check " + k)
 			}
-		} else {
-			log.Println("Conditions don't exist? Check " + k)
-		}
+			done <- true
+		}()
 
-		questRewards, ok := v["rewards"].(map[string]any)
-		if ok {
-			rewards := &QuestRewardAvailabilityConditions{}
-			process := setQuestRewards(questRewards)
-			data, err := json.MarshalNoEscape(process)
-			if err != nil {
-				log.Println(err)
+		go func() {
+			questRewards, ok := v["rewards"].(map[string]any)
+			if ok {
+				rewards := &QuestRewardAvailabilityConditions{}
+				process := setQuestRewards(questRewards)
+				data, err := json.MarshalNoEscape(process)
+				if err != nil {
+					log.Println(err)
+				}
+				err = json.Unmarshal(data, rewards)
+				if err != nil {
+					log.Println(err)
+				}
+				quest.Rewards = *rewards
 			}
-			err = json.Unmarshal(data, rewards)
-			if err != nil {
-				log.Println(err)
-			}
-			quest.Rewards = *rewards
+			done <- true
+		}()
+		for i := 0; i < 3; i++ {
+			<-done
 		}
-
 		questsQuery[k] = quest
 	}
 }

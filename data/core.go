@@ -37,13 +37,43 @@ func GetPlayerScav() *Scav {
 // #region Core setters
 
 func setCore() {
-	core.Scav = setPlayerScav()
-	core.MainSettings = setMainSettings()
-	core.ServerConfig = setServerConfig()
-	core.Globals = setGlobals()
-	core.GlobalBotSettings = setGlobalBotSettings()
-	core.MatchMetrics = setMatchMetrics()
-	core.AirdropParameters = setGetAirdropSettings()
+	// Create channels to synchronize the completion of each function
+	done := make(chan bool)
+
+	// Execute each function concurrently
+	go func() {
+		core.Scav = setPlayerScav()
+		done <- true
+	}()
+	go func() {
+		core.MainSettings = setMainSettings()
+		done <- true
+	}()
+	go func() {
+		core.ServerConfig = setServerConfig()
+		done <- true
+	}()
+	go func() {
+		core.Globals = setGlobals()
+		done <- true
+	}()
+	go func() {
+		core.GlobalBotSettings = setGlobalBotSettings()
+		done <- true
+	}()
+	go func() {
+		core.MatchMetrics = setMatchMetrics()
+		done <- true
+	}()
+	go func() {
+		core.AirdropParameters = setGetAirdropSettings()
+		done <- true
+	}()
+
+	// Wait for all functions to complete
+	for i := 0; i < 7; i++ {
+		<-done
+	}
 }
 
 func setGetAirdropSettings() *AirdropParameters {

@@ -40,6 +40,7 @@ func SetProfiles() {
 		log.Println(err)
 		return
 	}
+	done := make(chan bool)
 
 	if len(users) == 0 {
 		return
@@ -48,55 +49,76 @@ func SetProfiles() {
 		profile := &Profile{}
 		userPath := filepath.Join(profilesPath, user)
 
-		path := filepath.Join(userPath, "account.json")
-		if tools.FileExist(path) {
-			profile.Account = setAccount(path)
-		}
-
-		path = filepath.Join(userPath, "character.json")
-		if tools.FileExist(path) {
-			profile.Character = setCharacter(path)
-			if profile.Character.Info.Nickname != "" {
-				Nicknames[profile.Character.Info.Nickname] = nil
+		go func() {
+			path := filepath.Join(userPath, "account.json")
+			if tools.FileExist(path) {
+				profile.Account = setAccount(path)
 			}
+			done <- true
+		}()
 
-			if profile.Character.Inventory.CleanInventoryOfDeletedItemMods() {
-				profile.Character.SaveCharacter()
+		go func() {
+			path := filepath.Join(userPath, "character.json")
+			if tools.FileExist(path) {
+				profile.Character = setCharacter(path)
+				if profile.Character.Info.Nickname != "" {
+					Nicknames[profile.Character.Info.Nickname] = nil
+				}
+
+				if profile.Character.Inventory.CleanInventoryOfDeletedItemMods() {
+					if err := profile.Character.SaveCharacter(); err != nil {
+						log.Println(err)
+						return
+					}
+				}
+			} else {
+				profile.Character = &Character{
+					ID: profile.Account.UID,
+				}
 			}
+			done <- true
+		}()
 
-		} else {
-			profile.Character = &Character{
-				ID: profile.Account.UID,
+		go func() {
+			path := filepath.Join(userPath, "storage.json")
+			if tools.FileExist(path) {
+				profile.Storage = setStorage(path)
+			} else {
+				profile.Storage = &Storage{
+					Suites: make([]string, 0),
+					Builds: &Builds{
+						EquipmentBuilds: make([]*EquipmentBuild, 0),
+						WeaponBuilds:    make([]*WeaponBuild, 0),
+					},
+					Insurance: make([]any, 0),
+					Mailbox:   make([]*Notification, 0),
+				}
 			}
-		}
+			done <- true
+		}()
 
-		path = filepath.Join(userPath, "storage.json")
-		if tools.FileExist(path) {
-			profile.Storage = setStorage(path)
-		} else {
-			profile.Storage = &Storage{
-				Suites: make([]string, 0),
-				Builds: &Builds{
-					EquipmentBuilds: make([]*EquipmentBuild, 0),
-					WeaponBuilds:    make([]*WeaponBuild, 0),
-				},
-				Insurance: make([]any, 0),
-				Mailbox:   make([]*Notification, 0),
+		go func() {
+			path := filepath.Join(userPath, "dialogue.json")
+			if tools.FileExist(path) {
+				profile.Dialogue = setDialogue(path)
+			} else {
+				profile.Dialogue = &Dialogue{}
 			}
-		}
+			done <- true
+		}()
 
-		path = filepath.Join(userPath, "dialogue.json")
-		if tools.FileExist(path) {
-			profile.Dialogue = setDialogue(path)
-		} else {
-			profile.Dialogue = &Dialogue{}
-		}
+		go func() {
+			path := filepath.Join(userPath, "friends.json")
+			if tools.FileExist(path) {
+				profile.Friends = setFriends(path)
+			} else {
+				profile.Friends = &Friends{}
+			}
+			done <- true
+		}()
 
-		path = filepath.Join(userPath, "friends.json")
-		if tools.FileExist(path) {
-			profile.Friends = setFriends(path)
-		} else {
-			profile.Friends = &Friends{}
+		for i := 0; i < 5; i++ {
+			<-done
 		}
 
 		CreateCacheByID(user)
@@ -134,26 +156,45 @@ func (profile *Profile) SaveProfile() {
 			return
 		}
 	}
+	done := make(chan bool)
+	go func() {
+		if err := profile.Account.SaveAccount(); err != nil {
+			log.Println(err)
+			return
+		}
+		done <- true
+	}()
+	go func() {
+		if err := profile.Character.SaveCharacter(); err != nil {
+			log.Println(err)
+			return
+		}
+		done <- true
+	}()
+	go func() {
+		if err := profile.Dialogue.SaveDialogue(sessionID); err != nil {
+			log.Println(err)
+			return
+		}
+		done <- true
+	}()
+	go func() {
+		if err := profile.Storage.SaveStorage(sessionID); err != nil {
+			log.Println(err)
+			return
+		}
+		done <- true
+	}()
+	go func() {
+		if err := profile.Friends.SaveFriends(sessionID); err != nil {
+			log.Println(err)
+			return
+		}
+		done <- true
+	}()
 
-	if err := profile.Account.SaveAccount(); err != nil {
-		log.Println(err)
-		return
-	}
-	if err := profile.Character.SaveCharacter(); err != nil {
-		log.Println(err)
-		return
-	}
-	if err := profile.Dialogue.SaveDialogue(sessionID); err != nil {
-		log.Println(err)
-		return
-	}
-	if err := profile.Storage.SaveStorage(sessionID); err != nil {
-		log.Println(err)
-		return
-	}
-	if err := profile.Friends.SaveFriends(sessionID); err != nil {
-		log.Println(err)
-		return
+	for i := 0; i < 5; i++ {
+		<-done
 	}
 
 	log.Println("Profile saved")

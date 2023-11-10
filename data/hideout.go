@@ -124,53 +124,68 @@ func GetScavCaseRecipeByID(rid string) *map[string]any {
 
 // setHideoutScavcase sets the hideout scavcase items and their indexes.
 func setHideout() {
+	done := make(chan bool)
 
-	if tools.FileExist(areasPath) {
-		areas := tools.GetJSONRawMessage(areasPath)
-		var areasMap []map[string]any
-		err := json.Unmarshal(areas, &areasMap)
-		if err != nil {
-			log.Println(err)
+	go func() {
+		if tools.FileExist(areasPath) {
+			areas := tools.GetJSONRawMessage(areasPath)
+			areasMap := make([]map[string]any, 0)
+			if err := json.Unmarshal(areas, &areasMap); err != nil {
+				log.Println(err)
+			}
+			setHideoutAreas(areasMap)
 		}
-		setHideoutAreas(areasMap)
-	}
+		done <- true
+	}()
 
-	if tools.FileExist(productionPath) {
-		recipes := tools.GetJSONRawMessage(productionPath)
-		var productionsMap []map[string]any
-		err := json.Unmarshal(recipes, &productionsMap)
-		if err != nil {
-			log.Println(err)
+	go func() {
+		if tools.FileExist(productionPath) {
+			recipes := tools.GetJSONRawMessage(productionPath)
+			productionsMap := make([]map[string]any, 0)
+			if err := json.Unmarshal(recipes, &productionsMap); err != nil {
+				log.Println(err)
+			}
+			setHideoutRecipes(productionsMap)
 		}
-		setHideoutRecipes(productionsMap)
-	}
+		done <- true
+	}()
 
-	if tools.FileExist(scavcasePath) {
-		scavcase := tools.GetJSONRawMessage(scavcasePath)
-		var scavcaseReturns []map[string]any
-		err := json.Unmarshal(scavcase, &scavcaseReturns)
-		if err != nil {
-			log.Println(err)
+	go func() {
+		if tools.FileExist(scavcasePath) {
+			scavcase := tools.GetJSONRawMessage(scavcasePath)
+			scavcaseReturns := make([]map[string]any, 0)
+			if err := json.Unmarshal(scavcase, &scavcaseReturns); err != nil {
+				log.Println(err)
+			}
+			setHideoutScavcase(scavcaseReturns)
 		}
-		setHideoutScavcase(scavcaseReturns)
-	}
+		done <- true
+	}()
 
-	if tools.FileExist(qtePath) {
-		qte := tools.GetJSONRawMessage(qtePath)
-		hideout.QTE = []map[string]any{}
+	go func() {
+		if tools.FileExist(qtePath) {
+			qte := tools.GetJSONRawMessage(qtePath)
+			hideout.QTE = []map[string]any{}
 
-		err := json.Unmarshal(qte, &hideout.QTE)
-		if err != nil {
-			log.Println(err)
+			if err := json.Unmarshal(qte, &hideout.QTE); err != nil {
+				log.Println(err)
+			}
 		}
-	}
+		done <- true
+	}()
 
-	if tools.FileExist(hideoutSettingsPath) {
-		settings := tools.GetJSONRawMessage(hideoutSettingsPath)
-		err := json.Unmarshal(settings, &hideout.Settings)
-		if err != nil {
-			log.Println(err)
+	go func() {
+		if tools.FileExist(hideoutSettingsPath) {
+			settings := tools.GetJSONRawMessage(hideoutSettingsPath)
+			if err := json.Unmarshal(settings, &hideout.Settings); err != nil {
+				log.Println(err)
+			}
 		}
+		done <- true
+	}()
+
+	for i := 0; i < 5; i++ {
+		<-done
 	}
 }
 

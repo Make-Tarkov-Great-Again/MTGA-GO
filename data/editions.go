@@ -1,11 +1,9 @@
 package data
 
 import (
+	"MT-GO/tools"
 	"log"
 	"path/filepath"
-	"strings"
-
-	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -49,30 +47,38 @@ func setEdition(directory string, editionsDirPath string) {
 
 	for file := range files {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, file))
-		removeJSON := strings.TrimSuffix(file, ".json")
 
-		if strings.Contains(removeJSON, "character_") {
-			template := new(Character)
-			err := json.Unmarshal(raw, template)
-			if err != nil {
+		switch file {
+		case "storage.json":
+			storage := new(EditionStorage)
+			if err := json.Unmarshal(raw, storage); err != nil {
 				log.Println(err)
+				return
 			}
-
-			name := strings.TrimPrefix(removeJSON, "character_")
-			if name == "bear" {
-				edition.Bear = template
-			} else {
-				edition.Usec = template
-			}
+			edition.Storage = storage
 			continue
-		}
 
-		storage := new(EditionStorage)
-		err := json.Unmarshal(raw, storage)
-		if err != nil {
-			log.Println(err)
+		case "character_usec.json":
+			template := new(Character)
+			if err := json.Unmarshal(raw, template); err != nil {
+				log.Println(err)
+				return
+			}
+			edition.Usec = template
+			continue
+
+		case "character_bear.json":
+			template := new(Character)
+			if err := json.Unmarshal(raw, template); err != nil {
+				log.Println(err)
+				return
+			}
+			edition.Bear = template
+			continue
+
+		default:
+			log.Println("huh")
 		}
-		edition.Storage = storage
 	}
 
 	editions[directory] = edition

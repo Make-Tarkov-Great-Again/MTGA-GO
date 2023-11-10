@@ -54,8 +54,7 @@ func main() {
 	// List all subdirectories in the "mods" folder.
 	modSubDirs, err := tools.GetDirectoriesFrom(modDir)
 	if err != nil {
-		log.Println("Error listing subdirectories in the 'mods' folder:", err)
-		return
+		log.Fatalln("Error listing subdirectories in the 'mods' folder:", err)
 	}
 
 	// Create an array to store the mod imports and function calls.
@@ -81,9 +80,9 @@ func main() {
 			}
 
 			// Read and parse the mod-info.json file.
-			data := tools.GetJSONRawMessage(ModInfoPath)
+			input := tools.GetJSONRawMessage(ModInfoPath)
 
-			if err := json.Unmarshal(data, &modConfig); err != nil {
+			if err := json.Unmarshal(input, &modConfig); err != nil {
 				fmt.Printf("Error parsing mod-info.json in %s: %v\n", name, err)
 				continue
 			}
@@ -130,22 +129,19 @@ func main() {
 	// Update the "mods.go" file.
 	modFile := filepath.Join(modDir, "mods.go")
 	log.Println("Updating 'mods.go' file:", modFile)
-	err = updateModsFile(modFile, imports, variables, calls)
-	if err != nil {
-		log.Println("Error updating mods.go:", err)
-		return
+	if err := updateModsFile(modFile, imports, variables, calls); err != nil {
+		log.Fatalln("Error updating mods.go:", err)
 	}
 
 	exeDir, err := os.Executable()
 	if err != nil {
-		log.Println("Error getting the executable path:", err)
-		return
+		log.Fatalln("Error getting the executable path:", err)
 	}
 
 	// Start the main Go instance in a new cmd instance.
 	mainGoFile := filepath.Join(filepath.Dir(exeDir), "backend.go")
 	log.Println("Starting main Go instance:", mainGoFile)
-	cmd := exec.Command("cmd", "/c", "start", "cmd", "/k", "go run "+"backend.go")
+	cmd := exec.Command("cmd", "/c", "start", "cmd", "/k", "go run backend.go")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

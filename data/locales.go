@@ -106,38 +106,37 @@ func setLocales() {
 	}
 
 	structure := make(map[string]*LocaleData)
-	localeFiles := [2]string{"locale.json", "menu.json"}
 
 	for dir := range directories {
-		localeData := &LocaleData{}
+		localeData := new(LocaleData)
 		dirPath := filepath.Join(localesPath, dir)
+		localeFiles, err := tools.GetFilesFrom(dirPath)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 
-		for _, file := range localeFiles {
-
+		for file := range localeFiles {
 			fileContent := tools.GetJSONRawMessage(filepath.Join(dirPath, file))
-			if err != nil {
-				log.Println(err)
-				return
-			}
 
-			raw := make(map[string]any)
-
-			if file == "locale.json" {
-				err = json.Unmarshal(fileContent, &raw)
-				if err != nil {
+			switch file {
+			case "locale.json":
+				raw := make(map[string]any)
+				if err := json.Unmarshal(fileContent, &raw); err != nil {
 					log.Println(err)
 					return
 				}
 				localeData.Locale = raw
-			} else {
+			case "menu.json":
 				localeMenu := &LocaleMenu{}
-				err = json.Unmarshal(fileContent, &localeMenu)
-				if err != nil {
+				if err := json.Unmarshal(fileContent, &localeMenu); err != nil {
 					log.Println(err)
 					return
 				}
 
 				localeData.Menu = localeMenu
+			default:
+				log.Println("huh")
 			}
 		}
 
