@@ -75,7 +75,7 @@ func setQuests() {
 			conditions := &QuestAvailabilityConditions{}
 			process := setQuestConditions(questConditions)
 
-			data, err := json.Marshal(process)
+			data, err := json.MarshalNoEscape(process)
 			if err != nil {
 				log.Println(err)
 			}
@@ -98,7 +98,7 @@ func setQuests() {
 		if ok {
 			rewards := &QuestRewardAvailabilityConditions{}
 			process := setQuestRewards(questRewards)
-			data, err := json.Marshal(process)
+			data, err := json.MarshalNoEscape(process)
 			if err != nil {
 				log.Println(err)
 			}

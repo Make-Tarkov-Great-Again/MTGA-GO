@@ -16,7 +16,7 @@ type transfer struct {
 
 func (c *Character) TransferItem(moveAction map[string]any) {
 	transfer := new(transfer)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -52,7 +52,7 @@ type split struct {
 
 func (c *Character) SplitItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	split := new(split)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -113,7 +113,7 @@ type remove struct {
 
 func (c *Character) RemoveItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	remove := new(remove)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -154,7 +154,7 @@ type applyInventoryChanges struct {
 
 func (c *Character) ApplyInventoryChanges(moveAction map[string]any) {
 	applyInventoryChanges := new(applyInventoryChanges)
-	data, _ := json.Marshal(moveAction)
+	data, _ := json.MarshalNoEscape(moveAction)
 	err := json.Unmarshal(data, &applyInventoryChanges)
 	if err != nil {
 		log.Println(err)
@@ -266,7 +266,7 @@ func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEven
 	switch moveAction["type"] {
 	case "buy_from_trader":
 		buy := new(buyFromTrader)
-		data, _ := json.Marshal(moveAction)
+		data, _ := json.MarshalNoEscape(moveAction)
 		err := json.Unmarshal(data, &buy)
 		if err != nil {
 			log.Println(err)
@@ -276,7 +276,7 @@ func (c *Character) TradingConfirm(moveAction map[string]any, profileChangesEven
 		c.BuyFromTrader(buy, invCache, profileChangesEvent)
 	case "sell_to_trader":
 		sell := new(sellToTrader)
-		data, _ := json.Marshal(moveAction)
+		data, _ := json.MarshalNoEscape(moveAction)
 		err := json.Unmarshal(data, &sell)
 		if err != nil {
 			log.Println(err)
@@ -598,7 +598,7 @@ type buyCustomization struct {
 
 func (c *Character) CustomizationBuy(moveAction map[string]any) {
 	customizationBuy := new(buyCustomization)
-	data, _ := json.Marshal(moveAction)
+	data, _ := json.MarshalNoEscape(moveAction)
 	err := json.Unmarshal(data, &customizationBuy)
 	if err != nil {
 		log.Println(err)
@@ -644,7 +644,7 @@ const (
 
 func (c *Character) CustomizationWear(moveAction map[string]any) {
 	customizationWear := new(wearCustomization)
-	data, _ := json.Marshal(moveAction)
+	data, _ := json.MarshalNoEscape(moveAction)
 	err := json.Unmarshal(data, &customizationWear)
 	if err != nil {
 		log.Println(err)
@@ -683,7 +683,7 @@ type hideoutUpgrade struct {
 func (c *Character) HideoutUpgrade(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	log.Println("HideoutUpgrade")
 	upgrade := new(hideoutUpgrade)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -706,7 +706,7 @@ type bindItem struct {
 
 func (c *Character) BindItem(moveAction map[string]any) {
 	bind := new(bindItem)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -736,7 +736,7 @@ type tagItem struct {
 
 func (c *Character) TagItem(moveAction map[string]any) {
 	tag := new(tagItem)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -781,7 +781,7 @@ type toggleItem struct {
 
 func (c *Character) ToggleItem(moveAction map[string]any) {
 	toggle := new(toggleItem)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -821,7 +821,7 @@ type hideoutUpgradeComplete struct {
 func (c *Character) HideoutUpgradeComplete(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	log.Println("HideoutUpgradeComplete")
 	upgradeComplete := new(hideoutUpgradeComplete)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return

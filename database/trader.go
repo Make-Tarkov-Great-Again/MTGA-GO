@@ -71,7 +71,7 @@ func CloneTrader(name string) *Trader {
 		return nil
 	}
 
-	TraderJSON, err := json.Marshal(tc)
+	TraderJSON, err := json.MarshalNoEscape(tc)
 	if err != nil {
 		log.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
 		return nil
@@ -378,7 +378,7 @@ func setTraderBase(basePath string) *TraderBase {
 		}
 	}
 
-	sanitized, err := json.Marshal(dynamic)
+	sanitized, err := json.MarshalNoEscape(dynamic)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -455,7 +455,7 @@ func setTraderAssort(assortPath string) *Assort {
 	items, ok := dynamic["items"].([]any)
 	if ok {
 		assort.Items = make([]*AssortItem, 0, len(items))
-		data, err := json.Marshal(items)
+		data, err := json.MarshalNoEscape(items)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -471,7 +471,7 @@ func setTraderAssort(assortPath string) *Assort {
 	barterSchemes, ok := dynamic["barter_scheme"].(map[string]any)
 	if ok {
 		assort.BarterScheme = make(map[string][][]*Scheme)
-		data, err := json.Marshal(barterSchemes)
+		data, err := json.MarshalNoEscape(barterSchemes)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -491,7 +491,7 @@ func setTraderAssort(assortPath string) *Assort {
 		}
 	}
 
-	data, err := json.Marshal(loyalLevelItems)
+	data, err := json.MarshalNoEscape(loyalLevelItems)
 	if err != nil {
 		log.Fatalln(err)
 	}

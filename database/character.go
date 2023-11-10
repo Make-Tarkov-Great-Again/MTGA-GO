@@ -302,7 +302,7 @@ type fromOwner struct {
 
 func (c *Character) ExamineItem(moveAction map[string]any) {
 	examine := new(examine)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -391,7 +391,7 @@ type moveToLocation struct {
 
 func (c *Character) MoveItemInStash(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	move := new(move)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -455,7 +455,7 @@ type swap struct {
 
 func (c *Character) SwapItemInStash(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	swap := new(swap)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -532,7 +532,7 @@ type foldItem struct {
 
 func (c *Character) FoldItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	fold := new(foldItem)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -572,7 +572,7 @@ type readEncyclopedia struct {
 
 func (c *Character) ReadEncyclopedia(moveAction map[string]any) {
 	readEncyclopedia := new(readEncyclopedia)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return
@@ -595,7 +595,7 @@ type merge struct {
 
 func (c *Character) MergeItem(moveAction map[string]any, profileChangesEvent *ProfileChangesEvent) {
 	merge := new(merge)
-	data, err := json.Marshal(moveAction)
+	data, err := json.MarshalNoEscape(moveAction)
 	if err != nil {
 		log.Println(err)
 		return

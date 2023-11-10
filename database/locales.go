@@ -139,7 +139,7 @@ func setLocales() {
 		structure[dir] = localeData
 	}
 
-	bytes, err := json.Marshal(structure)
+	bytes, err := json.MarshalNoEscape(structure)
 	if err != nil {
 		log.Fatalln(err)
 	}

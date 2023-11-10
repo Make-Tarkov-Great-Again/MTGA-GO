@@ -270,7 +270,7 @@ type profileCreate struct {
 
 func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	request := new(ProfileCreateRequest)
-	body, _ := json.Marshal(services.GetParsedBody(r))
+	body, _ := json.MarshalNoEscape(services.GetParsedBody(r))
 	if err := json.Unmarshal(body, request); err != nil {
 		log.Fatalln(err)
 	}
@@ -647,7 +647,7 @@ type localLoot struct {
 
 func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 	localloot := new(localLoot)
-	data, err := json.Marshal(services.GetParsedBody(r))
+	data, err := json.MarshalNoEscape(services.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
@@ -685,7 +685,7 @@ type traderInsuranceInfo struct {
 
 func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	insuranceListCost := new(insuranceList)
-	data, err := json.Marshal(services.GetParsedBody(r))
+	data, err := json.MarshalNoEscape(services.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
@@ -837,7 +837,7 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 	parsedBody := services.GetParsedBody(r)
 
 	conditions := new(botConditions)
-	data, err := json.Marshal(parsedBody)
+	data, err := json.MarshalNoEscape(parsedBody)
 	if err != nil {
 		log.Println(err)
 	}
@@ -873,7 +873,7 @@ type offlineMatchEnd struct {
 
 func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
 	matchEnd := new(offlineMatchEnd)
-	data, err := json.Marshal(services.GetParsedBody(r))
+	data, err := json.MarshalNoEscape(services.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
@@ -912,7 +912,7 @@ type healthPart struct {
 
 func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	save := new(raidProfileSave)
-	data, err := json.Marshal(services.GetParsedBody(r))
+	data, err := json.MarshalNoEscape(services.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}

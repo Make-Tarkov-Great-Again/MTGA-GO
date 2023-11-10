@@ -28,7 +28,7 @@ func ItemClone(item string) *DatabaseItem {
 	input := GetItemByID(item)
 	clone := new(DatabaseItem)
 
-	data, err := json.Marshal(input)
+	data, err := json.MarshalNoEscape(input)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func ItemClone(item string) *DatabaseItem {
 func (i *DatabaseItem) Clone() *DatabaseItem {
 	clone := new(DatabaseItem)
 
-	data, err := json.Marshal(i)
+	data, err := json.MarshalNoEscape(i)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -119,7 +119,7 @@ func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 	output := make(map[string]*Grid)
 	for _, g := range grids {
 		grid := new(Grid)
-		data, err := json.Marshal(g)
+		data, err := json.MarshalNoEscape(g)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -147,7 +147,7 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 	output := make(map[string]*Slot)
 	for _, s := range slots {
 		slot := new(Slot)
-		data, err := json.Marshal(s)
+		data, err := json.MarshalNoEscape(s)
 		if err != nil {
 			log.Fatalln(err)
 		}

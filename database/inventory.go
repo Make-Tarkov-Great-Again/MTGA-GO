@@ -52,7 +52,7 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 
 	input := make([]InventoryItem, 0, len(assortItems))
 	for _, assortItem := range assortItems {
-		data, err := json.Marshal(assortItem)
+		data, err := json.MarshalNoEscape(assortItem)
 		if err != nil {
 			log.Println("Failed to marshal Assort Item, returning empty output")
 			return input

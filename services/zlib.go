@@ -32,7 +32,7 @@ func ZlibJSONReply(w http.ResponseWriter, path string, data any) {
 }
 
 func ZlibInflate(r *http.Request) *bytes.Buffer {
-	buffer := &bytes.Buffer{}
+	buffer := new(bytes.Buffer)
 
 	// Inflate r.Body with zlib
 	reader, err := zlib.NewReader(r.Body)
@@ -70,14 +70,14 @@ func zlibDeflate(w http.ResponseWriter, path string, data any) {
 	}
 
 	// Convert data to JSON bytes
-	bites, err := json.Marshal(data)
+	input, err := json.MarshalNoEscape(data)
 	if err != nil {
 		http.Error(w, "Failed to marshal data to JSON", http.StatusInternalServerError)
 		return
 	}
 
 	// Compress the JSON bytes
-	compressed := compressZlib(bites)
+	compressed := compressZlib(input)
 	if ok {
 		cachedZlib[path] = compressed
 	}

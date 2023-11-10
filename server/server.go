@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/goccy/go-json"
 	"log"
 	"net"
 	"net/http"
@@ -13,7 +14,6 @@ import (
 	"MT-GO/database"
 	"MT-GO/services"
 
-	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
 )
 
@@ -80,15 +80,13 @@ func logAndDecompress(next http.Handler) http.Handler {
 				return
 			}
 
+			//TODO: Refactor to replace r.Body ((remove CTX))
 			var parsedData map[string]any
-			decoder := json.NewDecoder(buffer)
-			if err := decoder.Decode(&parsedData); err != nil {
+			if err := json.Unmarshal(buffer.Bytes(), &parsedData); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
 
-			//TODO: Consider saving []byte data
-			/// Store the parsed data in the request's context
 			ctx := context.WithValue(r.Context(), services.ParsedBodyKey, parsedData)
 			r = r.WithContext(ctx)
 

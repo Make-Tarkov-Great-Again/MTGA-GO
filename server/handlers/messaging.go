@@ -3,7 +3,7 @@ package handlers
 import (
 	"MT-GO/database"
 	"MT-GO/services"
-	"encoding/json"
+	"github.com/goccy/go-json"
 	"log"
 	"net/http"
 )
@@ -94,7 +94,7 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 	sessionID := services.GetSessionID(r)
 
 	request := new(DialogView)
-	rBody, _ := json.Marshal(services.GetParsedBody(r))
+	rBody, _ := json.MarshalNoEscape(services.GetParsedBody(r))
 	err := json.Unmarshal(rBody, request)
 	if err != nil {
 		log.Println("Data invalid in MessagingMailDialogView")

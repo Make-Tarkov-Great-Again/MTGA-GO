@@ -10,7 +10,7 @@ import (
 // Stringify returns a string representation of the given data.
 func Stringify(data any, oneline bool) string {
 	if oneline {
-		jsonBytes, err := json.Marshal(data)
+		jsonBytes, err := json.MarshalNoEscape(data)
 		if err != nil {
 			return ""
 		}

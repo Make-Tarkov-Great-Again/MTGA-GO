@@ -114,17 +114,12 @@ func setBotType(dirPath string) *BotType {
 		difficultyPath := filepath.Join(diffPath, difficulty)
 		raw := tools.GetJSONRawMessage(difficultyPath)
 		name := strings.TrimSuffix(difficulty, ".json")
+		if err = json.Unmarshal(raw, &botDifficulty); err != nil {
+			log.Fatalln(err)
+		}
 		difficulties[name] = raw
 	}
 
-	jsonData, err := json.Marshal(difficulties)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	err = json.Unmarshal(jsonData, &botDifficulty)
-	if err != nil {
-		log.Fatalln(err)
-	}
 	botType.Difficulties = botDifficulty
 
 	healthPath := filepath.Join(dirPath, "health.json")
@@ -132,8 +127,7 @@ func setBotType(dirPath string) *BotType {
 		health := make(map[string]any)
 
 		raw := tools.GetJSONRawMessage(healthPath)
-		err = json.Unmarshal(raw, &health)
-		if err != nil {
+		if err = json.Unmarshal(raw, &health); err != nil {
 			log.Fatalln(err)
 		}
 		botType.Health = health
@@ -143,8 +137,7 @@ func setBotType(dirPath string) *BotType {
 	if tools.FileExist(loadoutPath) {
 		loadout := new(BotLoadout)
 		raw := tools.GetJSONRawMessage(loadoutPath)
-		err = json.Unmarshal(raw, &loadout)
-		if err != nil {
+		if err = json.Unmarshal(raw, &loadout); err != nil {
 			log.Fatalln(err)
 		}
 		botType.Loadout = loadout
