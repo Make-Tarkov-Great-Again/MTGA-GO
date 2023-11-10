@@ -2,7 +2,7 @@
 package main
 
 import (
-	"MT-GO/server"
+	"MT-GO/srv"
 	"MT-GO/user/mods"
 	"fmt"
 	"log"
@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"MT-GO/database"
+	"MT-GO/data"
 	"MT-GO/tools"
 )
 
@@ -20,17 +20,17 @@ func main() {
 
 	//TODO: Squeeze MS where possible, investigate TraderIndex if possible
 
-	database.SetDatabase()
+	data.SetDatabase()
 
 	mods.Init()
 
-	database.LoadBundleManifests()
-	database.LoadCustomItems()
+	data.LoadBundleManifests()
+	data.LoadCustomItems()
 
-	database.SetTraderIndex()
+	data.SetTraderIndex()
 	//TODO: All profiles do not need to be set
-	database.SetProfiles()
-	server.SetServer()
+	data.SetProfiles()
+	srv.SetServer()
 
 	endTime := time.Now()
 	fmt.Printf("Database initialized in %s\n\n", endTime.Sub(startTime))
@@ -64,8 +64,8 @@ func startHome() {
 }
 
 func registerAccount() {
-	account := database.Account{}
-	profiles := database.GetProfiles()
+	account := data.Account{}
+	profiles := data.GetProfiles()
 	var input string
 
 	fmt.Println("What is your username?")
@@ -89,26 +89,26 @@ func registerAccount() {
 	account.UID = UID
 	account.AID = len(profiles)
 
-	profiles[UID] = &database.Profile{}
+	profiles[UID] = &data.Profile{}
 	profiles[UID].Account = &account
-	profiles[UID].Character = &database.Character{
+	profiles[UID].Character = &data.Character{
 		ID: UID,
 	}
-	profiles[UID].Storage = &database.Storage{
+	profiles[UID].Storage = &data.Storage{
 		Suites: []string{},
-		Builds: database.Builds{
-			EquipmentBuilds: []*database.EquipmentBuild{},
-			WeaponBuilds:    []*database.WeaponBuild{},
+		Builds: &data.Builds{
+			EquipmentBuilds: []*data.EquipmentBuild{},
+			WeaponBuilds:    []*data.WeaponBuild{},
 		},
 		Insurance: []any{},
-		Mailbox:   []*database.Notification{},
+		Mailbox:   []*data.Notification{},
 	}
-	profiles[UID].Dialogue = &database.Dialogue{}
-	profiles[UID].Friends = &database.Friends{
-		Friends:             []database.FriendRequest{},
+	profiles[UID].Dialogue = &data.Dialogue{}
+	profiles[UID].Friends = &data.Friends{
+		Friends:             []data.FriendRequest{},
 		Ignore:              []string{},
 		InIgnoreList:        []string{},
-		Matching:            database.Matching{},
+		Matching:            data.Matching{},
 		FriendRequestInbox:  []any{},
 		FriendRequestOutbox: []any{},
 	}
@@ -121,7 +121,7 @@ func registerAccount() {
 	loggedIn(&account)
 }
 
-func validateUsername(profiles map[string]*database.Profile, username string) bool {
+func validateUsername(profiles map[string]*data.Profile, username string) bool {
 	for _, profile := range profiles {
 		if profile.Account.Username == username {
 			return false
@@ -133,8 +133,8 @@ func validateUsername(profiles map[string]*database.Profile, username string) bo
 func login() {
 	fmt.Println()
 	var input string
-	var account *database.Account
-	profiles := database.GetProfiles()
+	var account *data.Account
+	profiles := data.GetProfiles()
 	if len(profiles) == 0 {
 		fmt.Println("No profiles, redirecting to Account Register...")
 		registerAccount()
@@ -173,7 +173,7 @@ func login() {
 
 }
 
-func loggedIn(account *database.Account) {
+func loggedIn(account *data.Account) {
 	fmt.Println("\nAlright fella, we're at the Login Menu, what now?")
 	fmt.Println("\n1. Launch Tarkov")
 	fmt.Println("2. Change Account Info")
@@ -201,7 +201,7 @@ func loggedIn(account *database.Account) {
 	}
 }
 
-func editAccountInfo(account *database.Account) {
+func editAccountInfo(account *data.Account) {
 	fmt.Println("\nAlright fella, what do you want to edit?")
 	fmt.Println("\n1. Change Escape From Tarkov executable path")
 	fmt.Println("69. Go back to Login Menu")
@@ -239,21 +239,21 @@ func editAccountInfo(account *database.Account) {
 	}
 }
 
-func wipeYoAss(account *database.Account) {
+func wipeYoAss(account *data.Account) {
 	account.Wipe = true
-	profiles := database.GetProfiles()
+	profiles := data.GetProfiles()
 
-	profiles[account.UID].Character = &database.Character{}
-	profiles[account.UID].Storage = &database.Storage{
+	profiles[account.UID].Character = &data.Character{}
+	profiles[account.UID].Storage = &data.Storage{
 		Suites: []string{},
-		Builds: database.Builds{
-			EquipmentBuilds: []*database.EquipmentBuild{},
-			WeaponBuilds:    []*database.WeaponBuild{},
+		Builds: &data.Builds{
+			EquipmentBuilds: []*data.EquipmentBuild{},
+			WeaponBuilds:    []*data.WeaponBuild{},
 		},
 		Insurance: []any{},
-		Mailbox:   []*database.Notification{},
+		Mailbox:   []*data.Notification{},
 	}
-	profiles[account.UID].Dialogue = &database.Dialogue{}
+	profiles[account.UID].Dialogue = &data.Dialogue{}
 	fmt.Println("Yo ass is clean")
 	profiles[account.UID].SaveProfile()
 	loggedIn(account)
@@ -266,7 +266,7 @@ const (
 	email  = "-bC5vLmcuaS5u={'email':'%s','password': '%s','toggle':true,'timestamp':0}"
 )
 
-func launchTarkov(account *database.Account) {
+func launchTarkov(account *data.Account) {
 	if account.TarkovPath == "" || !tools.FileExist(account.TarkovPath) {
 		fmt.Println("EscapeFromTarkov not found")
 		fmt.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
@@ -295,7 +295,7 @@ func launchTarkov(account *database.Account) {
 	cmdArgs := []string{
 		fmt.Sprintf(email, account.Username, account.Password),
 		fmt.Sprintf(token, account.UID),
-		fmt.Sprintf(config, database.GetMainAddress()),
+		fmt.Sprintf(config, data.GetMainAddress()),
 	}
 
 	cmd := exec.Command(account.TarkovPath, cmdArgs...)
@@ -310,7 +310,7 @@ func launchTarkov(account *database.Account) {
 	err = cmd.Wait()
 	if err != nil {
 		fmt.Println("Client has been closed")
-		//database.GetProfileByUID(account.UID).SaveProfile()
+		//data.GetProfileByUID(account.UID).SaveProfile()
 		//os.Exit(0)
 	}
 }
