@@ -32,6 +32,7 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 		err := conn.Close()
 		if err != nil {
 			log.Println(err)
+			return
 		}
 	}(conn)
 
@@ -46,7 +47,6 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 		}
 		err = conn.WriteMessage(messageType, p)
 		if err != nil {
-
 			log.Println(err)
 			return
 		}
