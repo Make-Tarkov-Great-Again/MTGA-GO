@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"log"
 	"math/rand"
 	"time"
 )
@@ -58,4 +59,22 @@ func GetRandomFromObject(obj map[string]int) int {
 // GetPercentRandomBool returns a random bool based on the percentage int passed
 func GetPercentRandomBool(percentage int) bool {
 	return rand.Intn(100) < percentage
+}
+
+func LevelComparisonCheck(requiredLevel float64, currentLevel float64, compareMethod string) bool {
+	switch compareMethod {
+	case ">=":
+		return currentLevel >= requiredLevel
+	case ">":
+		return currentLevel > requiredLevel
+	case "<":
+		return currentLevel < requiredLevel
+	case "<=":
+		return currentLevel <= requiredLevel
+	case "=":
+		return currentLevel == requiredLevel
+	default:
+		log.Println("Unknown comparison method of " + compareMethod)
+		return false
+	}
 }

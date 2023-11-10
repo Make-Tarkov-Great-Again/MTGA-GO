@@ -1,4 +1,4 @@
-// Package tools contains various tools that are used throughout the server
+// Package tools contains various tools that are used throughout the srv
 package tools
 
 import (

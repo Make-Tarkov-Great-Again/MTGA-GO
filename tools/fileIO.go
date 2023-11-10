@@ -10,16 +10,12 @@ import (
 )
 
 const (
-	FILE_DOES_NOT_EXIST      string = "file does not exist"
-	FAIL_TO_READ_FILE        string = "failed to read file"
-	DIRECTORY_EXISTS         string = "directory already exists"
-	DIRECTORY_DOES_NOT_EXIST string = "directory does not exist"
-	FAIL_TO_READ_DIRECTORY   string = "failed to read directory"
-)
-
-const (
-	SSW_FORMAT string = "%s: %s: %w"
-	SS_FORMAT  string = "%s: %s"
+	FileDoesNotExist    string = "file does not exist"
+	FailToReadFile      string = "failed to read file"
+	DirectoryExists     string = "directory already exists"
+	FailToReadDirectory string = "failed to read directory"
+	SswFormat           string = "%s: %s: %w"
+	SsFormat            string = "%s: %s"
 )
 
 // WriteToFile writes the given string of data to the specified file path
@@ -62,7 +58,7 @@ func CreateDirectory(filePath string) error {
 	path := GetAbsolutePathFrom(filePath)
 
 	if FileExist(path) {
-		return fmt.Errorf(SS_FORMAT, DIRECTORY_EXISTS, filePath)
+		return fmt.Errorf(SsFormat, DirectoryExists, filePath)
 	}
 
 	err := os.MkdirAll(path, 0755)
@@ -83,12 +79,12 @@ func ReadFile(filePath string) ([]byte, error) {
 	path := GetAbsolutePathFrom(filePath)
 
 	if !FileExist(path) {
-		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
+		return nil, fmt.Errorf(SsFormat, FileDoesNotExist, filePath)
 	}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_FILE, filePath, err)
+		return nil, fmt.Errorf(SswFormat, FailToReadFile, filePath, err)
 	}
 
 	return data, nil
@@ -98,12 +94,12 @@ func ReadFile(filePath string) ([]byte, error) {
 func GetDirectoriesFrom(filePath string) (map[string]*struct{}, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
-		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
+		return nil, fmt.Errorf(SsFormat, FileDoesNotExist, filePath)
 	}
 
 	directory, err := os.ReadDir(path)
 	if err != nil {
-		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_DIRECTORY, filePath, err)
+		return nil, fmt.Errorf(SswFormat, FailToReadDirectory, filePath, err)
 	}
 
 	files := make(map[string]*struct{})
@@ -119,12 +115,12 @@ func GetDirectoriesFrom(filePath string) (map[string]*struct{}, error) {
 func GetFilesFrom(filePath string) (map[string]*struct{}, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
-		return nil, fmt.Errorf(SS_FORMAT, FILE_DOES_NOT_EXIST, filePath)
+		return nil, fmt.Errorf(SsFormat, FileDoesNotExist, filePath)
 	}
 
 	directory, err := os.ReadDir(path)
 	if err != nil {
-		return nil, fmt.Errorf(SSW_FORMAT, FAIL_TO_READ_DIRECTORY, filePath, err)
+		return nil, fmt.Errorf(SswFormat, FailToReadDirectory, filePath, err)
 	}
 
 	files := make(map[string]*struct{})
@@ -134,28 +130,4 @@ func GetFilesFrom(filePath string) (map[string]*struct{}, error) {
 		}
 	}
 	return files, nil
-}
-
-func TransformInterfaceIntoMappedArray(data []any) []map[string]any {
-	results := make([]map[string]any, 0, len(data))
-	for _, v := range data {
-		result := v.(map[string]any)
-		results = append(results, result)
-	}
-	return results
-}
-
-func TransformInterfaceIntoMappedObject(data any) map[string]any {
-	result := data.(map[string]any)
-	return result
-}
-
-func AuditArrayCapacity(data []map[string]any) []map[string]any {
-	dataLen := len(data)
-	results := make([]map[string]any, 0, dataLen)
-	for i := 0; i < dataLen; i++ {
-		result := data[i]
-		results = append(results, result)
-	}
-	return results
 }
