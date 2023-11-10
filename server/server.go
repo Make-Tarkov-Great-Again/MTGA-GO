@@ -63,13 +63,16 @@ func logAndDecompress(next http.Handler) http.Handler {
 		if websocket.IsWebSocketUpgrade(r) {
 			upgradeToWebsocket(w, r)
 		} else {
-			acceptEncoding := strings.Contains(r.Header.Get("Accept-Encoding"), "deflate")
-			//sessionID := services.GetSessionID(r) != ""
-
-			if r.Header.Get("Content-Type") != "application/json" && !acceptEncoding {
+			if r.Header.Get("Content-Length") == "" {
 				next.ServeHTTP(w, r)
 				return
 			}
+
+			/*			acceptEncoding := strings.Contains(r.Header.Get("Accept-Encoding"), "deflate")
+						if r.Header.Get("Content-Type") != "application/json" && !acceptEncoding {
+							next.ServeHTTP(w, r)
+							return
+						}*/
 
 			buffer := services.ZlibInflate(r)
 			if buffer == nil || buffer.Len() == 0 {
@@ -194,6 +197,8 @@ func SetServer() {
 		<-serverReady
 	}
 
+	services.SetDownloadLocal(srv.DownloadImageFiles)
+
 	close(serverReady)
 }
 
@@ -201,7 +206,7 @@ type ConnectionWatcher struct {
 	n int64
 }
 
-func (cw *ConnectionWatcher) OnStateChange(conn net.Conn, state http.ConnState) {
+func (cw *ConnectionWatcher) OnStateChange(_ net.Conn, state http.ConnState) {
 	switch state {
 	case http.StateNew: //Connection open
 		cw.Add(1)
