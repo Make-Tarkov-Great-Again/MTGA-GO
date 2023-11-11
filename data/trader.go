@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	"MT-GO/tools"
@@ -361,54 +360,9 @@ func setTraders() {
 }
 
 func setTraderBase(basePath string) *TraderBase {
-	trader := new(TraderBase)
-
-	var dynamic map[string]any //here we fucking go
-
 	raw := tools.GetJSONRawMessage(basePath)
-	err := json.Unmarshal(raw, &dynamic)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	loyaltyLevels := dynamic["loyaltyLevels"].([]any)
-	length := len(loyaltyLevels)
-
-	for i := 0; i < length; i++ {
-		level := loyaltyLevels[i].(map[string]any)
-
-		insurancePriceCoef, ok := level["insurance_price_coef"].(string)
-		if !ok {
-			continue
-		}
-
-		level["insurance_price_coef"], err = strconv.Atoi(insurancePriceCoef)
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
-	}
-
-	repair := dynamic["repair"].(map[string]any)
-
-	repairQuality, ok := repair["quality"].(string)
-	if ok {
-		repair["quality"], err = strconv.ParseFloat(repairQuality, 32)
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
-	}
-
-	sanitized, err := json.MarshalNoEscape(dynamic)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	err = json.Unmarshal(sanitized, trader)
-	if err != nil {
+	trader := new(TraderBase)
+	if err := json.Unmarshal(raw, &trader); err != nil {
 		log.Println(err)
 		return nil
 	}
@@ -465,83 +419,24 @@ func SetTraderIndex() {
 }
 
 func setTraderAssort(assortPath string) *Assort {
-	var dynamic map[string]any
 	raw := tools.GetJSONRawMessage(assortPath)
 
-	err := json.Unmarshal(raw, &dynamic)
-	if err != nil {
+	assort := new(Assort)
+	if err := json.Unmarshal(raw, &assort); err != nil {
 		log.Println(err)
 		return nil
 	}
 
-	assort := &Assort{}
-
-	assort.NextResupply = 1672236024
-
-	items, ok := dynamic["items"].([]any)
-	if ok {
-		assort.Items = make([]*AssortItem, 0, len(items))
-		data, err := json.MarshalNoEscape(items)
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
-		err = json.Unmarshal(data, &assort.Items)
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
-
-	} else {
-		log.Println("Items not found")
-		return nil
-	}
-
-	barterSchemes, ok := dynamic["barter_scheme"].(map[string]any)
-	if ok {
-		assort.BarterScheme = make(map[string][][]*Scheme)
-		data, err := json.MarshalNoEscape(barterSchemes)
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
-		err = json.Unmarshal(data, &assort.BarterScheme)
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
-	} else {
-		panic("Barter scheme not found")
-	}
-
-	loyalLevelItems, ok := dynamic["loyal_level_items"].(map[string]any)
-	if ok {
-		assort.LoyalLevelItems = map[string]int8{}
-		for key, item := range loyalLevelItems {
-			assort.LoyalLevelItems[key] = int8(item.(float64))
-		}
-	}
-
-	data, err := json.MarshalNoEscape(loyalLevelItems)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	err = json.Unmarshal(data, &assort.LoyalLevelItems)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
+	assort.NextResupply = 0
 
 	return assort
 }
 
 func setTraderQuestAssort(questsPath string) map[string]map[string]string {
-	quests := make(map[string]map[string]string)
 	raw := tools.GetJSONRawMessage(questsPath)
 
-	err := json.Unmarshal(raw, &quests)
-	if err != nil {
+	quests := make(map[string]map[string]string)
+	if err := json.Unmarshal(raw, &quests); err != nil {
 		log.Println(err)
 		return nil
 	}
@@ -550,28 +445,11 @@ func setTraderQuestAssort(questsPath string) map[string]map[string]string {
 }
 
 func setTraderDialogues(dialoguesPath string) map[string][]string {
-	var dynamic map[string]any
 	raw := tools.GetJSONRawMessage(dialoguesPath)
-
-	err := json.Unmarshal(raw, &dynamic)
-	if err != nil {
+	dialogues := make(map[string][]string)
+	if err := json.Unmarshal(raw, &dialogues); err != nil {
 		log.Println(err)
 		return nil
-	}
-
-	dialogues := map[string][]string{}
-	for k, v := range dynamic {
-		v := v.([]any)
-
-		length := len(v)
-		dialogues[k] = make([]string, 0, len(v))
-		if length == 0 {
-			continue
-		}
-
-		for _, dialogue := range v {
-			dialogues[k] = append(dialogues[k], dialogue.(string))
-		}
 	}
 
 	return dialogues
@@ -581,8 +459,7 @@ func setTraderSuits(dialoguesPath string) ([]TraderSuits, map[string]int8) {
 	var suits []TraderSuits
 	raw := tools.GetJSONRawMessage(dialoguesPath)
 
-	err := json.Unmarshal(raw, &suits)
-	if err != nil {
+	if err := json.Unmarshal(raw, &suits); err != nil {
 		log.Println(err)
 		return nil, nil
 	}
