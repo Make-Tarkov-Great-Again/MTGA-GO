@@ -2,10 +2,8 @@ package data
 
 import (
 	"MT-GO/tools"
-	"log"
-	"strconv"
-
 	"github.com/goccy/go-json"
+	"log"
 )
 
 var questsQuery = map[string]*Quest{}
@@ -43,6 +41,9 @@ func GetQuests() map[string]any {
 
 // region Quest setters
 const (
+	parent    string = "_parent"
+	props     string = "_props"
+	_type     string = "type"
 	ForFinish string = "AvailableForFinish"
 	ForStart  string = "AvailableForStart"
 	Fail      string = "Fail"
@@ -169,11 +170,6 @@ func setQuestDialogue(quest map[string]any) QuestDialogues {
 	return *dialogues
 }
 
-const (
-	parent string = "_parent"
-	props  string = "_props"
-)
-
 func setQuestConditions(conditions map[string]any) map[string]map[string]any {
 	output := make(map[string]map[string]any)
 
@@ -228,7 +224,6 @@ var QuestStatus = map[int8]string{
 }
 
 func processQuestCondition(name string, conditions map[string]any) any {
-
 	output := make(map[string]any)
 	props, _ := conditions[props].(map[string]any)
 
@@ -244,12 +239,12 @@ func processQuestCondition(name string, conditions map[string]any) any {
 			return levelCondition
 		}
 
-		str, ok := props["value"].(string)
+		i, ok := props["value"].(int)
 		if ok {
-			level, _ := strconv.ParseFloat(str, 64)
-			levelCondition.Level = level
+			levelCondition.Level = float64(i)
 			return levelCondition
 		}
+		return levelCondition
 
 	case "Quest":
 		condition := &QuestCondition{}
@@ -283,10 +278,9 @@ func processQuestCondition(name string, conditions map[string]any) any {
 			return output
 		}
 
-		str, ok := props["value"].(string)
+		i, ok := props["value"].(int)
 		if ok {
-			level, _ := strconv.ParseFloat(str, 64)
-			levelCondition.Level = level
+			levelCondition.Level = float64(i)
 			output[traderID] = levelCondition
 			return output
 		}
@@ -294,51 +288,54 @@ func processQuestCondition(name string, conditions map[string]any) any {
 		return output
 
 	case "HandoverItem", "WeaponAssembly", "FindItem":
-
 		handover := &HandoverCondition{}
-
 		handoverID, _ := props["id"].(string)
 
 		itemID, _ := props["target"].([]any)[0].(string)
 		handover.ItemToHandover = itemID
 
-		ifString, _ := props["value"].(string)
-		value, _ := strconv.Atoi(ifString)
-		handover.Amount = value
+		isFloat, ok := props["value"].(float64)
+		if ok {
+			handover.Amount = isFloat
 
-		output[handoverID] = handover
+			output[handoverID] = handover
+			return output
+		}
+
+		isInt, ok := props["value"].(int)
+		if ok {
+			handover.Amount = float64(isInt)
+
+			output[handoverID] = handover
+			return output
+		}
 		return output
 
 	case "Skill":
 		skillName, _ := props["target"].(string)
 		levelCondition := &LevelCondition{}
+		compare, _ := props["compareMethod"].(string)
+		levelCondition.CompareMethod = compare
 
 		float, ok := props["value"].(float64)
 		if ok {
 			levelCondition.Level = float
+			output[skillName] = levelCondition
+			return output
 		}
 
-		str, ok := props["value"].(string)
+		i, ok := props["value"].(int)
 		if ok {
-			level, _ := strconv.ParseFloat(str, 64)
-			levelCondition.Level = level
+			levelCondition.Level = float64(i)
+			output[skillName] = levelCondition
+			return output
 		}
-
-		compare, _ := props["compareMethod"].(string)
-		levelCondition.CompareMethod = compare
-
-		output[skillName] = levelCondition
-		return output
-
 	default:
 		log.Println(name + " condition, probably not needed")
+		return output
 	}
 	return output
 }
-
-const (
-	_type string = "type"
-)
 
 func setQuestRewards(rewards map[string]any) map[string]any {
 	output := make(map[string]any)
@@ -403,12 +400,7 @@ func setQuestReward(name string, reward map[string]any) any {
 		if ok {
 			return int(float)
 		}
-
-		str, ok := reward["value"].(string)
-		if ok {
-			exp, _ := strconv.Atoi(str)
-			return exp
-		}
+		return reward["value"].(int)
 	case "Item":
 		questRewardItem := &QuestRewardItem{}
 
@@ -424,20 +416,17 @@ func setQuestReward(name string, reward map[string]any) any {
 		float, ok := reward["value"].(float64)
 		if ok {
 			questRewardItem.Value = int(float)
+			output[itemID] = questRewardItem
+			return output
 		}
 
-		str, ok := reward["value"].(string)
-		if ok {
-			value, _ := strconv.Atoi(str)
-			questRewardItem.Value = value
-		}
-
+		questRewardItem.Value = reward["value"].(int)
 		output[itemID] = questRewardItem
+		return output
 	case "AssortmentUnlock":
 		traderID, _ := reward["target"].(string)
 		return traderID
 	case "TraderStanding", "TraderStandingRestore":
-
 		traderID, _ := reward["target"].(string)
 
 		float, ok := reward["value"].(float64)
@@ -446,13 +435,11 @@ func setQuestReward(name string, reward map[string]any) any {
 			return output
 		}
 
-		str, ok := reward["value"].(string)
+		i, ok := reward["value"].(int)
 		if ok {
-			value, _ := strconv.ParseFloat(str, 64)
-			output[traderID] = value
+			output[traderID] = float64(i)
 			return output
 		}
-
 		return output
 	case "Skill":
 		skillName, _ := reward["target"].(string)
@@ -460,12 +447,13 @@ func setQuestReward(name string, reward map[string]any) any {
 		float, ok := reward["value"].(float64)
 		if ok {
 			output[skillName] = float32(float)
+			return output
 		}
 
-		str, ok := reward["value"].(string)
+		i, ok := reward["value"].(int)
 		if ok {
-			value, _ := strconv.Atoi(str)
-			output[skillName] = float32(value)
+			output[skillName] = float32(i)
+			return output
 		}
 
 		return output
@@ -475,12 +463,6 @@ func setQuestReward(name string, reward map[string]any) any {
 
 		loyaltyLevel, _ := reward["loyaltyLevel"].(float64)
 		scheme.LoyaltyLevel = int(loyaltyLevel)
-
-		ifString, ok := reward["traderId"].(string)
-		if ok {
-			area, _ := strconv.Atoi(ifString)
-			scheme.AreaID = area
-		}
 
 		ifInt, ok := reward["traderId"].(int)
 		if ok {
@@ -493,14 +475,14 @@ func setQuestReward(name string, reward map[string]any) any {
 		}
 
 		output[schemeID] = scheme
+		return output
 	case "TraderUnlock":
 		traderID, _ := reward["target"].(string)
 		return traderID
 	default:
 		log.Println(name + " reward")
+		return output
 	}
-
-	return output
 }
 
 // #endregion
@@ -569,7 +551,7 @@ type QuestConditionTypes struct {
 
 type HandoverCondition struct {
 	ItemToHandover string
-	Amount         int
+	Amount         float64
 }
 
 type QuestCondition struct {
