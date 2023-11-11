@@ -36,8 +36,7 @@ func GetStorageByID(uid string) (*Storage, error) {
 func (storage *Storage) SaveStorage(sessionID string) error {
 	storageFilePath := filepath.Join(profilesPath, sessionID, "storage.json")
 
-	err := tools.WriteToFile(storageFilePath, storage)
-	if err != nil {
+	if err := tools.WriteToFile(storageFilePath, storage); err != nil {
 		return fmt.Errorf(storageNotSaved, sessionID, err)
 	}
 	log.Println("Storage saved")

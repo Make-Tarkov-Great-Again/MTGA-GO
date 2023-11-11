@@ -28,7 +28,7 @@ func main() {
 	data.LoadCustomItems()
 
 	go func() {
-		data.SetWeaponMasteries()
+		data.IndexWeaponMasteries()
 		done <- true
 	}()
 	go func() {
@@ -36,14 +36,30 @@ func main() {
 		done <- true
 	}()
 	go func() {
-		data.SetTraderIndex()
+		data.IndexTraders()
+		done <- true
+	}()
+	go func() {
+		data.IndexHideoutAreas()
+		done <- true
+	}()
+	go func() {
+		data.IndexHideoutRecipes()
+		done <- true
+	}()
+	go func() {
+		data.IndexScavcase()
+		done <- true
+	}()
+	go func() {
+		data.IndexQuests()
 		done <- true
 	}()
 	go func() {
 		data.SetProfiles()
 		done <- true
 	}()
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 7; i++ {
 		<-done
 	}
 

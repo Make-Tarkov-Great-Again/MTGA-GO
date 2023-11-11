@@ -380,7 +380,7 @@ func setTraders() {
 	}
 }
 
-func SetTraderIndex() {
+func IndexTraders() {
 	for _, trader := range traders {
 		if trader.Assort != nil {
 			trader.Index.Assort = &AssortIndex{}

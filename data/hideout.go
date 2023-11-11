@@ -142,27 +142,36 @@ func GetScavCaseRecipeByID(rid string) *map[string]any {
 
 // #region Hideout setters
 
-// setHideoutScavcase sets the hideout scavcase items and their indexes.
+// setHideout sets in-memory database entries for Hideout
 func setHideout() {
 	done := make(chan bool)
 
 	go func() {
 		if tools.FileExist(areasPath) {
-			setHideoutAreas()
+			areas := tools.GetJSONRawMessage(areasPath)
+			if err := json.Unmarshal(areas, &hideout.Areas); err != nil {
+				log.Println(err)
+			}
 		}
 		done <- true
 	}()
 
 	go func() {
 		if tools.FileExist(productionPath) {
-			setHideoutRecipes()
+			recipes := tools.GetJSONRawMessage(productionPath)
+			if err := json.Unmarshal(recipes, &hideout.Recipes); err != nil {
+				log.Println(err)
+			}
 		}
 		done <- true
 	}()
 
 	go func() {
 		if tools.FileExist(scavcasePath) {
-			setHideoutScavcase()
+			scavcase := tools.GetJSONRawMessage(scavcasePath)
+			if err := json.Unmarshal(scavcase, &hideout.ScavCase); err != nil {
+				log.Println(err)
+			}
 		}
 		done <- true
 	}()
@@ -192,38 +201,21 @@ func setHideout() {
 	}
 }
 
-// setHideoutAreas sets the hideout areas and their indexes.
-func setHideoutAreas() {
-	areas := tools.GetJSONRawMessage(areasPath)
-	if err := json.Unmarshal(areas, &hideout.Areas); err != nil {
-		log.Println(err)
-	}
-
+func IndexHideoutAreas() {
 	for index, area := range hideout.Areas {
 		areaType := int8(area["type"].(float64))
 		hideout.Index.Areas[areaType] = int8(index)
 	}
 }
 
-// setHideoutRecipes sets the hideout production recipes and their indexes.
-func setHideoutRecipes() {
-	recipes := tools.GetJSONRawMessage(productionPath)
-	if err := json.Unmarshal(recipes, &hideout.Recipes); err != nil {
-		log.Println(err)
-	}
-
+func IndexHideoutRecipes() {
 	for index, recipe := range hideout.Recipes {
 		pid := recipe["_id"].(string)
 		hideout.Index.Recipes[pid] = int16(index)
 	}
 }
 
-// setHideoutScavcase sets the hideout scavcase items and their indexes.
-func setHideoutScavcase() {
-	scavcase := tools.GetJSONRawMessage(scavcasePath)
-	if err := json.Unmarshal(scavcase, &hideout.ScavCase); err != nil {
-		log.Println(err)
-	}
+func IndexScavcase() {
 	for index, item := range hideout.ScavCase {
 		pid := item["_id"].(string)
 

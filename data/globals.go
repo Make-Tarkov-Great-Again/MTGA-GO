@@ -16,7 +16,7 @@ func setGlobals() {
 	}
 }
 
-func SetWeaponMasteries() {
+func IndexWeaponMasteries() {
 	for idx, mastery := range core.Globals.Config.Mastering {
 		for _, template := range mastery.Templates {
 			weaponMastering[template] = int16(idx)

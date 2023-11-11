@@ -57,10 +57,12 @@ func setQuests() {
 		log.Println(err)
 		return
 	}
+}
 
+func IndexQuests() {
+	raw := tools.GetJSONRawMessage(questsPath)
 	dynamic := make(map[string]map[string]any)
-	err = json.Unmarshal(raw, &dynamic)
-	if err != nil {
+	if err := json.Unmarshal(raw, &dynamic); err != nil {
 		log.Println(err)
 		return
 	}
