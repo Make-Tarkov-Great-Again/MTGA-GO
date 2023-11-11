@@ -7,8 +7,15 @@ import (
 	"github.com/goccy/go-json"
 )
 
-var core = Core{}
-var coreServerData = &serverData{}
+var core = Core{
+	Scav:              new(Scav),
+	MainSettings:      new(MainSettings),
+	ServerConfig:      new(ServerConfig),
+	Globals:           new(Globals),
+	GlobalBotSettings: make(map[string]any),
+	MatchMetrics:      new(MatchMetrics),
+	AirdropParameters: new(AirdropParameters),
+}
 
 // #region Core getters
 
@@ -37,103 +44,58 @@ func GetPlayerScav() *Scav {
 // #region Core setters
 
 func setCore() {
-	// Create channels to synchronize the completion of each function
 	done := make(chan bool)
 
-	// Execute each function concurrently
 	go func() {
-		core.Scav = setPlayerScav()
+		raw := tools.GetJSONRawMessage(playerScavPath)
+		if err := json.Unmarshal(raw, &core.Scav); err != nil {
+			log.Fatalln(err)
+		}
 		done <- true
 	}()
 	go func() {
-		core.MainSettings = setMainSettings()
+		raw := tools.GetJSONRawMessage(MainSettingsPath)
+		if err := json.Unmarshal(raw, &core.MainSettings); err != nil {
+			log.Fatalln(err)
+		}
 		done <- true
 	}()
 	go func() {
-		core.ServerConfig = setServerConfig()
+		raw := tools.GetJSONRawMessage(serverConfigPath)
+		if err := json.Unmarshal(raw, &core.ServerConfig); err != nil {
+			log.Fatalln(err)
+		}
 		done <- true
 	}()
 	go func() {
-		core.Globals = setGlobals()
+		setGlobals()
 		done <- true
 	}()
 	go func() {
-		core.GlobalBotSettings = setGlobalBotSettings()
+		raw := tools.GetJSONRawMessage(globalBotSettingsPath)
+		if err := json.Unmarshal(raw, &core.GlobalBotSettings); err != nil {
+			log.Fatalln(err)
+		}
 		done <- true
 	}()
 	go func() {
-		core.MatchMetrics = setMatchMetrics()
+		raw := tools.GetJSONRawMessage(matchMetricsPath)
+		if err := json.Unmarshal(raw, &core.MatchMetrics); err != nil {
+			log.Println(err)
+		}
 		done <- true
 	}()
 	go func() {
-		core.AirdropParameters = setGetAirdropSettings()
+		raw := tools.GetJSONRawMessage(airdropFilePath)
+		if err := json.Unmarshal(raw, &core.AirdropParameters); err != nil {
+			log.Fatalln(err)
+		}
 		done <- true
 	}()
 
-	// Wait for all functions to complete
 	for i := 0; i < 7; i++ {
 		<-done
 	}
-}
-
-func setGetAirdropSettings() *AirdropParameters {
-	raw := tools.GetJSONRawMessage(airdropFilePath)
-
-	airDropParameters := new(AirdropParameters)
-	err := json.Unmarshal(raw, &airDropParameters)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return airDropParameters
-}
-
-func setGlobalBotSettings() *map[string]any {
-	raw := tools.GetJSONRawMessage(globalBotSettingsPath)
-
-	globalBotSettings := map[string]any{}
-	err := json.Unmarshal(raw, &globalBotSettings)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return &globalBotSettings
-}
-
-func setPlayerScav() *Scav {
-	raw := tools.GetJSONRawMessage(playerScavPath)
-
-	var playerScav Scav
-	err := json.Unmarshal(raw, &playerScav)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return &playerScav
-}
-
-func setMainSettings() *MainSettings {
-	raw := tools.GetJSONRawMessage(MainSettingsPath)
-
-	var data MainSettings
-	err := json.Unmarshal(raw, &data)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return &data
-}
-
-func setMatchMetrics() *MatchMetrics {
-	raw := tools.GetJSONRawMessage(matchMetricsPath)
-
-	var data MatchMetrics
-	err := json.Unmarshal(raw, &data)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return &data
 }
 
 // #endregion
@@ -141,12 +103,11 @@ func setMatchMetrics() *MatchMetrics {
 // #region Core structs
 
 type Core struct {
-	Character         *Character
 	Scav              *Scav
 	MainSettings      *MainSettings
 	ServerConfig      *ServerConfig
 	Globals           *Globals
-	GlobalBotSettings *map[string]any
+	GlobalBotSettings map[string]any
 	MatchMetrics      *MatchMetrics
 	AirdropParameters *AirdropParameters
 }

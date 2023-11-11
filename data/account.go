@@ -23,8 +23,7 @@ func GetAccountByID(uid string) (*Account, error) {
 func (a *Account) SaveAccount() error {
 	accountFilePath := filepath.Join(profilesPath, a.UID, "account.json")
 
-	err := tools.WriteToFile(accountFilePath, a)
-	if err != nil {
+	if err := tools.WriteToFile(accountFilePath, a); err != nil {
 		return fmt.Errorf(accountNotSaved, a.UID, err)
 	}
 	log.Println("Account saved")

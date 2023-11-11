@@ -67,7 +67,7 @@ func setQuests() {
 
 	for k, v := range dynamic {
 		done := make(chan bool)
-		var quest = &Quest{}
+		quest := new(Quest)
 
 		quest.Name = v["QuestName"].(string)
 		quest.Trader = v["traderId"].(string)
@@ -79,22 +79,19 @@ func setQuests() {
 		go func() {
 			questConditions, ok := v["conditions"].(map[string]any)
 			if ok {
-				conditions := &QuestAvailabilityConditions{}
 				process := setQuestConditions(questConditions)
 
-				data, err := json.MarshalNoEscape(process)
-				if err != nil {
-					log.Println(err)
-				}
-				err = json.Unmarshal(data, conditions)
-				if err != nil {
-					log.Println(err)
-				}
-
-				empty := QuestAvailabilityConditions{}
-				if *conditions == empty {
+				if len(process) == 0 {
 					quest.Conditions = nil
 				} else {
+					conditions := new(QuestAvailabilityConditions)
+					data, err := json.MarshalNoEscape(process)
+					if err != nil {
+						log.Println(err)
+					}
+					if err = json.Unmarshal(data, conditions); err != nil {
+						log.Println(err)
+					}
 					quest.Conditions = conditions
 				}
 			} else {
@@ -112,8 +109,7 @@ func setQuests() {
 				if err != nil {
 					log.Println(err)
 				}
-				err = json.Unmarshal(data, rewards)
-				if err != nil {
+				if err = json.Unmarshal(data, rewards); err != nil {
 					log.Println(err)
 				}
 				quest.Rewards = *rewards

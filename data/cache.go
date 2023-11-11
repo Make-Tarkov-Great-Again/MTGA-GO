@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"slices"
-	"sync"
 )
 
 var cacheMap = make(map[string]*Cache)
@@ -86,39 +85,39 @@ func CreateCacheByID(id string) {
 }
 
 func (c *Cache) SetCache(character *Character) {
-	var wg sync.WaitGroup
-
-	// Define a function to update the quests map
-	updateQuests := func() {
-		defer wg.Done()
+	done := make(chan bool)
+	go func() {
 		for index, quest := range character.Quests {
 			c.Quests.Index[quest.QID] = int8(index)
 		}
-	}
+		done <- true
+	}()
 
 	// Define a function to update the common skills map
-	updateCommonSkills := func() {
-		defer wg.Done()
+	go func() {
 		for index, commonSkill := range character.Skills.Common {
 			c.Skills.Common[commonSkill.ID] = int8(index)
 		}
-	}
+		done <- true
+	}()
 
 	// Define a function to update the hideout areas map
-	updateHideoutAreas := func() {
-		defer wg.Done()
+	go func() {
 		for index, area := range character.Hideout.Areas {
 			c.Hideout.Areas[int8(area.Type)] = int8(index)
 		}
+		done <- true
+	}()
+
+	go func() {
+		c.Inventory = SetInventoryContainer(&character.Inventory)
+		done <- true
+	}()
+
+	for i := 0; i < 4; i++ {
+		<-done
 	}
 
-	// Start Goroutines for parallel execution
-	wg.Add(3)
-	go updateQuests()
-	go updateCommonSkills()
-	go updateHideoutAreas()
-
-	c.Inventory = SetInventoryContainer(&character.Inventory)
 	cacheMap[character.ID] = c
 }
 

@@ -22,15 +22,9 @@ func GetLocations() *Locations {
 
 // #region Location setters
 
-func setLocationsMaster() {
-	setLocations()
-	setLocalLoot()
-}
-
 func setLocations() {
 	raw := tools.GetJSONRawMessage(locationsFilePath)
-	err := json.Unmarshal(raw, &locations)
-	if err != nil {
+	if err := json.Unmarshal(raw, &locations); err != nil {
 		log.Println(err)
 		return
 	}

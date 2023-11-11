@@ -176,8 +176,7 @@ func (i *DatabaseItem) GetStackMaxSize() int32 {
 
 func setItems() {
 	raw := tools.GetJSONRawMessage(itemsPath)
-	err := json.Unmarshal(raw, &items)
-	if err != nil {
+	if err := json.Unmarshal(raw, &items); err != nil {
 		log.Println(err)
 		return
 	}

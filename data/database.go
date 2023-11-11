@@ -47,7 +47,8 @@ func SetDatabase() {
 		{"Languages", setLanguages},
 		{"Handbook", setHandbook},
 		{"Traders", setTraders},
-		{"Locations", setLocationsMaster},
+		{"Locations", setLocations},
+		{"Loot", setLocalLoot},
 		{"Quests", setQuests},
 		{"Hideout", setHideout},
 		{"Weather", setWeather},
@@ -55,7 +56,6 @@ func SetDatabase() {
 		{"Bots", setBots},
 		{"Editions", setEditions},
 		{"Flea", setFlea},
-		{"Sacrificial Bot", setSacrificialBot},
 	}
 
 	numWorkers := tools.CalculateWorkers() / 4

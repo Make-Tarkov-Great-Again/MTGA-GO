@@ -9,7 +9,18 @@ import (
 	"github.com/goccy/go-json"
 )
 
-var hideout = Hideout{}
+var hideout = Hideout{
+	Index: HideoutIndex{
+		Areas:    make(map[int8]int8),
+		ScavCase: make(map[string]int8),
+		Recipes:  make(map[string]int16),
+	},
+	Areas:    make([]map[string]any, 0),
+	Recipes:  make([]map[string]any, 0),
+	QTE:      make([]map[string]any, 0),
+	ScavCase: make([]map[string]any, 0),
+	Settings: new(HideoutSettings),
+}
 
 const (
 	areasPath           = hideoutPath + "areas.json"
@@ -17,6 +28,15 @@ const (
 	qtePath             = hideoutPath + "qte.json"
 	scavcasePath        = hideoutPath + "scavcase.json"
 	hideoutSettingsPath = hideoutPath + "settings.json"
+
+	areasNotExist          = "Hideout Areas does not exist"
+	areaNotExist           = "Hideout Area Type %s does not exist"
+	qteNotExist            = "Hideout QTE does not exist"
+	settingsNotExist       = "Hideout Settings does not exist"
+	recipesNotExist        = "Hideout Recipes does not exist"
+	recipeNotExist         = "Hideout Recipe %s does not exist"
+	scavCaseNotExist       = "Hideout ScavCase does not exist"
+	scavCaseRecipeNotExist = "ScavCase recipe %s does not exist"
 )
 
 // #region Hideout getters
@@ -31,7 +51,7 @@ func GetHideoutAreas() ([]map[string]any, error) {
 		return hideout.Areas, nil
 	}
 
-	return nil, fmt.Errorf("Hideout areas does not exist")
+	return nil, fmt.Errorf(areasNotExist)
 }
 
 func GetHideoutQTE() ([]map[string]any, error) {
@@ -39,7 +59,7 @@ func GetHideoutQTE() ([]map[string]any, error) {
 		return hideout.QTE, nil
 	}
 
-	return nil, fmt.Errorf("Hideout QTE does not exist")
+	return nil, fmt.Errorf(qteNotExist)
 }
 
 func GetHideoutSettings() (*HideoutSettings, error) {
@@ -47,7 +67,7 @@ func GetHideoutSettings() (*HideoutSettings, error) {
 		return hideout.Settings, nil
 	}
 
-	return nil, fmt.Errorf("Hideout Settings does not exist")
+	return nil, fmt.Errorf(settingsNotExist)
 }
 
 func GetHideoutRecipes() ([]map[string]any, error) {
@@ -55,7 +75,7 @@ func GetHideoutRecipes() ([]map[string]any, error) {
 		return hideout.Recipes, nil
 	}
 
-	return nil, fmt.Errorf("Hideout Recipes does not exist")
+	return nil, fmt.Errorf(recipesNotExist)
 }
 
 func GetHideoutScavcase() ([]map[string]any, error) {
@@ -63,14 +83,14 @@ func GetHideoutScavcase() ([]map[string]any, error) {
 		return hideout.ScavCase, nil
 	}
 
-	return nil, fmt.Errorf("Hideout ScavCase does not exist")
+	return nil, fmt.Errorf(scavCaseNotExist)
 }
 
 // GetHideoutAreaByAreaType retrieves a hideout area by its type int8.
 func GetHideoutAreaByAreaType(_type int8) *map[string]any {
 	index, ok := hideout.Index.Areas[_type]
 	if !ok {
-		log.Println("Area Type ", _type, " does not exist")
+		log.Println(areaNotExist, _type)
 		return nil
 	}
 
@@ -82,13 +102,13 @@ func GetHideoutAreaByAreaType(_type int8) *map[string]any {
 func GetHideoutAreaByName(name string) *map[string]any {
 	area, ok := HideoutAreaNames[name]
 	if !ok {
-		log.Println("Hideout Area ", name, " does not exist")
+		log.Println(areaNotExist, name)
 		return nil
 	}
 
 	index, ok := hideout.Index.Areas[area]
 	if !ok {
-		log.Println("Area Type ", area, " does not exist")
+		log.Println(areaNotExist, area)
 		return nil
 	}
 
@@ -103,7 +123,7 @@ func GetHideoutRecipeByID(rid string) *map[string]any {
 		recipe := hideout.Recipes[index]
 		return &recipe
 	}
-	log.Println("Recipe ", rid, " does not exist")
+	log.Println(recipeNotExist, rid)
 	return nil
 }
 
@@ -114,7 +134,7 @@ func GetScavCaseRecipeByID(rid string) *map[string]any {
 		recipe := hideout.ScavCase[index]
 		return &recipe
 	}
-	log.Println("ScavCase recipe ", rid, " does not exist")
+	log.Println(scavCaseRecipeNotExist, rid)
 	return nil
 }
 
@@ -128,36 +148,21 @@ func setHideout() {
 
 	go func() {
 		if tools.FileExist(areasPath) {
-			areas := tools.GetJSONRawMessage(areasPath)
-			areasMap := make([]map[string]any, 0)
-			if err := json.Unmarshal(areas, &areasMap); err != nil {
-				log.Println(err)
-			}
-			setHideoutAreas(areasMap)
+			setHideoutAreas()
 		}
 		done <- true
 	}()
 
 	go func() {
 		if tools.FileExist(productionPath) {
-			recipes := tools.GetJSONRawMessage(productionPath)
-			productionsMap := make([]map[string]any, 0)
-			if err := json.Unmarshal(recipes, &productionsMap); err != nil {
-				log.Println(err)
-			}
-			setHideoutRecipes(productionsMap)
+			setHideoutRecipes()
 		}
 		done <- true
 	}()
 
 	go func() {
 		if tools.FileExist(scavcasePath) {
-			scavcase := tools.GetJSONRawMessage(scavcasePath)
-			scavcaseReturns := make([]map[string]any, 0)
-			if err := json.Unmarshal(scavcase, &scavcaseReturns); err != nil {
-				log.Println(err)
-			}
-			setHideoutScavcase(scavcaseReturns)
+			setHideoutScavcase()
 		}
 		done <- true
 	}()
@@ -165,8 +170,6 @@ func setHideout() {
 	go func() {
 		if tools.FileExist(qtePath) {
 			qte := tools.GetJSONRawMessage(qtePath)
-			hideout.QTE = []map[string]any{}
-
 			if err := json.Unmarshal(qte, &hideout.QTE); err != nil {
 				log.Println(err)
 			}
@@ -190,40 +193,40 @@ func setHideout() {
 }
 
 // setHideoutAreas sets the hideout areas and their indexes.
-func setHideoutAreas(areas []map[string]any) {
-	hideout.Areas = make([]map[string]any, 0, len(areas))
-	hideout.Index.Areas = make(map[int8]int8)
+func setHideoutAreas() {
+	areas := tools.GetJSONRawMessage(areasPath)
+	if err := json.Unmarshal(areas, &hideout.Areas); err != nil {
+		log.Println(err)
+	}
 
-	for index, area := range areas {
+	for index, area := range hideout.Areas {
 		areaType := int8(area["type"].(float64))
-
 		hideout.Index.Areas[areaType] = int8(index)
-		hideout.Areas = append(hideout.Areas, area)
 	}
 }
 
 // setHideoutRecipes sets the hideout production recipes and their indexes.
-func setHideoutRecipes(recipes []map[string]any) {
-	hideout.Recipes = make([]map[string]any, 0, len(recipes))
-	hideout.Index.Recipes = make(map[string]int16)
+func setHideoutRecipes() {
+	recipes := tools.GetJSONRawMessage(productionPath)
+	if err := json.Unmarshal(recipes, &hideout.Recipes); err != nil {
+		log.Println(err)
+	}
 
-	for index, recipe := range recipes {
+	for index, recipe := range hideout.Recipes {
 		pid := recipe["_id"].(string)
-
 		hideout.Index.Recipes[pid] = int16(index)
-		hideout.Recipes = append(hideout.Recipes, recipe)
 	}
 }
 
 // setHideoutScavcase sets the hideout scavcase items and their indexes.
-func setHideoutScavcase(scavcase []map[string]any) {
-	hideout.ScavCase = make([]map[string]any, 0, len(scavcase))
-	hideout.Index.ScavCase = make(map[string]int8)
-
-	for index, item := range scavcase {
+func setHideoutScavcase() {
+	scavcase := tools.GetJSONRawMessage(scavcasePath)
+	if err := json.Unmarshal(scavcase, &hideout.ScavCase); err != nil {
+		log.Println(err)
+	}
+	for index, item := range hideout.ScavCase {
 		pid := item["_id"].(string)
 
-		hideout.ScavCase = append(hideout.ScavCase, item)
 		hideout.Index.ScavCase[pid] = int8(index)
 	}
 }

@@ -1,10 +1,7 @@
 package data
 
 import (
-	"MT-GO/tools"
 	"fmt"
-	"github.com/goccy/go-json"
-	"log"
 	"net"
 )
 
@@ -15,23 +12,28 @@ const (
 	HTTPTemplate  = "http://%s"
 )
 
-func setServerConfig() *ServerConfig {
-	raw := tools.GetJSONRawMessage(serverConfigPath)
+var coreServerData = &serverData{
+	MainIPandPort:      "",
+	MainAddress:        "",
+	MessagingIPandPort: "",
+	MessageAddress:     "",
+	TradingIPandPort:   "",
+	TradingAddress:     "",
+	RagFairIPandPort:   "",
+	RagFairAddress:     "",
+	LobbyIPandPort:     "",
+	LobbyAddress:       "",
+}
 
-	data := new(ServerConfig)
-	err := json.Unmarshal(raw, &data)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
+func SetServerConfig() {
 
-	coreServerData.MainIPandPort = net.JoinHostPort(data.IP, data.Ports.Main)
-	coreServerData.MessagingIPandPort = net.JoinHostPort(data.IP, data.Ports.Messaging)
-	coreServerData.TradingIPandPort = net.JoinHostPort(data.IP, data.Ports.Trading)
-	coreServerData.RagFairIPandPort = net.JoinHostPort(data.IP, data.Ports.Flea)
-	coreServerData.LobbyIPandPort = net.JoinHostPort(data.IP, data.Ports.Lobby)
+	coreServerData.MainIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Main)
+	coreServerData.MessagingIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Messaging)
+	coreServerData.TradingIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Trading)
+	coreServerData.RagFairIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Flea)
+	coreServerData.LobbyIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Lobby)
 
-	if data.Secure {
+	if core.ServerConfig.Secure {
 		coreServerData.HTTPS = new(serverDataHTTPS)
 
 		coreServerData.HTTPS.HTTPSAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.MainIPandPort)
@@ -54,8 +56,6 @@ func setServerConfig() *ServerConfig {
 		coreServerData.RagFairAddress = fmt.Sprintf(HTTPTemplate, coreServerData.RagFairIPandPort)
 		coreServerData.LobbyAddress = fmt.Sprintf("ws://%s/sws", coreServerData.LobbyIPandPort)
 	}
-
-	return data
 }
 
 func GetMainAddress() string {

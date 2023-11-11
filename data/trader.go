@@ -308,14 +308,17 @@ func setTraders() {
 
 	for dir := range directory {
 		done := make(chan bool)
-		trader := &Trader{}
-
+		trader := new(Trader)
 		currentTraderPath := filepath.Join(traderPath, dir)
 
 		go func() {
 			basePath := filepath.Join(currentTraderPath, "base.json")
 			if tools.FileExist(basePath) {
-				trader.Base = setTraderBase(basePath)
+				raw := tools.GetJSONRawMessage(basePath)
+				trader.Base = new(TraderBase)
+				if err := json.Unmarshal(raw, &trader.Base); err != nil {
+					log.Fatalln(err)
+				}
 			}
 			done <- true
 		}()
@@ -323,7 +326,13 @@ func setTraders() {
 		go func() {
 			assortPath := filepath.Join(currentTraderPath, "assort.json")
 			if tools.FileExist(assortPath) {
-				trader.Assort = setTraderAssort(assortPath)
+				raw := tools.GetJSONRawMessage(assortPath)
+				trader.Assort = new(Assort)
+				if err := json.Unmarshal(raw, &trader.Assort); err != nil {
+					log.Fatalln(err)
+				}
+
+				trader.Assort.NextResupply = 0
 			}
 			done <- true
 		}()
@@ -331,7 +340,11 @@ func setTraders() {
 		go func() {
 			questsPath := filepath.Join(currentTraderPath, "questassort.json")
 			if tools.FileExist(questsPath) {
-				trader.QuestAssort = setTraderQuestAssort(questsPath)
+				raw := tools.GetJSONRawMessage(questsPath)
+				trader.QuestAssort = make(map[string]map[string]string)
+				if err := json.Unmarshal(raw, &trader.QuestAssort); err != nil {
+					log.Fatalln(err)
+				}
 			}
 			done <- true
 		}()
@@ -339,7 +352,11 @@ func setTraders() {
 		go func() {
 			suitsPath := filepath.Join(currentTraderPath, "suits.json")
 			if tools.FileExist(suitsPath) {
-				trader.Suits, trader.Index.Suits = setTraderSuits(suitsPath)
+				raw := tools.GetJSONRawMessage(suitsPath)
+				trader.Suits = make([]TraderSuits, 0)
+				if err := json.Unmarshal(raw, &trader.Suits); err != nil {
+					log.Println(err)
+				}
 			}
 			done <- true
 		}()
@@ -347,7 +364,11 @@ func setTraders() {
 		go func() {
 			dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
 			if tools.FileExist(dialoguesPath) {
-				trader.Dialogue = setTraderDialogues(dialoguesPath)
+				raw := tools.GetJSONRawMessage(dialoguesPath)
+				trader.Dialogue = make(map[string][]string)
+				if err := json.Unmarshal(raw, &trader.Dialogue); err != nil {
+					log.Fatalln(err)
+				}
 			}
 			done <- true
 		}()
@@ -359,117 +380,57 @@ func setTraders() {
 	}
 }
 
-func setTraderBase(basePath string) *TraderBase {
-	raw := tools.GetJSONRawMessage(basePath)
-	trader := new(TraderBase)
-	if err := json.Unmarshal(raw, &trader); err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	return trader
-}
-
 func SetTraderIndex() {
 	for _, trader := range traders {
-		if trader.Assort == nil {
-			continue
-		}
+		if trader.Assort != nil {
+			trader.Index.Assort = &AssortIndex{}
+			parentItems := make(map[string]map[string]int16)
+			childlessItems := make(map[string]int16)
 
-		trader.Index.Assort = &AssortIndex{}
-		parentItems := make(map[string]map[string]int16)
-		childlessItems := make(map[string]int16)
+			for index, item := range trader.Assort.Items {
 
-		for index, item := range trader.Assort.Items {
-
-			_, ok := childlessItems[item.ID]
-			if ok {
-				continue
-			}
-
-			_, ok = parentItems[item.ID]
-			if ok {
-				continue
-			}
-
-			itemChildren := GetItemFamilyTree(trader.Assort.Items, item.ID)
-			if len(itemChildren) == 1 {
-				childlessItems[item.ID] = int16(index)
-				continue
-			}
-
-			family := make(map[string]int16)
-			for _, child := range itemChildren {
-				for k, v := range trader.Assort.Items {
-					if child != v.ID {
-						continue
-					}
-
-					family[child] = int16(k)
-					break
+				_, ok := childlessItems[item.ID]
+				if ok {
+					continue
 				}
+
+				_, ok = parentItems[item.ID]
+				if ok {
+					continue
+				}
+
+				itemChildren := GetItemFamilyTree(trader.Assort.Items, item.ID)
+				if len(itemChildren) == 1 {
+					childlessItems[item.ID] = int16(index)
+					continue
+				}
+
+				family := make(map[string]int16)
+				for _, child := range itemChildren {
+					for k, v := range trader.Assort.Items {
+						if child != v.ID {
+							continue
+						}
+
+						family[child] = int16(k)
+						break
+					}
+				}
+				parentItems[item.ID] = family
 			}
-			parentItems[item.ID] = family
+
+			trader.Index.Assort.ParentItems = parentItems
+			trader.Index.Assort.Items = childlessItems
 		}
 
-		trader.Index.Assort.ParentItems = parentItems
-		trader.Index.Assort.Items = childlessItems
+		if trader.Suits != nil {
+			trader.Index.Suits = make(map[string]int8)
+			for index, suit := range trader.Suits {
+				trader.Index.Suits[suit.SuiteID] = int8(index)
+			}
+		}
 	}
 
-}
-
-func setTraderAssort(assortPath string) *Assort {
-	raw := tools.GetJSONRawMessage(assortPath)
-
-	assort := new(Assort)
-	if err := json.Unmarshal(raw, &assort); err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	assort.NextResupply = 0
-
-	return assort
-}
-
-func setTraderQuestAssort(questsPath string) map[string]map[string]string {
-	raw := tools.GetJSONRawMessage(questsPath)
-
-	quests := make(map[string]map[string]string)
-	if err := json.Unmarshal(raw, &quests); err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	return quests
-}
-
-func setTraderDialogues(dialoguesPath string) map[string][]string {
-	raw := tools.GetJSONRawMessage(dialoguesPath)
-	dialogues := make(map[string][]string)
-	if err := json.Unmarshal(raw, &dialogues); err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	return dialogues
-}
-
-func setTraderSuits(dialoguesPath string) ([]TraderSuits, map[string]int8) {
-	var suits []TraderSuits
-	raw := tools.GetJSONRawMessage(dialoguesPath)
-
-	if err := json.Unmarshal(raw, &suits); err != nil {
-		log.Println(err)
-		return nil, nil
-	}
-
-	suitsIndex := make(map[string]int8)
-	for index, suit := range suits {
-		suitsIndex[suit.SuiteID] = int8(index)
-	}
-
-	return suits, suitsIndex
 }
 
 // #endregion Trader->Init

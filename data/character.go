@@ -14,8 +14,7 @@ func setCharacter(path string) *Character {
 	output := &Character{}
 
 	data := tools.GetJSONRawMessage(path)
-	err := json.Unmarshal(data, output)
-	if err != nil {
+	if err := json.Unmarshal(data, output); err != nil {
 		log.Println(err)
 	}
 
@@ -176,8 +175,7 @@ func (inv *Inventory) CleanInventoryOfDeletedItemMods() bool {
 func (c *Character) SaveCharacter() error {
 	characterFilePath := filepath.Join(profilesPath, c.ID, "character.json")
 
-	err := tools.WriteToFile(characterFilePath, c)
-	if err != nil {
+	if err := tools.WriteToFile(characterFilePath, c); err != nil {
 		return fmt.Errorf(characterNotSaved, c.ID, err)
 	}
 	log.Println("Character saved")

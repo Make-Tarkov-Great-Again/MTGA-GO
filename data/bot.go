@@ -3,37 +3,117 @@ package data
 import (
 	"MT-GO/tools"
 	"fmt"
+	"github.com/goccy/go-json"
 	"log"
 	"path/filepath"
-	"strings"
-
-	"github.com/goccy/go-json"
 )
 
-// #region Bot getters
-
-var bots = Bots{}
+var bots = Bots{
+	BotTypes:      make(map[string]*BotType),
+	BotAppearance: make(map[string]*BotAppearance),
+	BotNames:      new(BotNames),
+}
 var sacrificialBot map[string]any
+
+const (
+	botNotExist        string = "Bot %s does not exist"
+	difficultyNotExist string = "Difficulty %s does not exist on Bot %s"
+)
+
+func setBots() {
+	done := make(chan bool)
+
+	go func() {
+		directory, err := tools.GetDirectoriesFrom(botsMainDir)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		for dir := range directory {
+			bots.BotTypes[dir] = setBotType(filepath.Join(botsMainDir, dir))
+		}
+		done <- true
+	}()
+	go func() {
+		raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "appearance.json"))
+		if err := json.Unmarshal(raw, &bots.BotAppearance); err != nil {
+			log.Fatalln(err)
+		}
+		done <- true
+	}()
+	go func() {
+		raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "names.json"))
+		if err := json.Unmarshal(raw, bots.BotNames); err != nil {
+			log.Fatalln(err)
+		}
+		done <- true
+	}()
+	go func() {
+		raw := tools.GetJSONRawMessage(filepath.Join(databaseLibPath, "sacrificialBot.json"))
+		if err := json.Unmarshal(raw, &sacrificialBot); err != nil {
+			log.Println(err)
+		}
+		done <- true
+	}()
+
+	for i := 0; i < 4; i++ {
+		<-done
+	}
+}
+
+func setBotType(dirPath string) *BotType {
+	botType := &BotType{
+		Difficulties: make(map[string]map[string]any),
+		Health:       make(map[string]any),
+		Loadout:      &BotLoadout{},
+	}
+
+	diffPath := filepath.Join(dirPath, "difficulties")
+	files, err := tools.GetFilesFrom(diffPath)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	for difficulty := range files {
+		botDifficulty := make(map[string]any)
+		difficultyPath := filepath.Join(diffPath, difficulty)
+		raw := tools.GetJSONRawMessage(difficultyPath)
+		if err = json.Unmarshal(raw, &botDifficulty); err != nil {
+			log.Println(err)
+			return nil
+		}
+		botType.Difficulties[difficulty[:len(difficulty)-5]] = botDifficulty
+	}
+
+	healthPath := filepath.Join(dirPath, "health.json")
+	if tools.FileExist(healthPath) {
+		raw := tools.GetJSONRawMessage(healthPath)
+		if err = json.Unmarshal(raw, &botType.Health); err != nil {
+			log.Println(err)
+			return nil
+		}
+	}
+
+	loadoutPath := filepath.Join(dirPath, "loadout.json")
+	if tools.FileExist(loadoutPath) {
+		raw := tools.GetJSONRawMessage(loadoutPath)
+		if err = json.Unmarshal(raw, &botType.Loadout); err != nil {
+			log.Println(err)
+			return nil
+		}
+	}
+
+	return botType
+}
 
 func GetSacrificialBot() *map[string]any {
 	return &sacrificialBot
-}
-func setSacrificialBot() {
-	read, err := tools.ReadFile(filepath.Join(databaseLibPath, "sacrificialBot.json"))
-	if err != nil {
-		log.Println(err)
-	}
-	if err := json.Unmarshal(read, &sacrificialBot); err != nil {
-		log.Println(err)
-	}
-	return
 }
 
 func GetBots() *Bots {
 	return &bots
 }
-
-const botNotExist string = "Bot %s does not exist"
 
 func GetBotByName(name string) (*BotType, error) {
 	botType, ok := bots.BotTypes[name]
@@ -42,8 +122,6 @@ func GetBotByName(name string) (*BotType, error) {
 	}
 	return botType, nil
 }
-
-const difficultyNotExist string = "Difficulty %s does not exist on Bot %s"
 
 func GetBotTypeDifficultyByName(name string, diff string) (any, error) {
 	botType, err := GetBotByName(name)
@@ -58,126 +136,6 @@ func GetBotTypeDifficultyByName(name string, diff string) (any, error) {
 
 	return difficulty, nil
 }
-
-// #endregion
-
-// #region Bot setters
-
-func setBots() {
-	bots.BotTypes = setBotTypes()
-	bots.BotAppearance = setBotAppearance()
-	bots.BotNames = setBotNames()
-}
-
-func setBotTypes() map[string]*BotType {
-	directory, err := tools.GetDirectoriesFrom(botsMainDir)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	// Create a channel to collect the results
-	resultChan := make(chan map[string]*BotType, len(directory))
-
-	for directory := range directory {
-		go func(dir string) {
-			botType := setBotType(filepath.Join(botsMainDir, dir))
-			resultChan <- map[string]*BotType{dir: botType}
-		}(directory)
-	}
-
-	// Create a map to store the results
-	botTypes := make(map[string]*BotType)
-
-	// Collect results from the channel
-	for i := 0; i < len(directory); i++ {
-		result := <-resultChan
-		for key, value := range result {
-			botTypes[key] = value
-		}
-	}
-
-	return botTypes
-}
-
-func setBotType(dirPath string) *BotType {
-	botType := new(BotType)
-
-	var diffPath = filepath.Join(dirPath, "difficulties")
-	files, err := tools.GetFilesFrom(diffPath)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	difficulties := make(map[string]json.RawMessage)
-	botDifficulty := map[string]any{}
-	for difficulty := range files {
-		difficultyPath := filepath.Join(diffPath, difficulty)
-		raw := tools.GetJSONRawMessage(difficultyPath)
-		name := strings.TrimSuffix(difficulty, ".json")
-		if err = json.Unmarshal(raw, &botDifficulty); err != nil {
-			log.Println(err)
-			return nil
-		}
-		difficulties[name] = raw
-	}
-
-	botType.Difficulties = botDifficulty
-
-	healthPath := filepath.Join(dirPath, "health.json")
-	if tools.FileExist(healthPath) {
-		health := make(map[string]any)
-
-		raw := tools.GetJSONRawMessage(healthPath)
-		if err = json.Unmarshal(raw, &health); err != nil {
-			log.Println(err)
-			return nil
-		}
-		botType.Health = health
-	}
-
-	loadoutPath := filepath.Join(dirPath, "loadout.json")
-	if tools.FileExist(loadoutPath) {
-		loadout := new(BotLoadout)
-		raw := tools.GetJSONRawMessage(loadoutPath)
-		if err = json.Unmarshal(raw, &loadout); err != nil {
-			log.Println(err)
-			return nil
-		}
-		botType.Loadout = loadout
-	}
-
-	return botType
-}
-
-func setBotAppearance() map[string]*BotAppearance {
-	botAppearance := make(map[string]*BotAppearance)
-
-	raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "appearance.json"))
-	err := json.Unmarshal(raw, &botAppearance)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return botAppearance
-}
-
-func setBotNames() *BotNames {
-	names := new(BotNames)
-
-	raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "names.json"))
-	err := json.Unmarshal(raw, names)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return names
-}
-
-// #endregion
-
-// #region Bot structs
 
 type Bots struct {
 	BotTypes      map[string]*BotType
@@ -218,9 +176,9 @@ type BotAppearance struct {
 }
 
 type BotType struct {
-	Difficulties map[string]any `json:"difficulties,omitempty"`
-	Health       map[string]any `json:"health,omitempty"`
-	Loadout      *BotLoadout    `json:"loadout,omitempty"`
+	Difficulties map[string]map[string]any `json:"difficulties,omitempty"`
+	Health       map[string]any            `json:"health,omitempty"`
+	Loadout      *BotLoadout               `json:"loadout,omitempty"`
 }
 
 type BotLoadout struct {

@@ -7,25 +7,21 @@ import (
 	"log"
 )
 
-var weaponMastering map[string]int16
+var weaponMastering = make(map[string]int16)
 
-func setGlobals() *Globals {
+func setGlobals() {
 	raw := tools.GetJSONRawMessage(globalsFilePath)
-
-	var global = Globals{}
-	err := json.Unmarshal(raw, &global)
-	if err != nil {
+	if err := json.Unmarshal(raw, &core.Globals); err != nil {
 		log.Println(err)
 	}
+}
 
-	weaponMastering = make(map[string]int16)
-	for idx, mastery := range global.Config.Mastering {
+func SetWeaponMasteries() {
+	for idx, mastery := range core.Globals.Config.Mastering {
 		for _, template := range mastery.Templates {
 			weaponMastering[template] = int16(idx)
 		}
 	}
-
-	return &global
 }
 
 func SetNewWeaponMastery(name string) {

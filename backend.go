@@ -18,19 +18,35 @@ import (
 
 func main() {
 	startTime := time.Now()
-
+	done := make(chan bool)
 	//TODO: Squeeze MS where possible, investigate TraderIndex if possible
 
 	data.SetDatabase()
-
 	mods.Init()
 
 	data.LoadBundleManifests()
 	data.LoadCustomItems()
 
-	data.SetTraderIndex()
-	//TODO: All profiles do not need to be set
-	data.SetProfiles()
+	go func() {
+		data.SetWeaponMasteries()
+		done <- true
+	}()
+	go func() {
+		data.SetServerConfig()
+		done <- true
+	}()
+	go func() {
+		data.SetTraderIndex()
+		done <- true
+	}()
+	go func() {
+		data.SetProfiles()
+		done <- true
+	}()
+	for i := 0; i < 4; i++ {
+		<-done
+	}
+
 	srv.SetServer()
 
 	endTime := time.Now()

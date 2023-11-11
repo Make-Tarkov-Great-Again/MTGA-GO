@@ -32,56 +32,44 @@ func setEditions() {
 	}
 
 	for directory := range directories {
-		setEdition(directory, editionsDirPath)
+		editions[directory] = setEdition(filepath.Join(editionsDirPath, directory))
 	}
 }
 
-func setEdition(directory string, editionsDirPath string) {
-	editionPath := filepath.Join(editionsDirPath, directory)
-	files, err := tools.GetFilesFrom(editionPath)
-	if err != nil {
-		log.Println(err)
+func setEdition(editionPath string) *Edition {
+	edition := &Edition{
+		Bear:    new(Character),
+		Usec:    new(Character),
+		Storage: new(EditionStorage),
 	}
 
-	edition := new(Edition)
-
-	for file := range files {
-		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, file))
-
-		switch file {
-		case "storage.json":
-			storage := new(EditionStorage)
-			if err := json.Unmarshal(raw, storage); err != nil {
-				log.Println(err)
-				return
-			}
-			edition.Storage = storage
-			continue
-
-		case "character_usec.json":
-			template := new(Character)
-			if err := json.Unmarshal(raw, template); err != nil {
-				log.Println(err)
-				return
-			}
-			edition.Usec = template
-			continue
-
-		case "character_bear.json":
-			template := new(Character)
-			if err := json.Unmarshal(raw, template); err != nil {
-				log.Println(err)
-				return
-			}
-			edition.Bear = template
-			continue
-
-		default:
-			log.Println("huh")
+	done := make(chan bool)
+	go func() {
+		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "storage.json"))
+		if err := json.Unmarshal(raw, edition.Storage); err != nil {
+			log.Fatalln(err)
 		}
-	}
+		done <- true
+	}()
+	go func() {
+		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_usec.json"))
+		if err := json.Unmarshal(raw, edition.Usec); err != nil {
+			log.Fatalln(err)
+		}
+		done <- true
+	}()
+	go func() {
+		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_bear.json"))
+		if err := json.Unmarshal(raw, edition.Bear); err != nil {
+			log.Fatalln(err)
+		}
+		done <- true
+	}()
 
-	editions[directory] = edition
+	for i := 0; i < 3; i++ {
+		<-done
+	}
+	return edition
 }
 
 // #endregion

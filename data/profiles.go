@@ -40,14 +40,14 @@ func SetProfiles() {
 		log.Println(err)
 		return
 	}
-	done := make(chan bool)
 
 	if len(users) == 0 {
 		return
 	}
 	for user := range users {
-		profile := &Profile{}
+		profile := new(Profile)
 		userPath := filepath.Join(profilesPath, user)
+		done := make(chan bool)
 
 		go func() {
 			path := filepath.Join(userPath, "account.json")
