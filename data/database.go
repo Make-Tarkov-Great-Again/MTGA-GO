@@ -35,7 +35,8 @@ const (
 
 func SetDatabase() {
 	var wg sync.WaitGroup
-	completionCh := make(chan struct{})
+	completionCh := make(chan bool)
+	numWorkers := tools.CalculateWorkers() / 4
 
 	tasks := []struct {
 		name     string
@@ -58,18 +59,16 @@ func SetDatabase() {
 		{"Flea", setFlea},
 	}
 
-	numWorkers := tools.CalculateWorkers() / 4
-
-	workerCh := make(chan struct{}, numWorkers)
+	workerCh := make(chan bool, numWorkers)
 
 	for _, task := range tasks {
 		wg.Add(1)
 		go func(taskName string, taskFunc func()) {
 			defer wg.Done()
-			workerCh <- struct{}{}
+			workerCh <- true
 			taskFunc()
 			<-workerCh
-			completionCh <- struct{}{}
+			completionCh <- true
 		}(task.name, task.function)
 	}
 

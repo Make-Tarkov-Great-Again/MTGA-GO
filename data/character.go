@@ -53,7 +53,7 @@ func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 			continue
 		}
 
-		if value.Conditions == nil || value.Conditions.AvailableForStart == nil {
+		if value.Conditions.AvailableForStart == nil {
 			output = append(output, GetQuestByID(key))
 			continue
 		}

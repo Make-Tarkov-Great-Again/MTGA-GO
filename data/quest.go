@@ -2,12 +2,13 @@ package data
 
 import (
 	"MT-GO/tools"
+	"fmt"
 	"github.com/goccy/go-json"
 	"log"
 )
 
-var questsQuery = map[string]*Quest{}
-var quests = map[string]any{}
+var questsQuery = make(map[string]*Quest)
+var quests = make(map[string]map[string]any)
 
 // #region Quests getters
 
@@ -16,25 +17,21 @@ func GetQuestsQuery() map[string]*Quest {
 }
 
 func GetQuestFromQueryByID(qid string) *Quest {
-	query, ok := questsQuery[qid]
-	if !ok {
+	if query, ok := questsQuery[qid]; !ok {
 		log.Println("Quest", qid, "does not exist in quests query")
 		return nil
+	} else {
+		return query
 	}
-	return query
 }
 
 func GetQuestByID(qid string) any {
-	quest, ok := quests[qid]
-	if !ok {
+	if quest, ok := quests[qid]; !ok {
 		log.Println("Quest", qid, "does not exist in quests")
 		return nil
+	} else {
+		return quest
 	}
-	return quest
-}
-
-func GetQuests() map[string]any {
-	return quests
 }
 
 // #endregion
@@ -61,65 +58,33 @@ func setQuests() {
 }
 
 func IndexQuests() {
-	raw := tools.GetJSONRawMessage(questsPath)
-	dynamic := make(map[string]map[string]any)
-	if err := json.Unmarshal(raw, &dynamic); err != nil {
-		log.Println(err)
-		return
-	}
-
-	for k, v := range dynamic {
+	for k, v := range quests {
 		done := make(chan bool)
-		quest := new(Quest)
+		quest := &Quest{
+			Name:   v["QuestName"].(string),
+			Trader: v["traderId"].(string),
+		}
 
-		quest.Name = v["QuestName"].(string)
-		quest.Trader = v["traderId"].(string)
 		go func() {
 			quest.Dialogue = setQuestDialogue(v)
 			done <- true
 		}()
 
 		go func() {
-			questConditions, ok := v["conditions"].(map[string]any)
-			if ok {
-				process := setQuestConditions(questConditions)
-
-				if len(process) == 0 {
-					quest.Conditions = nil
-				} else {
-					conditions := new(QuestAvailabilityConditions)
-					data, err := json.MarshalNoEscape(process)
-					if err != nil {
-						log.Println(err)
-					}
-					if err = json.Unmarshal(data, conditions); err != nil {
-						log.Println(err)
-					}
-					quest.Conditions = conditions
-				}
-			} else {
-				log.Println("Conditions don't exist? Check " + k)
+			if questConditions, ok := v["conditions"].(map[string]any); ok {
+				quest.Conditions = setQuestConditions(questConditions)
 			}
 			done <- true
 		}()
 
 		go func() {
-			questRewards, ok := v["rewards"].(map[string]any)
-			if ok {
-				rewards := &QuestRewardAvailabilityConditions{}
-				process := setQuestRewards(questRewards)
-				data, err := json.MarshalNoEscape(process)
-				if err != nil {
-					log.Println(err)
-				}
-				if err = json.Unmarshal(data, rewards); err != nil {
-					log.Println(err)
-				}
-				quest.Rewards = *rewards
+			if questRewards, _ := v["rewards"].(map[string]any); questRewards != nil {
+				quest.Rewards = setQuestRewards(questRewards)
 			}
 			done <- true
 		}()
-		for i := 0; i < 3; i++ {
+
+		for i := int8(0); i < 3; i++ {
 			<-done
 		}
 		questsQuery[k] = quest
@@ -127,13 +92,19 @@ func IndexQuests() {
 }
 
 func setQuestDialogue(quest map[string]any) QuestDialogues {
-	dialogues := new(QuestDialogues)
-
-	description, ok := quest["description"].(string)
-	if !ok {
-		log.Println("quest[`description`]")
+	return QuestDialogues{
+		Description: quest["description"].(string),
+		Started:     quest["startedMessageText"].(string),
+		Success:     quest["successMessageText"].(string),
+		Fail:        quest["failMessageText"].(string),
 	}
-	dialogues.Description = description
+	/*dialogues := new(QuestDialogues)
+
+		description, ok := quest["description"].(string)
+		if !ok {
+			log.Println("quest[`description`]")
+		}
+	dialogues.Description = description*/
 
 	//TODO: remove if not needed
 	/* 	complete, ok := quest["completePlayerMessage"].(string)
@@ -142,7 +113,7 @@ func setQuestDialogue(quest map[string]any) QuestDialogues {
 	   	}
 	   	dialogues.Complete = complete */
 
-	fail, ok := quest["failMessageText"].(string)
+	/*fail, ok := quest["failMessageText"].(string)
 	if !ok {
 		log.Println("quest[`failMessageText`]")
 	}
@@ -158,59 +129,247 @@ func setQuestDialogue(quest map[string]any) QuestDialogues {
 	if !ok {
 		log.Println("quest[`successMessageText`]")
 	}
-	dialogues.Success = success
+	dialogues.Success = success*/
 
 	//TODO: remove if not needed
 	/* 	accepted, ok := quest["acceptPlayerMessage"].(string)
 	   	if !ok {
 	   		log.Println("quest[`acceptPlayerMessage`]")
 	   	}
-	   	dialogues.Accepted = accepted */
+	   	dialogues.Accepted = accepted
 
-	return *dialogues
+	return *dialogues*/
 }
 
-func setQuestConditions(conditions map[string]any) map[string]map[string]any {
-	output := make(map[string]map[string]any)
+func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
+	output := QuestAvailabilityConditions{
+		AvailableForStart:  nil,
+		AvailableForFinish: nil,
+		Fail:               nil,
+	}
 
-	processCategory := func(category string, conditionList []any) {
-		processedCategory := make(map[string]any)
+	done := make(chan bool)
 
-		for _, condition := range conditionList {
-			conditionMap, ok := condition.(map[string]any)
-			if !ok || len(conditionMap) == 0 {
-				continue
-			}
-
-			name, _ := conditionMap[parent].(string)
-			if name == "FindItem" || name == "CounterCreator" ||
-				name == "PlaceBeacon" || name == "LeaveItemAtLocation" {
-				continue
-			}
-
-			process := processQuestCondition(name, conditionMap)
-			processedCategory[name] = process
-
+	processCategory := func(category string) {
+		conditionList, ok := conditions[category].([]any)
+		if !ok || len(conditionList) == 0 {
+			return
 		}
 
-		if len(processedCategory) > 0 {
-			output[category] = processedCategory
+		var input *QuestConditionTypes
+		switch category {
+		case Fail:
+			output.Fail = new(QuestConditionTypes)
+			input = output.Fail
+		case ForStart:
+			output.AvailableForStart = new(QuestConditionTypes)
+			input = output.AvailableForStart
+		case ForFinish:
+			output.AvailableForFinish = new(QuestConditionTypes)
+			input = output.AvailableForFinish
+		}
+
+		for _, c := range conditionList {
+			condition, ok := c.(map[string]any)
+			if !ok || len(condition) == 0 {
+				continue
+			}
+
+			props := condition[props].(map[string]any)
+			name := condition[parent].(string)
+
+			switch name {
+			case "Level":
+				input.Level = &LevelCondition{
+					CompareMethod: props["compareMethod"].(string),
+				}
+
+				float, ok := props["value"].(float64)
+				if ok {
+					input.Level.Level = float
+					continue
+				}
+
+				i, ok := props["value"].(int)
+				if ok {
+					input.Level.Level = float64(i)
+					continue
+				}
+			case "Quest": //TODO sometimes availableAfter isn't available...
+				if input.Quest == nil {
+					input.Quest = make(map[string]*QuestCondition)
+				}
+
+				input.Quest[props["id"].(string)] = &QuestCondition{
+					Status:          questStatus[int8(props["status"].([]any)[0].(float64))],
+					PreviousQuestID: props["target"].(string),
+				}
+
+				avail, _ := props["availableAfter"].(float64)
+				if ok {
+					input.Quest[props["id"].(string)].AvailableAfter = int(avail)
+				}
+
+				continue
+			case "TraderLoyalty":
+				if input.TraderLoyalty == nil {
+					input.TraderLoyalty = make(map[string]*LevelCondition)
+				}
+
+				levelCondition := &LevelCondition{
+					CompareMethod: props["compareMethod"].(string),
+				}
+
+				float, ok := props["value"].(float64)
+				if ok {
+					levelCondition.Level = float
+					input.TraderLoyalty[props["target"].(string)] = levelCondition
+					continue
+				}
+
+				i, ok := props["value"].(int)
+				if ok {
+					levelCondition.Level = float64(i)
+					input.TraderLoyalty[props["target"].(string)] = levelCondition
+					continue
+				}
+			case "TraderStanding":
+				if input.TraderStanding == nil {
+					input.TraderStanding = make(map[string]*LevelCondition)
+				}
+
+				levelCondition := &LevelCondition{
+					CompareMethod: props["compareMethod"].(string),
+				}
+
+				float, ok := props["value"].(float64)
+				if ok {
+					levelCondition.Level = float
+					input.TraderStanding[props["target"].(string)] = levelCondition
+					continue
+				}
+
+				i, ok := props["value"].(int)
+				if ok {
+					levelCondition.Level = float64(i)
+					input.TraderStanding[props["target"].(string)] = levelCondition
+					continue
+				}
+			case "HandoverItem":
+				if input.HandoverItem == nil {
+					input.HandoverItem = make(map[string]*HandoverCondition)
+				}
+				handover := &HandoverCondition{
+					ItemToHandover: props["target"].([]any)[0].(string),
+				}
+
+				isFloat, ok := props["value"].(float64)
+				if ok {
+					handover.Amount = isFloat
+					input.HandoverItem[props["id"].(string)] = handover
+					continue
+				}
+
+				isInt, ok := props["value"].(int)
+				if ok {
+					handover.Amount = float64(isInt)
+					input.HandoverItem[props["id"].(string)] = handover
+					continue
+				}
+			case "WeaponAssembly":
+				if input.WeaponAssembly == nil {
+					input.WeaponAssembly = make(map[string]*HandoverCondition)
+				}
+				handover := &HandoverCondition{
+					ItemToHandover: props["target"].([]any)[0].(string),
+				}
+
+				isFloat, ok := props["value"].(float64)
+				if ok {
+					handover.Amount = isFloat
+					input.WeaponAssembly[props["id"].(string)] = handover
+					continue
+				}
+
+				isInt, ok := props["value"].(int)
+				if ok {
+					handover.Amount = float64(isInt)
+					input.WeaponAssembly[props["id"].(string)] = handover
+					continue
+				}
+			case "FindItem":
+				if input.FindItem == nil {
+					input.FindItem = make(map[string]*HandoverCondition)
+				}
+				handover := &HandoverCondition{
+					ItemToHandover: props["target"].([]any)[0].(string),
+				}
+
+				isFloat, ok := props["value"].(float64)
+				if ok {
+					handover.Amount = isFloat
+					input.FindItem[props["id"].(string)] = handover
+					continue
+				}
+
+				isInt, ok := props["value"].(int)
+				if ok {
+					handover.Amount = float64(isInt)
+					input.FindItem[props["id"].(string)] = handover
+					continue
+				}
+			case "Skill":
+				if input.Skills == nil {
+					input.Skills = make(map[string]*LevelCondition)
+				}
+				levelCondition := &LevelCondition{
+					CompareMethod: props["compareMethod"].(string),
+				}
+
+				float, ok := props["value"].(float64)
+				if ok {
+					levelCondition.Level = float
+					input.Skills[props["target"].(string)] = levelCondition
+					continue
+				}
+
+				i, ok := props["value"].(int)
+				if ok {
+					levelCondition.Level = float64(i)
+					input.Skills[props["target"].(string)] = levelCondition
+					continue
+				}
+			default:
+				continue
+			}
+		}
+
+		if input == new(QuestConditionTypes) {
+			input = nil
 		}
 	}
 
-	fails, _ := conditions[Fail].([]any)
-	processCategory(Fail, fails)
+	go func() {
+		processCategory(Fail)
+		done <- true
+	}()
+	go func() {
+		processCategory(ForStart)
+		done <- true
+	}()
+	go func() {
+		processCategory(ForFinish)
+		done <- true
+	}()
 
-	starts, _ := conditions[ForStart].([]any)
-	processCategory(ForStart, starts)
-
-	successes, _ := conditions[ForFinish].([]any)
-	processCategory(ForFinish, successes)
+	for i := int8(0); i < 3; i++ {
+		<-done
+	}
 
 	return output
 }
 
-var QuestStatus = map[int8]string{
+var questStatus = map[int8]string{
 	0: "Locked",
 	1: "AvailableForStart",
 	2: "Started",
@@ -223,266 +382,179 @@ var QuestStatus = map[int8]string{
 	9: "AvailableAfter",
 }
 
-func processQuestCondition(name string, conditions map[string]any) any {
-	output := make(map[string]any)
-	props, _ := conditions[props].(map[string]any)
+func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
+	done := make(chan bool)
+	output := QuestRewardAvailabilityConditions{
+		Start:   nil,
+		Success: nil,
+		Fail:    nil,
+	}
 
-	switch name {
-	case "Level":
-		levelCondition := &LevelCondition{}
-		compare, _ := props["compareMethod"].(string)
-		levelCondition.CompareMethod = compare
-
-		float, ok := props["value"].(float64)
-		if ok {
-			levelCondition.Level = float
-			return levelCondition
+	processCategory := func(label string) {
+		category, ok := rewards[label].([]any)
+		if !ok || len(category) == 0 {
+			return
 		}
 
-		i, ok := props["value"].(int)
-		if ok {
-			levelCondition.Level = float64(i)
-			return levelCondition
-		}
-		return levelCondition
-
-	case "Quest":
-		condition := &QuestCondition{}
-		questID, _ := props["id"].(string)
-
-		isFloat, ok := props["availableAfter"].(float64)
-		if ok {
-			condition.AvailableAfter = int(isFloat)
-		}
-
-		previousQuestID, _ := props["target"].(string)
-		condition.PreviousQuestID = previousQuestID
-
-		value, _ := props["status"].([]any)[0].(float64)
-		condition.Status = QuestStatus[int8(value)]
-
-		output[questID] = condition
-		return output
-
-	case "TraderLoyalty", "TraderStanding":
-		traderID, _ := props["target"].(string)
-
-		levelCondition := &LevelCondition{}
-		compare, _ := props["compareMethod"].(string)
-		levelCondition.CompareMethod = compare
-
-		float, ok := props["value"].(float64)
-		if ok {
-			levelCondition.Level = float
-			output[traderID] = levelCondition
-			return output
+		var input *QuestRewards
+		switch label {
+		case Fail:
+			output.Fail = new(QuestRewards)
+			input = output.Fail
+		case Started:
+			output.Start = new(QuestRewards)
+			input = output.Start
+		case Success:
+			output.Success = new(QuestRewards)
+			input = output.Success
+		default:
+			log.Println("huh")
 		}
 
-		i, ok := props["value"].(int)
-		if ok {
-			levelCondition.Level = float64(i)
-			output[traderID] = levelCondition
-			return output
+		for _, c := range category {
+			reward, ok := c.(map[string]any)
+			if !ok || len(reward) == 0 {
+				continue
+			}
+
+			name := reward[_type].(string)
+
+			switch name {
+			case "Experience":
+				float, ok := reward["value"].(float64)
+				if ok {
+					input.Experience = int(float)
+					continue
+				}
+				input.Experience = reward["value"].(int)
+				continue
+			case "Item":
+				if input.Items == nil {
+					input.Items = make(map[string]QuestRewardItem)
+				}
+				questRewardItem := QuestRewardItem{}
+
+				items, _ := reward["items"].([]any)
+				questRewardItem.Items = make([]map[string]any, 0, len(items))
+				for _, idem := range items {
+					idem := idem.(map[string]any)
+					questRewardItem.Items = append(questRewardItem.Items, idem)
+				}
+
+				float, ok := reward["value"].(float64)
+				if ok {
+					questRewardItem.Value = int(float)
+					input.Items[reward["target"].(string)] = questRewardItem
+					continue
+				}
+
+				questRewardItem.Value = reward["value"].(int)
+				input.Items[reward["target"].(string)] = questRewardItem
+				continue
+			case "AssortmentUnlock":
+				input.AssortmentUnlock = reward["target"].(string)
+				continue
+			case "TraderStanding":
+				if input.TraderStanding == nil {
+					input.TraderStanding = make(map[string]float64)
+				}
+				float, ok := reward["value"].(float64)
+				if ok {
+					input.TraderStanding[reward["target"].(string)] = float
+					continue
+				}
+
+				i, ok := reward["value"].(int)
+				if ok {
+					input.TraderStanding[reward["target"].(string)] = float64(i)
+					continue
+				}
+
+				fmt.Println("TRADERSTANDING NOT FOUND")
+				continue
+			case "TraderStandingRestore":
+				if input.TraderStandingRestore == nil {
+					input.TraderStandingRestore = make(map[string]float64)
+				}
+				float, ok := reward["value"].(float64)
+				if ok {
+					input.TraderStandingRestore[reward["target"].(string)] = float
+					continue
+				}
+
+				i, ok := reward["value"].(int)
+				if ok {
+					input.TraderStandingRestore[reward["target"].(string)] = float64(i)
+					continue
+				}
+				fmt.Println("TRADERSTANDINGRESTORE NOT FOUND")
+				continue
+			case "TraderUnlock":
+				input.TraderUnlock = reward["target"].(string)
+				continue
+			case "Skill":
+				if input.Skills == nil {
+					input.Skills = make(map[string]int)
+				}
+				float, ok := reward["value"].(float64)
+				if ok {
+					input.Skills[reward["target"].(string)] = int(float)
+					continue
+				}
+				i, ok := reward["value"].(int)
+				if ok {
+					input.Skills[reward["target"].(string)] = i
+					continue
+				}
+				fmt.Println("SKILL NOT FOUND")
+				continue
+			case "ProductionScheme":
+				if input.ProductionScheme == nil {
+					input.ProductionScheme = make(map[string]QuestRewardProductionScheme)
+				}
+				scheme := QuestRewardProductionScheme{}
+				scheme.LoyaltyLevel = int(reward["loyaltyLevel"].(float64))
+				scheme.Item = reward["items"].([]any)[0].(map[string]any)["_tpl"].(string)
+
+				ifFloat, ok := reward["traderId"].(float64)
+				if ok {
+					scheme.AreaID = int(ifFloat)
+				} else {
+					scheme.AreaID = reward["traderId"].(int)
+				}
+				/*
+					item, ok := reward["items"].([]any)[0].(map[string]any)["_tpl"].(string)
+					if ok {
+						scheme.Item = item
+					}
+				*/
+				input.ProductionScheme[reward["target"].(string)] = scheme
+				continue
+			default:
+				log.Println("huh")
+				continue
+			}
 		}
 
-		return output
+	}
 
-	case "HandoverItem", "WeaponAssembly", "FindItem":
-		handover := &HandoverCondition{}
-		handoverID, _ := props["id"].(string)
+	go func() {
+		processCategory(Fail)
+		done <- true
+	}()
+	go func() {
+		processCategory(Started)
+		done <- true
+	}()
+	go func() {
+		processCategory(Success)
+		done <- true
+	}()
 
-		itemID, _ := props["target"].([]any)[0].(string)
-		handover.ItemToHandover = itemID
-
-		isFloat, ok := props["value"].(float64)
-		if ok {
-			handover.Amount = isFloat
-
-			output[handoverID] = handover
-			return output
-		}
-
-		isInt, ok := props["value"].(int)
-		if ok {
-			handover.Amount = float64(isInt)
-
-			output[handoverID] = handover
-			return output
-		}
-		return output
-
-	case "Skill":
-		skillName, _ := props["target"].(string)
-		levelCondition := &LevelCondition{}
-		compare, _ := props["compareMethod"].(string)
-		levelCondition.CompareMethod = compare
-
-		float, ok := props["value"].(float64)
-		if ok {
-			levelCondition.Level = float
-			output[skillName] = levelCondition
-			return output
-		}
-
-		i, ok := props["value"].(int)
-		if ok {
-			levelCondition.Level = float64(i)
-			output[skillName] = levelCondition
-			return output
-		}
-	default:
-		log.Println(name + " condition, probably not needed")
-		return output
+	for i := int8(0); i < 3; i++ {
+		<-done
 	}
 	return output
-}
-
-func setQuestRewards(rewards map[string]any) map[string]any {
-	output := make(map[string]any)
-
-	fails, ok := rewards[Fail].([]any)
-	if ok && len(fails) != 0 {
-		succ := make(map[string]any)
-
-		for _, fail := range fails {
-			if len(fail.(map[string]any)) == 0 {
-				continue
-			}
-			reward := fail.(map[string]any)
-
-			name := reward[_type].(string)
-			succ[name] = setQuestReward(name, reward)
-		}
-		output[Fail] = succ
-	}
-
-	starts, ok := rewards[Started].([]any)
-	if ok && len(starts) != 0 {
-		succ := make(map[string]any)
-
-		for _, start := range starts {
-			if len(start.(map[string]any)) == 0 {
-				continue
-			}
-			reward := start.(map[string]any)
-
-			name := reward[_type].(string)
-			succ[name] = setQuestReward(name, reward)
-		}
-		output[Started] = succ
-	}
-
-	successes, ok := rewards[Success].([]any)
-	if ok && len(successes) != 0 {
-		succ := make(map[string]any)
-
-		for _, success := range successes {
-			if len(success.(map[string]any)) == 0 {
-				continue
-			}
-
-			reward := success.(map[string]any)
-
-			name := reward[_type].(string)
-			succ[name] = setQuestReward(name, reward)
-		}
-		output[Success] = succ
-	}
-	return output
-}
-
-func setQuestReward(name string, reward map[string]any) any {
-	output := make(map[string]any)
-
-	switch name {
-	case "Experience":
-		float, ok := reward["value"].(float64)
-		if ok {
-			return int(float)
-		}
-		return reward["value"].(int)
-	case "Item":
-		questRewardItem := &QuestRewardItem{}
-
-		itemID, _ := reward["target"].(string)
-
-		idems, _ := reward["items"].([]any)
-		questRewardItem.Items = make([]map[string]any, 0, len(idems))
-		for _, idem := range idems {
-			idem := idem.(map[string]any)
-			questRewardItem.Items = append(questRewardItem.Items, idem)
-		}
-
-		float, ok := reward["value"].(float64)
-		if ok {
-			questRewardItem.Value = int(float)
-			output[itemID] = questRewardItem
-			return output
-		}
-
-		questRewardItem.Value = reward["value"].(int)
-		output[itemID] = questRewardItem
-		return output
-	case "AssortmentUnlock":
-		traderID, _ := reward["target"].(string)
-		return traderID
-	case "TraderStanding", "TraderStandingRestore":
-		traderID, _ := reward["target"].(string)
-
-		float, ok := reward["value"].(float64)
-		if ok {
-			output[traderID] = float
-			return output
-		}
-
-		i, ok := reward["value"].(int)
-		if ok {
-			output[traderID] = float64(i)
-			return output
-		}
-		return output
-	case "Skill":
-		skillName, _ := reward["target"].(string)
-
-		float, ok := reward["value"].(float64)
-		if ok {
-			output[skillName] = float32(float)
-			return output
-		}
-
-		i, ok := reward["value"].(int)
-		if ok {
-			output[skillName] = float32(i)
-			return output
-		}
-
-		return output
-	case "ProductionScheme":
-		schemeID, _ := reward["target"].(string)
-		scheme := &QuestRewardProductionScheme{}
-
-		loyaltyLevel, _ := reward["loyaltyLevel"].(float64)
-		scheme.LoyaltyLevel = int(loyaltyLevel)
-
-		ifInt, ok := reward["traderId"].(int)
-		if ok {
-			scheme.AreaID = ifInt
-		}
-
-		item, ok := reward["items"].([]any)[0].(map[string]any)["_tpl"].(string)
-		if ok {
-			scheme.Item = item
-		}
-
-		output[schemeID] = scheme
-		return output
-	case "TraderUnlock":
-		traderID, _ := reward["target"].(string)
-		return traderID
-	default:
-		log.Println(name + " reward")
-		return output
-	}
 }
 
 // #endregion
@@ -519,7 +591,7 @@ type Quest struct {
 	Name       string
 	Trader     string
 	Dialogue   QuestDialogues                    `json:",omitempty"`
-	Conditions *QuestAvailabilityConditions      `json:",omitempty"`
+	Conditions QuestAvailabilityConditions       `json:",omitempty"`
 	Rewards    QuestRewardAvailabilityConditions `json:",omitempty"`
 }
 
@@ -572,14 +644,14 @@ type QuestRewardAvailabilityConditions struct {
 }
 
 type QuestRewards struct {
-	Experience            int                                     `json:"Experience,omitempty"`
-	Items                 map[string]*QuestRewardItem             `json:"Item,omitempty"`
-	AssortmentUnlock      string                                  `json:"AssortmentUnlock,omitempty"`
-	TraderStanding        map[string]*float64                     `json:"TraderStanding,omitempty"`
-	TraderStandingRestore map[string]*float64                     `json:"TraderStandingRestore,omitempty"`
-	TraderUnlock          string                                  `json:"TraderUnlock,omitempty"`
-	Skills                map[string]*int                         `json:"Skills,omitempty"`
-	ProductionScheme      map[string]*QuestRewardProductionScheme `json:"ProductionScheme,omitempty"`
+	Experience            int                                    `json:"Experience,omitempty"`
+	Items                 map[string]QuestRewardItem             `json:"Item,omitempty"`
+	AssortmentUnlock      string                                 `json:"AssortmentUnlock,omitempty"`
+	TraderStanding        map[string]float64                     `json:"TraderStanding,omitempty"`
+	TraderStandingRestore map[string]float64                     `json:"TraderStandingRestore,omitempty"`
+	TraderUnlock          string                                 `json:"TraderUnlock,omitempty"`
+	Skills                map[string]int                         `json:"Skills,omitempty"`
+	ProductionScheme      map[string]QuestRewardProductionScheme `json:"ProductionScheme,omitempty"`
 }
 
 type QuestRewardProductionScheme struct {
