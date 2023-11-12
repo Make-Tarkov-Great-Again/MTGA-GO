@@ -89,6 +89,8 @@ func IndexQuests() {
 		}
 		questsQuery[k] = quest
 	}
+	
+	questConditionCheck = nil
 }
 
 func setQuestDialogue(quest map[string]any) QuestDialogues {
@@ -140,6 +142,8 @@ func setQuestDialogue(quest map[string]any) QuestDialogues {
 
 	return *dialogues*/
 }
+
+var questConditionCheck = new(QuestConditionTypes)
 
 func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 	output := QuestAvailabilityConditions{
@@ -344,7 +348,7 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 			}
 		}
 
-		if input == new(QuestConditionTypes) {
+		if input == questConditionCheck {
 			input = nil
 		}
 	}
