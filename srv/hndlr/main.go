@@ -294,12 +294,11 @@ func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
 	pkg.ZlibJSONReply(w, r.RequestURI, body)
 }
 
-func MainServerList(w http.ResponseWriter, r *http.Request) {
-	var serverListings []ServerListing
+var serverListings []ServerListing
 
+func GetServerList(w http.ResponseWriter, r *http.Request) {
 	srvcfg := data.GetServerConfig()
 	port, _ := strconv.Atoi(srvcfg.Ports.Main)
-
 	serverListings = append(serverListings, ServerListing{
 		IP:   srvcfg.IP,
 		Port: port,
@@ -507,11 +506,9 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 	bots := make([]map[string]any, 0, 50)
 	for _, condition := range conditions.Conditions {
 		for i := int8(0); i < condition.Limit; i++ {
-			clone := make(map[string]interface{})
-			for key, value := range *bot {
-				clone[key] = value
-			}
-			clone["Id"] = tools.GenerateMongoID()
+			clone := bot.Clone()
+			clone["_id"] = tools.GenerateMongoID()
+			clone["aid"] = i
 			clone["Info"].(map[string]any)["Settings"].(map[string]any)["Role"] = condition.Role
 			clone["Info"].(map[string]any)["Settings"].(map[string]any)["BotDifficulty"] = condition.Difficulty
 			bots = append(bots, clone)

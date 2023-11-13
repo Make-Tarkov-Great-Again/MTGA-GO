@@ -50,10 +50,8 @@ const (
 
 func setQuests() {
 	raw := tools.GetJSONRawMessage(questsPath)
-	err := json.Unmarshal(raw, &quests)
-	if err != nil {
-		log.Println(err)
-		return
+	if err := json.Unmarshal(raw, &quests); err != nil {
+		log.Fatalln(err)
 	}
 }
 
@@ -89,7 +87,7 @@ func IndexQuests() {
 		}
 		questsQuery[k] = quest
 	}
-	
+
 	questConditionCheck = nil
 }
 

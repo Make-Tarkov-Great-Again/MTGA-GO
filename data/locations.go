@@ -25,8 +25,7 @@ func GetLocations() *Locations {
 func setLocations() {
 	raw := tools.GetJSONRawMessage(locationsFilePath)
 	if err := json.Unmarshal(raw, &locations); err != nil {
-		log.Println(err)
-		return
+		log.Fatalln(err)
 	}
 }
 
@@ -51,7 +50,7 @@ func GetLocalLootByNameAndIndex(name string, index int8) any {
 func setLocalLoot() {
 	files, err := tools.GetFilesFrom("/locationTest")
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 
 	for file := range files {
@@ -66,11 +65,10 @@ func setLocalLoot() {
 		format := new(any)
 		readFile, err := tools.ReadFile(filePath)
 		if err != nil {
-			log.Println(err)
+			log.Fatalln(err)
 		}
-		err = json.Unmarshal(readFile, format)
-		if err != nil {
-			log.Println(err)
+		if err = json.Unmarshal(readFile, format); err != nil {
+			log.Fatalln(err)
 		}
 
 		localLoot[name] = append(localLoot[name], format)

@@ -12,7 +12,7 @@ var weaponMastering = make(map[string]int16)
 func setGlobals() {
 	raw := tools.GetJSONRawMessage(globalsFilePath)
 	if err := json.Unmarshal(raw, &core.Globals); err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 }
 

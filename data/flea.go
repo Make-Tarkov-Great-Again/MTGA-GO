@@ -13,7 +13,7 @@ func GetFlea() *Flea {
 // #region Flea setters
 
 func setFlea() {
-
+	return
 }
 
 // #endregion

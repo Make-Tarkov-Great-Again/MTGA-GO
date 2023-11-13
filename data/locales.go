@@ -45,10 +45,8 @@ func GetLanguages() map[string]string {
 // #region Language setters
 func setLanguages() {
 	raw := tools.GetJSONRawMessage(filepath.Join(localesPath, "/languages.json"))
-	err := json.Unmarshal(raw, &languages)
-	if err != nil {
-		log.Println(err)
-		return
+	if err := json.Unmarshal(raw, &languages); err != nil {
+		log.Fatalln(err)
 	}
 }
 
@@ -65,7 +63,7 @@ func GetLocaleByName(input string) (*LocaleData, error) {
 	if locale, ok := localeMap[name]; ok {
 		return locale, nil
 	}
-	return nil, fmt.Errorf("Locale", name, "doesn't exist")
+	return nil, fmt.Errorf("Locale %s doesn't exist", name)
 }
 
 func GetLocalesMenuByName(name string) (*LocaleMenu, error) {
@@ -78,7 +76,7 @@ func GetLocalesMenuByName(name string) (*LocaleMenu, error) {
 		return locale.Menu, nil
 	}
 
-	return nil, fmt.Errorf("Locale", name, "menu doesn't exist")
+	return nil, fmt.Errorf("Locale %s menu doesn't exist", name)
 }
 
 func GetLocalesGlobalByName(name string) (map[string]any, error) {
@@ -91,7 +89,7 @@ func GetLocalesGlobalByName(name string) (map[string]any, error) {
 		return locale.Locale, nil
 	}
 
-	return nil, fmt.Errorf("Locale", name, "globals doesn't exist")
+	return nil, fmt.Errorf("Locale %s globals doesn't exist", name)
 }
 
 // #endregion
@@ -101,8 +99,7 @@ func GetLocalesGlobalByName(name string) (map[string]any, error) {
 func setLocales() {
 	directories, err := tools.GetDirectoriesFrom(localesPath)
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatalln(err)
 	}
 
 	structure := make(map[string]*LocaleData)
@@ -112,8 +109,7 @@ func setLocales() {
 		dirPath := filepath.Join(localesPath, dir)
 		localeFiles, err := tools.GetFilesFrom(dirPath)
 		if err != nil {
-			log.Println(err)
-			return
+			log.Fatalln(err)
 		}
 
 		for file := range localeFiles {
@@ -123,15 +119,13 @@ func setLocales() {
 			case "locale.json":
 				raw := make(map[string]any)
 				if err := json.Unmarshal(fileContent, &raw); err != nil {
-					log.Println(err)
-					return
+					log.Fatalln(err)
 				}
 				localeData.Locale = raw
 			case "menu.json":
 				localeMenu := &LocaleMenu{}
 				if err := json.Unmarshal(fileContent, &localeMenu); err != nil {
-					log.Println(err)
-					return
+					log.Fatalln(err)
 				}
 
 				localeData.Menu = localeMenu
@@ -145,14 +139,11 @@ func setLocales() {
 
 	bytes, err := json.Marshal(structure)
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatalln(err)
 	}
 
-	err = json.Unmarshal(bytes, &locales)
-	if err != nil {
-		log.Println(err)
-		return
+	if err = json.Unmarshal(bytes, &locales); err != nil {
+		log.Fatalln(err)
 	}
 }
 

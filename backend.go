@@ -18,7 +18,6 @@ import (
 
 func main() {
 	startTime := time.Now()
-	done := make(chan bool)
 	//TODO: Squeeze MS where possible, investigate TraderIndex if possible
 
 	data.SetDatabase()
@@ -27,6 +26,11 @@ func main() {
 	data.LoadBundleManifests()
 	data.LoadCustomItems()
 
+	endTime := time.Now()
+	fmt.Printf("Database initialized in %s\n", endTime.Sub(startTime))
+
+	startTime = time.Now()
+	done := make(chan bool)
 	go func() {
 		data.IndexWeaponMasteries()
 		done <- true
@@ -59,14 +63,14 @@ func main() {
 		data.SetProfiles()
 		done <- true
 	}()
+
 	for i := 0; i < 7; i++ {
 		<-done
 	}
+	endTime = time.Now()
+	fmt.Printf("Cache initialized in %s\n\n", endTime.Sub(startTime))
 
 	srv.SetServer()
-
-	endTime := time.Now()
-	fmt.Printf("\nDatabase initialized in %s\n\n", endTime.Sub(startTime))
 
 	startHome()
 }

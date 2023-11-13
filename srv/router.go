@@ -45,7 +45,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/quest/list":                          hndlr.MainQuestList,
 	"/client/match/group/current":                 hndlr.MainCurrentGroup,
 	"/client/repeatalbeQuests/activityPeriods":    hndlr.MainRepeatableQuests,
-	"/client/srv/list":                            hndlr.MainServerList,
+	"/client/server/list":                         hndlr.GetServerList,
 	"/client/checkVersion":                        hndlr.MainCheckVersion,
 	"/client/game/logout":                         hndlr.MainLogout,
 	"/client/items/prices/":                       hndlr.MainPrices,
@@ -84,8 +84,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 
 	"/client/location/getLocalloot":     hndlr.GetLocalLoot,
 	"/client/insurance/items/list/cost": hndlr.InsuranceListCost,
-
-	"/client/game/bot/generate": hndlr.BotGenerate,
+	"/client/game/bot/generate":         hndlr.BotGenerate,
 
 	"/raid/profile/save": hndlr.RaidProfileSave,
 	"/sp/airdrop/config": hndlr.AirdropConfig,

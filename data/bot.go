@@ -13,7 +13,7 @@ var bots = Bots{
 	BotAppearance: make(map[string]*BotAppearance),
 	BotNames:      new(BotNames),
 }
-var sacrificialBot map[string]any
+var sacrificialBot DummyBot
 
 const (
 	botNotExist        string = "Bot %s does not exist"
@@ -107,8 +107,25 @@ func setBotType(dirPath string) *BotType {
 	return botType
 }
 
-func GetSacrificialBot() *map[string]any {
-	return &sacrificialBot
+type DummyBot map[string]any
+
+func GetSacrificialBot() DummyBot {
+	return sacrificialBot
+}
+
+func (i *DummyBot) Clone() DummyBot {
+	clone := new(DummyBot)
+
+	data, err := json.Marshal(i)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := json.Unmarshal(data, &clone); err != nil {
+		log.Fatal(err)
+	}
+
+	return *clone
 }
 
 func GetBots() *Bots {

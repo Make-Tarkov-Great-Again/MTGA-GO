@@ -1,15 +1,9 @@
 package tools
 
 import (
-	"log"
-	"strings"
-
 	"github.com/goccy/go-json"
+	"log"
 )
-
-type Data struct {
-	Data json.RawMessage `json:"data"`
-}
 
 func GetJSONRawMessage(path string) json.RawMessage {
 	b, err := ReadFile(path)
@@ -17,13 +11,14 @@ func GetJSONRawMessage(path string) json.RawMessage {
 		log.Fatalln(err)
 	}
 
-	rawJson := json.RawMessage(b)
-	var data Data
-	if strings.Contains(string(rawJson), "\"data\"") {
-		if err := json.Unmarshal(rawJson, &data); err != nil {
-			log.Fatalln(err)
-		}
-		return data.Data
+	var rawMap map[string]json.RawMessage
+	if err := json.Unmarshal(b, &rawMap); err != nil {
+		return b
 	}
-	return rawJson
+
+	if data, exists := rawMap["data"]; exists {
+		return data
+	}
+
+	return b
 }

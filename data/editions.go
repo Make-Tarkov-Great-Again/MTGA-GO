@@ -28,7 +28,7 @@ func GetEditionByName(version string) *Edition {
 func setEditions() {
 	directories, err := tools.GetDirectoriesFrom(editionsDirPath)
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 
 	for directory := range directories {
