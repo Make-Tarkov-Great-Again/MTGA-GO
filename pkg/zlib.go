@@ -70,7 +70,7 @@ func zlibDeflate(w http.ResponseWriter, path string, data any) {
 	}
 
 	// Convert data to JSON bytes
-	input, err := json.MarshalNoEscape(data)
+	input, err := json.Marshal(data)
 	if err != nil {
 		http.Error(w, "Failed to marshal data to JSON", http.StatusInternalServerError)
 		return

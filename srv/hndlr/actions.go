@@ -61,11 +61,15 @@ var actionHandlers = map[string]func(map[string]any, string, *pkg.ProfileChanges
 	"HideoutUpgrade": func(moveAction map[string]any, id string, profileChangeEvent *pkg.ProfileChangesEvent) {
 		pkg.HideoutUpgrade(moveAction, id, profileChangeEvent)
 	},
-	//HideoutUpgradeComplete
 	"HideoutUpgradeComplete": func(moveAction map[string]any, id string, profileChangeEvent *pkg.ProfileChangesEvent) {
 		pkg.HideoutUpgradeComplete(moveAction, id, profileChangeEvent)
 	},
 }
+
+const (
+	actionLog          string = "[ %d/%d ] Action: %s\n"
+	actionNotSupported        = "%s is not supported, sending empty response\n"
+)
 
 func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	body := pkg.GetParsedBody(r).(map[string]any)["data"].([]any)
@@ -74,15 +78,15 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	id := pkg.GetSessionID(r)
 	profileChangeEvent := pkg.CreateProfileChangesEvent(id)
 
-	for i, move := range body {
-		moveAction := move.(map[string]any)
+	for i := int8(0); i <= length; i++ {
+		moveAction := body[i].(map[string]any)
 		action := moveAction["Action"].(string)
-		log.Println("[", i, "/", length, "] Action: ", action)
+		log.Printf(actionLog, i, length, action)
 
 		if handler, ok := actionHandlers[action]; ok {
 			handler(moveAction, id, profileChangeEvent)
 		} else {
-			log.Println(action, "is not supported, sending empty response")
+			log.Printf(actionNotSupported, action)
 		}
 	}
 

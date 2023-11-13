@@ -70,7 +70,7 @@ func CloneTrader(name string) *Trader {
 		return nil
 	}
 
-	TraderJSON, err := json.MarshalNoEscape(tc)
+	TraderJSON, err := json.Marshal(tc)
 	if err != nil {
 		log.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
 		return nil

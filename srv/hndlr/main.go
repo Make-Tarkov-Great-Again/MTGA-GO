@@ -137,7 +137,7 @@ type nicknameValidate struct {
 
 func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 	validate := new(nicknameValidate)
-	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
+	input, err := json.Marshal(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
@@ -155,7 +155,7 @@ type profileCreate struct {
 
 func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	request := new(ProfileCreateRequest)
-	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
+	input, err := json.Marshal(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
@@ -350,7 +350,7 @@ type localLoot struct {
 
 func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 	loot := new(localLoot)
-	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
+	input, err := json.Marshal(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
@@ -382,7 +382,7 @@ type insuranceList struct {
 
 func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	insurances := new(insuranceList)
-	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
+	input, err := json.Marshal(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
@@ -493,7 +493,7 @@ type botCondition struct {
 
 func BotGenerate(w http.ResponseWriter, r *http.Request) {
 	conditions := new(botConditions)
-	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
+	input, err := json.Marshal(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
@@ -529,7 +529,7 @@ type offlineMatchEnd struct {
 
 func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
 	matchEnd := new(offlineMatchEnd)
-	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
+	input, err := json.Marshal(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
@@ -567,7 +567,7 @@ type healthPart struct {
 
 func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	save := new(raidProfileSave)
-	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
+	input, err := json.Marshal(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}

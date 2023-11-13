@@ -59,7 +59,7 @@ func GetInventoryCacheByID(uid string) (*InventoryContainer, error) {
 	return nil, fmt.Errorf(inventoryCacheNotExist, uid)
 }
 
-func CreateCacheByID(id string) {
+func SetProfileCache(id string) {
 	cache, ok := cacheMap[id]
 	if !ok {
 		cache = &Cache{
@@ -78,39 +78,49 @@ func CreateCacheByID(id string) {
 			},
 		}
 	}
-	if profiles[id] != nil {
-		cache.SetCache(profiles[id].Character)
+
+	if profiles[id].Character != nil {
+		cache.SetCharacterCache(profiles[id].Character)
 	}
 	cacheMap[id] = cache
 }
 
-func (c *Cache) SetCache(character *Character) {
+func (c *Cache) SetCharacterCache(character *Character) {
 	done := make(chan bool)
 	go func() {
-		for index, quest := range character.Quests {
-			c.Quests.Index[quest.QID] = int8(index)
+		if len(character.Quests) != 0 {
+			for index, quest := range character.Quests {
+				c.Quests.Index[quest.QID] = int8(index)
+			}
 		}
+
 		done <- true
 	}()
 
 	// Define a function to update the common skills map
 	go func() {
-		for index, commonSkill := range character.Skills.Common {
-			c.Skills.Common[commonSkill.ID] = int8(index)
+		if len(character.Skills.Common) != 0 {
+			for index, commonSkill := range character.Skills.Common {
+				c.Skills.Common[commonSkill.ID] = int8(index)
+			}
 		}
 		done <- true
 	}()
 
 	// Define a function to update the hideout areas map
 	go func() {
-		for index, area := range character.Hideout.Areas {
-			c.Hideout.Areas[int8(area.Type)] = int8(index)
+		if len(character.Hideout.Areas) != 0 {
+			for index, area := range character.Hideout.Areas {
+				c.Hideout.Areas[int8(area.Type)] = int8(index)
+			}
 		}
 		done <- true
 	}()
 
 	go func() {
-		c.Inventory = SetInventoryContainer(&character.Inventory)
+		if len(character.Inventory.Items) != 0 {
+			c.Inventory = SetInventoryContainer(&character.Inventory)
+		}
 		done <- true
 	}()
 
@@ -136,7 +146,11 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		ic.Stash = &Stash{}
 		stash = ic.Stash
 
-		item := GetItemByID(inventory.Items[ic.Lookup.Forward[inventory.Stash]].TPL)
+		item, err := GetItemByID(inventory.Items[ic.Lookup.Forward[inventory.Stash]].TPL)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 		grids := item.GetItemGrids()
 
 		for key, value := range grids {
@@ -400,9 +414,13 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 	index := ic.Lookup.Forward[parent]
 	itemInInventory := items[index]
 
-	itemInDatabase := GetItemByID(itemInInventory.TPL) //parent
-	height, width := itemInDatabase.GetItemSize()      //get parent as starting point
+	itemInDatabase, err := GetItemByID(itemInInventory.TPL) //parent
+	if err != nil {
+		log.Println(err)
+		return -1, -1
+	}
 
+	height, width := itemInDatabase.GetItemSize()             //get parent as starting point
 	if itemInDatabase.Parent == "5448e53e4bdc2d60728b4567" || //backpack
 		itemInDatabase.Parent == "566168634bdc2d144c8b456c" || //searchableItem
 		itemInDatabase.Parent == "5795f317245977243854e041" { //simpleContainer
@@ -448,7 +466,12 @@ func (ic *InventoryContainer) MeasureItemForInventoryMapping(items []InventoryIt
 			continue
 		}
 
-		GetItemByID(itemInInventory.TPL).GetItemForcedSize(sizes)
+		item, err := GetItemByID(itemInInventory.TPL)
+		if err != nil {
+			log.Println(err)
+			return -1, -1
+		}
+		item.GetItemForcedSize(sizes)
 	}
 
 	height += sizes.SizeUp + sizes.SizeDown + sizes.ForcedDown + sizes.ForcedUp

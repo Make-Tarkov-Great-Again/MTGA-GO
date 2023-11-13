@@ -33,7 +33,7 @@ func CustomizationClone(item string) *Customization {
 
 	clone := new(Customization)
 
-	data, err := json.MarshalNoEscape(input)
+	data, err := json.Marshal(input)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func CustomizationClone(item string) *Customization {
 func (c *Customization) Clone() *Customization {
 	clone := new(Customization)
 
-	data, err := json.MarshalNoEscape(c)
+	data, err := json.Marshal(c)
 	if err != nil {
 		log.Fatal(err)
 	}

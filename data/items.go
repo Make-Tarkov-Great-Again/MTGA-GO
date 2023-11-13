@@ -15,20 +15,22 @@ func GetItems() map[string]*DatabaseItem {
 	return items
 }
 
-func GetItemByID(uid string) *DatabaseItem {
+func GetItemByID(uid string) (*DatabaseItem, error) {
 	item, ok := items[uid]
 	if !ok {
-		log.Println("Item:", uid, " not found in data")
-		return nil
+		return nil, fmt.Errorf("Item %s not found in data", uid)
 	}
-	return item
+	return item, nil
 }
 
-func ItemClone(item string) *DatabaseItem {
-	input := GetItemByID(item)
+func ItemClone(item string) (*DatabaseItem, error) {
+	input, err := GetItemByID(item)
+	if err != nil {
+		return nil, err
+	}
 	clone := new(DatabaseItem)
 
-	data, err := json.MarshalNoEscape(input)
+	data, err := json.Marshal(input)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,13 +39,13 @@ func ItemClone(item string) *DatabaseItem {
 		log.Fatal(err)
 	}
 
-	return clone
+	return clone, nil
 }
 
 func (i *DatabaseItem) Clone() *DatabaseItem {
 	clone := new(DatabaseItem)
 
-	data, err := json.MarshalNoEscape(i)
+	data, err := json.Marshal(i)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -119,7 +121,7 @@ func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 	output := make(map[string]*Grid)
 	for _, g := range grids {
 		grid := new(Grid)
-		data, err := json.MarshalNoEscape(g)
+		data, err := json.Marshal(g)
 		if err != nil {
 			log.Println(err)
 			return nil
@@ -149,7 +151,7 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 	output := make(map[string]*Slot)
 	for _, s := range slots {
 		slot := new(Slot)
-		data, err := json.MarshalNoEscape(s)
+		data, err := json.Marshal(s)
 		if err != nil {
 			log.Println(err)
 			return nil

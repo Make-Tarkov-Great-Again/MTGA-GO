@@ -71,10 +71,6 @@ func SetProfiles() {
 						return
 					}
 				}
-			} else {
-				profile.Character = &Character{
-					ID: profile.Account.UID,
-				}
 			}
 			done <- true
 		}()
@@ -121,11 +117,8 @@ func SetProfiles() {
 			<-done
 		}
 
-		CreateCacheByID(user)
 		profiles[user] = profile
-		if cache, err := GetCacheByID(user); err == nil {
-			cache.SetCache(profiles[user].Character)
-		}
+		SetProfileCache(user)
 	}
 }
 

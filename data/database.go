@@ -31,45 +31,31 @@ const (
 )
 
 // SetDatabase initializes the data
-//var db *Database
+// var db *Database
+var databaseTasks = []func(){
+	setBots, setEditions, setHideout,
+	setLocalLoot, setLocales, setTraders,
+	setCore, setLanguages, setHandbook,
+	setQuests, setItems, setWeather,
+	setLocations, setCustomization, setFlea,
+}
 
 func SetDatabase() {
 	var wg sync.WaitGroup
 	completionCh := make(chan bool)
 	numWorkers := tools.CalculateWorkers() / 4
 
-	tasks := []struct {
-		name     string
-		function func()
-	}{
-		{"Core", setCore},
-		{"Items", setItems},
-		{"Locales", setLocales},
-		{"Languages", setLanguages},
-		{"Handbook", setHandbook},
-		{"Traders", setTraders},
-		{"Locations", setLocations},
-		{"Loot", setLocalLoot},
-		{"Quests", setQuests},
-		{"Hideout", setHideout},
-		{"Weather", setWeather},
-		{"Customization", setCustomization},
-		{"Bots", setBots},
-		{"Editions", setEditions},
-		{"Flea", setFlea},
-	}
-
 	workerCh := make(chan bool, numWorkers)
 
-	for _, task := range tasks {
+	for _, task := range databaseTasks {
 		wg.Add(1)
-		go func(taskName string, taskFunc func()) {
+		go func(taskFunc func()) {
 			defer wg.Done()
 			workerCh <- true
 			taskFunc()
 			<-workerCh
 			completionCh <- true
-		}(task.name, task.function)
+		}(task)
 	}
 
 	go func() {
@@ -77,7 +63,7 @@ func SetDatabase() {
 		close(completionCh)
 	}()
 
-	for range tasks {
+	for range databaseTasks {
 		<-completionCh
 	}
 }

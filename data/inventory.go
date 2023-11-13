@@ -52,7 +52,7 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 
 	input := make([]InventoryItem, 0, len(assortItems))
 	for _, assortItem := range assortItems {
-		data, err := json.MarshalNoEscape(assortItem)
+		data, err := json.Marshal(assortItem)
 		if err != nil {
 			log.Println("Failed to marshal Assort Item, returning empty output")
 			return input
@@ -152,9 +152,13 @@ func GetInventoryItemFamilyTreeIDs(items []InventoryItem, parent string) []strin
 // used for Trader/RagFair purchases; returns correct height and width based on items given
 func MeasurePurchaseForInventoryMapping(items []InventoryItem) (int8, int8) {
 	parentItem := items[len(items)-1]
-	itemInDatabase := GetItemByID(parentItem.TPL) //parent
-	height, width := itemInDatabase.GetItemSize() //get parent as starting point
+	itemInDatabase, err := GetItemByID(parentItem.TPL) //parent
+	if err != nil {
+		log.Println(err)
+		return -1, -1
+	}
 
+	height, width := itemInDatabase.GetItemSize()             //get parent as starting point
 	if itemInDatabase.Parent == "5448e53e4bdc2d60728b4567" || //backpack
 		itemInDatabase.Parent == "566168634bdc2d144c8b456c" || //searchableItem
 		itemInDatabase.Parent == "5795f317245977243854e041" { //simpleContainer
@@ -192,7 +196,12 @@ func MeasurePurchaseForInventoryMapping(items []InventoryItem) (int8, int8) {
 			continue
 		}
 
-		GetItemByID(item.TPL).GetItemForcedSize(sizes)
+		item, err := GetItemByID(item.TPL)
+		if err != nil {
+			log.Println(err)
+			return -1, -1
+		}
+		item.GetItemForcedSize(sizes)
 	}
 
 	height += sizes.SizeUp + sizes.SizeDown + sizes.ForcedDown + sizes.ForcedUp

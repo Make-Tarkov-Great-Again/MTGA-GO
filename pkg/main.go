@@ -79,9 +79,9 @@ func GetMainSettings() *CRCResponseBody {
 	return ApplyCRCResponseBody(data.GetMainSettings(), GetCachedCRC(mainSettingsRoute))
 }
 
-func GetMainProfileList(sessionID string) [2]any {
+func GetMainProfileList(sessionID string) []any {
 	character := data.GetCharacterByID(sessionID)
-	profiles := [2]any{}
+	profiles := make([]any, 0, 2)
 	if character == nil || character.Info.Nickname == "" {
 		log.Println("Character doesn't exist, begin creation")
 		return profiles
@@ -92,8 +92,7 @@ func GetMainProfileList(sessionID string) [2]any {
 	playerScav.AID = character.AID
 	playerScav.ID = *character.Savage
 
-	profiles[0] = *playerScav
-	profiles[1] = *character
+	profiles = append(profiles, *playerScav, *character)
 	return profiles
 }
 
@@ -217,7 +216,7 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 	profile.Character = &pmc
 
 	if cache, err := data.GetCacheByID(pmc.ID); err == nil {
-		cache.SetCache(&pmc)
+		cache.SetCharacterCache(&pmc)
 	}
 
 	profile.SaveProfile()

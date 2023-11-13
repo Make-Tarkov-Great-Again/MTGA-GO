@@ -97,7 +97,7 @@ func GetMailDialogInfo(r *http.Request) (*data.DialogueInfo, error) {
 
 func GetMailDialogView(r *http.Request) (*data.DialogMessageView, error) {
 	request := new(DialogView)
-	input, _ := json.MarshalNoEscape(GetParsedBody(r))
+	input, _ := json.Marshal(GetParsedBody(r))
 	if err := json.Unmarshal(input, request); err != nil {
 		return nil, err
 	}
