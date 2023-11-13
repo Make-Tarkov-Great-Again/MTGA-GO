@@ -22,7 +22,10 @@ func SendQueuedMessagesToPlayer(sessionID string) error {
 		connection.SendMessage(v)
 	}
 	storage.Mailbox = storage.Mailbox[:0]
-	storage.SaveStorage(sessionID)
+	err = storage.SaveStorage(sessionID)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

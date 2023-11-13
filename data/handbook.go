@@ -42,7 +42,7 @@ func GetPriceByID(id string) (*int32, error) {
 
 func setHandbook() {
 	raw := tools.GetJSONRawMessage(handbookPath)
-	if err := json.Unmarshal(raw, &handbook); err != nil {
+	if err := json.UnmarshalNoEscape(raw, &handbook); err != nil {
 		log.Fatalln(err)
 	}
 

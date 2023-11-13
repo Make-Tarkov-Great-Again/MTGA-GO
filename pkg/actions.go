@@ -43,8 +43,8 @@ type transfer struct {
 
 // QuestAccept updates an existing Accepted quest, or creates and appends new Accepted Quest to cache and Character
 func QuestAccept(qid string, id string, profileChangesEvent *ProfileChangesEvent) {
-	c := data.GetCharacterByID(id)
-	cachedQuests, err := data.GetQuestCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	cachedQuests, err := data.GetQuestCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -56,7 +56,7 @@ func QuestAccept(qid string, id string, profileChangesEvent *ProfileChangesEvent
 
 	quest, ok := cachedQuests.Index[qid]
 	if ok { //if exists, update cache and copy to quest on character
-		cachedQuest := c.Quests[quest]
+		cachedQuest := character.Quests[quest]
 
 		cachedQuest.Status = "Started"
 		cachedQuest.StartTime = time
@@ -83,12 +83,12 @@ func QuestAccept(qid string, id string, profileChangesEvent *ProfileChangesEvent
 		}
 
 		cachedQuests.Index[qid] = int8(length)
-		c.Quests = append(c.Quests, *quest)
+		character.Quests = append(character.Quests, *quest)
 	}
 
 	if query.Rewards.Start != nil {
 		log.Println("There are rewards heeyrrrr!")
-		log.Println(profileChangesEvent.ProfileChanges[c.ID].ID)
+		log.Println(profileChangesEvent.ProfileChanges[character.ID].ID)
 
 		// TODO: Apply then Get Quest rewards and then route messages from there
 		// Character.ApplyQuestRewardsToCharacter()  applies the given reward
@@ -96,13 +96,13 @@ func QuestAccept(qid string, id string, profileChangesEvent *ProfileChangesEvent
 		// CreateNPCMessageWithReward()
 	}
 
-	dialogue, err := data.GetDialogueByID(c.ID)
+	dialogue, err := data.GetDialogueByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	dialog, message := data.CreateQuestDialogue(c.ID, "QuestStart", query.Trader, query.Dialogue.Description)
+	dialog, message := data.CreateQuestDialogue(character.ID, "QuestStart", query.Trader, query.Dialogue.Description)
 	dialog.New++
 	dialog.Messages = append(dialog.Messages, *message)
 
@@ -110,17 +110,17 @@ func QuestAccept(qid string, id string, profileChangesEvent *ProfileChangesEvent
 
 	notification := data.CreateNotification(message)
 
-	connection := data.GetConnection(c.ID)
+	connection := data.GetConnection(character.ID)
 	if connection == nil {
 		log.Println("Can't send message to character because connection is nil, storing...")
-		storage, err := data.GetStorageByID(c.ID)
+		storage, err := data.GetStorageByID(character.ID)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
 		storage.Mailbox = append(storage.Mailbox, notification)
-		err = storage.SaveStorage(c.ID)
+		err = storage.SaveStorage(character.ID)
 		if err != nil {
 			log.Println(err)
 			return
@@ -130,18 +130,18 @@ func QuestAccept(qid string, id string, profileChangesEvent *ProfileChangesEvent
 	}
 
 	//TODO: Get new player quests from data now that we've accepted one
-	quests, err := c.GetQuestsAvailableToPlayer()
+	quests, err := character.GetQuestsAvailableToPlayer()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	profileChangesEvent.ProfileChanges[c.ID].Quests = quests
-	err = dialogue.SaveDialogue(c.ID)
+	profileChangesEvent.ProfileChanges[character.ID].Quests = quests
+	err = dialogue.SaveDialogue(character.ID)
 	if err != nil {
 		return
 	}
-	err = c.SaveCharacter()
+	err = character.SaveCharacter()
 	if err != nil {
 		return
 	}
@@ -172,18 +172,18 @@ func ExamineItem(moveAction map[string]any, id string) {
 		log.Println(err)
 		return
 	}
-	c := data.GetCharacterByID(id)
+	character := data.GetCharacterByID(id)
 	var item *data.DatabaseItem
 	if examine.FromOwner == nil {
 		log.Println("Examining Item from Player Inventory")
-		cache, err := data.GetInventoryCacheByID(c.ID)
+		cache, err := data.GetInventoryCacheByID(character.ID)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
 		if index := cache.GetIndexOfItemByID(examine.Item); index != nil {
-			itemInInventory := c.Inventory.Items[*index]
+			itemInInventory := character.Inventory.Items[*index]
 			item, err = data.GetItemByID(itemInInventory.TPL)
 			if err != nil {
 				log.Println(err)
@@ -230,7 +230,7 @@ func ExamineItem(moveAction map[string]any, id string) {
 		return
 	}
 
-	c.Encyclopedia[item.ID] = true
+	character.Encyclopedia[item.ID] = true
 	log.Println("[EXAMINE] Encyclopedia entry added for", item.ID)
 
 	//add experience
@@ -240,7 +240,7 @@ func ExamineItem(moveAction map[string]any, id string) {
 		return
 	}
 
-	c.Info.Experience += int32(experience)
+	character.Info.Experience += int32(experience)
 }
 
 type move struct {
@@ -274,15 +274,15 @@ func MoveItemInStash(moveAction map[string]any, id string, profileChangesEvent *
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	cache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	index := cache.GetIndexOfItemByID(move.Item)
-	itemInInventory := &c.Inventory.Items[*index]
+	itemInInventory := &character.Inventory.Items[*index]
 
 	if move.To.Location != nil {
 		moveToLocation := move.To.Location
@@ -314,9 +314,9 @@ func MoveItemInStash(moveAction map[string]any, id string, profileChangesEvent *
 	} else {
 		cache.AddItemFromContainerMap(move.Item)
 	}
-	//cache.SetInventoryIndex(&c.Inventory)
+	//cache.SetInventoryIndex(&character.Inventory)
 
-	profileChangesEvent.ProfileChanges[c.ID].Production = nil
+	profileChangesEvent.ProfileChanges[character.ID].Production = nil
 }
 
 type swap struct {
@@ -339,15 +339,15 @@ func SwapItemInStash(moveAction map[string]any, id string, profileChangesEvent *
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	cache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	index := *cache.GetIndexOfItemByID(swap.Item)
-	itemInInventory := &c.Inventory.Items[index]
+	itemInInventory := &character.Inventory.Items[index]
 
 	if swap.To.Location != nil {
 		moveToLocation := swap.To.Location
@@ -372,7 +372,7 @@ func SwapItemInStash(moveAction map[string]any, id string, profileChangesEvent *
 	itemInInventory.SlotID = swap.To.Container
 
 	index = cache.Lookup.Forward[swap.Item2]
-	itemInInventory = &c.Inventory.Items[index]
+	itemInInventory = &character.Inventory.Items[index]
 
 	if swap.To2.Location != nil {
 		moveToLocation := swap.To2.Location
@@ -396,7 +396,7 @@ func SwapItemInStash(moveAction map[string]any, id string, profileChangesEvent *
 	itemInInventory.ParentID = swap.To2.ID
 	itemInInventory.SlotID = swap.To2.Container
 
-	profileChangesEvent.ProfileChanges[c.ID].Production = nil
+	profileChangesEvent.ProfileChanges[character.ID].Production = nil
 }
 
 type foldItem struct {
@@ -417,8 +417,8 @@ func FoldItem(moveAction map[string]any, id string, profileChangesEvent *Profile
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	inventoryCache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	inventoryCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -429,7 +429,7 @@ func FoldItem(moveAction map[string]any, id string, profileChangesEvent *Profile
 		log.Println("Item", fold.Item, "does not exist in cache!")
 		return
 	}
-	itemInInventory := &c.Inventory.Items[*index]
+	itemInInventory := &character.Inventory.Items[*index]
 	if itemInInventory.UPD == nil || itemInInventory.UPD.Foldable == nil {
 		log.Println(itemInInventory.ID, "cannot be folded!")
 		return
@@ -437,8 +437,8 @@ func FoldItem(moveAction map[string]any, id string, profileChangesEvent *Profile
 
 	itemInInventory.UPD.Foldable.Folded = fold.Value
 
-	inventoryCache.ResetItemSizeInContainer(itemInInventory, &c.Inventory)
-	profileChangesEvent.ProfileChanges[c.ID].Production = nil
+	inventoryCache.ResetItemSizeInContainer(itemInInventory, &character.Inventory)
+	profileChangesEvent.ProfileChanges[character.ID].Production = nil
 }
 
 type readEncyclopedia struct {
@@ -458,9 +458,9 @@ func ReadEncyclopedia(moveAction map[string]any, id string) {
 		return
 	}
 
-	c := data.GetCharacterByID(id)
+	character := data.GetCharacterByID(id)
 	for _, id := range readEncyclopedia.IDs {
-		c.Encyclopedia[id] = true
+		character.Encyclopedia[id] = true
 	}
 }
 
@@ -482,27 +482,27 @@ func MergeItem(moveAction map[string]any, id string, profileChangesEvent *Profil
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	inventoryCache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	inventoryCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	toMergeIndex := *inventoryCache.GetIndexOfItemByID(merge.Item)
-	toMerge := &c.Inventory.Items[toMergeIndex]
+	toMerge := &character.Inventory.Items[toMergeIndex]
 
 	mergeWithIndex := *inventoryCache.GetIndexOfItemByID(merge.With)
-	mergeWith := c.Inventory.Items[mergeWithIndex]
+	mergeWith := character.Inventory.Items[mergeWithIndex]
 
 	mergeWith.UPD.StackObjectsCount += toMerge.UPD.StackObjectsCount
 
 	inventoryCache.ClearItemFromContainer(toMerge.ID)
-	c.Inventory.RemoveSingleItemFromInventoryByIndex(toMergeIndex)
-	inventoryCache.SetInventoryIndex(&c.Inventory)
+	character.Inventory.RemoveSingleItemFromInventoryByIndex(toMergeIndex)
+	inventoryCache.SetInventoryIndex(&character.Inventory)
 
-	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, mergeWith)
-	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, data.InventoryItem{ID: toMerge.ID})
+	profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, mergeWith)
+	profileChangesEvent.ProfileChanges[character.ID].Items.Del = append(profileChangesEvent.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: toMerge.ID})
 }
 
 func TransferItem(moveAction map[string]any, id string) {
@@ -517,18 +517,18 @@ func TransferItem(moveAction map[string]any, id string) {
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	inventoryCache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	inventoryCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	toMergeIndex := *inventoryCache.GetIndexOfItemByID(transfer.Item)
-	toMerge := &c.Inventory.Items[toMergeIndex]
+	toMerge := &character.Inventory.Items[toMergeIndex]
 
 	mergeWithIndex := *inventoryCache.GetIndexOfItemByID(transfer.With)
-	mergeWith := &c.Inventory.Items[mergeWithIndex]
+	mergeWith := &character.Inventory.Items[mergeWithIndex]
 
 	toMerge.UPD.StackObjectsCount -= transfer.Count
 	mergeWith.UPD.StackObjectsCount += transfer.Count
@@ -554,14 +554,14 @@ func SplitItem(moveAction map[string]any, id string, profileChangesEvent *Profil
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	invCache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	invCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	originalItem := &c.Inventory.Items[*invCache.GetIndexOfItemByID(split.SplitItem)]
+	originalItem := &character.Inventory.Items[*invCache.GetIndexOfItemByID(split.SplitItem)]
 	originalItem.UPD.StackObjectsCount -= split.Count
 
 	newItem := &data.InventoryItem{
@@ -592,11 +592,11 @@ func SplitItem(moveAction map[string]any, id string, profileChangesEvent *Profil
 		invCache.AddItemToContainer(split.NewItem, itemFlatMap)
 	}
 
-	c.Inventory.Items = append(c.Inventory.Items, *newItem)
-	invCache.SetSingleInventoryIndex(newItem.ID, int16(len(c.Inventory.Items)-1))
+	character.Inventory.Items = append(character.Inventory.Items, *newItem)
+	invCache.SetSingleInventoryIndex(newItem.ID, int16(len(character.Inventory.Items)-1))
 
-	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, *originalItem)
-	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, data.InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
+	profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, *originalItem)
+	profileChangesEvent.ProfileChanges[character.ID].Items.New = append(profileChangesEvent.ProfileChanges[character.ID].Items.New, data.InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
 }
 
 type remove struct {
@@ -616,13 +616,13 @@ func RemoveItem(moveAction map[string]any, id string, profileChangesEvent *Profi
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	inventoryCache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	inventoryCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	itemChildren := data.GetInventoryItemFamilyTreeIDs(c.Inventory.Items, remove.ItemId)
+	itemChildren := data.GetInventoryItemFamilyTreeIDs(character.Inventory.Items, remove.ItemId)
 
 	var itemIndex int16
 	toDelete := make([]int16, 0, len(itemChildren))
@@ -632,10 +632,10 @@ func RemoveItem(moveAction map[string]any, id string, profileChangesEvent *Profi
 	}
 
 	inventoryCache.ClearItemFromContainer(remove.ItemId)
-	c.Inventory.RemoveItemsFromInventoryByIndices(toDelete)
-	inventoryCache.SetInventoryIndex(&c.Inventory)
+	character.Inventory.RemoveItemsFromInventoryByIndices(toDelete)
+	inventoryCache.SetInventoryIndex(&character.Inventory)
 
-	profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, data.InventoryItem{ID: remove.ItemId})
+	profileChangesEvent.ProfileChanges[character.ID].Items.Del = append(profileChangesEvent.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: remove.ItemId})
 
 }
 
@@ -654,8 +654,8 @@ func ApplyInventoryChanges(moveAction map[string]any, id string) {
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	cache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -673,7 +673,7 @@ func ApplyInventoryChanges(moveAction map[string]any, id string) {
 			log.Println("Cannot type assert item `_id` property from Auto-Sort items slice")
 			return
 		}
-		itemInInventory := &c.Inventory.Items[*cache.GetIndexOfItemByID(UID)]
+		itemInInventory := &character.Inventory.Items[*cache.GetIndexOfItemByID(UID)]
 
 		parent, ok := properties["parentId"].(string)
 		if !ok {
@@ -751,7 +751,7 @@ type soldItems struct {
 }
 
 func TradingConfirm(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
-	c := data.GetCharacterByID(id)
+	character := data.GetCharacterByID(id)
 
 	switch moveAction["type"] {
 	case "buy_from_trader":
@@ -763,7 +763,7 @@ func TradingConfirm(moveAction map[string]any, id string, profileChangesEvent *P
 			return
 		}
 
-		buyFromTrader(buy, c, profileChangesEvent)
+		buyFromTrader(buy, character, profileChangesEvent)
 	case "sell_to_trader":
 		sell := new(sellTo)
 		input, _ := json.Marshal(moveAction)
@@ -773,14 +773,14 @@ func TradingConfirm(moveAction map[string]any, id string, profileChangesEvent *P
 			return
 		}
 
-		sellToTrader(sell, c, profileChangesEvent)
+		sellToTrader(sell, character, profileChangesEvent)
 	default:
 		log.Println("YO! TRADINGCONFIRM.", moveAction["type"], "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
 	}
 }
 
-func buyFromTrader(tradeConfirm *buyFrom, c *data.Character, profileChangesEvent *ProfileChangesEvent) {
-	invCache, err := data.GetInventoryCacheByID(c.ID)
+func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, profileChangesEvent *ProfileChangesEvent) {
+	invCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -798,7 +798,7 @@ func buyFromTrader(tradeConfirm *buyFrom, c *data.Character, profileChangesEvent
 		return
 	}
 
-	inventoryItems := data.ConvertAssortItemsToInventoryItem(assortItem, &c.Inventory.Stash)
+	inventoryItems := data.ConvertAssortItemsToInventoryItem(assortItem, &character.Inventory.Stash)
 	if len(inventoryItems) == 0 {
 		log.Println("Converting Assort Item to Inventory Item failed, killing")
 		return
@@ -815,14 +815,14 @@ func buyFromTrader(tradeConfirm *buyFrom, c *data.Character, profileChangesEvent
 	// Basically gets the correct amount of items to be created, based on StackSize
 
 	//Create copy-of Character.Inventory.Items for modification in the case of any failures to assign later
-	copyOfItems := make([]data.InventoryItem, 0, len(c.Inventory.Items)+(len(inventoryItems)*len(stackSlice)))
-	copyOfItems = append(copyOfItems, c.Inventory.Items...)
+	copyOfItems := make([]data.InventoryItem, 0, len(character.Inventory.Items)+(len(inventoryItems)*len(stackSlice)))
+	copyOfItems = append(copyOfItems, character.Inventory.Items...)
 	//Create copy-of invCache.Stash.Container for modification in the case of any failures to assign later
 	copyOfMap := invCache.Stash.Container
 
 	toAdd := make([]data.InventoryItem, 0, len(stackSlice))
 	toDelete := make(map[string]int16)
-	traderRelations := c.TradersInfo[tradeConfirm.TID]
+	traderRelations := character.TradersInfo[tradeConfirm.TID]
 
 	height, width := data.MeasurePurchaseForInventoryMapping(inventoryItems)
 
@@ -897,7 +897,7 @@ func buyFromTrader(tradeConfirm *buyFrom, c *data.Character, profileChangesEvent
 			if itemInInventory.UPD.StackObjectsCount > remainingBalance {
 				itemInInventory.UPD.StackObjectsCount -= remainingBalance
 
-				profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, itemInInventory)
+				profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, itemInInventory)
 			} else if itemInInventory.UPD.StackObjectsCount == remainingBalance {
 				toDelete[itemInInventory.ID] = *index
 			} else {
@@ -934,7 +934,7 @@ func buyFromTrader(tradeConfirm *buyFrom, c *data.Character, profileChangesEvent
 					return
 				}
 
-				profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, toChange...)
+				profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, toChange...)
 			}
 		} else {
 			toDelete[itemInInventory.ID] = *index
@@ -948,17 +948,17 @@ func buyFromTrader(tradeConfirm *buyFrom, c *data.Character, profileChangesEvent
 	}
 
 	copyOfItems = append(copyOfItems, toAdd...)
-	profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, toAdd...)
+	profileChangesEvent.ProfileChanges[character.ID].Items.New = append(profileChangesEvent.ProfileChanges[character.ID].Items.New, toAdd...)
 	/*	for i := len(inventoryItems) - 1; i < len(toAdd); i += len(inventoryItems) {
 		if toAdd[i].Location == nil && toAdd[i].SlotID != "hideout" {
 			continue
 		}
-		profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, toAdd[i])
+		profileChangesEvent.ProfileChanges[character.ID].Items.New = append(profileChangesEvent.ProfileChanges[character.ID].Items.New, toAdd[i])
 
 	}*/
 
 	//Assign copy-of Character.Inventory.Items to original Character.Inventory.Items
-	c.Inventory.Items = copyOfItems
+	character.Inventory.Items = copyOfItems
 
 	if len(toDelete) != 0 {
 		indices := make([]int16, 0, len(toDelete))
@@ -966,20 +966,20 @@ func buyFromTrader(tradeConfirm *buyFrom, c *data.Character, profileChangesEvent
 			invCache.ClearItemFromContainer(id)
 			indices = append(indices, idx)
 
-			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, data.InventoryItem{ID: id})
+			profileChangesEvent.ProfileChanges[character.ID].Items.Del = append(profileChangesEvent.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: id})
 		}
-		c.Inventory.RemoveItemsFromInventoryByIndices(indices)
+		character.Inventory.RemoveItemsFromInventoryByIndices(indices)
 	}
-	invCache.SetInventoryIndex(&c.Inventory)
+	invCache.SetInventoryIndex(&character.Inventory)
 
-	profileChangesEvent.ProfileChanges[c.ID].TraderRelations[tradeConfirm.TID] = traderRelations
-	c.TradersInfo[tradeConfirm.TID] = traderRelations
+	profileChangesEvent.ProfileChanges[character.ID].TraderRelations[tradeConfirm.TID] = traderRelations
+	character.TradersInfo[tradeConfirm.TID] = traderRelations
 
 	log.Println(len(stackSlice), "of Item", tradeConfirm.ItemID, "purchased!")
 }
 
-func sellToTrader(tradeConfirm *sellTo, c *data.Character, profileChangesEvent *ProfileChangesEvent) {
-	invCache, err := data.GetInventoryCacheByID(c.ID)
+func sellToTrader(tradeConfirm *sellTo, character *data.Character, profileChangesEvent *ProfileChangesEvent) {
+	invCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -1002,14 +1002,14 @@ func sellToTrader(tradeConfirm *sellTo, c *data.Character, profileChangesEvent *
 	}
 	stackMaxSize := item.GetStackMaxSize()
 
-	cache, err := data.GetInventoryCacheByID(c.ID)
+	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	copyOfMap := invCache.Stash.Container
-	copyOfItems := make([]data.InventoryItem, 0, len(c.Inventory.Items))
-	copyOfItems = append(copyOfItems, c.Inventory.Items...)
+	copyOfItems := make([]data.InventoryItem, 0, len(character.Inventory.Items))
+	copyOfItems = append(copyOfItems, character.Inventory.Items...)
 
 	toDelete := make(map[string]int16)
 	for _, item := range tradeConfirm.Items {
@@ -1047,7 +1047,7 @@ func sellToTrader(tradeConfirm *sellTo, c *data.Character, profileChangesEvent *
 		//log.Println("If a new stack isn't made, we cry")
 
 		stackSlice := GetCorrectAmountOfItemsPurchased(remainingBalance, stackMaxSize)
-		item := []data.InventoryItem{*data.CreateNewItem(saleCurrency, c.Inventory.Stash)}
+		item := []data.InventoryItem{*data.CreateNewItem(saleCurrency, character.Inventory.Stash)}
 		// since it's one item, just get the height and width once
 		height, width := data.MeasurePurchaseForInventoryMapping(item)
 
@@ -1077,31 +1077,31 @@ func sellToTrader(tradeConfirm *sellTo, c *data.Character, profileChangesEvent *
 		}
 
 		copyOfItems = append(copyOfItems, toAdd...)
-		profileChangesEvent.ProfileChanges[c.ID].Items.New = append(profileChangesEvent.ProfileChanges[c.ID].Items.New, toAdd...)
+		profileChangesEvent.ProfileChanges[character.ID].Items.New = append(profileChangesEvent.ProfileChanges[character.ID].Items.New, toAdd...)
 	}
 
-	profileChangesEvent.ProfileChanges[c.ID].Items.Change = append(profileChangesEvent.ProfileChanges[c.ID].Items.Change, toChange...)
-	c.Inventory.Items = copyOfItems
+	profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, toChange...)
+	character.Inventory.Items = copyOfItems
 
 	if len(toDelete) != 0 {
 		indices := make([]int16, 0, len(toDelete))
 		for id, idx := range toDelete {
 			invCache.ClearItemFromContainer(id)
 			indices = append(indices, idx)
-			if _, ok := toDelete[c.Inventory.Items[idx].ParentID]; ok {
+			if _, ok := toDelete[character.Inventory.Items[idx].ParentID]; ok {
 				continue
 			}
-			profileChangesEvent.ProfileChanges[c.ID].Items.Del = append(profileChangesEvent.ProfileChanges[c.ID].Items.Del, data.InventoryItem{ID: id})
+			profileChangesEvent.ProfileChanges[character.ID].Items.Del = append(profileChangesEvent.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: id})
 		}
-		c.Inventory.RemoveItemsFromInventoryByIndices(indices)
+		character.Inventory.RemoveItemsFromInventoryByIndices(indices)
 	}
-	invCache.SetInventoryIndex(&c.Inventory)
+	invCache.SetInventoryIndex(&character.Inventory)
 
-	traderRelations := c.TradersInfo[tradeConfirm.TID]
+	traderRelations := character.TradersInfo[tradeConfirm.TID]
 	traderRelations.SalesSum += float32(tradeConfirm.Price)
 
-	profileChangesEvent.ProfileChanges[c.ID].TraderRelations[tradeConfirm.TID] = traderRelations
-	c.TradersInfo[tradeConfirm.TID] = traderRelations
+	profileChangesEvent.ProfileChanges[character.ID].TraderRelations[tradeConfirm.TID] = traderRelations
+	character.TradersInfo[tradeConfirm.TID] = traderRelations
 }
 
 type buyCustomization struct {
@@ -1168,7 +1168,7 @@ func CustomizationWear(moveAction map[string]any, id string) {
 		return
 	}
 
-	c := data.GetCharacterByID(id)
+	character := data.GetCharacterByID(id)
 	for _, SID := range customizationWear.Suites {
 		customization, err := data.GetCustomizationByID(SID)
 		if err != nil {
@@ -1179,13 +1179,13 @@ func CustomizationWear(moveAction map[string]any, id string) {
 		parentID := customization.Parent
 
 		if parentID == lowerParentID {
-			c.Customization.Feet = customization.Props.Feet
+			character.Customization.Feet = customization.Props.Feet
 			continue
 		}
 
 		if parentID == upperParentID {
-			c.Customization.Body = customization.Props.Body
-			c.Customization.Hands = customization.Props.Hands
+			character.Customization.Body = customization.Props.Body
+			character.Customization.Hands = customization.Props.Hands
 			continue
 		}
 	}
@@ -1207,7 +1207,7 @@ func HideoutUpgrade(moveAction map[string]any, id string, profileChangesEvent *P
 		return
 	}
 
-	//c:= data.GetCharacterByID(id)
+	//character:= data.GetCharacterByID(id)
 	if err := json.Unmarshal(input, &upgrade); err != nil {
 		log.Println(err)
 		return
@@ -1236,14 +1236,14 @@ func BindItem(moveAction map[string]any, id string) {
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	if _, ok := c.Inventory.FastPanel[bind.Index]; !ok {
-		c.Inventory.FastPanel[bind.Index] = bind.Item
+	character := data.GetCharacterByID(id)
+	if _, ok := character.Inventory.FastPanel[bind.Index]; !ok {
+		character.Inventory.FastPanel[bind.Index] = bind.Item
 	} else {
-		if c.Inventory.FastPanel[bind.Index] == bind.Item {
-			c.Inventory.FastPanel[bind.Index] = ""
+		if character.Inventory.FastPanel[bind.Index] == bind.Item {
+			character.Inventory.FastPanel[bind.Index] = ""
 		} else {
-			c.Inventory.FastPanel[bind.Index] = bind.Item
+			character.Inventory.FastPanel[bind.Index] = bind.Item
 		}
 	}
 }
@@ -1267,30 +1267,30 @@ func TagItem(moveAction map[string]any, id string) {
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	cache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	index := *cache.GetIndexOfItemByID(tag.Item)
-	if c.Inventory.Items[index].UPD == nil {
-		c.Inventory.Items[index].UPD = new(data.ItemUpdate)
-		c.Inventory.Items[index].UPD.Tag = new(data.Tag)
+	if character.Inventory.Items[index].UPD == nil {
+		character.Inventory.Items[index].UPD = new(data.ItemUpdate)
+		character.Inventory.Items[index].UPD.Tag = new(data.Tag)
 
-		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
-		c.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
 
-	} else if c.Inventory.Items[index].UPD.Tag == nil {
-		c.Inventory.Items[index].UPD.Tag = new(data.Tag)
+	} else if character.Inventory.Items[index].UPD.Tag == nil {
+		character.Inventory.Items[index].UPD.Tag = new(data.Tag)
 
-		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
-		c.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
 
 	} else {
-		c.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
-		c.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
 	}
 
 }
@@ -1313,25 +1313,25 @@ func ToggleItem(moveAction map[string]any, id string) {
 		return
 	}
 
-	c := data.GetCharacterByID(id)
-	cache, err := data.GetInventoryCacheByID(c.ID)
+	character := data.GetCharacterByID(id)
+	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	index := *cache.GetIndexOfItemByID(toggle.Item)
-	if c.Inventory.Items[index].UPD == nil {
-		c.Inventory.Items[index].UPD = new(data.ItemUpdate)
-		c.Inventory.Items[index].UPD.Togglable = new(data.Toggle)
-		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+	if character.Inventory.Items[index].UPD == nil {
+		character.Inventory.Items[index].UPD = new(data.ItemUpdate)
+		character.Inventory.Items[index].UPD.Togglable = new(data.Toggle)
+		character.Inventory.Items[index].UPD.Togglable.On = toggle.Value
 
-	} else if c.Inventory.Items[index].UPD.Togglable == nil {
-		c.Inventory.Items[index].UPD.Togglable = new(data.Toggle)
-		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+	} else if character.Inventory.Items[index].UPD.Togglable == nil {
+		character.Inventory.Items[index].UPD.Togglable = new(data.Toggle)
+		character.Inventory.Items[index].UPD.Togglable.On = toggle.Value
 
 	} else {
-		c.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+		character.Inventory.Items[index].UPD.Togglable.On = toggle.Value
 	}
 }
 
@@ -1354,7 +1354,7 @@ func HideoutUpgradeComplete(moveAction map[string]any, id string, profileChanges
 		return
 	}
 
-	//c := data.GetCharacterByID(id)
+	//character := data.GetCharacterByID(id)
 	log.Println(upgradeComplete)
 }
 

@@ -116,12 +116,12 @@ func GetSacrificialBot() DummyBot {
 func (i *DummyBot) Clone() DummyBot {
 	clone := new(DummyBot)
 
-	data, err := json.Marshal(i)
+	data, err := json.MarshalNoEscape(i)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := json.Unmarshal(data, &clone); err != nil {
+	if err := json.UnmarshalNoEscape(data, &clone); err != nil {
 		log.Fatal(err)
 	}
 

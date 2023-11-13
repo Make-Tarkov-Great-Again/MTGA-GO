@@ -18,48 +18,39 @@ type ResponseBody struct {
 }
 
 type CRCResponseBody struct {
-	Err    int     `json:"err"`
+	Err    any     `json:"err"`
 	Errmsg any     `json:"errmsg"`
 	Data   any     `json:"data"`
 	Crc    *uint32 `json:"crc"`
 }
 
 const (
-	sessionIDHeader string = "Sessionid"
-	cookieHeader    string = "Cookie"
-	phpsessIDHeader string = "PHPSESSID="
+	cookieHeader string = "Cookie"
+	prod         string = "https://prod.escapefromtarkov.com"
+	imagesPath   string = "assets/images/"
 )
 
 // GetSessionID returns current sessionID from the header, if available
 func GetSessionID(r *http.Request) string {
-	var sessionID = ""
-
-	sessionID = r.Header.Get(sessionIDHeader)
-	if sessionID != "" {
-		return sessionID
-	}
-
-	cookie := r.Header.Get(cookieHeader)
-	if cookie != "" {
-		cookie = cookie[len(cookie)-24:]
-		return strings.TrimPrefix(cookie, phpsessIDHeader)
-	}
-
-	return sessionID
+	return r.Header.Get(cookieHeader)[10:]
 }
 
 // ApplyCRCResponseBody appends data to CRCResponseBody and returns it
 func ApplyCRCResponseBody(data any, crc *uint32) *CRCResponseBody {
 	return &CRCResponseBody{
-		Data: data,
-		Crc:  crc,
+		Err:    0,
+		Errmsg: nil,
+		Data:   data,
+		Crc:    crc,
 	}
 }
 
 // ApplyResponseBody appends data to ResponseBody and returns it
 func ApplyResponseBody(data any) *ResponseBody {
 	return &ResponseBody{
-		Data: data,
+		Err:    0,
+		Errmsg: nil,
+		Data:   data,
 	}
 }
 
@@ -75,11 +66,6 @@ var cachedCRC = map[string]*uint32{
 	"/client/menu/locale/":  nil,
 	//"/client/location/getLocalloot": {}, don't fully understand why this would be cached
 }
-
-const (
-	prod       string = "https://prod.escapefromtarkov.com"
-	imagesPath string = "assets/images/"
-)
 
 var mime = map[string]string{
 	".jpg": "image/jpeg",
@@ -200,21 +186,8 @@ func ServeFileLocal(w http.ResponseWriter, imagePath, mime string) {
 	}
 }
 
-func CheckIfResponseCanBeCached(string string) bool {
-	_, ok := cachedCRC[string]
-	if ok {
-		log.Println("Response for", string, "can be cached!")
-		return ok
-	}
-	return ok
-}
-
 func CheckIfResponseIsCached(key string) bool {
-	value, _ := cachedCRC[key]
-	if value != nil {
-		return true
-	}
-	return false
+	return cachedCRC[key] != nil
 }
 
 func GetCachedCRC(key string) *uint32 {

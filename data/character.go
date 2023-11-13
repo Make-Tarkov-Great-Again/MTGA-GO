@@ -14,7 +14,7 @@ func setCharacter(path string) *Character {
 	output := &Character{}
 
 	data := tools.GetJSONRawMessage(path)
-	if err := json.Unmarshal(data, output); err != nil {
+	if err := json.UnmarshalNoEscape(data, output); err != nil {
 		log.Println(err)
 	}
 

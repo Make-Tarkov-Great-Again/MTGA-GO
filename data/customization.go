@@ -66,7 +66,7 @@ func (c *Customization) Clone() *Customization {
 
 func setCustomization() {
 	raw := tools.GetJSONRawMessage(customizationPath)
-	if err := json.Unmarshal(raw, &customizations); err != nil {
+	if err := json.UnmarshalNoEscape(raw, &customizations); err != nil {
 		log.Fatalln("Set Customization:", err)
 	}
 }

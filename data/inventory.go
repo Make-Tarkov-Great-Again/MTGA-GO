@@ -59,7 +59,7 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 		}
 
 		inventoryItem := new(InventoryItem)
-		err = json.Unmarshal(data, inventoryItem)
+		err = json.UnmarshalNoEscape(data, inventoryItem)
 		if err != nil {
 			log.Println("Failed to unmarshal Assort Item to Inventory Item, returning empty output")
 			return input

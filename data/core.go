@@ -48,21 +48,21 @@ func setCore() {
 
 	go func() {
 		raw := tools.GetJSONRawMessage(playerScavPath)
-		if err := json.Unmarshal(raw, &core.Scav); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &core.Scav); err != nil {
 			log.Fatalln(err)
 		}
 		done <- true
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(MainSettingsPath)
-		if err := json.Unmarshal(raw, &core.MainSettings); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &core.MainSettings); err != nil {
 			log.Fatalln(err)
 		}
 		done <- true
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(serverConfigPath)
-		if err := json.Unmarshal(raw, &core.ServerConfig); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &core.ServerConfig); err != nil {
 			log.Fatalln(err)
 		}
 		done <- true
@@ -73,21 +73,21 @@ func setCore() {
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(globalBotSettingsPath)
-		if err := json.Unmarshal(raw, &core.GlobalBotSettings); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &core.GlobalBotSettings); err != nil {
 			log.Fatalln(err)
 		}
 		done <- true
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(matchMetricsPath)
-		if err := json.Unmarshal(raw, &core.MatchMetrics); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &core.MatchMetrics); err != nil {
 			log.Println(err)
 		}
 		done <- true
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(airdropFilePath)
-		if err := json.Unmarshal(raw, &core.AirdropParameters); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &core.AirdropParameters); err != nil {
 			log.Fatalln(err)
 		}
 		done <- true

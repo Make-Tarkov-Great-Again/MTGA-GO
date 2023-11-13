@@ -191,7 +191,7 @@ func setDialogue(path string) *Dialogue {
 	output := make(Dialogue)
 
 	data := tools.GetJSONRawMessage(path)
-	if err := json.Unmarshal(data, &output); err != nil {
+	if err := json.UnmarshalNoEscape(data, &output); err != nil {
 		log.Fatalln(err)
 	}
 

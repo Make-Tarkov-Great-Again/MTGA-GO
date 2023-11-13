@@ -222,24 +222,31 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 	profile.SaveProfile()
 }
 
-var channels = map[string]*Channel{}
+var channels = map[string]Channel{}
 
-func GetChannel(sessionID string) *Channel {
-	notifierServer := fmt.Sprintf(notiFormat, data.GetLobbyIPandPort(), sessionID)
-	wssServer := fmt.Sprintf(wssFormat, data.GetWebSocketAddress(), sessionID)
-
-	channel := &Channel{
-		Status: "ok",
-		Notifier: &Notifier{
-			Server:         data.GetLobbyIPandPort(),
-			ChannelID:      sessionID,
-			URL:            "",
-			NotifierServer: notifierServer,
-			WS:             wssServer,
-		},
+var templateChannel = &Channel{
+	Status: "ok",
+	Notifier: &Notifier{
+		Server:         "",
+		ChannelID:      "",
+		URL:            "",
 		NotifierServer: "",
-	}
+		WS:             "",
+	},
+	NotifierServer: "",
+}
+
+func SetChannelTemplate() {
+	templateChannel.Notifier.Server = data.GetLobbyIPandPort()
+}
+
+func GetChannel(sessionID string) Channel {
+	channel := *templateChannel
+	channel.Notifier.ChannelID = sessionID
+	channel.Notifier.NotifierServer = fmt.Sprintf(notiFormat, data.GetLobbyIPandPort(), sessionID)
+	channel.Notifier.WS = fmt.Sprintf(wssFormat, data.GetWebSocketAddress(), sessionID)
 	channels[sessionID] = channel
+
 	return channel
 }
 
@@ -325,21 +332,21 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 		return nil, err
 	}
 
-	Traders := make(map[string]traderInsuranceInfo)
-	for _, TID := range traders {
-		trader, err := data.GetTraderByUID(TID)
+	insuranceInfo := make(map[string]traderInsuranceInfo)
+	for _, tid := range traders {
+		trader, err := data.GetTraderByUID(tid)
 		if err != nil {
 			return nil, err
 		}
 
 		trader.SetTraderLoyaltyLevel(character)
 
-		Traders[TID] = traderInsuranceInfo{
-			LoyaltyLevel: character.TradersInfo[TID].LoyaltyLevel,
-			PriceCoef:    trader.Base.LoyaltyLevels[character.TradersInfo[TID].LoyaltyLevel].InsurancePriceCoef,
+		insuranceInfo[tid] = traderInsuranceInfo{
+			LoyaltyLevel: character.TradersInfo[tid].LoyaltyLevel,
+			PriceCoef:    trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef,
 		}
 
-		output[TID] = make(map[string]int32)
+		output[tid] = make(map[string]int32)
 	}
 
 	for _, itemID := range items {
@@ -349,10 +356,10 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 			return nil, err
 		}
 
-		for key, insuranceInfo := range Traders {
+		for key, info := range insuranceInfo {
 			insuranceCost := int32(math.Round(float64(*itemPrice) * 0.3))
-			if insuranceInfo.PriceCoef > 0 {
-				insuranceCost *= int32(1 - insuranceInfo.PriceCoef/100)
+			if info.PriceCoef > 0 {
+				insuranceCost *= int32(1 - info.PriceCoef/100)
 			}
 
 			output[key][itemInInventory.TPL] = insuranceCost
@@ -434,7 +441,7 @@ type GameConfig struct {
 }
 
 type Notifier struct {
-	Server         string `json:"srv"`
+	Server         string `json:"server"`
 	ChannelID      string `json:"channel_id"`
 	URL            string `json:"url"`
 	NotifierServer string `json:"notifierServer"`

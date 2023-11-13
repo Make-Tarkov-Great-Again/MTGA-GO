@@ -64,7 +64,7 @@ func main() {
 		done <- true
 	}()
 
-	for i := 0; i < 7; i++ {
+	for i := 0; i < 8; i++ {
 		<-done
 	}
 	endTime = time.Now()
@@ -77,7 +77,7 @@ func main() {
 
 func startHome() {
 
-	fmt.Println("Alright fella, what now?")
+	fmt.Println("\nAlright fella, what now?")
 	fmt.Println("1. Register an Account")
 	fmt.Println("2. Login")
 	fmt.Println("\n69. Exit")
@@ -211,7 +211,7 @@ func login() {
 }
 
 func loggedIn(account *data.Account) {
-	fmt.Println("\nAlright fella, we're at the Login Menu, what now?")
+	fmt.Println("\n\nAlright fella, we're at the Login Menu, what now?")
 	fmt.Println("\n1. Launch Tarkov")
 	fmt.Println("2. Change Account Info")
 	fmt.Println("3. Wipe yo ass")

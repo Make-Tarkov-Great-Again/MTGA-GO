@@ -1,11 +1,9 @@
 package data
 
 import (
+	"MT-GO/tools"
 	"log"
 	"path/filepath"
-	"strings"
-
-	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -54,20 +52,18 @@ func setLocalLoot() {
 	}
 
 	for file := range files {
-		fileNameSplit := strings.Split(file, ".")
-		name := fileNameSplit[0][:len(fileNameSplit[0])-1]
+		//fileNameSplit := strings.Split(file, ".")
+		//name := fileNameSplit[0][:len(fileNameSplit[0])-1]
+		name := file[:len(file)-6]
 
 		if _, ok := localLoot[name]; !ok {
-			localLoot[name] = make([]any, 0, 6)
+			localLoot[name] = make([]any, 0, len(files))
 		}
 		filePath := filepath.Join("/locationTest", file)
 
+		raw := tools.GetJSONRawMessage(filePath)
 		format := new(any)
-		readFile, err := tools.ReadFile(filePath)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		if err = json.Unmarshal(readFile, format); err != nil {
+		if err = json.UnmarshalNoEscape(raw, format); err != nil {
 			log.Fatalln(err)
 		}
 

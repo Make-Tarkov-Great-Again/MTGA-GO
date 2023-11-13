@@ -46,21 +46,21 @@ func setEdition(editionPath string) *Edition {
 	done := make(chan bool)
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "storage.json"))
-		if err := json.Unmarshal(raw, edition.Storage); err != nil {
+		if err := json.UnmarshalNoEscape(raw, edition.Storage); err != nil {
 			log.Fatalln(err)
 		}
 		done <- true
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_usec.json"))
-		if err := json.Unmarshal(raw, edition.Usec); err != nil {
+		if err := json.UnmarshalNoEscape(raw, edition.Usec); err != nil {
 			log.Fatalln(err)
 		}
 		done <- true
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_bear.json"))
-		if err := json.Unmarshal(raw, edition.Bear); err != nil {
+		if err := json.UnmarshalNoEscape(raw, edition.Bear); err != nil {
 			log.Fatalln(err)
 		}
 		done <- true

@@ -30,12 +30,12 @@ func ItemClone(item string) (*DatabaseItem, error) {
 	}
 	clone := new(DatabaseItem)
 
-	data, err := json.Marshal(input)
+	data, err := json.MarshalNoEscape(input)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := json.Unmarshal(data, &clone); err != nil {
+	if err := json.UnmarshalNoEscape(data, &clone); err != nil {
 		log.Fatal(err)
 	}
 
@@ -45,12 +45,12 @@ func ItemClone(item string) (*DatabaseItem, error) {
 func (i *DatabaseItem) Clone() *DatabaseItem {
 	clone := new(DatabaseItem)
 
-	data, err := json.Marshal(i)
+	data, err := json.MarshalNoEscape(i)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := json.Unmarshal(data, &clone); err != nil {
+	if err := json.UnmarshalNoEscape(data, &clone); err != nil {
 		log.Fatal(err)
 	}
 

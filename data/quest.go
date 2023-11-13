@@ -50,7 +50,7 @@ const (
 
 func setQuests() {
 	raw := tools.GetJSONRawMessage(questsPath)
-	if err := json.Unmarshal(raw, &quests); err != nil {
+	if err := json.UnmarshalNoEscape(raw, &quests); err != nil {
 		log.Fatalln(err)
 	}
 }

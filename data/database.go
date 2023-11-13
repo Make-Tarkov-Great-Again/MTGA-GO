@@ -43,7 +43,7 @@ var databaseTasks = []func(){
 func SetDatabase() {
 	var wg sync.WaitGroup
 	completionCh := make(chan bool)
-	numWorkers := tools.CalculateWorkers() / 4
+	numWorkers := tools.CalculateWorkers() / 3
 
 	workerCh := make(chan bool, numWorkers)
 

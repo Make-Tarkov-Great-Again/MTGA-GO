@@ -149,7 +149,7 @@ func setHideout() {
 	go func() {
 		if tools.FileExist(areasPath) {
 			areas := tools.GetJSONRawMessage(areasPath)
-			if err := json.Unmarshal(areas, &hideout.Areas); err != nil {
+			if err := json.UnmarshalNoEscape(areas, &hideout.Areas); err != nil {
 				log.Println(err)
 			}
 		}
@@ -159,7 +159,7 @@ func setHideout() {
 	go func() {
 		if tools.FileExist(productionPath) {
 			recipes := tools.GetJSONRawMessage(productionPath)
-			if err := json.Unmarshal(recipes, &hideout.Recipes); err != nil {
+			if err := json.UnmarshalNoEscape(recipes, &hideout.Recipes); err != nil {
 				log.Println(err)
 			}
 		}
@@ -169,7 +169,7 @@ func setHideout() {
 	go func() {
 		if tools.FileExist(scavcasePath) {
 			scavcase := tools.GetJSONRawMessage(scavcasePath)
-			if err := json.Unmarshal(scavcase, &hideout.ScavCase); err != nil {
+			if err := json.UnmarshalNoEscape(scavcase, &hideout.ScavCase); err != nil {
 				log.Println(err)
 			}
 		}
@@ -179,7 +179,7 @@ func setHideout() {
 	go func() {
 		if tools.FileExist(qtePath) {
 			qte := tools.GetJSONRawMessage(qtePath)
-			if err := json.Unmarshal(qte, &hideout.QTE); err != nil {
+			if err := json.UnmarshalNoEscape(qte, &hideout.QTE); err != nil {
 				log.Println(err)
 			}
 		}
@@ -189,7 +189,7 @@ func setHideout() {
 	go func() {
 		if tools.FileExist(hideoutSettingsPath) {
 			settings := tools.GetJSONRawMessage(hideoutSettingsPath)
-			if err := json.Unmarshal(settings, &hideout.Settings); err != nil {
+			if err := json.UnmarshalNoEscape(settings, &hideout.Settings); err != nil {
 				log.Println(err)
 			}
 		}

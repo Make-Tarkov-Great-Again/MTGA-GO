@@ -22,10 +22,8 @@ func GetWeather() *Weather {
 
 func setWeather() {
 	raw := tools.GetJSONRawMessage(weatherPath)
-	err := json.Unmarshal(raw, &weather)
-	if err != nil {
-		log.Println(err)
-		return
+	if err := json.UnmarshalNoEscape(raw, &weather); err != nil {
+		log.Fatalln(err)
 	}
 }
 

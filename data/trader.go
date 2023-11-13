@@ -316,7 +316,7 @@ func setTraders() {
 			if tools.FileExist(basePath) {
 				raw := tools.GetJSONRawMessage(basePath)
 				trader.Base = new(TraderBase)
-				if err := json.Unmarshal(raw, &trader.Base); err != nil {
+				if err := json.UnmarshalNoEscape(raw, &trader.Base); err != nil {
 					log.Fatalln(err)
 				}
 			}
@@ -328,7 +328,7 @@ func setTraders() {
 			if tools.FileExist(assortPath) {
 				raw := tools.GetJSONRawMessage(assortPath)
 				trader.Assort = new(Assort)
-				if err := json.Unmarshal(raw, &trader.Assort); err != nil {
+				if err := json.UnmarshalNoEscape(raw, &trader.Assort); err != nil {
 					log.Fatalln(err)
 				}
 
@@ -342,7 +342,7 @@ func setTraders() {
 			if tools.FileExist(questsPath) {
 				raw := tools.GetJSONRawMessage(questsPath)
 				trader.QuestAssort = make(map[string]map[string]string)
-				if err := json.Unmarshal(raw, &trader.QuestAssort); err != nil {
+				if err := json.UnmarshalNoEscape(raw, &trader.QuestAssort); err != nil {
 					log.Fatalln(err)
 				}
 			}
@@ -354,7 +354,7 @@ func setTraders() {
 			if tools.FileExist(suitsPath) {
 				raw := tools.GetJSONRawMessage(suitsPath)
 				trader.Suits = make([]TraderSuits, 0)
-				if err := json.Unmarshal(raw, &trader.Suits); err != nil {
+				if err := json.UnmarshalNoEscape(raw, &trader.Suits); err != nil {
 					log.Println(err)
 				}
 			}
@@ -366,7 +366,7 @@ func setTraders() {
 			if tools.FileExist(dialoguesPath) {
 				raw := tools.GetJSONRawMessage(dialoguesPath)
 				trader.Dialogue = make(map[string][]string)
-				if err := json.Unmarshal(raw, &trader.Dialogue); err != nil {
+				if err := json.UnmarshalNoEscape(raw, &trader.Dialogue); err != nil {
 					log.Fatalln(err)
 				}
 			}

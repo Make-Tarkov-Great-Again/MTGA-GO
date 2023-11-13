@@ -12,7 +12,7 @@ func GetJSONRawMessage(path string) json.RawMessage {
 	}
 
 	var rawMap map[string]json.RawMessage
-	if err := json.Unmarshal(b, &rawMap); err != nil {
+	if err := json.UnmarshalNoEscape(b, &rawMap); err != nil {
 		return b
 	}
 

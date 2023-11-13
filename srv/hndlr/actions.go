@@ -67,7 +67,7 @@ var actionHandlers = map[string]func(map[string]any, string, *pkg.ProfileChanges
 }
 
 const (
-	actionLog          string = "[ %d/%d ] Action: %s\n"
+	actionLog          string = "[ %d / %d ] Action: %s\n"
 	actionNotSupported        = "%s is not supported, sending empty response\n"
 )
 

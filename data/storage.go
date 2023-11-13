@@ -13,7 +13,7 @@ func setStorage(path string) *Storage {
 	output := new(Storage)
 
 	data := tools.GetJSONRawMessage(path)
-	if err := json.Unmarshal(data, output); err != nil {
+	if err := json.UnmarshalNoEscape(data, output); err != nil {
 		log.Println(err)
 	}
 

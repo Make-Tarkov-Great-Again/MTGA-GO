@@ -68,12 +68,6 @@ func logAndDecompress(next http.Handler) http.Handler {
 				return
 			}
 
-			/*			acceptEncoding := strings.Contains(r.Header.Get("Accept-Encoding"), "deflate")
-						if r.Header.Get("Content-Type") != "application/json" && !acceptEncoding {
-							next.ServeHTTP(w, r)
-							return
-						}*/
-
 			buffer := pkg.ZlibInflate(r)
 			if buffer == nil || buffer.Len() == 0 {
 				next.ServeHTTP(w, r)
@@ -87,8 +81,8 @@ func logAndDecompress(next http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), pkg.ParsedBodyKey, parsedData)
-			r = r.WithContext(ctx)
+			//ctx := context.WithValue(r.Context(), pkg.ParsedBodyKey, parsedData)
+			r = r.WithContext(context.WithValue(r.Context(), pkg.ParsedBodyKey, parsedData))
 
 			next.ServeHTTP(w, r)
 		}
@@ -97,7 +91,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 
 var CW = &ConnectionWatcher{}
 
-func startHTTPSServer(serverReady chan<- struct{}, certs *Certificate, mux *muxt) {
+func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
 	httpsServer := &http.Server{
@@ -110,8 +104,8 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *Certificate, mux *muxt
 		Handler: logAndDecompress(mux.mux),
 	}
 
-	log.Println("Started " + mux.serverName + " HTTPS srv on " + mux.address)
-	serverReady <- struct{}{}
+	log.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
+	serverReady <- true
 
 	err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
 	if err != nil {
@@ -119,7 +113,7 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *Certificate, mux *muxt
 	}
 }
 
-func startHTTPServer(serverReady chan<- struct{}, mux *muxt) {
+func startHTTPServer(serverReady chan<- bool, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
 	httpsServer := &http.Server{
@@ -127,8 +121,8 @@ func startHTTPServer(serverReady chan<- struct{}, mux *muxt) {
 		Handler: logAndDecompress(mux.mux),
 	}
 
-	fmt.Println("Started " + mux.serverName + " HTTP srv on " + mux.address)
-	serverReady <- struct{}{}
+	fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
+	serverReady <- true
 
 	err := httpsServer.ListenAndServe()
 	if err != nil {
@@ -172,7 +166,7 @@ func SetServer() {
 		},
 	}
 
-	serverReady := make(chan struct{})
+	serverReady := make(chan bool)
 
 	if srv.Secure {
 		cert := GetCertificate(srv.IP)
@@ -196,6 +190,7 @@ func SetServer() {
 	}
 
 	pkg.SetDownloadLocal(srv.DownloadImageFiles)
+	pkg.SetChannelTemplate()
 
 	close(serverReady)
 }

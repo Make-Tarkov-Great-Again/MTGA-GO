@@ -126,8 +126,7 @@ func setAccount(path string) *Account {
 	output := new(Account)
 
 	data := tools.GetJSONRawMessage(path)
-	err := json.Unmarshal(data, output)
-	if err != nil {
+	if err := json.UnmarshalNoEscape(data, output); err != nil {
 		log.Println(err)
 		return nil
 	}

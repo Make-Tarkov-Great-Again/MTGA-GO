@@ -45,7 +45,7 @@ func GetLanguages() map[string]string {
 // #region Language setters
 func setLanguages() {
 	raw := tools.GetJSONRawMessage(filepath.Join(localesPath, "/languages.json"))
-	if err := json.Unmarshal(raw, &languages); err != nil {
+	if err := json.UnmarshalNoEscape(raw, &languages); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -118,13 +118,13 @@ func setLocales() {
 			switch file {
 			case "locale.json":
 				raw := make(map[string]any)
-				if err := json.Unmarshal(fileContent, &raw); err != nil {
+				if err := json.UnmarshalNoEscape(fileContent, &raw); err != nil {
 					log.Fatalln(err)
 				}
 				localeData.Locale = raw
 			case "menu.json":
 				localeMenu := &LocaleMenu{}
-				if err := json.Unmarshal(fileContent, &localeMenu); err != nil {
+				if err := json.UnmarshalNoEscape(fileContent, &localeMenu); err != nil {
 					log.Fatalln(err)
 				}
 
@@ -137,12 +137,12 @@ func setLocales() {
 		structure[dir] = localeData
 	}
 
-	bytes, err := json.Marshal(structure)
+	bytes, err := json.MarshalNoEscape(structure)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	if err = json.Unmarshal(bytes, &locales); err != nil {
+	if err = json.UnmarshalNoEscape(bytes, &locales); err != nil {
 		log.Fatalln(err)
 	}
 }
