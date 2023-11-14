@@ -5,11 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch ModLoader",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/modloader.go"
+        },
+        {
             "name": "Launch Server",
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/server.go"
+            "program": "${workspaceFolder}/backend.go"
         }
     ]
 }

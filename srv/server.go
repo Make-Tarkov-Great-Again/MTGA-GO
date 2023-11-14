@@ -191,6 +191,7 @@ func SetServer() {
 
 	pkg.SetDownloadLocal(srv.DownloadImageFiles)
 	pkg.SetChannelTemplate()
+	pkg.SetGameConfig()
 
 	close(serverReady)
 }

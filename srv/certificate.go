@@ -9,6 +9,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"log"
 	"math/big"
@@ -215,6 +216,7 @@ func (cg *Certificate) installCertificate() {
 
 	log.Println(installCertificatePrompt)
 	var input string
+	var exitErr *exec.ExitError
 
 	for {
 		fmt.Printf("> ")
@@ -223,7 +225,7 @@ func (cg *Certificate) installCertificate() {
 		if strings.Contains(strings.ToLower(input), "yes") {
 			_, err := exec.Command("certutil", "-addstore", "-user", "Root", cg.CertFile).CombinedOutput()
 			if err != nil {
-				exitErr, _ := err.(*exec.ExitError)
+				_ = errors.As(err, &exitErr)
 				if exitErr.ProcessState.Exited() {
 					log.Println("User cancelled the installation")
 					os.Exit(0)

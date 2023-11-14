@@ -3,6 +3,7 @@ package data
 
 import (
 	"MT-GO/tools"
+	"MT-GO/user/mods"
 	"sync"
 )
 
@@ -32,7 +33,7 @@ const (
 
 // SetDatabase initializes the data
 // var db *Database
-var databaseTasks = []func(){
+var primary = []func(){
 	setBots, setEditions, setHideout,
 	setLocalLoot, setLocales, setTraders,
 	setCore, setLanguages, setHandbook,
@@ -40,14 +41,30 @@ var databaseTasks = []func(){
 	setLocations, setCustomization, setFlea,
 }
 
+var secondary = []func(){
+	SetProfiles, IndexQuests, IndexTraders,
+	SetServerConfig, IndexHideoutAreas, IndexHideoutRecipes,
+	IndexScavcase,
+}
+
 func SetDatabase() {
 	var wg sync.WaitGroup
-	completionCh := make(chan bool)
 	numWorkers := tools.CalculateWorkers() / 3
 
-	workerCh := make(chan bool, numWorkers)
+	runTasks(&wg, primary, numWorkers)
 
-	for _, task := range databaseTasks {
+	mods.Init()
+	LoadBundleManifests()
+	LoadCustomItems()
+
+	runTasks(&wg, secondary, numWorkers)
+}
+
+func runTasks(wg *sync.WaitGroup, tasks []func(), numWorkers int) {
+	workerCh := make(chan bool, numWorkers)
+	completionCh := make(chan bool)
+
+	for _, task := range tasks {
 		wg.Add(1)
 		go func(taskFunc func()) {
 			defer wg.Done()
@@ -63,7 +80,7 @@ func SetDatabase() {
 		close(completionCh)
 	}()
 
-	for range databaseTasks {
+	for range tasks {
 		<-completionCh
 	}
 }

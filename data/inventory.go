@@ -213,17 +213,17 @@ func MeasurePurchaseForInventoryMapping(items []InventoryItem) (int8, int8) {
 type Inventory struct {
 	Items              []InventoryItem   `json:"items"`
 	Equipment          string            `json:"equipment"`
-	Stash              string            `json:"stash"`
-	SortingTable       string            `json:"sortingTable"`
-	QuestRaidItems     string            `json:"questRaidItems"`
-	QuestStashItems    string            `json:"questStashItems"`
+	Stash              string            `json:"stash,omitempty"`
+	SortingTable       string            `json:"sortingTable,omitempty"`
+	QuestRaidItems     string            `json:"questRaidItems,omitempty"`
+	QuestStashItems    string            `json:"questStashItems,omitempty"`
 	FastPanel          map[string]string `json:"fastPanel"`
-	HideoutAreaStashes any               `json:"hideoutAreaStashes"`
+	HideoutAreaStashes map[string]string `json:"hideoutAreaStashes"`
 }
 
 type InventoryItem struct {
 	ID       string                 `json:"_id"`
-	TPL      string                 `json:"_tpl,omitempty"`
+	TPL      string                 `json:"_tpl"`
 	ParentID string                 `json:"parentId,omitempty"`
 	SlotID   string                 `json:"slotId,omitempty"`
 	Location *InventoryItemLocation `json:"location,omitempty"`

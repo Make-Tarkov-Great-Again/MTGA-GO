@@ -4,7 +4,6 @@ package main
 
 import (
 	"MT-GO/srv"
-	"MT-GO/user/mods"
 	"fmt"
 	"log"
 	"os"
@@ -18,60 +17,11 @@ import (
 
 func main() {
 	startTime := time.Now()
-	//TODO: Squeeze MS where possible, investigate TraderIndex if possible
-
 	data.SetDatabase()
-	mods.Init()
-
-	data.LoadBundleManifests()
-	data.LoadCustomItems()
-
 	endTime := time.Now()
-	fmt.Printf("Database initialized in %s\n", endTime.Sub(startTime))
-
-	startTime = time.Now()
-	done := make(chan bool)
-	go func() {
-		data.IndexWeaponMasteries()
-		done <- true
-	}()
-	go func() {
-		data.SetServerConfig()
-		done <- true
-	}()
-	go func() {
-		data.IndexTraders()
-		done <- true
-	}()
-	go func() {
-		data.IndexHideoutAreas()
-		done <- true
-	}()
-	go func() {
-		data.IndexHideoutRecipes()
-		done <- true
-	}()
-	go func() {
-		data.IndexScavcase()
-		done <- true
-	}()
-	go func() {
-		data.IndexQuests()
-		done <- true
-	}()
-	go func() {
-		data.SetProfiles()
-		done <- true
-	}()
-
-	for i := 0; i < 8; i++ {
-		<-done
-	}
-	endTime = time.Now()
-	fmt.Printf("Cache initialized in %s\n\n", endTime.Sub(startTime))
+	fmt.Printf("Database initialized in %s\n\n", endTime.Sub(startTime))
 
 	srv.SetServer()
-
 	startHome()
 }
 

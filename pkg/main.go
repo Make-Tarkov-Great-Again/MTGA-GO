@@ -21,21 +21,13 @@ func GetBrandName() map[string]string {
 	return brand
 }
 
-func GetGameConfig(sessionID string) (*GameConfig, error) {
-	lang := "en"
-	if account, err := data.GetAccountByID(sessionID); err != nil {
-		return nil, err
-	} else if account.Lang != "" {
-		lang = account.Lang
-	}
+var gameConfig *GameConfig
 
-	return &GameConfig{
-		Aid:             sessionID,
-		Lang:            lang,
-		Languages:       data.GetLanguages(),
-		NdaFree:         false,
-		Taxonomy:        6,
-		ActiveProfileID: sessionID,
+func SetGameConfig() {
+	gameConfig = &GameConfig{
+		Languages: data.GetLanguages(),
+		NdaFree:   false,
+		Taxonomy:  6,
 		Backend: Backend{
 			Lobby:     data.GetLobbyAddress(),
 			Trading:   data.GetTradingAddress(),
@@ -44,11 +36,32 @@ func GetGameConfig(sessionID string) (*GameConfig, error) {
 			RagFair:   data.GetRagFairAddress(),
 		},
 		UseProtobuf:       false,
-		UtcTime:           tools.GetCurrentTimeInSeconds(),
-		TotalInGame:       0, //account.GetTotalInGame
 		ReportAvailable:   true,
 		TwitchEventMember: false,
-	}, nil
+	}
+}
+
+func GetGameConfig(sessionID string) (*GameConfig, error) {
+	lang := "en"
+	profile, err := data.GetProfileByUID(sessionID)
+	if err != nil {
+		return nil, err
+	}
+	if profile.Account.Lang != "" {
+		lang = profile.Account.Lang
+	}
+
+	config := *gameConfig
+	config.Aid = sessionID
+	config.Lang = lang
+	config.ActiveProfileID = sessionID
+	config.UtcTime = tools.GetCurrentTimeInSeconds()
+	config.TotalInGame = 0
+	if profile.Character != nil {
+		config.TotalInGame = profile.Character.Stats.Eft.TotalInGameTime
+	}
+
+	return &config, nil
 }
 
 func GetMainItems() *CRCResponseBody {
@@ -215,10 +228,7 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 
 	profile.Character = &pmc
 
-	if cache, err := data.GetCacheByID(pmc.ID); err == nil {
-		cache.SetCharacterCache(&pmc)
-	}
-
+	data.SetProfileCache(sessionId)
 	profile.SaveProfile()
 }
 
