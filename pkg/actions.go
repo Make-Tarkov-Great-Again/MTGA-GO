@@ -306,13 +306,19 @@ func MoveItemInStash(moveAction map[string]any, id string, profileChangesEvent *
 	itemInInventory.ParentID = move.To.ID
 	itemInInventory.SlotID = move.To.Container
 
-	if itemInInventory.Location != nil {
-		cache.UpdateItemFlatMapLookup([]data.InventoryItem{*itemInInventory})
-	}
 	if itemInInventory.SlotID != "hideout" {
 		cache.ClearItemFromContainerMap(move.Item)
 	} else {
-		cache.AddItemFromContainerMap(move.Item)
+		if _, ok := cache.Stash.Container.FlatMap[move.Item]; ok {
+			cache.ClearItemFromContainerMap(move.Item)
+		}
+		if itemInInventory.Location != nil {
+			cache.SetNewItemFlatMap([]data.InventoryItem{*itemInInventory})
+			cache.AddItemToContainerMap(move.Item)
+		} else {
+			log.Println("HUHHHHHHHHHHHHHHHHHH")
+		}
+
 	}
 	//cache.SetInventoryIndex(&character.Inventory)
 

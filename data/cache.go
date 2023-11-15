@@ -335,7 +335,7 @@ func (ic *InventoryContainer) GenerateCoordinatesFromLocation(flatMap FlatMapLoo
 	return output
 }
 
-func (ic *InventoryContainer) UpdateItemFlatMapLookup(items []InventoryItem) {
+func (ic *InventoryContainer) SetNewItemFlatMap(items []InventoryItem) {
 	height, width := MeasurePurchaseForInventoryMapping(items)
 	itemInInventory := items[len(items)-1]
 	flatMap := *ic.CreateFlatMapLookup(height, width, &itemInInventory)
@@ -347,7 +347,10 @@ func (ic *InventoryContainer) UpdateItemFlatMapLookup(items []InventoryItem) {
 // only and preserves its FlatMapLookup
 func (ic *InventoryContainer) ClearItemFromContainerMap(UID string) {
 	var stash = *ic.Stash
-	var itemFlatMap = stash.Container.FlatMap[UID]
+	itemFlatMap, ok := ic.Stash.Container.FlatMap[UID]
+	if !ok {
+		fmt.Println(UID)
+	}
 	var containerMap = &stash.Container.Map
 
 	for _, index := range itemFlatMap.Coordinates {
@@ -355,14 +358,18 @@ func (ic *InventoryContainer) ClearItemFromContainerMap(UID string) {
 	}
 }
 
-// AddItemFromContainerMap sets Item in Container.Map by adding its entries
+// AddItemToContainerMap sets Item in Container.Map by adding its entries
 // from preserved FlatMapLookup
-func (ic *InventoryContainer) AddItemFromContainerMap(UID string) {
-	var itemFlatMap = ic.Stash.Container.FlatMap[UID]
-	var containerMap = ic.Stash.Container.Map
+func (ic *InventoryContainer) AddItemToContainerMap(UID string) {
+	var stash = *ic.Stash
+	itemFlatMap, ok := ic.Stash.Container.FlatMap[UID]
+	if !ok {
+		fmt.Println(UID)
+	}
+	var containerMap = &stash.Container.Map
 
 	for _, index := range itemFlatMap.Coordinates {
-		containerMap[index] = UID
+		(*containerMap)[index] = UID
 	}
 }
 
