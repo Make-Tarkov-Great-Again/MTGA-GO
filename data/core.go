@@ -12,7 +12,6 @@ var core = Core{
 	MainSettings:      new(MainSettings),
 	ServerConfig:      new(ServerConfig),
 	Globals:           new(Globals),
-	GlobalBotSettings: make(map[string]any),
 	MatchMetrics:      new(MatchMetrics),
 	AirdropParameters: new(AirdropParameters),
 }
@@ -72,13 +71,6 @@ func setCore() {
 		done <- true
 	}()
 	go func() {
-		raw := tools.GetJSONRawMessage(globalBotSettingsPath)
-		if err := json.UnmarshalNoEscape(raw, &core.GlobalBotSettings); err != nil {
-			log.Fatalln(err)
-		}
-		done <- true
-	}()
-	go func() {
 		raw := tools.GetJSONRawMessage(matchMetricsPath)
 		if err := json.UnmarshalNoEscape(raw, &core.MatchMetrics); err != nil {
 			log.Println(err)
@@ -93,7 +85,7 @@ func setCore() {
 		done <- true
 	}()
 
-	for i := 0; i < 7; i++ {
+	for i := 0; i < 6; i++ {
 		<-done
 	}
 }
@@ -107,7 +99,6 @@ type Core struct {
 	MainSettings      *MainSettings
 	ServerConfig      *ServerConfig
 	Globals           *Globals
-	GlobalBotSettings map[string]any
 	MatchMetrics      *MatchMetrics
 	AirdropParameters *AirdropParameters
 }
