@@ -16,6 +16,7 @@ const (
 	globalBotSettingsPath = coreFilePath + "/__BotGlobalSettings.json"
 	globalsFilePath       = coreFilePath + "/globals.json"
 	locationsFilePath     = coreFilePath + "/locations.json"
+	locationsPath         = databaseLibPath + "/locations"
 	matchMetricsPath      = coreFilePath + "/matchMetrics.json"
 	serverConfigPath      = coreFilePath + "/server.json"
 	editionsDirPath       = databaseLibPath + "/editions/"

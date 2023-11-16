@@ -27,7 +27,19 @@ func setLocations() {
 	}
 }
 
-var localLoot = make(map[string][]any)
+var localLoot = map[string][]map[string]any{
+	"bigmap":         make([]map[string]any, 0, 6),
+	"factory4_day":   make([]map[string]any, 0, 6),
+	"factory4_night": make([]map[string]any, 0, 6),
+	"Laboratory":     make([]map[string]any, 0, 6),
+	"Lighthouse":     make([]map[string]any, 0, 6),
+	"RezervBase":     make([]map[string]any, 0, 6),
+	"Shoreline":      make([]map[string]any, 0, 6),
+	"TarkovStreets":  make([]map[string]any, 0, 6),
+	"Woods":          make([]map[string]any, 0, 6),
+}
+
+//make(map[string][]any)
 
 func GetLocalLootByNameAndIndex(name string, index int8) any {
 	location, ok := localLoot[name]
@@ -37,37 +49,31 @@ func GetLocalLootByNameAndIndex(name string, index int8) any {
 	}
 
 	loot := location[index]
-	if loot == nil {
-		log.Println("Loot at index", index, "does not exist")
+	if loot != nil {
 		return nil
 	}
 
-	return loot
+	log.Println("Loot at index", index, "does not exist")
+	return nil
 }
 
 func setLocalLoot() {
-	files, err := tools.GetFilesFrom("/locationTest")
+	files, err := tools.GetFilesFrom(locationsPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	for file := range files {
-		//fileNameSplit := strings.Split(file, ".")
-		//name := fileNameSplit[0][:len(fileNameSplit[0])-1]
 		name := file[:len(file)-6]
-
-		if _, ok := localLoot[name]; !ok {
-			localLoot[name] = make([]any, 0, len(files))
-		}
-		filePath := filepath.Join("/locationTest", file)
+		filePath := filepath.Join(locationsPath, file)
 
 		raw := tools.GetJSONRawMessage(filePath)
-		format := new(any)
+		format := new(map[string]any)
 		if err = json.UnmarshalNoEscape(raw, format); err != nil {
 			log.Fatalln(err)
 		}
 
-		localLoot[name] = append(localLoot[name], format)
+		localLoot[name] = append(localLoot[name], *format)
 	}
 }
 

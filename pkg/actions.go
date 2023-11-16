@@ -306,20 +306,16 @@ func MoveItemInStash(moveAction map[string]any, id string, profileChangesEvent *
 	itemInInventory.ParentID = move.To.ID
 	itemInInventory.SlotID = move.To.Container
 
-	if itemInInventory.SlotID != "hideout" {
+	_, ok := cache.Stash.Container.FlatMap[move.Item]
+	if ok || itemInInventory.SlotID != "hideout" {
 		cache.ClearItemFromContainerMap(move.Item)
-	} else {
-		if _, ok := cache.Stash.Container.FlatMap[move.Item]; ok {
-			cache.ClearItemFromContainerMap(move.Item)
-		}
-		if itemInInventory.Location != nil {
-			cache.SetNewItemFlatMap([]data.InventoryItem{*itemInInventory})
-			cache.AddItemToContainerMap(move.Item)
-		} else {
-			log.Println("HUHHHHHHHHHHHHHHHHHH")
-		}
-
 	}
+
+	if itemInInventory.Location != nil {
+		cache.SetNewItemFlatMap([]data.InventoryItem{*itemInInventory})
+		cache.AddItemToContainerMap(move.Item)
+	}
+
 	//cache.SetInventoryIndex(&character.Inventory)
 
 	profileChangesEvent.ProfileChanges[character.ID].Production = nil
