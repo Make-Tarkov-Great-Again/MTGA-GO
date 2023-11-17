@@ -25,7 +25,6 @@ const (
 	traderPath        = databaseLibPath + "/traders/"
 	questsPath        = databaseLibPath + "/quests.json"
 	hideoutPath       = databaseLibPath + "/hideout/"
-	weatherPath       = databaseLibPath + "/weather.json"
 	customizationPath = databaseLibPath + "/customization.json"
 	botMainDir        = databaseLibPath + "/bot/"
 	botsMainDir       = botMainDir + "bots/"
