@@ -29,42 +29,42 @@ func setWeather() {
 }
 
 func generateWeather() WeatherReport {
-	num := tools.RoundToThousandths(rand.Float32()*2 - 1)
-	num2 := rand.Intn(7) + 1
-	num3 := tools.RoundToThousandths(rand.Float32() * 4)
-	num4 := tools.RoundToThousandths(rand.Float32())
-	var num5 int
-	var num6 float32
+	cloud := tools.RoundToThousandths(rand.Float32()*2 - 1)
+	var rain int8
+	var rainIntensity float32
+	var fog float32
 
-	if num > 0.5 {
-		num5 = rand.Intn(5)
-		num4 = 1
-		num6 = 0.004
-		switch num5 {
+	if cloud > 0.5 {
+		rain = int8(rand.Intn(5))
+		rainIntensity = 1
+
+		switch rain {
 		case 1:
-			num6 = 0.008
+			fog = 0.008
 		case 2:
-			num6 = 0.012
+			fog = 0.012
 		case 3:
-			num6 = 0.02
+			fog = 0.02
 		case 4:
-			num6 = 0.03
+			fog = 0.03
+		default:
+			fog = 0.004
 		}
 	} else {
-		num5 = 0
-		num6 = tools.RoundToThousandths(rand.Float32()*0.003 + 0.003)
+		rainIntensity = tools.RoundToThousandths(rand.Float32())
+		fog = tools.RoundToThousandths(rand.Float32()*0.003 + 0.003)
 	}
 
 	return WeatherReport{
 		Timestamp:     tools.GetCurrentTimeInSeconds(),
-		Cloud:         num,
-		WindDirection: num2,
-		WindSpeed:     num3,
-		Rain:          num5,
-		RainIntensity: num4,
+		Cloud:         cloud,
+		WindDirection: int8(rand.Intn(7) + 1),
+		WindSpeed:     tools.RoundToThousandths(rand.Float32() * 4),
+		Rain:          rain,
+		RainIntensity: rainIntensity,
 		Temperature:   22,
-		Pressure:      780,
-		Fog:           num6,
+		Pressure:      int16(tools.GetRandomInt(750, 780)),
+		Fog:           fog,
 	}
 }
 
@@ -83,13 +83,13 @@ type WeatherReport struct {
 	Timestamp     int64   `json:"timestamp"`
 	Cloud         float32 `json:"cloud"`
 	WindSpeed     float32 `json:"wind_speed"`
-	WindDirection int     `json:"wind_direction"`
+	WindDirection int8    `json:"wind_direction"`
 	WindGustiness float32 `json:"wind_gustiness"`
-	Rain          int     `json:"rain"`
+	Rain          int8    `json:"rain"`
 	RainIntensity float32 `json:"rain_intensity"`
 	Fog           float32 `json:"fog"`
-	Temperature   int     `json:"temp"`
-	Pressure      int     `json:"pressure"`
+	Temperature   int8    `json:"temp"`
+	Pressure      int16   `json:"pressure"`
 	Date          string  `json:"date"`
 	Time          string  `json:"time"`
 }
