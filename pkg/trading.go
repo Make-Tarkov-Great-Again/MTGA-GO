@@ -4,6 +4,7 @@ import (
 	"MT-GO/data"
 	"fmt"
 	"net/http"
+	"sort"
 )
 
 // GetCorrectAmountOfItemsPurchased returns a new slice of which each index
@@ -49,6 +50,9 @@ func GetTraderSettings() []*data.TraderBase {
 		output = append(output, trader.Base)
 	}
 
+	sort.SliceStable(output, func(i, j int) bool {
+		return output[i].ID < output[j].ID
+	})
 	return output
 }
 
@@ -66,16 +70,25 @@ func GetTraderSuits(id string) ([]data.TraderSuits, error) {
 }
 
 func GetTraderAssort(r *http.Request) (*data.Assort, error) {
-	trader, err := data.GetTraderByUID(r.URL.Path[36:])
-	if err != nil {
-		return nil, err
+	sessionID := GetSessionID(r)
+	cache, _ := data.GetTraderCacheByID(sessionID)
+	if cache == nil {
+		character := data.GetCharacterByID(sessionID)
+		trader, err := data.GetTraderByUID(r.URL.Path[36:])
+		if err != nil {
+			return nil, err
+		}
+		assort, err := trader.GetStrippedAssort(character)
+		if err != nil {
+			return nil, err
+		}
+
+		return assort, nil
 	}
 
-	character := data.GetCharacterByID(GetSessionID(r))
-	assort, err := trader.GetStrippedAssort(character)
-	if err != nil {
-		return nil, err
+	assort := cache.Assorts[r.URL.Path[36:]]
+	if assort != nil {
+		return assort, nil
 	}
-
-	return assort, nil
+	return nil, fmt.Errorf("Assort does not exist")
 }

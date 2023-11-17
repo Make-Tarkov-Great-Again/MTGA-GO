@@ -469,9 +469,11 @@ func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
 			}
 			pkg.ZlibJSONReply(w, r.RequestURI, data)
 	*/
+	parsedBody := pkg.GetParsedBody(r)
+	botName := strings.ToLower(parsedBody.(map[string]any)["name"].(string))
 
 	difficulties := new(botDifficulties)
-	if bot, _ := data.GetBotByName(strings.ToLower(pkg.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
+	if bot, _ := data.GetBotByName(botName); bot != nil {
 		difficulties.Easy = bot.Difficulties["easy"]
 		difficulties.Normal = bot.Difficulties["normal"]
 		difficulties.Hard = bot.Difficulties["hard"]

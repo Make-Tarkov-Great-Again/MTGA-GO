@@ -42,7 +42,7 @@ var primary = []func(){
 }
 
 var secondary = []func(){
-	SetProfiles, IndexQuests, IndexTraders,
+	SetProfiles, IndexQuests, IndexTradeOffers,
 	SetServerConfig, IndexHideoutAreas, IndexHideoutRecipes,
 	IndexScavcase,
 }

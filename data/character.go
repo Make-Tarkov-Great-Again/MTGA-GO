@@ -357,7 +357,7 @@ type Bonus struct {
 	LocalizationKey string `json:"LocalizationKey,omitempty"`
 	Passive         bool   `json:"passive,omitempty"`
 	Production      bool   `json:"production,omitempty"`
-	Value           int    `json:"value,omitempty"`
+	Value           int32  `json:"value,omitempty"`
 	Visible         bool   `json:"visible,omitempty"`
 }
 

@@ -2,6 +2,7 @@ package tools
 
 import (
 	"log"
+	"math"
 	"math/rand"
 	"time"
 )
@@ -22,6 +23,10 @@ func GetRandomInt(min int, max int) int {
 		return random.Intn(max-min+1) + min
 	}
 	return min
+}
+
+func RoundToThousandths(value float32) float32 {
+	return float32(math.Round(float64(value)*1000) / 1000)
 }
 
 // GetFloat returns a random float between min and max

@@ -547,7 +547,6 @@ func (ic *InventoryContainer) GetValidLocationForItem(height int8, width int8) *
 	var counter int8
 columnLoop:
 	for column := int16(0); column < length; column++ {
-
 		if column%stride == 9 && counter != width {
 			position.MapInfo = []int16{}
 			counter = 0
@@ -574,7 +573,6 @@ columnLoop:
 		}
 
 		if counter == width {
-
 			position.Y = position.MapInfo[0] / stride
 			position.X = position.MapInfo[0] % stride
 

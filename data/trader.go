@@ -141,7 +141,6 @@ func (t *Trader) GetStrippedAssort(character *Character) (*Assort, error) {
 	// TODO: add quest checks
 	loyalLevelItems := make(map[string]int8)
 	for loyalID, loyalLevel := range t.Assort.LoyalLevelItems {
-
 		if loyaltyLevel >= loyalLevel {
 			loyalLevelItems[loyalID] = loyalLevel
 			continue
@@ -167,7 +166,7 @@ func (t *Trader) GetStrippedAssort(character *Character) (*Assort, error) {
 	assort.Items = make([]*AssortItem, 0, len(t.Assort.Items))
 	assort.BarterScheme = make(map[string][][]*Scheme)
 
-	var counter int16 = 0
+	var counter int16
 	for itemID := range loyalLevelItems {
 		index, ok := t.Index.Assort.Items[itemID]
 		if ok {
@@ -295,10 +294,6 @@ func GetItemFamilyTree(items []*AssortItem, parent string) []string {
 	return list
 }
 
-// #endregion
-
-// #region Trader setters
-
 func setTraders() {
 	directory, err := tools.GetDirectoriesFrom(traderPath)
 	if err != nil {
@@ -380,7 +375,7 @@ func setTraders() {
 	}
 }
 
-func IndexTraders() {
+func IndexTradeOffers() {
 	for _, trader := range traders {
 		if trader.Assort != nil {
 			trader.Index.Assort = &AssortIndex{}
@@ -388,17 +383,6 @@ func IndexTraders() {
 			childlessItems := make(map[string]int16)
 
 			for index, item := range trader.Assort.Items {
-
-				_, ok := childlessItems[item.ID]
-				if ok {
-					continue
-				}
-
-				_, ok = parentItems[item.ID]
-				if ok {
-					continue
-				}
-
 				itemChildren := GetItemFamilyTree(trader.Assort.Items, item.ID)
 				if len(itemChildren) == 1 {
 					childlessItems[item.ID] = int16(index)
@@ -430,12 +414,7 @@ func IndexTraders() {
 			}
 		}
 	}
-
 }
-
-// #endregion Trader->Init
-
-// #region Trader structs
 
 type Trader struct {
 	Index       TraderIndex                  `json:",omitempty"`
