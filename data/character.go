@@ -36,14 +36,13 @@ func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 	query := GetQuestsQuery()
 
 	cachedQuests, err := GetQuestCacheByID(c.ID)
-	if err != nil {
+	if err != nil && len(c.Quests) != 0 {
 		return nil, err
 	}
 
-	characterHasQuests := len(cachedQuests.Index) != 0
+	characterHasQuests := cachedQuests != nil && len(cachedQuests.Index) != 0
 
 	for key, value := range query {
-
 		if CheckIfQuestForOtherFaction(c.Info.Side, key) {
 			continue
 		}
@@ -65,7 +64,6 @@ func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 				forStart.Level.Level,
 				float64(c.Info.Level),
 				forStart.Level.CompareMethod) {
-
 				continue
 			}
 		}
@@ -78,14 +76,13 @@ func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 		loyaltyCheck := false
 		if forStart.TraderLoyalty != nil {
 			for trader, loyalty := range forStart.TraderLoyalty {
-
 				traderInfo, ok := c.TradersInfo[trader]
 				if !ok || traderInfo.LoyaltyLevel == 0 {
-					if data, err := GetTraderByUID(trader); err != nil {
+					data, err := GetTraderByUID(trader)
+					if err != nil {
 						return nil, err
-					} else {
-						data.SetTraderLoyaltyLevel(c)
 					}
+					data.SetTraderLoyaltyLevel(c)
 				}
 
 				loyaltyCheck = tools.LevelComparisonCheck(
@@ -103,7 +100,6 @@ func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 		standingCheck := false
 		if forStart.TraderStanding != nil {
 			for trader, loyalty := range forStart.TraderStanding {
-
 				traderInfo, ok := c.TradersInfo[trader]
 				if !ok || traderInfo.LoyaltyLevel == 0 {
 					if data, err := GetTraderByUID(trader); err != nil {

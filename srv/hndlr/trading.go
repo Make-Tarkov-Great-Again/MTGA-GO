@@ -1,8 +1,10 @@
 package hndlr
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"MT-GO/pkg"
 )
@@ -34,6 +36,7 @@ func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
 }
 
 func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	traderAssort, err := pkg.GetTraderAssort(r)
 	if err != nil {
 		log.Println(err)
@@ -41,4 +44,7 @@ func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
 
 	body := pkg.ApplyResponseBody(traderAssort)
 	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	endTime := time.Now()
+	elapsedTime := endTime.Sub(startTime)
+	fmt.Printf("Response Time: %v\n", elapsedTime)
 }

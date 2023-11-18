@@ -1,6 +1,13 @@
 package data
 
-var flea = Flea{}
+import "MT-GO/tools"
+
+var flea = Flea{
+	Offers:           nil,
+	OffersCount:      0,
+	SelectedCategory: "",
+	Categories:       make(map[string]int),
+}
 
 // #region Flea getters
 
@@ -8,14 +15,83 @@ func GetFlea() *Flea {
 	return &flea
 }
 
-func ConvertTraderOfferToFleaOffer() {
+var traderFleaOffer *Offer
 
+func createFleaOffer(userId string, items []AssortItem, scheme []*Scheme) *Offer {
+	return nil
 }
 
 // #region Flea setters
 
-func setFlea() {
+// TODO: TraderID, check if items > 1 for trader.Index.Assort.ParentItems
+var fleaOffersCount int16
 
+func setFlea() {
+	output := make([]Offer, 0)
+	for tid, trader := range traders {
+		var scheme []*Scheme
+		var items []AssortItem
+		for _, idx := range trader.Index.Assort.Items {
+			item := *trader.Assort.Items[idx]
+
+			if _, ok := flea.Categories[item.Tpl]; !ok {
+				flea.Categories[item.Tpl] = 1
+			} else {
+				flea.Categories[item.Tpl]++
+			}
+
+			scheme = trader.Assort.BarterScheme[item.ID][0]
+			items = []AssortItem{item}
+		}
+		for parentId, family := range trader.Index.Assort.ParentItems {
+			items = make([]AssortItem, 0, len(family))
+			scheme = trader.Assort.BarterScheme[parentId][0]
+			for _, value := range family {
+				item := *trader.Assort.Items[value]
+
+				if _, ok := flea.Categories[item.Tpl]; !ok {
+					flea.Categories[item.Tpl] = 1
+				} else {
+					flea.Categories[item.Tpl]++
+				}
+				items = append(items, *trader.Assort.Items[value])
+			}
+
+		}
+
+		offer := traderFleaOffer
+		offer.ID = tools.GenerateMongoID()
+		offer.IntID = fleaOffersCount
+		offer.User = OfferUser{
+			ID:         tid,
+			MemberType: 4,
+		}
+
+		offer.SummaryCost = offer.RequirementsCost
+		offer.SellInOnePiece = false
+		offer.Root = items[0].ID
+		offer.LoyaltyLevel = trader.Assort.LoyalLevelItems[offer.Root]
+		if items[0].Upd.BuyRestrictionMax != 0 {
+			offer.BuyRestrictionMax = items[0].Upd.BuyRestrictionMax
+		}
+
+		offer.Items = items
+		offer.Requirements = scheme
+		offer.RequirementsCost = scheme[0].Count
+		offer.StartTime = int32(tools.GetCurrentTimeInSeconds())
+		offer.EndTime = int32(trader.Assort.NextResupply)
+
+		output = append(output, *offer)
+
+		fleaOffersCount++
+	}
+
+	flea.Offers = output
+	flea.OffersCount = fleaOffersCount
+
+	//TODO: Set Trader offers as flea offers
+	// Create Flea Index to match to Trader Offers?
+	// Cry
 }
 
 // #endregion
@@ -23,7 +99,7 @@ func setFlea() {
 // #region Flea structs
 
 type Flea struct {
-	Offers           []any          `json:"offers"`
+	Offers           []Offer        `json:"offers"`
 	OffersCount      int16          `json:"offersCount"`
 	SelectedCategory string         `json:"selectedCategory"` //selected item category
 	Categories       map[string]int `json:"categories"`       //categories are the TPL of an offer
@@ -31,20 +107,21 @@ type Flea struct {
 type MemberCategory int
 
 type Offer struct { //nolint:maligned
-	ID               string       `json:"_id"`
-	IntID            int16        `json:"intId"`
-	User             OfferUser    `json:"user"`
-	Root             string       `json:"root"`
-	Items            []AssortItem `json:"items"`
-	ItemsCost        int32        `json:"itemsCost"` // handbook.GetPriceByID()
-	Requirements     []Scheme     `json:"requirements"`
-	RequirementsCost int32        `json:"requirementsCost"` // Requirements[0].Count, this, SummaryCost are all the same
-	SummaryCost      int32        `json:"summaryCost"`
-	SellInOnePiece   bool         `json:"sellInOnePiece"`
-	StartTime        int32        `json:"startTime"` // current time
-	EndTime          int32        `json:"endTime"`   //nextResupply
-	UnlimitedCount   bool         `json:"unlimitedCount"`
-	LoyaltyLevel     int8         `json:"loyaltyLevel"`
+	ID                string       `json:"_id"`
+	IntID             int16        `json:"intId"`
+	User              OfferUser    `json:"user"`
+	Root              string       `json:"root"`
+	Items             []AssortItem `json:"items"`
+	ItemsCost         float32      `json:"itemsCost"` // handbook.GetPriceByID()
+	Requirements      []*Scheme    `json:"requirements"`
+	RequirementsCost  float32      `json:"requirementsCost"` // Requirements[0].Count, this, SummaryCost are all the same
+	SummaryCost       float32      `json:"summaryCost"`
+	SellInOnePiece    bool         `json:"sellInOnePiece"`
+	StartTime         int32        `json:"startTime"` // current time
+	EndTime           int32        `json:"endTime"`   //nextResupply
+	UnlimitedCount    bool         `json:"unlimitedCount"`
+	BuyRestrictionMax int16        `json:"buyRestrictionMax"`
+	LoyaltyLevel      int8         `json:"loyaltyLevel"`
 }
 
 type RagfairFind struct {

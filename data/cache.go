@@ -60,25 +60,16 @@ func GetInventoryCacheByID(uid string) (*InventoryContainer, error) {
 }
 
 func SetProfileCache(id string) {
-	cache, ok := cacheMap[id]
-	if !ok {
-		cache = &Cache{
-			Skills: &SkillsCache{
-				Common: make(map[string]int8),
-			},
-			Hideout: &HideoutCache{
-				Areas: make(map[int8]int8),
-			},
-			Quests: &QuestCache{
-				Index: make(map[string]int8),
-			},
-			Traders: &TraderCache{
-				Index:   make(map[string]*AssortIndex),
-				Assorts: make(map[string]*Assort),
-			},
-		}
+	if _, ok := cacheMap[id]; !ok && profiles[id].Character == nil {
+		return
 	}
 
+	cache := &Cache{
+		Traders: &TraderCache{
+			Index:   make(map[string]*AssortIndex),
+			Assorts: make(map[string]*Assort),
+		},
+	}
 	if profiles[id].Character != nil {
 		cache.SetCharacterCache(profiles[id].Character)
 	}
@@ -89,6 +80,7 @@ func (c *Cache) SetCharacterCache(character *Character) {
 	done := make(chan bool)
 	go func() {
 		if len(character.Quests) != 0 {
+			c.Quests = &QuestCache{Index: make(map[string]int8)}
 			for index, quest := range character.Quests {
 				c.Quests.Index[quest.QID] = int8(index)
 			}
@@ -100,6 +92,7 @@ func (c *Cache) SetCharacterCache(character *Character) {
 	// Define a function to update the common skills map
 	go func() {
 		if len(character.Skills.Common) != 0 {
+			c.Skills = &SkillsCache{Common: make(map[string]int8)}
 			for index, commonSkill := range character.Skills.Common {
 				c.Skills.Common[commonSkill.ID] = int8(index)
 			}
@@ -110,6 +103,7 @@ func (c *Cache) SetCharacterCache(character *Character) {
 	// Define a function to update the hideout areas map
 	go func() {
 		if len(character.Hideout.Areas) != 0 {
+			c.Hideout = &HideoutCache{Areas: make(map[int8]int8)}
 			for index, area := range character.Hideout.Areas {
 				c.Hideout.Areas[int8(area.Type)] = int8(index)
 			}

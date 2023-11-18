@@ -71,24 +71,15 @@ func GetTraderSuits(id string) ([]data.TraderSuits, error) {
 
 func GetTraderAssort(r *http.Request) (*data.Assort, error) {
 	sessionID := GetSessionID(r)
-	cache, _ := data.GetTraderCacheByID(sessionID)
-	if cache == nil {
-		character := data.GetCharacterByID(sessionID)
-		trader, err := data.GetTraderByUID(r.URL.Path[36:])
-		if err != nil {
-			return nil, err
-		}
-		assort, err := trader.GetStrippedAssort(character)
-		if err != nil {
-			return nil, err
-		}
-
-		return assort, nil
+	character := data.GetCharacterByID(sessionID)
+	trader, err := data.GetTraderByUID(r.URL.Path[36:])
+	if err != nil {
+		return nil, err
+	}
+	assort, err := trader.GetStrippedAssort(character)
+	if err != nil {
+		return nil, err
 	}
 
-	assort := cache.Assorts[r.URL.Path[36:]]
-	if assort != nil {
-		return assort, nil
-	}
-	return nil, fmt.Errorf("Assort does not exist")
+	return assort, nil
 }

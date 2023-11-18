@@ -2,10 +2,12 @@ package hndlr
 
 import (
 	"MT-GO/data"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"MT-GO/pkg"
 	"MT-GO/tools"
@@ -72,10 +74,13 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainItems(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	body := pkg.GetMainItems()
 	pkg.ZlibJSONReply(w, r.RequestURI, body)
-
-	log.Println("You know you're going to have to go back and try creating structs in your data, you lazy twit!")
+	endTime := time.Now()
+	elapsedTime := endTime.Sub(startTime)
+	fmt.Printf("Response Time: %v\n", elapsedTime)
+	//log.Println("You know you're going to have to go back and try creating structs in your data, you lazy twit!")
 }
 
 func MainCustomization(w http.ResponseWriter, r *http.Request) {

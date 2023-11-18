@@ -95,8 +95,8 @@ func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
 	httpsServer := &http.Server{
-		Addr:      mux.address,
-		ConnState: CW.OnStateChange,
+		Addr: mux.address,
+		//ConnState: CW.OnStateChange,
 		TLSConfig: &tls.Config{
 			RootCAs:      nil,
 			Certificates: []tls.Certificate{certs.Certificate},
@@ -188,12 +188,12 @@ func SetServer() {
 	for range muxers {
 		<-serverReady
 	}
+	close(serverReady)
 
 	pkg.SetDownloadLocal(srv.DownloadImageFiles)
 	pkg.SetChannelTemplate()
 	pkg.SetGameConfig()
 
-	close(serverReady)
 }
 
 type ConnectionWatcher struct {

@@ -65,16 +65,14 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 			return input
 		}
 
-		newId := tools.GenerateMongoID()
-		convertedIDs[inventoryItem.ID] = newId
-		inventoryItem.ID = newId
+		newID := tools.GenerateMongoID()
+		convertedIDs[inventoryItem.ID] = newID
+		inventoryItem.ID = newID
 
 		if inventoryItem.SlotID == "hideout" && inventoryItem.ParentID == "hideout" {
 			inventoryItem.ParentID = *stashID
 
 			inventoryItem.UPD.StackObjectsCount = 0
-			inventoryItem.UPD.BuyRestrictionMax = nil
-			inventoryItem.UPD.BuyRestrictionCurrent = nil
 			inventoryItem.UPD.UnlimitedCount = false
 
 			parent = *inventoryItem
@@ -258,8 +256,8 @@ type ItemUpdate struct {
 	Resource              *Resource   `json:"Resource,omitempty"`
 	Tag                   *Tag        `json:"Tag,omitempty"`
 	Togglable             *Toggle     `json:"Togglable,omitempty"`
-	BuyRestrictionCurrent any         `json:"BuyRestrictionCurrent,omitempty"`
-	BuyRestrictionMax     any         `json:"BuyRestrictionMax,omitempty"`
+	BuyRestrictionCurrent int16       `json:"BuyRestrictionCurrent,omitempty"`
+	BuyRestrictionMax     int16       `json:"BuyRestrictionMax,omitempty"`
 	UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
 }
 

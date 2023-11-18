@@ -37,7 +37,7 @@ var primary = []func(){
 	setLocalLoot, setLocales, setTraders,
 	setCore, setLanguages, setHandbook,
 	setQuests, setItems, setWeather,
-	setLocations, setCustomization, setFlea,
+	setLocations, setCustomization, //setFlea,
 }
 
 var secondary = []func(){

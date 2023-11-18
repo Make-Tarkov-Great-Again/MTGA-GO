@@ -136,13 +136,17 @@ func (t *Trader) GetStrippedAssort(character *Character) (*Assort, error) {
 		ParentItems: map[string]map[string]int16{},
 	}
 
-	assort := Assort{}
+	assort := Assort{
+		NextResupply:    0,
+		BarterScheme:    make(map[string][][]*Scheme),
+		Items:           make([]*AssortItem, 0, len(t.Assort.Items)),
+		LoyalLevelItems: make(map[string]int8),
+	}
 
 	// TODO: add quest checks
-	loyalLevelItems := make(map[string]int8)
 	for loyalID, loyalLevel := range t.Assort.LoyalLevelItems {
 		if loyaltyLevel >= loyalLevel {
-			loyalLevelItems[loyalID] = loyalLevel
+			assort.LoyalLevelItems[loyalID] = loyalLevel
 			continue
 
 			/* if t.QuestAssort == nil {
@@ -163,11 +167,8 @@ func (t *Trader) GetStrippedAssort(character *Character) (*Assort, error) {
 		}
 	}
 
-	assort.Items = make([]*AssortItem, 0, len(t.Assort.Items))
-	assort.BarterScheme = make(map[string][][]*Scheme)
-
 	var counter int16
-	for itemID := range loyalLevelItems {
+	for itemID := range assort.LoyalLevelItems {
 		index, ok := t.Index.Assort.Items[itemID]
 		if ok {
 			assort.BarterScheme[itemID] = t.Assort.BarterScheme[itemID]
