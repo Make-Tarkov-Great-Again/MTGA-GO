@@ -23,15 +23,15 @@ var cachedZlib = map[string][]byte{
 }
 
 func ZlibReply(w http.ResponseWriter, path string, data any) {
-	zlibDeflate(w, path, data)
+	deflate(w, path, data)
 }
 
 func ZlibJSONReply(w http.ResponseWriter, path string, data any) {
 	w.Header().Set("Content-Type", "application/json")
-	zlibDeflate(w, path, data)
+	deflate(w, path, data)
 }
 
-func ZlibInflate(r *http.Request) *bytes.Buffer {
+func Inflate(r *http.Request) *bytes.Buffer {
 	buffer := new(bytes.Buffer)
 
 	// Inflate r.Body with zlib
@@ -56,7 +56,7 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 
 }
 
-func zlibDeflate(w http.ResponseWriter, path string, data any) {
+func deflate(w http.ResponseWriter, path string, data any) {
 	cached, ok := cachedZlib[path]
 	if ok && cached != nil {
 		w.WriteHeader(http.StatusOK)

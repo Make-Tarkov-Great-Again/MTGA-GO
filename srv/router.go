@@ -4,6 +4,7 @@ package srv
 import (
 	"MT-GO/pkg"
 	"MT-GO/srv/hndlr"
+	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
 )
@@ -110,7 +111,7 @@ func OverrideMainRoute(route string, handler http.HandlerFunc) {
 	mainRouteHandlers[route] = handler
 }
 
-func setMainRoutes(mux *http.ServeMux) {
+func setMainRoutes(mux *chi.Mux) {
 	for route, handler := range mainRouteHandlers {
 		mux.HandleFunc(route, handler)
 	}
@@ -144,7 +145,7 @@ func OverrideTradingRoute(route string, handler http.HandlerFunc) {
 	tradingRouteHandlers[route] = handler
 }
 
-func setTradingRoutes(mux *http.ServeMux) {
+func setTradingRoutes(mux *chi.Mux) {
 	for route, handler := range tradingRouteHandlers {
 		mux.HandleFunc(route, handler)
 	}
@@ -156,7 +157,7 @@ var ragfairRouteHandlers = map[string]http.HandlerFunc{
 	"/client/ragfair/find": hndlr.RagfairFind,
 }
 
-func setRagfairRoutes(mux *http.ServeMux) {
+func setRagfairRoutes(mux *chi.Mux) {
 	for route, handler := range ragfairRouteHandlers {
 		mux.HandleFunc(route, handler)
 	}
@@ -185,7 +186,7 @@ var messagingRouteHandlers = map[string]http.HandlerFunc{
 	"/client/mail/dialog/clear":          hndlr.MessagingMailDialogClear,
 }
 
-func setMessagingRoutes(mux *http.ServeMux) {
+func setMessagingRoutes(mux *chi.Mux) {
 	for route, handler := range messagingRouteHandlers {
 		mux.HandleFunc(route, handler)
 	}
@@ -232,7 +233,7 @@ var lobbyRouteHandlers = map[string]http.HandlerFunc{
 	"/push/notifier/getwebsocket/": hndlr.LobbyGetWebSocket,
 }
 
-func setLobbyRoutes(mux *http.ServeMux) {
+func setLobbyRoutes(mux *chi.Mux) {
 	for route, handler := range lobbyRouteHandlers {
 		mux.HandleFunc(route, handler)
 	}

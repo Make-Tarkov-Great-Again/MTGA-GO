@@ -4,11 +4,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/goccy/go-json"
 	"log"
 	"net"
 	"net/http"
-	"strings"
 	"sync/atomic"
 
 	"MT-GO/data"
@@ -53,13 +54,10 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-const incomingRoute string = "[%s] %s on %s\n"
+//const incomingRoute string = "[%s] %s on %s\n"
 
-func logAndDecompress(next http.Handler) http.Handler {
+func inflateRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Log the incoming request URL
-		log.Printf(incomingRoute, r.Method, r.URL.Path, strings.TrimPrefix(r.Host, "127.0.0.1"))
-
 		if websocket.IsWebSocketUpgrade(r) {
 			upgradeToWebsocket(w, r)
 		} else {
@@ -68,7 +66,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 				return
 			}
 
-			buffer := pkg.ZlibInflate(r)
+			buffer := pkg.Inflate(r)
 			if buffer == nil || buffer.Len() == 0 {
 				next.ServeHTTP(w, r)
 				return
@@ -81,10 +79,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 				return
 			}
 
-			//ctx := context.WithValue(r.Context(), pkg.ParsedBodyKey, parsedData)
-			r = r.WithContext(context.WithValue(r.Context(), pkg.ParsedBodyKey, parsedData))
-
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), pkg.ParsedBodyKey, parsedData)))
 		}
 	})
 }
@@ -94,7 +89,11 @@ var CW = &ConnectionWatcher{}
 func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
-	httpsServer := &http.Server{
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(inflateRequest)
+
+	/*httpsServer := &http.Server{
 		Addr: mux.address,
 		//ConnState: CW.OnStateChange,
 		TLSConfig: &tls.Config{
@@ -102,66 +101,60 @@ func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
 			Certificates: []tls.Certificate{certs.Certificate},
 		},
 		Handler: logAndDecompress(mux.mux),
-	}
+	}*/
 
 	log.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
 	serverReady <- true
 
-	err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
+	err := http.ListenAndServeTLS(mux.address, certs.CertFile, certs.KeyFile, r)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
 func startHTTPServer(serverReady chan<- bool, mux *muxt) {
-	mux.initRoutes(mux.mux)
+	mux.mux.Use(middleware.Logger)
+	mux.mux.Use(inflateRequest)
 
-	httpsServer := &http.Server{
-		Addr:    mux.address,
-		Handler: logAndDecompress(mux.mux),
-	}
+	mux.initRoutes(mux.mux)
 
 	fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
 	serverReady <- true
 
-	err := httpsServer.ListenAndServe()
+	err := http.ListenAndServe(mux.address, mux.mux)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
 type muxt struct {
-	mux        *http.ServeMux
+	mux        *chi.Mux
 	address    string
 	serverName string
-	initRoutes func(mux *http.ServeMux)
+	initRoutes func(mux *chi.Mux)
 }
 
 func SetServer() {
 	srv := data.GetServerConfig()
-
-	// serve static content
-	mainServeMux := http.NewServeMux()
-
 	muxers := []*muxt{
 		{
-			mux: mainServeMux, address: data.GetMainIPandPort(),
+			mux: chi.NewMux(), address: data.GetMainIPandPort(),
 			serverName: "Main", initRoutes: setMainRoutes,
 		},
 		{
-			mux: http.NewServeMux(), address: data.GetTradingIPandPort(),
+			mux: chi.NewMux(), address: data.GetTradingIPandPort(),
 			serverName: "Trading", initRoutes: setTradingRoutes,
 		},
 		{
-			mux: http.NewServeMux(), address: data.GetMessagingIPandPort(),
+			mux: chi.NewMux(), address: data.GetMessagingIPandPort(),
 			serverName: "Messaging", initRoutes: setMessagingRoutes,
 		},
 		{
-			mux: http.NewServeMux(), address: data.GetRagFairIPandPort(),
+			mux: chi.NewMux(), address: data.GetRagFairIPandPort(),
 			serverName: "RagFair", initRoutes: setRagfairRoutes,
 		},
 		{
-			mux: http.NewServeMux(), address: data.GetLobbyIPandPort(),
+			mux: chi.NewMux(), address: data.GetLobbyIPandPort(),
 			serverName: "Lobby", initRoutes: setLobbyRoutes,
 		},
 	}
