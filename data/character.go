@@ -43,12 +43,7 @@ func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 	characterHasQuests := cachedQuests != nil && len(cachedQuests.Index) != 0
 
 	for key, value := range query {
-		if CheckIfQuestForOtherFaction(c.Info.Side, key) {
-			continue
-		}
-
-		if strings.Contains(value.Name, "-Event") {
-			//TODO: filter events properly
+		if CheckIfQuestForOtherFaction(c.Info.Side, key) || strings.Contains(value.Name, "-Event") {
 			continue
 		}
 

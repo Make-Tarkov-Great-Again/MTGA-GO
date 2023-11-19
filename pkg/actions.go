@@ -42,7 +42,7 @@ type transfer struct {
 }
 
 // QuestAccept updates an existing Accepted quest, or creates and appends new Accepted Quest to cache and Character
-func QuestAccept(qid string, id string, profileChangesEvent *ProfileChangesEvent) {
+func QuestAccept(qid string, id string, event *ProfileChangesEvent) {
 	character := data.GetCharacterByID(id)
 	cachedQuests, err := data.GetQuestCacheByID(character.ID)
 	if err != nil {
@@ -88,7 +88,7 @@ func QuestAccept(qid string, id string, profileChangesEvent *ProfileChangesEvent
 
 	if query.Rewards.Start != nil {
 		log.Println("There are rewards heeyrrrr!")
-		log.Println(profileChangesEvent.ProfileChanges[character.ID].ID)
+		log.Println(event.ProfileChanges[character.ID].ID)
 
 		// TODO: Apply then Get Quest rewards and then route messages from there
 		// Character.ApplyQuestRewardsToCharacter()  applies the given reward
@@ -136,7 +136,7 @@ func QuestAccept(qid string, id string, profileChangesEvent *ProfileChangesEvent
 		return
 	}
 
-	profileChangesEvent.ProfileChanges[character.ID].Quests = quests
+	event.ProfileChanges[character.ID].Quests = quests
 	err = dialogue.SaveDialogue(character.ID)
 	if err != nil {
 		return
@@ -161,9 +161,9 @@ type fromOwner struct {
 	Type string `json:"type"`
 }
 
-func ExamineItem(moveAction map[string]any, id string) {
+func ExamineItem(action map[string]any, id string) {
 	examine := new(examine)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -262,9 +262,9 @@ type moveToLocation struct {
 	IsSearched bool    `json:"isSearched"`
 }
 
-func MoveItemInStash(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
+func MoveItemInStash(action map[string]any, id string, event *ProfileChangesEvent) {
 	move := new(move)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -318,7 +318,7 @@ func MoveItemInStash(moveAction map[string]any, id string, profileChangesEvent *
 
 	//cache.SetInventoryIndex(&character.Inventory)
 
-	profileChangesEvent.ProfileChanges[character.ID].Production = nil
+	event.ProfileChanges[character.ID].Production = nil
 }
 
 type swap struct {
@@ -329,9 +329,9 @@ type swap struct {
 	To2    moveTo `json:"to2"`
 }
 
-func SwapItemInStash(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
+func SwapItemInStash(action map[string]any, id string, event *ProfileChangesEvent) {
 	swap := new(swap)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -398,7 +398,7 @@ func SwapItemInStash(moveAction map[string]any, id string, profileChangesEvent *
 	itemInInventory.ParentID = swap.To2.ID
 	itemInInventory.SlotID = swap.To2.Container
 
-	profileChangesEvent.ProfileChanges[character.ID].Production = nil
+	event.ProfileChanges[character.ID].Production = nil
 }
 
 type foldItem struct {
@@ -407,9 +407,9 @@ type foldItem struct {
 	Value  bool   `json:"value"`
 }
 
-func FoldItem(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
+func FoldItem(action map[string]any, id string, event *ProfileChangesEvent) {
 	fold := new(foldItem)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -440,7 +440,7 @@ func FoldItem(moveAction map[string]any, id string, profileChangesEvent *Profile
 	itemInInventory.UPD.Foldable.Folded = fold.Value
 
 	inventoryCache.ResetItemSizeInContainer(itemInInventory, &character.Inventory)
-	profileChangesEvent.ProfileChanges[character.ID].Production = nil
+	event.ProfileChanges[character.ID].Production = nil
 }
 
 type readEncyclopedia struct {
@@ -448,9 +448,9 @@ type readEncyclopedia struct {
 	IDs    []string `json:"ids"`
 }
 
-func ReadEncyclopedia(moveAction map[string]any, id string) {
+func ReadEncyclopedia(action map[string]any, id string) {
 	readEncyclopedia := new(readEncyclopedia)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -472,9 +472,9 @@ type merge struct {
 	With   string `json:"with"`
 }
 
-func MergeItem(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
+func MergeItem(action map[string]any, id string, event *ProfileChangesEvent) {
 	merge := new(merge)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -503,13 +503,13 @@ func MergeItem(moveAction map[string]any, id string, profileChangesEvent *Profil
 	character.Inventory.RemoveSingleItemFromInventoryByIndex(toMergeIndex)
 	inventoryCache.SetInventoryIndex(&character.Inventory)
 
-	profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, mergeWith)
-	profileChangesEvent.ProfileChanges[character.ID].Items.Del = append(profileChangesEvent.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: toMerge.ID})
+	event.ProfileChanges[character.ID].Items.Change = append(event.ProfileChanges[character.ID].Items.Change, mergeWith)
+	event.ProfileChanges[character.ID].Items.Del = append(event.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: toMerge.ID})
 }
 
-func TransferItem(moveAction map[string]any, id string) {
+func TransferItem(action map[string]any, id string) {
 	transfer := new(transfer)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -544,9 +544,9 @@ type split struct {
 	Count     int32  `json:"count"`
 }
 
-func SplitItem(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
+func SplitItem(action map[string]any, id string, event *ProfileChangesEvent) {
 	split := new(split)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -597,8 +597,8 @@ func SplitItem(moveAction map[string]any, id string, profileChangesEvent *Profil
 	character.Inventory.Items = append(character.Inventory.Items, *newItem)
 	invCache.SetSingleInventoryIndex(newItem.ID, int16(len(character.Inventory.Items)-1))
 
-	profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, *originalItem)
-	profileChangesEvent.ProfileChanges[character.ID].Items.New = append(profileChangesEvent.ProfileChanges[character.ID].Items.New, data.InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
+	event.ProfileChanges[character.ID].Items.Change = append(event.ProfileChanges[character.ID].Items.Change, *originalItem)
+	event.ProfileChanges[character.ID].Items.New = append(event.ProfileChanges[character.ID].Items.New, data.InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
 }
 
 type remove struct {
@@ -606,9 +606,9 @@ type remove struct {
 	ItemId string `json:"item"`
 }
 
-func RemoveItem(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
+func RemoveItem(action map[string]any, id string, event *ProfileChangesEvent) {
 	remove := new(remove)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -637,7 +637,7 @@ func RemoveItem(moveAction map[string]any, id string, profileChangesEvent *Profi
 	character.Inventory.RemoveItemsFromInventoryByIndices(toDelete)
 	inventoryCache.SetInventoryIndex(&character.Inventory)
 
-	profileChangesEvent.ProfileChanges[character.ID].Items.Del = append(profileChangesEvent.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: remove.ItemId})
+	event.ProfileChanges[character.ID].Items.Del = append(event.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: remove.ItemId})
 
 }
 
@@ -648,9 +648,9 @@ type applyInventoryChanges struct {
 
 //TODO: Make ApplyInventoryChanges not look like shit
 
-func ApplyInventoryChanges(moveAction map[string]any, id string) {
+func ApplyInventoryChanges(action map[string]any, id string) {
 	applyInventoryChanges := new(applyInventoryChanges)
-	input, _ := json.Marshal(moveAction)
+	input, _ := json.Marshal(action)
 	if err := json.Unmarshal(input, &applyInventoryChanges); err != nil {
 		log.Println(err)
 		return
@@ -752,36 +752,36 @@ type soldItems struct {
 	SchemeID int8   `json:"scheme_id"`
 }
 
-func TradingConfirm(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
+func TradingConfirm(action map[string]any, id string, event *ProfileChangesEvent) {
 	character := data.GetCharacterByID(id)
 
-	switch moveAction["type"] {
+	switch action["type"] {
 	case "buy_from_trader":
 		buy := new(buyFrom)
-		input, _ := json.Marshal(moveAction)
+		input, _ := json.Marshal(action)
 		err := json.Unmarshal(input, &buy)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		buyFromTrader(buy, character, profileChangesEvent)
+		buyFromTrader(buy, character, event)
 	case "sell_to_trader":
 		sell := new(sellTo)
-		input, _ := json.Marshal(moveAction)
+		input, _ := json.Marshal(action)
 		err := json.Unmarshal(input, &sell)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		sellToTrader(sell, character, profileChangesEvent)
+		sellToTrader(sell, character, event)
 	default:
-		log.Println("YO! TRADINGCONFIRM.", moveAction["type"], "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
+		log.Println("YO! TRADINGCONFIRM.", action["type"], "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
 	}
 }
 
-func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, profileChangesEvent *ProfileChangesEvent) {
+func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, event *ProfileChangesEvent) {
 	invCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -899,7 +899,7 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, profileChan
 			if itemInInventory.UPD.StackObjectsCount > remainingBalance {
 				itemInInventory.UPD.StackObjectsCount -= remainingBalance
 
-				profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, itemInInventory)
+				event.ProfileChanges[character.ID].Items.Change = append(event.ProfileChanges[character.ID].Items.Change, itemInInventory)
 			} else if itemInInventory.UPD.StackObjectsCount == remainingBalance {
 				toDelete[itemInInventory.ID] = *index
 			} else {
@@ -936,7 +936,7 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, profileChan
 					return
 				}
 
-				profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, toChange...)
+				event.ProfileChanges[character.ID].Items.Change = append(event.ProfileChanges[character.ID].Items.Change, toChange...)
 			}
 		} else {
 			toDelete[itemInInventory.ID] = *index
@@ -950,12 +950,12 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, profileChan
 	}
 
 	copyOfItems = append(copyOfItems, toAdd...)
-	profileChangesEvent.ProfileChanges[character.ID].Items.New = append(profileChangesEvent.ProfileChanges[character.ID].Items.New, toAdd...)
+	event.ProfileChanges[character.ID].Items.New = append(event.ProfileChanges[character.ID].Items.New, toAdd...)
 	/*	for i := len(inventoryItems) - 1; i < len(toAdd); i += len(inventoryItems) {
 		if toAdd[i].Location == nil && toAdd[i].SlotID != "hideout" {
 			continue
 		}
-		profileChangesEvent.ProfileChanges[character.ID].Items.New = append(profileChangesEvent.ProfileChanges[character.ID].Items.New, toAdd[i])
+		event.ProfileChanges[character.ID].Items.New = append(event.ProfileChanges[character.ID].Items.New, toAdd[i])
 
 	}*/
 
@@ -968,19 +968,19 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, profileChan
 			invCache.ClearItemFromContainer(id)
 			indices = append(indices, idx)
 
-			profileChangesEvent.ProfileChanges[character.ID].Items.Del = append(profileChangesEvent.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: id})
+			event.ProfileChanges[character.ID].Items.Del = append(event.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: id})
 		}
 		character.Inventory.RemoveItemsFromInventoryByIndices(indices)
 	}
 	invCache.SetInventoryIndex(&character.Inventory)
 
-	profileChangesEvent.ProfileChanges[character.ID].TraderRelations[tradeConfirm.TID] = traderRelations
+	event.ProfileChanges[character.ID].TraderRelations[tradeConfirm.TID] = traderRelations
 	character.TradersInfo[tradeConfirm.TID] = traderRelations
 
 	log.Println(len(stackSlice), "of Item", tradeConfirm.ItemID, "purchased!")
 }
 
-func sellToTrader(tradeConfirm *sellTo, character *data.Character, profileChangesEvent *ProfileChangesEvent) {
+func sellToTrader(tradeConfirm *sellTo, character *data.Character, event *ProfileChangesEvent) {
 	invCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -1079,10 +1079,10 @@ func sellToTrader(tradeConfirm *sellTo, character *data.Character, profileChange
 		}
 
 		copyOfItems = append(copyOfItems, toAdd...)
-		profileChangesEvent.ProfileChanges[character.ID].Items.New = append(profileChangesEvent.ProfileChanges[character.ID].Items.New, toAdd...)
+		event.ProfileChanges[character.ID].Items.New = append(event.ProfileChanges[character.ID].Items.New, toAdd...)
 	}
 
-	profileChangesEvent.ProfileChanges[character.ID].Items.Change = append(profileChangesEvent.ProfileChanges[character.ID].Items.Change, toChange...)
+	event.ProfileChanges[character.ID].Items.Change = append(event.ProfileChanges[character.ID].Items.Change, toChange...)
 	character.Inventory.Items = copyOfItems
 
 	if len(toDelete) != 0 {
@@ -1093,7 +1093,7 @@ func sellToTrader(tradeConfirm *sellTo, character *data.Character, profileChange
 			if _, ok := toDelete[character.Inventory.Items[idx].ParentID]; ok {
 				continue
 			}
-			profileChangesEvent.ProfileChanges[character.ID].Items.Del = append(profileChangesEvent.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: id})
+			event.ProfileChanges[character.ID].Items.Del = append(event.ProfileChanges[character.ID].Items.Del, data.InventoryItem{ID: id})
 		}
 		character.Inventory.RemoveItemsFromInventoryByIndices(indices)
 	}
@@ -1102,7 +1102,7 @@ func sellToTrader(tradeConfirm *sellTo, character *data.Character, profileChange
 	traderRelations := character.TradersInfo[tradeConfirm.TID]
 	traderRelations.SalesSum += float32(tradeConfirm.Price)
 
-	profileChangesEvent.ProfileChanges[character.ID].TraderRelations[tradeConfirm.TID] = traderRelations
+	event.ProfileChanges[character.ID].TraderRelations[tradeConfirm.TID] = traderRelations
 	character.TradersInfo[tradeConfirm.TID] = traderRelations
 }
 
@@ -1112,9 +1112,9 @@ type buyCustomization struct {
 	Items  []map[string]any `json:"items"`
 }
 
-func CustomizationBuy(moveAction map[string]any, id string) {
+func CustomizationBuy(action map[string]any, id string) {
 	customizationBuy := new(buyCustomization)
-	input, _ := json.Marshal(moveAction)
+	input, _ := json.Marshal(action)
 	err := json.Unmarshal(input, &customizationBuy)
 	if err != nil {
 		log.Println(err)
@@ -1161,9 +1161,9 @@ const (
 	upperParentID = "5cd944ca1388ce03a44dc2a4"
 )
 
-func CustomizationWear(moveAction map[string]any, id string) {
+func CustomizationWear(action map[string]any, id string) {
 	customizationWear := new(wearCustomization)
-	input, _ := json.Marshal(moveAction)
+	input, _ := json.Marshal(action)
 	err := json.Unmarshal(input, &customizationWear)
 	if err != nil {
 		log.Println(err)
@@ -1200,10 +1200,10 @@ type hideoutUpgrade struct {
 	TimeStamp float64         `json:"timeStamp"`
 }
 
-func HideoutUpgrade(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
+func HideoutUpgrade(action map[string]any, id string, event *ProfileChangesEvent) {
 	log.Println("HideoutUpgrade")
 	upgrade := new(hideoutUpgrade)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -1226,9 +1226,9 @@ type bindItem struct {
 	Index  string `json:"index"`
 }
 
-func BindItem(moveAction map[string]any, id string) {
+func BindItem(action map[string]any, id string) {
 	bind := new(bindItem)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -1257,9 +1257,9 @@ type tagItem struct {
 	TagColor string `json:"TagColor"`
 }
 
-func TagItem(moveAction map[string]any, id string) {
+func TagItem(action map[string]any, id string) {
 	tag := new(tagItem)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -1303,9 +1303,9 @@ type toggleItem struct {
 	Value  bool   `json:"value"`
 }
 
-func ToggleItem(moveAction map[string]any, id string) {
+func ToggleItem(action map[string]any, id string) {
 	toggle := new(toggleItem)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -1343,10 +1343,10 @@ type hideoutUpgradeComplete struct {
 	TimeStamp float64 `json:"timeStamp"`
 }
 
-func HideoutUpgradeComplete(moveAction map[string]any, id string, profileChangesEvent *ProfileChangesEvent) {
+func HideoutUpgradeComplete(action map[string]any, id string, event *ProfileChangesEvent) {
 	log.Println("HideoutUpgradeComplete")
 	upgradeComplete := new(hideoutUpgradeComplete)
-	input, err := json.Marshal(moveAction)
+	input, err := json.Marshal(action)
 	if err != nil {
 		log.Println(err)
 		return
@@ -1358,6 +1358,10 @@ func HideoutUpgradeComplete(moveAction map[string]any, id string, profileChanges
 
 	//character := data.GetCharacterByID(id)
 	log.Println(upgradeComplete)
+}
+
+func Insure(action map[string]any, id string, event *ProfileChangesEvent) {
+
 }
 
 type ProfileChangesEvent struct {

@@ -66,8 +66,9 @@ func SetProfileCache(id string) {
 
 	cache := &Cache{
 		Traders: &TraderCache{
-			Index:   make(map[string]*AssortIndex),
-			Assorts: make(map[string]*Assort),
+			Index:      make(map[string]*AssortIndex),
+			Assorts:    make(map[string]*Assort),
+			Insurances: make(map[string]*Insurances),
 		},
 	}
 	if profiles[id].Character != nil {
@@ -596,8 +597,15 @@ type HideoutCache struct {
 }
 
 type TraderCache struct {
-	Index   map[string]*AssortIndex
-	Assorts map[string]*Assort
+	Index      map[string]*AssortIndex
+	Assorts    map[string]*Assort
+	Insurances map[string]*Insurances
+}
+
+type Insurances struct {
+	LoyaltyLevel int8
+	PriceCoef    int16
+	Items        map[string]int32
 }
 
 type QuestCache struct {

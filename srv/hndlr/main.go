@@ -579,6 +579,12 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
+	//TODO: Raid Profile Save
+	err = tools.WriteToFile("/raidProfileSave.json", save)
+	if err != nil {
+		return
+	}
+
 	log.Println("Raid Profile Save not implemented yet!")
 	body := pkg.ApplyResponseBody(nil)
 	pkg.ZlibJSONReply(w, r.RequestURI, body)

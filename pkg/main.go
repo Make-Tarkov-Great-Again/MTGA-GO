@@ -66,30 +66,42 @@ func GetGameConfig(sessionID string) (*GameConfig, error) {
 
 func GetMainItems() *CRCResponseBody {
 	if CheckIfResponseIsCached(itemsRoute) {
-		return ApplyCRCResponseBody(nil, GetCachedCRC(itemsRoute))
+		crc := GetCachedCRC(itemsRoute)
+		return ApplyCRCResponseBody(nil, crc)
 	}
-	return ApplyCRCResponseBody(data.GetItems(), GetCachedCRC(itemsRoute))
+	in := data.GetItems()
+	crc := GetCachedCRC(itemsRoute)
+	return ApplyCRCResponseBody(in, crc)
 }
 
 func GetMainCustomization() *CRCResponseBody {
 	if CheckIfResponseIsCached(customizationRoute) {
-		return ApplyCRCResponseBody(nil, GetCachedCRC(customizationRoute))
+		crc := GetCachedCRC(customizationRoute)
+		return ApplyCRCResponseBody(nil, crc)
 	}
-	return ApplyCRCResponseBody(data.GetCustomizations(), GetCachedCRC(customizationRoute))
+	in := data.GetCustomizations()
+	crc := GetCachedCRC(customizationRoute)
+	return ApplyCRCResponseBody(in, crc)
 }
 
 func GetMainGlobals() *CRCResponseBody {
 	if CheckIfResponseIsCached(globalsRoute) {
-		return ApplyCRCResponseBody(nil, GetCachedCRC(globalsRoute))
+		crc := GetCachedCRC(globalsRoute)
+		return ApplyCRCResponseBody(nil, crc)
 	}
-	return ApplyCRCResponseBody(data.GetGlobals(), GetCachedCRC(globalsRoute))
+	in := data.GetGlobals()
+	crc := GetCachedCRC(globalsRoute)
+	return ApplyCRCResponseBody(in, crc)
 }
 
 func GetMainSettings() *CRCResponseBody {
 	if CheckIfResponseIsCached(mainSettingsRoute) {
-		return ApplyCRCResponseBody(nil, GetCachedCRC(mainSettingsRoute))
+		crc := GetCachedCRC(mainSettingsRoute)
+		return ApplyCRCResponseBody(nil, crc)
 	}
-	return ApplyCRCResponseBody(data.GetMainSettings(), GetCachedCRC(mainSettingsRoute))
+	in := data.GetMainSettings()
+	crc := GetCachedCRC(mainSettingsRoute)
+	return ApplyCRCResponseBody(in, crc)
 }
 
 func GetMainProfileList(sessionID string) []any {
@@ -123,14 +135,15 @@ func GetMainAccountCustomization() []string {
 
 func GetMainLocale(lang string) (*CRCResponseBody, error) {
 	if CheckIfResponseIsCached(localeRoute) {
-		return ApplyCRCResponseBody(nil, GetCachedCRC(localeRoute)), nil
+		crc := GetCachedCRC(localeRoute)
+		return ApplyCRCResponseBody(nil, crc), nil
 	}
 	locale, err := data.GetLocalesGlobalByName(lang)
 	if err != nil {
 		return nil, err
 	}
-
-	return ApplyCRCResponseBody(locale, GetCachedCRC(localeRoute)), nil
+	crc := GetCachedCRC(localeRoute)
+	return ApplyCRCResponseBody(locale, crc), nil
 }
 
 func ValidateNickname(nickname string) *ResponseBody {
@@ -342,37 +355,56 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 		return nil, err
 	}
 
-	insuranceInfo := make(map[string]traderInsuranceInfo)
+	traderCache, err := data.GetTraderCacheByID(character.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, tid := range traders {
 		trader, err := data.GetTraderByUID(tid)
 		if err != nil {
 			return nil, err
 		}
 
-		trader.SetTraderLoyaltyLevel(character)
+		changed := int8(0)
 
-		insuranceInfo[tid] = traderInsuranceInfo{
-			LoyaltyLevel: character.TradersInfo[tid].LoyaltyLevel,
-			PriceCoef:    trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef,
+		trader.SetTraderLoyaltyLevel(character)
+		if traderCache.Insurances[tid] != nil && traderCache.Insurances[tid].LoyaltyLevel != character.TradersInfo[tid].LoyaltyLevel {
+			traderCache.Insurances[tid].LoyaltyLevel = character.TradersInfo[tid].LoyaltyLevel
+			traderCache.Insurances[tid].PriceCoef = trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef
+			changed = 1
+		} else {
+			traderCache.Insurances[tid] = &data.Insurances{
+				LoyaltyLevel: character.TradersInfo[tid].LoyaltyLevel,
+				PriceCoef:    trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef,
+				Items:        make(map[string]int32),
+			}
 		}
 
 		output[tid] = make(map[string]int32)
-	}
 
-	for _, itemID := range items {
-		itemInInventory := character.Inventory.Items[*invCache.GetIndexOfItemByID(itemID)]
-		itemPrice, err := data.GetPriceByID(itemInInventory.TPL)
-		if err != nil {
-			return nil, err
-		}
-
-		for key, info := range insuranceInfo {
-			insuranceCost := int32(math.Round(float64(*itemPrice) * 0.3))
-			if info.PriceCoef > 0 {
-				insuranceCost *= int32(1 - info.PriceCoef/100)
+		for _, itemID := range items {
+			itemTPL := character.Inventory.Items[*invCache.GetIndexOfItemByID(itemID)].TPL
+			if _, ok := traderCache.Insurances[tid].Items[itemTPL]; ok && changed == 0 {
+				output[tid][itemTPL] = traderCache.Insurances[tid].Items[itemTPL]
+				continue
 			}
 
-			output[key][itemInInventory.TPL] = insuranceCost
+			itemPrice, err := data.GetPriceByID(itemTPL)
+			if err != nil {
+				return nil, err
+			}
+			insuranceCost := int32(math.Round(float64(*itemPrice) * 0.3))
+			if traderCache.Insurances[tid].PriceCoef > 0 {
+				insuranceCost *= int32(1 - traderCache.Insurances[tid].PriceCoef/100)
+			}
+
+			if traderCache.Insurances[tid].Items[itemTPL] != insuranceCost {
+				traderCache.Insurances[tid].Items[itemTPL] = insuranceCost
+			}
+
+			//TODO: continue with cache
+			output[tid][itemTPL] = traderCache.Insurances[tid].Items[itemTPL]
 		}
 	}
 
