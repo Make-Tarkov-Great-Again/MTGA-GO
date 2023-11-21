@@ -16,13 +16,13 @@ func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(suitesStorage)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func TradingTraderSettings(w http.ResponseWriter, r *http.Request) {
 	traderSettings := pkg.GetTraderSettings()
 	body := pkg.ApplyResponseBody(traderSettings)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(suits)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +43,7 @@ func TradingTraderAssort(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(traderAssort)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)
 	fmt.Printf("Response Time: %v\n", elapsedTime)

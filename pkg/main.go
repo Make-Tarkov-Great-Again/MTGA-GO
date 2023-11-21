@@ -64,46 +64,6 @@ func GetGameConfig(sessionID string) (*GameConfig, error) {
 	return &config, nil
 }
 
-func GetMainItems() *CRCResponseBody {
-	if CheckIfResponseIsCached(itemsRoute) {
-		crc := GetCachedCRC(itemsRoute)
-		return ApplyCRCResponseBody(nil, crc)
-	}
-	in := data.GetItems()
-	crc := GetCachedCRC(itemsRoute)
-	return ApplyCRCResponseBody(in, crc)
-}
-
-func GetMainCustomization() *CRCResponseBody {
-	if CheckIfResponseIsCached(customizationRoute) {
-		crc := GetCachedCRC(customizationRoute)
-		return ApplyCRCResponseBody(nil, crc)
-	}
-	in := data.GetCustomizations()
-	crc := GetCachedCRC(customizationRoute)
-	return ApplyCRCResponseBody(in, crc)
-}
-
-func GetMainGlobals() *CRCResponseBody {
-	if CheckIfResponseIsCached(globalsRoute) {
-		crc := GetCachedCRC(globalsRoute)
-		return ApplyCRCResponseBody(nil, crc)
-	}
-	in := data.GetGlobals()
-	crc := GetCachedCRC(globalsRoute)
-	return ApplyCRCResponseBody(in, crc)
-}
-
-func GetMainSettings() *CRCResponseBody {
-	if CheckIfResponseIsCached(mainSettingsRoute) {
-		crc := GetCachedCRC(mainSettingsRoute)
-		return ApplyCRCResponseBody(nil, crc)
-	}
-	in := data.GetMainSettings()
-	crc := GetCachedCRC(mainSettingsRoute)
-	return ApplyCRCResponseBody(in, crc)
-}
-
 func GetMainProfileList(sessionID string) []any {
 	character := data.GetCharacterByID(sessionID)
 	profiles := make([]any, 0, 2)
@@ -131,19 +91,6 @@ func GetMainAccountCustomization() []string {
 		output = append(output, id)
 	}
 	return output
-}
-
-func GetMainLocale(lang string) (*CRCResponseBody, error) {
-	if CheckIfResponseIsCached(localeRoute) {
-		crc := GetCachedCRC(localeRoute)
-		return ApplyCRCResponseBody(nil, crc), nil
-	}
-	locale, err := data.GetLocalesGlobalByName(lang)
-	if err != nil {
-		return nil, err
-	}
-	crc := GetCachedCRC(localeRoute)
-	return ApplyCRCResponseBody(locale, crc), nil
 }
 
 func ValidateNickname(nickname string) *ResponseBody {

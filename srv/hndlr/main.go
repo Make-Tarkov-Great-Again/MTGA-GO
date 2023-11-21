@@ -18,105 +18,147 @@ import (
 const routeNotImplemented = "Route is not implemented yet, using empty values instead"
 
 // GetBundleList returns a list of custom bundles to the client
-func GetBundleList(w http.ResponseWriter, r *http.Request) {
+func GetBundleList(w http.ResponseWriter, _ *http.Request) {
 	manifests := data.GetBundleManifests()
-	pkg.ZlibJSONReply(w, r.RequestURI, manifests)
+	pkg.SendZlibJSONReply(w, manifests)
 }
 
-func GetBrandName(w http.ResponseWriter, r *http.Request) {
+func GetBrandName(w http.ResponseWriter, _ *http.Request) {
 	brand := pkg.GetBrandName()
-	pkg.ZlibJSONReply(w, r.URL.Path, brand)
+	pkg.SendZlibJSONReply(w, brand)
 }
 
-func ShowPersonKilledMessage(w http.ResponseWriter, r *http.Request) {
-	pkg.ZlibJSONReply(w, r.RequestURI, "true")
+func ShowPersonKilledMessage(w http.ResponseWriter, _ *http.Request) {
+	pkg.SendZlibJSONReply(w, "true")
 }
 
-func MainGameStart(w http.ResponseWriter, r *http.Request) {
+func MainGameStart(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(map[string]any{
 		"utc_time": tools.GetCurrentTimeInSeconds(),
 	})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func MainPutMetrics(w http.ResponseWriter, r *http.Request) {
-	pkg.ZlibJSONReply(w, r.RequestURI, pkg.ApplyResponseBody(nil))
+func MainPutMetrics(w http.ResponseWriter, _ *http.Request) {
+	pkg.SendZlibJSONReply(w, pkg.ApplyResponseBody(nil))
 }
 
 func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
-	menu, err := data.GetLocalesMenuByName(r.URL.Path[20:])
-	if err != nil {
-		log.Println(err)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input, _ := data.GetLocalesMenuByName(route[20:])
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	body := pkg.ApplyResponseBody(menu)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
-func MainVersionValidate(w http.ResponseWriter, r *http.Request) {
-	pkg.ZlibJSONReply(w, r.RequestURI, pkg.ApplyResponseBody(nil))
+func MainVersionValidate(w http.ResponseWriter, _ *http.Request) {
+	pkg.SendZlibJSONReply(w, pkg.ApplyResponseBody(nil))
 }
 
 func MainLanguages(w http.ResponseWriter, r *http.Request) {
-	languages := data.GetLanguages()
-	body := pkg.ApplyResponseBody(languages)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input := data.GetLanguages()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
+	}
+
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainGameConfig(w http.ResponseWriter, r *http.Request) {
-	gameConfig, err := pkg.GetGameConfig(pkg.GetSessionID(r))
-	if err != nil {
-		log.Println(err)
+	route := r.RequestURI
+	sessionID := pkg.GetSessionID(r)
+	if !data.CheckRequestedResponseCache(route) {
+		input, _ := pkg.GetGameConfig(sessionID)
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	body := pkg.ApplyResponseBody(gameConfig)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainItems(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
-	body := pkg.GetMainItems()
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		cache := pkg.CreateCachedResponse(data.GetItems())
+		data.SetResponseCacheForRoute(route, cache)
+	}
+
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)
 	fmt.Printf("Response Time: %v\n", elapsedTime)
-	//log.Println("You know you're going to have to go back and try creating structs in your data, you lazy twit!")
 }
 
 func MainCustomization(w http.ResponseWriter, r *http.Request) {
-	body := pkg.GetMainCustomization()
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input := data.GetCustomizations()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
+	}
+
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainGlobals(w http.ResponseWriter, r *http.Request) {
-	body := pkg.GetMainGlobals()
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input := data.GetGlobals()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
+	}
+
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainSettings(w http.ResponseWriter, r *http.Request) {
-	body := pkg.GetMainSettings()
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input := data.GetMainSettings()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
+	}
+
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainProfileList(w http.ResponseWriter, r *http.Request) {
-	profileList := pkg.GetMainProfileList(pkg.GetSessionID(r))
+	sessionID := pkg.GetSessionID(r)
+	profileList := pkg.GetMainProfileList(sessionID)
 	body := pkg.ApplyResponseBody(profileList)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func MainAccountCustomization(w http.ResponseWriter, r *http.Request) {
+func MainAccountCustomization(w http.ResponseWriter, _ *http.Request) {
 	accountCustomization := pkg.GetMainAccountCustomization()
 	body := pkg.ApplyResponseBody(accountCustomization)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MainLocale(w http.ResponseWriter, r *http.Request) {
-	body, err := pkg.GetMainLocale(r.URL.Path[15:])
-	if err != nil {
-		log.Println(err)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		lang := route[15:]
+		input, _ := data.GetLocalesGlobalByName(lang)
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 var keepAlive = &KeepAlive{
@@ -124,16 +166,17 @@ var keepAlive = &KeepAlive{
 	UtcTime: 0,
 }
 
-func MainKeepAlive(w http.ResponseWriter, r *http.Request) {
+func MainKeepAlive(w http.ResponseWriter, _ *http.Request) {
 	keepAlive.UtcTime = tools.GetCurrentTimeInSeconds()
+	data.GetCachedResponses().SaveIfRequired()
 
 	body := pkg.ApplyResponseBody(keepAlive)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func MainNicknameReserved(w http.ResponseWriter, r *http.Request) {
+func MainNicknameReserved(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody("")
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 type nicknameValidate struct {
@@ -151,7 +194,7 @@ func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ValidateNickname(validate.Nickname)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 type profileCreate struct {
@@ -171,7 +214,7 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	sessionID := pkg.GetSessionID(r)
 	pkg.CreateProfile(sessionID, request.Side, request.Nickname, request.VoiceID, request.HeadID)
 	body := pkg.ApplyResponseBody(&profileCreate{UID: sessionID})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
@@ -181,89 +224,114 @@ func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(notifier)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 	channel := pkg.GetChannel(pkg.GetSessionID(r))
 
 	body := pkg.ApplyResponseBody(channel)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
 	statuses := pkg.GetProfileStatuses(pkg.GetSessionID(r))
 
 	body := pkg.ApplyResponseBody(statuses)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func MainWeather(w http.ResponseWriter, r *http.Request) {
+func MainWeather(w http.ResponseWriter, _ *http.Request) {
 	weather := data.GetWeather()
 	body := pkg.ApplyResponseBody(weather)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
+var locationsSet bool
+
 func MainLocations(w http.ResponseWriter, r *http.Request) {
-	locations := data.GetLocations()
-	body := pkg.ApplyResponseBody(locations)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	route := r.RequestURI
+	if !locationsSet {
+		input := data.GetLocations()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
+		locationsSet = true
+	}
+
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainTemplates(w http.ResponseWriter, r *http.Request) {
-	templates := data.GetHandbook()
-	body := pkg.ApplyResponseBody(templates)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input := data.GetHandbook()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
+	}
+
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainHideoutAreas(w http.ResponseWriter, r *http.Request) {
-	areas, err := data.GetHideoutAreas()
-	if err != nil {
-		log.Println(err)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input, _ := data.GetHideoutAreas()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	body := pkg.ApplyResponseBody(areas)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainHideoutQTE(w http.ResponseWriter, r *http.Request) {
-	qte, err := data.GetHideoutQTE()
-	if err != nil {
-		log.Println(err)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input, _ := data.GetHideoutQTE()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	body := pkg.ApplyResponseBody(qte)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
-	settings, err := data.GetHideoutSettings()
-	if err != nil {
-		log.Println(err)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input, _ := data.GetHideoutSettings()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	body := pkg.ApplyResponseBody(settings)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
-	recipes, err := data.GetHideoutRecipes()
-	if err != nil {
-		log.Println(err)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input, _ := data.GetHideoutRecipes()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	body := pkg.ApplyResponseBody(recipes)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
-	scavCaseRecipes, err := data.GetHideoutScavcase()
-	if err != nil {
-		log.Println(err)
+	route := r.RequestURI
+	if !data.CheckRequestedResponseCache(route) {
+		input, _ := data.GetHideoutScavcase()
+		cache := pkg.CreateCachedResponse(input)
+		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	body := pkg.ApplyResponseBody(scavCaseRecipes)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	input := *data.GetRequestedResponseCache(route)
+	pkg.SendJSONReply(w, input)
 }
 
 func MainBuildsList(w http.ResponseWriter, r *http.Request) {
@@ -273,7 +341,7 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(builds)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
@@ -283,68 +351,78 @@ func MainQuestList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(quests)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func MainCurrentGroup(w http.ResponseWriter, r *http.Request) {
+func MainCurrentGroup(w http.ResponseWriter, _ *http.Request) {
 	group := &CurrentGroup{
 		Squad: []any{},
 	}
 	body := pkg.ApplyResponseBody(group)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func MainRepeatableQuests(w http.ResponseWriter, r *http.Request) {
+func MainRepeatableQuests(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody([]any{})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 var serverListings []ServerListing
 
-func GetServerList(w http.ResponseWriter, r *http.Request) {
-	srvcfg := data.GetServerConfig()
-	port, _ := strconv.Atoi(srvcfg.Ports.Main)
+func GetServerList(w http.ResponseWriter, _ *http.Request) {
+	serverConfig := data.GetServerConfig()
+	port, _ := strconv.Atoi(serverConfig.Ports.Main)
 	serverListings = append(serverListings, ServerListing{
-		IP:   srvcfg.IP,
+		IP:   serverConfig.IP,
 		Port: port,
 	})
 
 	body := pkg.ApplyResponseBody(serverListings)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
+}
+
+var version = &Version{
+	IsValid:       true,
+	LatestVersion: "",
 }
 
 func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
+	responseCache := data.GetCachedResponses()
 	check := strings.TrimPrefix(r.Header.Get("App-Version"), "EFT Client ")
-	version := &Version{
-		IsValid:       true,
-		LatestVersion: check,
+	if responseCache.Version != check {
+		responseCache.Version = check
+		responseCache.Save = true
 	}
+
+	version.LatestVersion = check
 	body := pkg.ApplyResponseBody(version)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MainLogout(w http.ResponseWriter, r *http.Request) {
-	if profile, err := data.GetProfileByUID(pkg.GetSessionID(r)); err != nil {
+	profile, err := data.GetProfileByUID(pkg.GetSessionID(r))
+	if err != nil {
 		log.Fatalln(err)
-	} else {
-		profile.SaveProfile()
 	}
 
+	profile.SaveProfile()
+	data.GetCachedResponses().SaveIfRequired()
+
 	body := pkg.ApplyResponseBody(map[string]any{"status": "ok"})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func MainPrices(w http.ResponseWriter, r *http.Request) {
+func MainPrices(w http.ResponseWriter, _ *http.Request) {
 	supplyData := pkg.GetMainPrices()
 
 	body := pkg.ApplyResponseBody(supplyData)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func ExitFromMenu(w http.ResponseWriter, r *http.Request) {
+func ExitFromMenu(w http.ResponseWriter, _ *http.Request) {
 	//TODO: IDK WHAT SIT NEEDS HERE
 	body := pkg.ApplyResponseBody(nil)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 type localLoot struct {
@@ -364,10 +442,10 @@ func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 
 	output := data.GetLocalLootByNameAndIndex(loot.LocationID, loot.VariantID)
 	body := pkg.ApplyResponseBody(output)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func RaidConfiguration(w http.ResponseWriter, r *http.Request) {
+func RaidConfiguration(w http.ResponseWriter, _ *http.Request) {
 	/*
 		TODO: Pre-raid nonsense that we might need to do
 		AKI does some shit with setting difficulties to bots or something? IDK
@@ -376,7 +454,7 @@ func RaidConfiguration(w http.ResponseWriter, r *http.Request) {
 	*/
 
 	body := pkg.ApplyResponseBody(nil)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 type insuranceList struct {
@@ -400,27 +478,27 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(costs)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func InviteCancelAll(w http.ResponseWriter, r *http.Request) {
+func InviteCancelAll(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(nil)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func MatchAvailable(w http.ResponseWriter, r *http.Request) {
+func MatchAvailable(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(false)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func RaidNotReady(w http.ResponseWriter, r *http.Request) {
+func RaidNotReady(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(map[string]any{})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func RaidReady(w http.ResponseWriter, r *http.Request) {
+func RaidReady(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(map[string]any{})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 type groupStatus struct {
@@ -435,19 +513,19 @@ var groupStatusOutput = groupStatus{
 	Group:   make([]any, 0),
 }
 
-func GroupStatus(w http.ResponseWriter, r *http.Request) {
+func GroupStatus(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(groupStatusOutput)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func LookingForGroupStart(w http.ResponseWriter, r *http.Request) {
+func LookingForGroupStart(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(nil)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
-func LookingForGroupStop(w http.ResponseWriter, r *http.Request) {
+func LookingForGroupStop(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(nil)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 type botDifficulties struct {
@@ -472,7 +550,7 @@ func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
 				}
 				data[key] = difficulties
 			}
-			pkg.ZlibJSONReply(w, r.RequestURI, data)
+			pkg.SendZlibJSONReply(w, data)
 	*/
 	parsedBody := pkg.GetParsedBody(r)
 	botName := strings.ToLower(parsedBody.(map[string]any)["name"].(string))
@@ -485,7 +563,7 @@ func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
 		difficulties.Impossible = bot.Difficulties["impossible"]
 	}
 
-	pkg.ZlibJSONReply(w, r.RequestURI, difficulties)
+	pkg.SendZlibJSONReply(w, difficulties)
 }
 
 type botConditions struct {
@@ -522,7 +600,7 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	body := pkg.ApplyResponseBody(bots)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 type offlineMatchEnd struct {
@@ -544,7 +622,7 @@ func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
 	log.Println("\n:::::::::::: Offline Match Status ::::::::::::\nExitName:", matchEnd.ExitName, "\nExitStatus:", matchEnd.ExitStatus, "\nRaidSeconds:", matchEnd.RaidSeconds)
 	log.Println()
 	body := pkg.ApplyResponseBody(nil)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 type raidProfileSave struct {
@@ -587,10 +665,10 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Raid Profile Save not implemented yet!")
 	body := pkg.ApplyResponseBody(nil)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func AirdropConfig(w http.ResponseWriter, r *http.Request) {
 	airdropParams := data.GetAirdropParameters()
-	pkg.ZlibJSONReply(w, r.RequestURI, airdropParams)
+	pkg.SendZlibJSONReply(w, airdropParams)
 }

@@ -127,7 +127,6 @@ func setLocales() {
 				if err := json.UnmarshalNoEscape(fileContent, &localeMenu); err != nil {
 					log.Fatalln(err)
 				}
-
 				localeData.Menu = localeMenu
 			default:
 				log.Println("huh")

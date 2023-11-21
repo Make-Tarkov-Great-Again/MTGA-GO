@@ -13,7 +13,7 @@ func MessagingFriendList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(friendList)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +23,7 @@ func MessagingDialogList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(dialogList)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MessagingFriendRequestInbox(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func MessagingFriendRequestInbox(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MessagingFriendRequestOutbox(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +40,7 @@ func MessagingFriendRequestOutbox(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +50,7 @@ func MessagingMailDialogInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(dialogInfo)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +60,7 @@ func MessagingMailDialogView(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(dialogView)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MessagingMailDialogPin(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +68,7 @@ func MessagingMailDialogPin(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	body := pkg.ApplyResponseBody([]struct{}{})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MessagingMailDialogUnpin(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +76,7 @@ func MessagingMailDialogUnpin(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	body := pkg.ApplyResponseBody([]struct{}{})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MessagingMailDialogRemove(w http.ResponseWriter, r *http.Request) {
@@ -85,10 +85,10 @@ func MessagingMailDialogRemove(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody([]struct{}{})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func MessagingMailDialogClear(w http.ResponseWriter, r *http.Request) {
 	body := pkg.ApplyResponseBody([]struct{}{})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }

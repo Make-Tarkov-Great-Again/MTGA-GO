@@ -1,6 +1,7 @@
 package hndlr
 
 import (
+	"MT-GO/data"
 	"MT-GO/pkg"
 	"log"
 	"net/http"
@@ -90,5 +91,9 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	pkg.ZlibJSONReply(w, r.RequestURI, pkg.ApplyResponseBody(profileChangeEvent))
+	err := data.GetCharacterByID(id).SaveCharacter()
+	if err != nil {
+		log.Fatal(err)
+	}
+	pkg.SendZlibJSONReply(w, pkg.ApplyResponseBody(profileChangeEvent))
 }
