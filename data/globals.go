@@ -28,7 +28,7 @@ func SetNewWeaponMastery(name string) {
 
 }
 
-func GetWeaponMasteryByID(uid string) (*configMastering, error) {
+func GetWeaponMasteryByID(uid string) (*ConfigMastering, error) {
 	idx, ok := weaponMastering[uid]
 	if !ok {
 		return nil, fmt.Errorf("uid does not exist in weapon mastery")
@@ -1011,7 +1011,7 @@ type configMalfunction struct {
 	ShowGlowAttemptsCount        int     `json:"ShowGlowAttemptsCount"`
 	TimeToQuickdrawPistol        int     `json:"TimeToQuickdrawPistol"`
 }
-type configMastering struct {
+type ConfigMastering struct {
 	Level2    int      `json:"Level2"`
 	Level3    int      `json:"Level3"`
 	Name      string   `json:"Name"`
@@ -1743,7 +1743,7 @@ type Config struct {
 	LoadTimeSpeedProgress              int                             `json:"LoadTimeSpeedProgress"`
 	Malfunction                        configMalfunction               `json:"Malfunction"`
 	MarksmanAccuracy                   float64                         `json:"MarksmanAccuracy"`
-	Mastering                          []configMastering               `json:"Mastering"`
+	Mastering                          []ConfigMastering               `json:"Mastering"`
 	MaxBotsAliveOnMap                  int                             `json:"MaxBotsAliveOnMap"`
 	MaxLoyaltyLevelForAll              bool                            `json:"MaxLoyaltyLevelForAll"`
 	Overheat                           configOverheat                  `json:"Overheat"`

@@ -35,28 +35,24 @@ func setBots() {
 		done <- true
 	}()
 	go func() {
-		raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "appearance.json"))
-		if err := json.Unmarshal(raw, &bots.BotAppearance); err != nil {
+		a := tools.GetJSONRawMessage(filepath.Join(botMainDir, "appearance.json"))
+		if err := json.Unmarshal(a, &bots.BotAppearance); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
-	}()
-	go func() {
-		raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "names.json"))
-		if err := json.Unmarshal(raw, bots.BotNames); err != nil {
+
+		n := tools.GetJSONRawMessage(filepath.Join(botMainDir, "names.json"))
+		if err := json.Unmarshal(n, bots.BotNames); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
-	}()
-	go func() {
-		raw := tools.GetJSONRawMessage(filepath.Join(databaseLibPath, "sacrificialBot.json"))
-		if err := json.Unmarshal(raw, &sacrificialBot); err != nil {
+
+		b := tools.GetJSONRawMessage(filepath.Join(databaseLibPath, "sacrificialBot.json"))
+		if err := json.Unmarshal(b, &sacrificialBot); err != nil {
 			log.Println(err)
 		}
 		done <- true
 	}()
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 2; i++ {
 		<-done
 	}
 }

@@ -18,7 +18,7 @@ func GetItems() map[string]*DatabaseItem {
 func GetItemByID(uid string) (*DatabaseItem, error) {
 	item, ok := items[uid]
 	if !ok {
-		return nil, fmt.Errorf("Item %s not found in data", uid)
+		return nil, fmt.Errorf("item %s not found in data", uid)
 	}
 	return item, nil
 }
@@ -113,7 +113,9 @@ func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 	if !ok {
 		log.Println("Item:", i.ID, " does not have Grid property")
 		return nil
-	} else if len(grids) == 0 {
+	}
+
+	if len(grids) == 0 {
 		log.Println("Item:", i.ID, " does not have any Grid components")
 		return nil
 	}
@@ -126,8 +128,7 @@ func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 			log.Println(err)
 			return nil
 		}
-		err = json.Unmarshal(data, grid)
-		if err != nil {
+		if err = json.Unmarshal(data, grid); err != nil {
 			log.Println(err)
 			return nil
 		}
@@ -143,7 +144,8 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 	if !ok {
 		log.Println("Item:", i.ID, " does not have Slot property")
 		return nil
-	} else if len(slots) == 0 {
+	}
+	if len(slots) == 0 {
 		log.Println("Item:", i.ID, " does not have Slot components")
 		return nil
 	}
@@ -156,8 +158,7 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 			log.Println(err)
 			return nil
 		}
-		err = json.Unmarshal(data, slot)
-		if err != nil {
+		if err = json.Unmarshal(data, slot); err != nil {
 			log.Println(err)
 			return nil
 		}

@@ -303,73 +303,79 @@ func setTraders() {
 	}
 
 	for dir := range directory {
+		count := 0
 		done := make(chan bool)
 		trader := new(Trader)
 		currentTraderPath := filepath.Join(traderPath, dir)
 
-		go func() {
-			basePath := filepath.Join(currentTraderPath, "base.json")
-			if tools.FileExist(basePath) {
+		basePath := filepath.Join(currentTraderPath, "base.json")
+		if tools.FileExist(basePath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(basePath)
 				trader.Base = new(TraderBase)
 				if err := json.UnmarshalNoEscape(raw, &trader.Base); err != nil {
 					log.Fatalln(err)
 				}
-			}
-			done <- true
-		}()
+				done <- true
+			}()
+		}
 
-		go func() {
-			assortPath := filepath.Join(currentTraderPath, "assort.json")
-			if tools.FileExist(assortPath) {
+		assortPath := filepath.Join(currentTraderPath, "assort.json")
+		if tools.FileExist(assortPath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(assortPath)
 				trader.Assort = new(Assort)
 				if err := json.UnmarshalNoEscape(raw, &trader.Assort); err != nil {
 					log.Fatalln(err)
 				}
-
 				trader.Assort.NextResupply = 0
-			}
-			done <- true
-		}()
 
-		go func() {
-			questsPath := filepath.Join(currentTraderPath, "questassort.json")
-			if tools.FileExist(questsPath) {
+				done <- true
+			}()
+		}
+
+		questsPath := filepath.Join(currentTraderPath, "questassort.json")
+		if tools.FileExist(questsPath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(questsPath)
 				trader.QuestAssort = make(map[string]map[string]string)
 				if err := json.UnmarshalNoEscape(raw, &trader.QuestAssort); err != nil {
 					log.Fatalln(err)
 				}
-			}
-			done <- true
-		}()
+				done <- true
+			}()
+		}
 
-		go func() {
-			suitsPath := filepath.Join(currentTraderPath, "suits.json")
-			if tools.FileExist(suitsPath) {
+		suitsPath := filepath.Join(currentTraderPath, "suits.json")
+		if tools.FileExist(suitsPath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(suitsPath)
 				trader.Suits = make([]TraderSuits, 0)
 				if err := json.UnmarshalNoEscape(raw, &trader.Suits); err != nil {
 					log.Println(err)
 				}
-			}
-			done <- true
-		}()
+				done <- true
+			}()
+		}
 
-		go func() {
-			dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
-			if tools.FileExist(dialoguesPath) {
+		dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
+		if tools.FileExist(dialoguesPath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(dialoguesPath)
 				trader.Dialogue = make(map[string][]string)
 				if err := json.UnmarshalNoEscape(raw, &trader.Dialogue); err != nil {
 					log.Fatalln(err)
 				}
-			}
-			done <- true
-		}()
+				done <- true
+			}()
+		}
 
-		for i := 0; i < 5; i++ {
+		for i := 0; i < count; i++ {
 			<-done
 		}
 		traders[dir] = trader

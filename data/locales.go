@@ -63,7 +63,7 @@ func GetLocaleByName(input string) (*LocaleData, error) {
 	if locale, ok := localeMap[name]; ok {
 		return locale, nil
 	}
-	return nil, fmt.Errorf("Locale %s doesn't exist", name)
+	return nil, fmt.Errorf("locale %s doesn't exist", name)
 }
 
 func GetLocalesMenuByName(name string) (*LocaleMenu, error) {
@@ -76,7 +76,7 @@ func GetLocalesMenuByName(name string) (*LocaleMenu, error) {
 		return locale.Menu, nil
 	}
 
-	return nil, fmt.Errorf("Locale %s menu doesn't exist", name)
+	return nil, fmt.Errorf("locale %s menu doesn't exist", name)
 }
 
 func GetLocalesGlobalByName(name string) (map[string]any, error) {
@@ -89,7 +89,7 @@ func GetLocalesGlobalByName(name string) (map[string]any, error) {
 		return locale.Locale, nil
 	}
 
-	return nil, fmt.Errorf("Locale %s globals doesn't exist", name)
+	return nil, fmt.Errorf("locale %s globals doesn't exist", name)
 }
 
 // #endregion

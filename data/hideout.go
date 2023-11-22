@@ -147,51 +147,41 @@ func setHideout() {
 	done := make(chan bool)
 
 	go func() {
-		if tools.FileExist(areasPath) {
-			areas := tools.GetJSONRawMessage(areasPath)
-			if err := json.UnmarshalNoEscape(areas, &hideout.Areas); err != nil {
-				log.Println(err)
-			}
+		areas := tools.GetJSONRawMessage(areasPath)
+		if err := json.UnmarshalNoEscape(areas, &hideout.Areas); err != nil {
+			log.Println(err)
 		}
 		done <- true
 	}()
 
 	go func() {
-		if tools.FileExist(productionPath) {
-			recipes := tools.GetJSONRawMessage(productionPath)
-			if err := json.UnmarshalNoEscape(recipes, &hideout.Recipes); err != nil {
-				log.Println(err)
-			}
+		recipes := tools.GetJSONRawMessage(productionPath)
+		if err := json.UnmarshalNoEscape(recipes, &hideout.Recipes); err != nil {
+			log.Println(err)
 		}
 		done <- true
 	}()
 
 	go func() {
-		if tools.FileExist(scavcasePath) {
-			scavcase := tools.GetJSONRawMessage(scavcasePath)
-			if err := json.UnmarshalNoEscape(scavcase, &hideout.ScavCase); err != nil {
-				log.Println(err)
-			}
+		scavcase := tools.GetJSONRawMessage(scavcasePath)
+		if err := json.UnmarshalNoEscape(scavcase, &hideout.ScavCase); err != nil {
+			log.Println(err)
 		}
 		done <- true
 	}()
 
 	go func() {
-		if tools.FileExist(qtePath) {
-			qte := tools.GetJSONRawMessage(qtePath)
-			if err := json.UnmarshalNoEscape(qte, &hideout.QTE); err != nil {
-				log.Println(err)
-			}
+		qte := tools.GetJSONRawMessage(qtePath)
+		if err := json.UnmarshalNoEscape(qte, &hideout.QTE); err != nil {
+			log.Println(err)
 		}
 		done <- true
 	}()
 
 	go func() {
-		if tools.FileExist(hideoutSettingsPath) {
-			settings := tools.GetJSONRawMessage(hideoutSettingsPath)
-			if err := json.UnmarshalNoEscape(settings, &hideout.Settings); err != nil {
-				log.Println(err)
-			}
+		settings := tools.GetJSONRawMessage(hideoutSettingsPath)
+		if err := json.UnmarshalNoEscape(settings, &hideout.Settings); err != nil {
+			log.Println(err)
 		}
 		done <- true
 	}()
@@ -218,7 +208,6 @@ func SetHideoutRecipeLookup() {
 func SetScavcaseRecipeLookup() {
 	for index, item := range hideout.ScavCase {
 		pid := item["_id"].(string)
-
 		hideout.Index.ScavCase[pid] = int8(index)
 	}
 }

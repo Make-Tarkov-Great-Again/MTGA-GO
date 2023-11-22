@@ -15,10 +15,8 @@ const (
 
 func setFriends(path string) *Friends {
 	output := new(Friends)
-
 	data := tools.GetJSONRawMessage(path)
-	err := json.Unmarshal(data, &output)
-	if err != nil {
+	if err := json.Unmarshal(data, &output); err != nil {
 		log.Println(err)
 	}
 
@@ -40,8 +38,7 @@ func GetFriendsByID(uid string) (*Friends, error) {
 func (friends *Friends) SaveFriends(sessionID string) error {
 	friendsFilePath := filepath.Join(profilesPath, sessionID, "friends.json")
 
-	err := tools.WriteToFile(friendsFilePath, friends)
-	if err != nil {
+	if err := tools.WriteToFile(friendsFilePath, friends); err != nil {
 		return fmt.Errorf(friendsNotSaved, sessionID, err)
 	}
 	log.Println("Friends saved")

@@ -17,21 +17,21 @@ func GetQuestsQuery() map[string]*Quest {
 }
 
 func GetQuestFromQueryByID(qid string) *Quest {
-	if query, ok := questsQuery[qid]; !ok {
+	query, ok := questsQuery[qid]
+	if !ok {
 		log.Println("Quest", qid, "does not exist in quests query")
 		return nil
-	} else {
-		return query
 	}
+	return query
 }
 
 func GetQuestByID(qid string) any {
-	if quest, ok := quests[qid]; !ok {
+	quest, ok := quests[qid]
+	if !ok {
 		log.Println("Quest", qid, "does not exist in quests")
 		return nil
-	} else {
-		return quest
 	}
+	return quest
 }
 
 // #endregion
