@@ -19,7 +19,7 @@ func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
 	pkg.SendZlibJSONReply(w, body)
 }
 
-func TradingTraderSettings(w http.ResponseWriter, r *http.Request) {
+func TradingTraderSettings(w http.ResponseWriter, _ *http.Request) {
 	traderSettings := pkg.GetTraderSettings()
 	body := pkg.ApplyResponseBody(traderSettings)
 	pkg.SendZlibJSONReply(w, body)

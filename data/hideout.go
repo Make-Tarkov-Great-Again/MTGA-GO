@@ -201,21 +201,21 @@ func setHideout() {
 	}
 }
 
-func IndexHideoutAreas() {
+func SetHideoutAreaLookup() {
 	for index, area := range hideout.Areas {
 		areaType := int8(area["type"].(float64))
 		hideout.Index.Areas[areaType] = int8(index)
 	}
 }
 
-func IndexHideoutRecipes() {
+func SetHideoutRecipeLookup() {
 	for index, recipe := range hideout.Recipes {
 		pid := recipe["_id"].(string)
 		hideout.Index.Recipes[pid] = int16(index)
 	}
 }
 
-func IndexScavcase() {
+func SetScavcaseRecipeLookup() {
 	for index, item := range hideout.ScavCase {
 		pid := item["_id"].(string)
 

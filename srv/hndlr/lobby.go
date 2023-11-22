@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func LobbyPushNotifier(w http.ResponseWriter, r *http.Request) {
+func LobbyPushNotifier(w http.ResponseWriter, _ *http.Request) {
 	log.Println("Push notification")
 	body := pkg.ApplyResponseBody([]any{})
 	pkg.SendZlibJSONReply(w, body)

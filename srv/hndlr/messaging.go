@@ -88,7 +88,7 @@ func MessagingMailDialogRemove(w http.ResponseWriter, r *http.Request) {
 	pkg.SendZlibJSONReply(w, body)
 }
 
-func MessagingMailDialogClear(w http.ResponseWriter, r *http.Request) {
+func MessagingMailDialogClear(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody([]struct{}{})
 	pkg.SendZlibJSONReply(w, body)
 }

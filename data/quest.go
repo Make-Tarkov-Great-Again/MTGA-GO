@@ -55,7 +55,7 @@ func setQuests() {
 	}
 }
 
-func IndexQuests() {
+func SetQuestLookup() {
 	for k, v := range quests {
 		done := make(chan bool)
 		quest := &Quest{

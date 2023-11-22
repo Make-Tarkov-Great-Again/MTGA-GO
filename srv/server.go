@@ -8,8 +8,12 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
 	"sync/atomic"
+	"syscall"
+	"time"
 
 	"MT-GO/data"
 	"MT-GO/pkg"
@@ -95,8 +99,8 @@ func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
 	httpsServer := &http.Server{
-		Addr: mux.address,
-		//ConnState: CW.OnStateChange,
+		Addr:      mux.address,
+		ConnState: CW.OnStateChange,
 		TLSConfig: &tls.Config{
 			RootCAs:      nil,
 			Certificates: []tls.Certificate{certs.Certificate},
@@ -104,8 +108,28 @@ func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
 		Handler: logAndDecompress(mux.mux),
 	}
 
-	log.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
-	serverReady <- true
+	go func() {
+		fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
+		serverReady <- true
+
+		// Use a separate goroutine to handle graceful shutdown
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+		// Wait for the interrupt signal
+		<-stop
+
+		fmt.Println("Shutting down " + mux.serverName + " server gracefully...")
+
+		// Create a context with a timeout to allow existing requests to finish
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		// Shutdown the server
+		if err := httpsServer.Shutdown(ctx); err != nil {
+			log.Println("Error shutting down server:", err)
+		}
+	}()
 
 	err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
 	if err != nil {
@@ -116,15 +140,35 @@ func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
 func startHTTPServer(serverReady chan<- bool, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
-	httpsServer := &http.Server{
+	httpServer := &http.Server{
 		Addr:    mux.address,
 		Handler: logAndDecompress(mux.mux),
 	}
 
-	fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
-	serverReady <- true
+	go func() {
+		fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
+		serverReady <- true
 
-	err := httpsServer.ListenAndServe()
+		// Use a separate goroutine to handle graceful shutdown
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+		// Wait for the interrupt signal
+		<-stop
+
+		fmt.Println("Shutting down " + mux.serverName + " server gracefully...")
+
+		// Create a context with a timeout to allow existing requests to finish
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		// Shutdown the server
+		if err := httpServer.Shutdown(ctx); err != nil {
+			log.Println("Error shutting down server:", err)
+		}
+	}()
+
+	err := httpServer.ListenAndServe()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -138,14 +182,9 @@ type muxt struct {
 }
 
 func SetServer() {
-	srv := data.GetServerConfig()
-
-	// serve static content
-	mainServeMux := http.NewServeMux()
-
 	muxers := []*muxt{
 		{
-			mux: mainServeMux, address: data.GetMainIPandPort(),
+			mux: http.NewServeMux(), address: data.GetMainIPandPort(),
 			serverName: "Main", initRoutes: setMainRoutes,
 		},
 		{
@@ -167,12 +206,13 @@ func SetServer() {
 	}
 
 	serverReady := make(chan bool)
+	srv := data.GetServerConfig()
 
 	if srv.Secure {
 		cert := GetCertificate(srv.IP)
 		certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
 		if err != nil {
-			log.Fatalln(err)
+			log.Fatalf("Error loading X.509 key pair: %v", err)
 		}
 		cert.Certificate = certs
 
@@ -193,7 +233,6 @@ func SetServer() {
 	pkg.SetDownloadLocal(srv.DownloadImageFiles)
 	pkg.SetChannelTemplate()
 	pkg.SetGameConfig()
-
 }
 
 type ConnectionWatcher struct {
@@ -206,6 +245,8 @@ func (cw *ConnectionWatcher) OnStateChange(_ net.Conn, state http.ConnState) {
 		cw.Add(1)
 	case http.StateHijacked, http.StateClosed: //Connection Closed
 		cw.Add(-1)
+	default:
+		panic("unhandled default case")
 	}
 }
 

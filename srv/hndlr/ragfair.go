@@ -12,7 +12,7 @@ type ragfairOffers struct {
 	SelectedCategory string `json:"selectedCategory"`
 }
 
-func RagfairFind(w http.ResponseWriter, r *http.Request) {
+func RagfairFind(w http.ResponseWriter, _ *http.Request) {
 	output := ragfairOffers{
 		Offers:           make([]any, 0),
 		OffersCount:      0,

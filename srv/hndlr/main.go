@@ -28,19 +28,11 @@ func GetBrandName(w http.ResponseWriter, _ *http.Request) {
 	pkg.SendZlibJSONReply(w, brand)
 }
 
-func ShowPersonKilledMessage(w http.ResponseWriter, _ *http.Request) {
-	pkg.SendZlibJSONReply(w, "true")
-}
-
 func MainGameStart(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(map[string]any{
 		"utc_time": tools.GetCurrentTimeInSeconds(),
 	})
 	pkg.SendZlibJSONReply(w, body)
-}
-
-func MainPutMetrics(w http.ResponseWriter, _ *http.Request) {
-	pkg.SendZlibJSONReply(w, pkg.ApplyResponseBody(nil))
 }
 
 func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
@@ -162,8 +154,7 @@ func MainLocale(w http.ResponseWriter, r *http.Request) {
 }
 
 var keepAlive = &KeepAlive{
-	Msg:     "OK",
-	UtcTime: 0,
+	Msg: "OK",
 }
 
 func MainKeepAlive(w http.ResponseWriter, _ *http.Request) {
@@ -529,10 +520,10 @@ func LookingForGroupStop(w http.ResponseWriter, _ *http.Request) {
 }
 
 type botDifficulties struct {
-	Easy       any `json:"easy"`
-	Normal     any `json:"normal"`
-	Hard       any `json:"hard"`
-	Impossible any `json:"impossible"`
+	Easy       map[string]any `json:"easy"`
+	Normal     map[string]any `json:"normal"`
+	Hard       map[string]any `json:"hard"`
+	Impossible map[string]any `json:"impossible"`
 }
 
 func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
@@ -668,7 +659,7 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	pkg.SendZlibJSONReply(w, body)
 }
 
-func AirdropConfig(w http.ResponseWriter, r *http.Request) {
+func AirdropConfig(w http.ResponseWriter, _ *http.Request) {
 	airdropParams := data.GetAirdropParameters()
 	pkg.SendZlibJSONReply(w, airdropParams)
 }

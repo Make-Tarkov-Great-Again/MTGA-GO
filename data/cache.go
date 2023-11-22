@@ -7,7 +7,6 @@ import (
 	"log"
 	"path/filepath"
 	"slices"
-	"strings"
 )
 
 var cacheMap = make(map[string]*Cache)
@@ -593,12 +592,16 @@ type Cache struct {
 }
 
 type ResponseCache struct {
-	Save            bool `json:"-"`
+	Save            bool             `json:"-"`
+	Overwrite       map[string]*int8 `json:"-"`
 	Version         string
 	CachedResponses map[string]*[]byte
 }
 
-var cachedResponses *ResponseCache
+var cachedResponses = &ResponseCache{
+	Version:         "",
+	CachedResponses: nil,
+}
 
 func GetCachedResponses() *ResponseCache {
 	return cachedResponses
@@ -607,33 +610,29 @@ func GetCachedResponses() *ResponseCache {
 func SetCachedResponses() {
 	cachePath := filepath.Join(coreFilePath, "response.json")
 	if !tools.FileExist(cachePath) {
-		cachedResponses = &ResponseCache{
-			Version: "",
-			CachedResponses: map[string]*[]byte{
-				"/client/settings":                            nil,
-				"/client/customization":                       nil,
-				"/client/items":                               nil,
-				"/client/globals":                             nil,
-				"/client/locations":                           nil,
-				"/client/game/config":                         nil,
-				"/client/languages":                           nil,
-				"/client/handbook/templates":                  nil,
-				"/client/hideout/areas":                       nil,
-				"/client/hideout/qte/list":                    nil,
-				"/client/hideout/settings":                    nil,
-				"/client/hideout/production/recipes":          nil,
-				"/client/hideout/production/scavcase/recipes": nil,
-				"/client/menu/locale/":                        nil,
-				"/client/locale/":                             nil,
-			},
+		cachedResponses.CachedResponses = map[string]*[]byte{
+			"/client/settings":                            nil,
+			"/client/customization":                       nil,
+			"/client/items":                               nil,
+			"/client/globals":                             nil,
+			"/client/locations":                           nil,
+			"/client/game/config":                         nil,
+			"/client/languages":                           nil,
+			"/client/handbook/templates":                  nil,
+			"/client/hideout/areas":                       nil,
+			"/client/hideout/qte/list":                    nil,
+			"/client/hideout/settings":                    nil,
+			"/client/hideout/production/recipes":          nil,
+			"/client/hideout/production/scavcase/recipes": nil,
 		}
 		return
 	}
 
 	data := tools.GetJSONRawMessage(cachePath)
 	if err := json.UnmarshalNoEscape(data, &cachedResponses); err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
+	fmt.Println("This needs to be adjusted in the future for modifications")
 }
 
 func (rsc *ResponseCache) SaveIfRequired() {
@@ -657,14 +656,10 @@ func (rsc *ResponseCache) SaveResponseCache() error {
 }
 
 func CheckRequestedResponseCache(route string) bool {
-	if strings.Contains(route, "/client/menu/locale/") {
-		return cachedResponses.CachedResponses[route] != nil
+	if _, ok := cachedResponses.Overwrite[route]; ok {
+		delete(cachedResponses.Overwrite, route)
+		return false
 	}
-
-	if strings.Contains(route, "/client/locale/") {
-		return cachedResponses.CachedResponses[route] != nil
-	}
-
 	return cachedResponses.CachedResponses[route] != nil
 }
 
@@ -672,9 +667,9 @@ func GetRequestedResponseCache(route string) *[]byte {
 	return cachedResponses.CachedResponses[route]
 }
 
-func SetResponseCacheForRoute(route string, data *[]byte) {
+func SetResponseCacheForRoute(route string, data []byte) {
 	cachedResponses.Save = true
-	cachedResponses.CachedResponses[route] = data
+	cachedResponses.CachedResponses[route] = &data
 }
 
 type SkillsCache struct {

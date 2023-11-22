@@ -37,18 +37,18 @@ var primary = []func(){
 	setLocalLoot, setLocales, setTraders,
 	setCore, setLanguages, setHandbook,
 	setQuests, setItems, setWeather,
-	setLocations, setCustomization, SetCachedResponses,
+	setLocations, setCustomization,
 }
 
 var secondary = []func(){
-	SetProfiles, IndexQuests, IndexTradeOffers,
-	SetServerConfig, IndexHideoutAreas, IndexHideoutRecipes,
-	IndexScavcase,
+	SetProfiles, SetQuestLookup, SetTraderOfferLookup,
+	SetServerConfig, SetHideoutAreaLookup, SetHideoutRecipeLookup,
+	SetScavcaseRecipeLookup, SetCachedResponses,
 }
 
 func SetDatabase() {
 	var wg sync.WaitGroup
-	numWorkers := tools.CalculateWorkers() / 3
+	numWorkers := tools.CalculateWorkers() / 4
 
 	runTasks(&wg, primary, numWorkers)
 

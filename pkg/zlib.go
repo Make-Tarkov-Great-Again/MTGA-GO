@@ -42,46 +42,44 @@ func ZlibInflate(r *http.Request) *bytes.Buffer {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer func(reader io.ReadCloser) {
-		err := reader.Close()
-		if err != nil {
-			log.Fatalln(err)
+	defer func() {
+		if err := reader.Close(); err != nil {
+			log.Fatal(err)
 		}
-	}(reader)
+	}()
 
 	// Read the decompressed data
 	_, err = io.Copy(buffer, reader)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
 
 	return buffer
 }
 
 func ZlibDeflate(data any) []byte {
-	// Convert data to JSON bytes
 	input, err := json.MarshalNoEscape(data)
 	if err != nil {
 		log.Println("Failed to marshal data to JSON")
 		return nil
 	}
 
-	// Compress the JSON bytes
 	return compressZlib(input, zlib.BestSpeed)
 }
 
 func compressZlib(data []byte, speed int) []byte {
-	buffer := &bytes.Buffer{}
-	writer, _ := zlib.NewWriterLevel(buffer, speed)
-
-	defer func(writer *zlib.Writer) {
-		err := writer.Close()
-		if err != nil {
-			log.Fatalln(err)
+	buffer := bytes.NewBuffer(nil)
+	writer, err := zlib.NewWriterLevel(buffer, speed)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err := writer.Close(); err != nil {
+			log.Fatal(err)
 		}
-	}(writer)
+	}()
 
-	_, err := writer.Write(data)
+	_, err = writer.Write(data)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -94,16 +92,11 @@ func compressZlib(data []byte, speed int) []byte {
 	return buffer.Bytes()
 }
 
-func CreateCachedResponse(input any) *[]byte {
+func CreateCachedResponse(input any) []byte {
 	dataData, err := json.MarshalNoEscape(ApplyResponseBody(input))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dataZlib := compressZlib(dataData, zlib.BestCompression)
-
-	dataSlice := make([]byte, 0, len(dataZlib))
-	dataSlice = append(dataSlice, dataZlib...)
-
-	return &dataSlice
+	return compressZlib(dataData, zlib.BestCompression)
 }

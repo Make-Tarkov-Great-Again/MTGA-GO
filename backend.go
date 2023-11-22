@@ -4,6 +4,8 @@ package main
 
 import (
 	"MT-GO/srv"
+	"bufio"
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -31,10 +33,11 @@ func startHome() {
 	fmt.Println("1. Register an Account")
 	fmt.Println("2. Login")
 	fmt.Println("\n69. Exit")
-	var input string
 	for {
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
 
 		switch input {
 		case "1":
@@ -54,11 +57,13 @@ func registerAccount() {
 	account := data.Account{}
 	profiles := data.GetProfiles()
 	var input string
-
 	fmt.Println("What is your username?")
 	for {
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input = scanner.Text()
+
 		if !validateUsername(profiles, input) {
 			fmt.Println("Username taken, try again")
 			continue
@@ -129,8 +134,10 @@ func login() {
 
 	for {
 		fmt.Println("What is your username?")
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input = scanner.Text()
 
 		for _, profile := range profiles {
 			if profile.Account.Username == input {
@@ -145,7 +152,8 @@ func login() {
 
 		fmt.Println("What is your password?")
 		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner.Scan()
+		input = scanner.Text()
 
 		if account.Password != input {
 			fmt.Println("Invalid password, try again moron")
@@ -168,10 +176,11 @@ func loggedIn(account *data.Account) {
 	fmt.Println("\n69. Exit")
 
 	for {
-		var input string
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
 
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
 		switch input {
 		case "1":
 			launchTarkov(account)
@@ -194,20 +203,21 @@ func editAccountInfo(account *data.Account) {
 	fmt.Println("69. Go back to Login Menu")
 
 	for {
-		var input string
-
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
 
 		switch input {
 		case "1":
 			for {
-				var tarkovPath string
-
 				fmt.Println("\nSet new Path to Tarkov executable")
-				fmt.Printf("> ")
-				_, _ = fmt.Scanln(&tarkovPath)
-				exePath := filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
+				scanner := bufio.NewScanner(os.Stdin)
+				fmt.Print("> ")
+				scanner.Scan()
+				path := scanner.Text()
+
+				exePath := filepath.Join(path, "EscapeFromTarkov.exe")
 				if tools.FileExist(exePath) && exePath != account.TarkovPath {
 					account.TarkovPath = exePath
 					fmt.Println("Path has been set")
@@ -257,30 +267,36 @@ const (
 )
 
 func launchTarkov(account *data.Account) {
-	if account.TarkovPath == "" || !tools.FileExist(account.TarkovPath) {
+	if !tools.FileExist(account.TarkovPath) {
 		fmt.Println("EscapeFromTarkov not found")
 		fmt.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
 		for {
-			var tarkovPath string
+			scanner := bufio.NewScanner(os.Stdin)
+			fmt.Print("> ")
+			scanner.Scan()
+			path := scanner.Text()
 
-			fmt.Printf("> ")
-			_, _ = fmt.Scanln(&tarkovPath)
-			if !tools.FileExist(filepath.Join(tarkovPath, "BepInEx")) {
+			if !tools.FileExist(path) {
+				fmt.Println("Invalid path, directory does not exist, try again")
+				continue
+			}
+
+			if !tools.FileExist(filepath.Join(path, "BepInEx")) {
 				fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
 				continue
 			}
 
-			account.TarkovPath = filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
-			if !tools.FileExist(account.TarkovPath) {
+			exePath := filepath.Join(path, "EscapeFromTarkov.exe")
+			if !tools.FileExist(exePath) {
 				fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
 				continue
 			}
+
+			account.TarkovPath = exePath
 			if err := account.SaveAccount(); err != nil {
-				log.Println(err)
-				return
+				log.Fatalln(err)
 			}
 			fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
-
 			break
 		}
 	}
@@ -291,19 +307,20 @@ func launchTarkov(account *data.Account) {
 		fmt.Sprintf(config, data.GetMainAddress()),
 	}
 
-	cmd := exec.Command(account.TarkovPath, cmdArgs...)
+	ctx, cancel := context.WithCancel(context.Background())
+	cmd := exec.CommandContext(ctx, account.TarkovPath, cmdArgs...)
+	defer cancel()
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	err := cmd.Start()
+	err := cmd.Run()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		fmt.Println("Client has been closed")
-		//data.GetProfileByUID(account.UID).SaveProfile()
-		//os.Exit(0)
+		log.Println("Client has been closed with an error:", err)
+		os.Exit(1)
 	}
 }

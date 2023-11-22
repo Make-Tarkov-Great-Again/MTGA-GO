@@ -376,7 +376,7 @@ func setTraders() {
 	}
 }
 
-func IndexTradeOffers() {
+func SetTraderOfferLookup() {
 	for _, trader := range traders {
 		if trader.Assort != nil {
 			trader.Index.Assort = &AssortIndex{}
