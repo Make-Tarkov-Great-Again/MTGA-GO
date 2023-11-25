@@ -539,7 +539,7 @@ type AssortItem struct {
 	ID       string      `json:"_id"`
 	Tpl      string      `json:"_tpl"`
 	ParentID string      `json:"parentId"`
-	SlotID   string      `json:"slotId"`
+	SlotID   string      `json:"slotId,omitempty"`
 	Upd      *ItemUpdate `json:"upd,omitempty"`
 }
 

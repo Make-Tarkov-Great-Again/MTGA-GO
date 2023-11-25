@@ -206,7 +206,7 @@ func (i *DatabaseItem) CloneHandbookItemEntry() (*HandbookItem, error) {
 	if err != nil {
 		return nil, fmt.Errorf(couldNotCreateClone, err)
 	}
-	return &HandbookItem{Id: "", ParentId: handbookEntry.ParentId, Price: 0}, nil
+	return &HandbookItem{ID: "", ParentID: handbookEntry.ParentID, Price: 0}, nil
 }
 
 func (i *DatabaseItem) CreateItemUPD() (*ItemUpdate, error) {

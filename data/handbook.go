@@ -10,14 +10,20 @@ import (
 	"github.com/goccy/go-json"
 )
 
-var handbook = Handbook{}
+var handbook *Handbook
 var handbookIndex = map[string]int16{}
 var prices = make(map[string]int32)
+
+type templates struct {
+	index    map[string]int16
+	handbook *Handbook
+	prices   map[string]int32
+}
 
 // #region Handbook getters
 
 func GetHandbook() *Handbook {
-	return &handbook
+	return handbook
 }
 
 // GetPrices Get prices of all items
@@ -25,7 +31,7 @@ func GetPrices() map[string]int32 {
 	return prices
 }
 
-const priceNotFound string = "Price of %s not found"
+const priceNotFound string = "price of %s not found"
 
 // GetPriceByID Get item price by ID
 func GetPriceByID(id string) (*int32, error) {
@@ -39,17 +45,58 @@ func GetPriceByID(id string) (*int32, error) {
 // #endregion
 
 // #region Handbook setters
+var handbookCategories = make(map[string][]string)
 
 func setHandbook() {
+	handbook = new(Handbook)
 	raw := tools.GetJSONRawMessage(handbookPath)
 	if err := json.UnmarshalNoEscape(raw, &handbook); err != nil {
 		log.Fatalln(err)
 	}
 
-	for idx, v := range handbook.Items {
-		handbookIndex[v.Id] = int16(idx)
-		prices[v.Id] = v.Price
+	for _, v := range handbook.Categories {
+		if _, ok := handbookCategories[v.ParentID]; !ok {
+			if v.ParentID == "" {
+				if _, ok := handbookCategories[v.ID]; !ok {
+					handbookCategories[v.ID] = make([]string, 0)
+				}
+			} else {
+				handbookCategories[v.ParentID] = make([]string, 0)
+				handbookCategories[v.ParentID] = append(handbookCategories[v.ParentID], v.ID)
+			}
+		} else {
+			handbookCategories[v.ParentID] = append(handbookCategories[v.ParentID], v.ID)
+		}
+		if _, ok := handbookCategories[v.ID]; !ok {
+			handbookCategories[v.ID] = make([]string, 0)
+		}
 	}
+
+	for idx, v := range handbook.Items {
+		handbookIndex[v.ID] = int16(idx)
+
+		if _, ok := handbookCategories[v.ParentID]; !ok {
+			handbookCategories[v.ParentID] = make([]string, 0)
+			handbookCategories[v.ParentID] = append(handbookCategories[v.ParentID], v.ID)
+		} else {
+			handbookCategories[v.ParentID] = append(handbookCategories[v.ParentID], v.ID)
+		}
+
+		prices[v.ID] = v.Price
+	}
+
+	for id, v := range handbookCategories {
+		if len(v) == 0 {
+			delete(handbookCategories, id)
+			continue
+		}
+		if len(v) != cap(v) {
+			nv := make([]string, 0, len(v))
+			nv = append(nv, v...)
+			handbookCategories[id] = nv
+		}
+	}
+	fmt.Println()
 }
 
 func ConvertFromRouble(amount int32, currency string) (float64, error) {
@@ -70,12 +117,12 @@ func ConvertToRouble(amount int32, currency string) float64 {
 
 func (hbi *HandbookItem) SetHandbookItemEntry() {
 	handbook.Items = append(handbook.Items, *hbi)
-	handbookIndex[hbi.Id] = int16(len(handbook.Items) - 1)
+	handbookIndex[hbi.ID] = int16(len(handbook.Items) - 1)
 }
 
 func SetHandbookItemEntry(entry HandbookItem) {
 	handbook.Items = append(handbook.Items, entry)
-	handbookIndex[entry.Id] = int16(len(handbook.Items) - 1)
+	handbookIndex[entry.ID] = int16(len(handbook.Items) - 1)
 }
 
 // #endregion
@@ -88,16 +135,16 @@ type Handbook struct {
 }
 
 type HandbookCategory struct {
-	Id       string `json:"Id"`
-	ParentId string `json:"ParentId"`
+	ID       string `json:"Id"`
+	ParentID string `json:"ParentId"`
 	Icon     string `json:"Icon"`
 	Color    string `json:"Color"`
 	Order    string `json:"Order"`
 }
 
 type HandbookItem struct {
-	Id       string `json:"Id"`
-	ParentId string `json:"ParentId"`
+	ID       string `json:"Id"`
+	ParentID string `json:"ParentId"`
 	Price    int32  `json:"Price"`
 }
 

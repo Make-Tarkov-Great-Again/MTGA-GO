@@ -189,10 +189,10 @@ func loggedIn(account *data.Account) {
 		case "3":
 			wipeYoAss(account)
 		case "69":
-			fmt.Println("Adios faggot")
+			fmt.Println("Adios")
 			return
 		default:
-			fmt.Println("Invalid input, retard")
+			fmt.Println("Invalid input")
 		}
 	}
 }
@@ -234,7 +234,7 @@ func editAccountInfo(account *data.Account) {
 		case "69":
 			loggedIn(account)
 		default:
-			fmt.Println("Invalid input, retard")
+			fmt.Println("Invalid input")
 		}
 	}
 }

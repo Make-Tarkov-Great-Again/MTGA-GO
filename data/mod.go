@@ -506,8 +506,8 @@ func LoadCustomItems() {
 			itemsDatabase[uid] = itemClone
 
 			handbookItemsDatabase = append(handbookItemsDatabase, HandbookItem{
-				Id:       uid,
-				ParentId: handbookEntry.ParentId,
+				ID:       uid,
+				ParentID: handbookEntry.ParentID,
 				Price:    int32(api.Parameters.HandbookPrice),
 			})
 

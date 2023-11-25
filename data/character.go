@@ -22,15 +22,15 @@ func setCharacter(path string) *Character {
 }
 
 func GetCharacterByID(uid string) *Character {
-	if profile, ok := profiles[uid]; ok {
-		return profile.Character
+	profile, ok := profiles[uid]
+	if !ok {
+		log.Println(characterNotExist, uid)
+		return nil
 	}
-
-	log.Println(characterNotExist, uid)
-	return nil
+	return profile.Character
 }
 
-func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
+func (c Character) GetQuestsAvailableToPlayer() ([]any, error) {
 	var output []any
 
 	query := GetQuestsQuery()
@@ -77,7 +77,7 @@ func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 					if err != nil {
 						return nil, err
 					}
-					data.SetTraderLoyaltyLevel(c)
+					data.SetTraderLoyaltyLevel(&c)
 				}
 
 				loyaltyCheck = tools.LevelComparisonCheck(
@@ -97,11 +97,11 @@ func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 			for trader, loyalty := range forStart.TraderStanding {
 				traderInfo, ok := c.TradersInfo[trader]
 				if !ok || traderInfo.LoyaltyLevel == 0 {
-					if data, err := GetTraderByUID(trader); err != nil {
+					data, err := GetTraderByUID(trader)
+					if err != nil {
 						return nil, err
-					} else {
-						data.SetTraderLoyaltyLevel(c)
 					}
+					data.SetTraderLoyaltyLevel(&c)
 				}
 
 				standingCheck = tools.LevelComparisonCheck(
@@ -127,7 +127,7 @@ func (c *Character) GetQuestsAvailableToPlayer() ([]any, error) {
 	return output, nil
 }
 
-func (c *Character) IsPreviousQuestComplete(quests map[string]*QuestCondition, cachedQuests *QuestCache) bool {
+func (c Character) IsPreviousQuestComplete(quests map[string]*QuestCondition, cachedQuests *QuestCache) bool {
 	previousQuestCompleted := false
 	for _, v := range quests {
 		index, ok := cachedQuests.Index[v.PreviousQuestID]
@@ -163,7 +163,7 @@ func (inv *Inventory) CleanInventoryOfDeletedItemMods() bool {
 
 }
 
-func (c *Character) SaveCharacter() error {
+func (c Character) SaveCharacter() error {
 	characterFilePath := filepath.Join(profilesPath, c.ID, "character.json")
 
 	if err := tools.WriteToFile(characterFilePath, c); err != nil {
