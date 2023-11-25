@@ -203,10 +203,10 @@ func SortAndQueueCustomItems(modName string, items map[string]*ModdingAPI) {
 			continue
 		}
 	}
-	cachedResponses.Save = true
-	cachedResponses.Overwrite["/client/items"] = nil
-	cachedResponses.Overwrite["/client/handbook/templates"] = nil
-	cachedResponses.Overwrite["/client/locale/"] = nil
+	db.cache.Response.Save = true
+	db.cache.Response.Overwrite["/client/items"] = nil
+	db.cache.Response.Overwrite["/client/handbook/templates"] = nil
+	db.cache.Response.Overwrite["/client/locale/"] = nil
 }
 
 func (i *DatabaseItem) GenerateTraderAssortSingleItem() []*AssortItem {
@@ -505,7 +505,7 @@ func LoadCustomItems() {
 
 			itemsDatabase[uid] = itemClone
 
-			handbookItemsDatabase = append(handbookItemsDatabase, HandbookItem{
+			handbookItemsDatabase = append(handbookItemsDatabase, TemplateItem{
 				ID:       uid,
 				ParentID: handbookEntry.ParentID,
 				Price:    int32(api.Parameters.HandbookPrice),
@@ -694,7 +694,7 @@ func setCustomClothingLocation(ids map[string]string) {
 	}
 
 	for _, lang := range mainLocales {
-		data, err := GetLocalesGlobalByName(lang)
+		data, err := GetLocaleGlobalByName(lang)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -723,7 +723,7 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 		}
 
 		for _, lang := range mainLocales {
-			data, err := GetLocalesGlobalByName(lang)
+			data, err := GetLocaleGlobalByName(lang)
 			if err != nil {
 				log.Println(err)
 				continue
@@ -736,7 +736,7 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 	}
 
 	for lang, value := range apiLocale {
-		locale, err := GetLocalesGlobalByName(lang)
+		locale, err := GetLocaleGlobalByName(lang)
 		if err != nil {
 			log.Println(err)
 			continue

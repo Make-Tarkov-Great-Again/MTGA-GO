@@ -11,14 +11,12 @@ import (
 
 // #region Customization getters
 
-var customizations = map[string]*Customization{}
-
 func GetCustomizations() map[string]*Customization {
-	return customizations
+	return db.customization
 }
 
 func GetCustomizationByID(id string) (*Customization, error) {
-	customization, ok := customizations[id]
+	customization, ok := db.customization[id]
 	if !ok {
 		return nil, fmt.Errorf("Customization with ID", id, "does not exist")
 	}
@@ -65,8 +63,9 @@ func (c *Customization) Clone() *Customization {
 // #region Customization setters
 
 func setCustomization() {
+	db.customization = make(map[string]*Customization)
 	raw := tools.GetJSONRawMessage(customizationPath)
-	if err := json.UnmarshalNoEscape(raw, &customizations); err != nil {
+	if err := json.UnmarshalNoEscape(raw, &db.customization); err != nil {
 		log.Fatalln("Set Customization:", err)
 	}
 }

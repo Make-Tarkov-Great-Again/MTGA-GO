@@ -7,12 +7,8 @@ import (
 	"time"
 )
 
-var weather = Weather{
-	Acceleration: 7,
-}
-
 func GetWeather() *Weather {
-	return &weather
+	return db.weather
 }
 
 // #endregion
@@ -20,12 +16,16 @@ func GetWeather() *Weather {
 // #region Weather setters
 
 func setWeather() {
+	db.weather = &Weather{
+		Acceleration: 7,
+	}
+
 	t := time.Now()
-	weather.Date = t.Format("2006-01-02")
-	weather.Time = t.Format("15:04:05")
-	weather.WeatherInfo = generateWeather()
-	weather.WeatherInfo.Date = weather.Date
-	weather.WeatherInfo.Time = fmt.Sprintf("%s %s", weather.Date, weather.Time)
+	db.weather.Date = t.Format("2006-01-02")
+	db.weather.Time = t.Format("15:04:05")
+	db.weather.WeatherInfo = generateWeather()
+	db.weather.WeatherInfo.Date = db.weather.Date
+	db.weather.WeatherInfo.Time = fmt.Sprintf("%s %s", db.weather.Date, db.weather.Time)
 }
 
 func generateWeather() WeatherReport {

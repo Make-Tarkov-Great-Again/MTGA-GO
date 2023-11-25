@@ -341,7 +341,7 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 			if err != nil {
 				return nil, err
 			}
-			insuranceCost := int32(math.Round(float64(*itemPrice) * 0.3))
+			insuranceCost := int32(math.Round(float64(itemPrice) * 0.3))
 			if traderCache.Insurances[tid].PriceCoef > 0 {
 				insuranceCost *= int32(1 - traderCache.Insurances[tid].PriceCoef/100)
 			}

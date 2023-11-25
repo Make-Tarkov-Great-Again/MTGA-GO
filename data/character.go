@@ -22,7 +22,7 @@ func setCharacter(path string) *Character {
 }
 
 func GetCharacterByID(uid string) *Character {
-	profile, ok := profiles[uid]
+	profile, ok := db.profile[uid]
 	if !ok {
 		log.Println(characterNotExist, uid)
 		return nil

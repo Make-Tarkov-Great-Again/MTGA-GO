@@ -882,14 +882,14 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, event *Prof
 			}
 
 			if "RUB" != trader.Base.Currency {
-				if conversion, err := data.ConvertFromRouble(*priceOfItem, currency); err == nil {
+				if conversion, err := data.ConvertFromRouble(priceOfItem, currency); err == nil {
 					traderRelations.SalesSum += float32(conversion)
 				} else {
 					log.Println(err)
 					return
 				}
 			} else {
-				traderRelations.SalesSum += float32(*priceOfItem)
+				traderRelations.SalesSum += float32(priceOfItem)
 			}
 		}
 

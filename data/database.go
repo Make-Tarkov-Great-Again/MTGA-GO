@@ -4,6 +4,7 @@ package data
 import (
 	"MT-GO/tools"
 	"MT-GO/user/mods"
+	"fmt"
 	"sync"
 )
 
@@ -30,47 +31,71 @@ const (
 	botsMainDir       = botMainDir + "bots/"
 )
 
-// SetDatabase initializes the data
-// var db *Database
-var primary = []func(){
-	setBots, setEditions, setHideout,
-	setLocalLoot, setLocales, setTraders,
-	setCore, setLanguages, setHandbook,
-	setQuests, setItems, setWeather,
-	setLocations, setCustomization,
-}
+var db *database
 
-var secondary = []func(){
-	SetProfiles, SetQuestLookup, SetTraderOfferLookup,
-	SetServerConfig, SetHideoutAreaLookup, SetHideoutRecipeLookup,
-	SetScavcaseRecipeLookup, SetCachedResponses,
+type database struct {
+	cache         *Cache
+	core          *Core
+	customization map[string]*Customization
+	bot           *Bots
+	edition       map[string]*Edition
+	template      *Template
+	hideout       *Hideout
+	item          map[string]*DatabaseItem
+	location      *Location
+	locale        map[string]*Locale
+	profile       map[string]*Profile
+	trader        map[string]*Trader
+	quest         *Quest
+	weather       *Weather
 }
 
 func SetDatabase() {
+	db = &database{
+		cache: &Cache{
+			Player: make(map[string]*PlayerCache),
+		},
+	}
+
 	var wg sync.WaitGroup
 	numWorkers := tools.CalculateWorkers() / 4
 
-	runTasks(&wg, primary, numWorkers)
+	runTasks(&wg,
+		[]func(){
+			setBots, setEditions, setHideout,
+			setLocales, setTraders,
+			setCore, setHandbook,
+			setQuests, setItems, setWeather,
+			setLocations, setCustomization,
+		},
+		numWorkers)
 
 	mods.Init()
 	LoadBundleManifests()
 	LoadCustomItems()
 
-	runTasks(&wg, secondary, numWorkers)
+	runTasks(&wg,
+		[]func(){
+			setProfiles, setQuestLookup, setTraderOfferLookup,
+			setServerConfig, setHideoutAreaLookup, setHideoutRecipeLookup,
+			setScavcaseRecipeLookup, setCachedResponses, setHandbookIndex,
+		},
+		numWorkers)
+	fmt.Println()
 }
 
 func runTasks(wg *sync.WaitGroup, tasks []func(), numWorkers int) {
-	workerCh := make(chan bool, numWorkers)
-	completionCh := make(chan bool)
+	workerCh := make(chan struct{}, numWorkers)
+	completionCh := make(chan struct{})
 
 	for _, task := range tasks {
 		wg.Add(1)
 		go func(taskFunc func()) {
 			defer wg.Done()
-			workerCh <- true
+			workerCh <- struct{}{}
 			taskFunc()
 			<-workerCh
-			completionCh <- true
+			completionCh <- struct{}{}
 		}(task)
 	}
 

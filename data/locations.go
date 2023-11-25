@@ -2,18 +2,15 @@ package data
 
 import (
 	"MT-GO/tools"
+	"github.com/goccy/go-json"
 	"log"
 	"path/filepath"
-
-	"github.com/goccy/go-json"
 )
-
-var locations Locations
 
 // #region Location getters
 
 func GetLocations() *Locations {
-	return &locations
+	return &db.location.Bases
 }
 
 // #endregion
@@ -21,43 +18,26 @@ func GetLocations() *Locations {
 // #region Location setters
 
 func setLocations() {
+	db.location = &Location{
+		Bases: Locations{},
+		Loot: map[string][]map[string]any{
+			"bigmap":         make([]map[string]any, 0, 6),
+			"factory4_day":   make([]map[string]any, 0, 6),
+			"factory4_night": make([]map[string]any, 0, 6),
+			"Laboratory":     make([]map[string]any, 0, 6),
+			"Lighthouse":     make([]map[string]any, 0, 6),
+			"RezervBase":     make([]map[string]any, 0, 6),
+			"Shoreline":      make([]map[string]any, 0, 6),
+			"TarkovStreets":  make([]map[string]any, 0, 6),
+			"Woods":          make([]map[string]any, 0, 6),
+		},
+	}
+
 	raw := tools.GetJSONRawMessage(locationsFilePath)
-	if err := json.Unmarshal(raw, &locations); err != nil {
+	if err := json.Unmarshal(raw, &db.location.Bases); err != nil {
 		log.Fatalln(err)
 	}
-}
 
-var localLoot = map[string][]map[string]any{
-	"bigmap":         make([]map[string]any, 0, 6),
-	"factory4_day":   make([]map[string]any, 0, 6),
-	"factory4_night": make([]map[string]any, 0, 6),
-	"Laboratory":     make([]map[string]any, 0, 6),
-	"Lighthouse":     make([]map[string]any, 0, 6),
-	"RezervBase":     make([]map[string]any, 0, 6),
-	"Shoreline":      make([]map[string]any, 0, 6),
-	"TarkovStreets":  make([]map[string]any, 0, 6),
-	"Woods":          make([]map[string]any, 0, 6),
-}
-
-//make(map[string][]any)
-
-func GetLocalLootByNameAndIndex(name string, index int8) any {
-	location, ok := localLoot[name]
-	if !ok {
-		log.Println("Location", name, "doesn't exist in localLoot map")
-		return nil
-	}
-
-	loot := location[index]
-	if loot != nil {
-		return nil
-	}
-
-	log.Println("Loot at index", index, "does not exist")
-	return nil
-}
-
-func setLocalLoot() {
 	files, err := tools.GetFilesFrom(locationsPath)
 	if err != nil {
 		log.Fatalln(err)
@@ -73,8 +53,26 @@ func setLocalLoot() {
 			log.Fatalln(err)
 		}
 
-		localLoot[name] = append(localLoot[name], *format)
+		db.location.Loot[name] = append(db.location.Loot[name], *format)
 	}
+}
+
+//make(map[string][]any)
+
+func GetLocalLootByNameAndIndex(name string, index int8) any {
+	location, ok := db.location.Loot[name]
+	if !ok {
+		log.Println("Location", name, "doesn't exist in localLoot map")
+		return nil
+	}
+
+	loot := location[index]
+	if loot != nil {
+		return nil
+	}
+
+	log.Println("Loot at index", index, "does not exist")
+	return nil
 }
 
 // #endregion
@@ -236,9 +234,13 @@ type Limit struct {
 }
 
 // #region Location structs
+type Location struct {
+	Bases Locations
+	Loot  map[string][]map[string]any
+}
 
 type Locations struct {
-	Locations map[string]LocationBase `json:"locations"`
+	Locations map[string]LocationBase `json:"location"`
 	Paths     []Path                  `json:"paths"`
 }
 

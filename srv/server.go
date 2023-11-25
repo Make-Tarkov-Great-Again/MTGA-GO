@@ -95,7 +95,7 @@ func logAndDecompress(next http.Handler) http.Handler {
 
 var CW = &ConnectionWatcher{}
 
-func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
+func startHTTPSServer(serverReady chan<- struct{}, certs *Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
 	httpsServer := &http.Server{
@@ -110,7 +110,7 @@ func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
 
 	go func() {
 		fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
-		serverReady <- true
+		serverReady <- struct{}{}
 
 		// Use a separate goroutine to handle graceful shutdown
 		stop := make(chan os.Signal, 1)
@@ -137,7 +137,7 @@ func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
 	}
 }
 
-func startHTTPServer(serverReady chan<- bool, mux *muxt) {
+func startHTTPServer(serverReady chan<- struct{}, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
 	httpServer := &http.Server{
@@ -147,7 +147,7 @@ func startHTTPServer(serverReady chan<- bool, mux *muxt) {
 
 	go func() {
 		fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
-		serverReady <- true
+		serverReady <- struct{}{}
 
 		// Use a separate goroutine to handle graceful shutdown
 		stop := make(chan os.Signal, 1)
@@ -205,7 +205,7 @@ func SetServer() {
 		},
 	}
 
-	serverReady := make(chan bool)
+	serverReady := make(chan struct{})
 	srv := data.GetServerConfig()
 
 	if srv.Secure {

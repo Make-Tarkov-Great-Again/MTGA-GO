@@ -11,17 +11,15 @@ import (
 	"github.com/goccy/go-json"
 )
 
-var traders = map[string]*Trader{}
-
 // #region Trader getters
 
 func GetTraders() map[string]*Trader {
-	return traders
+	return db.trader
 }
 
 // GetTraderByUID returns trader by UID
 func GetTraderByUID(UID string) (*Trader, error) {
-	trader, ok := traders[UID]
+	trader, ok := db.trader[UID]
 	if ok {
 		return trader, nil
 	}
@@ -59,7 +57,7 @@ func GetTraderByName(name string) (*Trader, error) {
 	if !ok {
 		return nil, fmt.Errorf("Trader with name", name, "does not exist, returning nil")
 	}
-	return traders[tid], nil
+	return db.trader[tid], nil
 }
 
 func CloneTrader(name string) *Trader {
@@ -302,6 +300,8 @@ func setTraders() {
 		return
 	}
 
+	db.trader = make(map[string]*Trader)
+
 	for dir := range directory {
 		count := 0
 		done := make(chan bool)
@@ -378,12 +378,12 @@ func setTraders() {
 		for i := 0; i < count; i++ {
 			<-done
 		}
-		traders[dir] = trader
+		db.trader[dir] = trader
 	}
 }
 
-func SetTraderOfferLookup() {
-	for _, trader := range traders {
+func setTraderOfferLookup() {
+	for _, trader := range db.trader {
 		if trader.Assort != nil {
 			trader.Index.Assort = &AssortIndex{}
 			parentItems := make(map[string]map[string]int16)

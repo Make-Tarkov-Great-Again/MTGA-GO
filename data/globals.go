@@ -11,13 +11,13 @@ var weaponMastering = make(map[string]int16)
 
 func setGlobals() {
 	raw := tools.GetJSONRawMessage(globalsFilePath)
-	if err := json.UnmarshalNoEscape(raw, &core.Globals); err != nil {
+	if err := json.UnmarshalNoEscape(raw, &db.core.Globals); err != nil {
 		log.Fatalln(err)
 	}
 }
 
 func IndexWeaponMasteries() {
-	for idx, mastery := range core.Globals.Config.Mastering {
+	for idx, mastery := range db.core.Globals.Config.Mastering {
 		for _, template := range mastery.Templates {
 			weaponMastering[template] = int16(idx)
 		}
@@ -34,7 +34,7 @@ func GetWeaponMasteryByID(uid string) (*ConfigMastering, error) {
 		return nil, fmt.Errorf("uid does not exist in weapon mastery")
 	}
 
-	return &core.Globals.Config.Mastering[idx], nil
+	return &db.core.Globals.Config.Mastering[idx], nil
 }
 
 type Globals struct {

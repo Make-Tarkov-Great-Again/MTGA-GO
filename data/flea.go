@@ -28,7 +28,7 @@ var fleaOffersCount int16
 
 func setFlea() {
 	output := make([]Offer, 0)
-	for tid, trader := range traders {
+	for tid, trader := range db.trader {
 		if trader.Assort == nil {
 			continue
 		}
@@ -75,7 +75,7 @@ func setFlea() {
 				},
 				Root:             main.ID,
 				Items:            items,
-				ItemsCost:        *price,
+				ItemsCost:        price,
 				Requirements:     scheme,
 				RequirementsCost: int32(scheme[0].Count),
 				SummaryCost:      int32(scheme[0].Count),

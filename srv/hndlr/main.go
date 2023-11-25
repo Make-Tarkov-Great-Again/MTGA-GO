@@ -38,7 +38,7 @@ func MainGameStart(w http.ResponseWriter, _ *http.Request) {
 func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
-		input, _ := data.GetLocalesMenuByName(route[20:])
+		input, _ := data.GetLocaleMenuByName(route[20:])
 		cache := pkg.CreateCachedResponse(input)
 		data.SetResponseCacheForRoute(route, cache)
 	}
@@ -144,7 +144,7 @@ func MainLocale(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		lang := route[15:]
-		input, _ := data.GetLocalesGlobalByName(lang)
+		input, _ := data.GetLocaleGlobalByName(lang)
 		cache := pkg.CreateCachedResponse(input)
 		data.SetResponseCacheForRoute(route, cache)
 	}

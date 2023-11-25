@@ -13,18 +13,16 @@ import (
 
 const profilesPath string = "user/profiles/"
 
-var profiles = make(map[string]*Profile)
-
 // #region Profile getters
 
 func GetProfiles() map[string]*Profile {
-	return profiles
+	return db.profile
 }
 
 const profileNotExist string = "Profile for %s does not exist"
 
 func GetProfileByUID(uid string) (*Profile, error) {
-	if profile, ok := profiles[uid]; ok {
+	if profile, ok := db.profile[uid]; ok {
 		return profile, nil
 	}
 	return nil, fmt.Errorf(profileNotExist, uid)
@@ -34,7 +32,8 @@ func GetProfileByUID(uid string) (*Profile, error) {
 
 // #region Profile setters
 
-func SetProfiles() {
+func setProfiles() {
+	db.profile = make(map[string]*Profile)
 	users, err := tools.GetDirectoriesFrom(profilesPath)
 	if err != nil {
 		log.Println(err)
@@ -47,14 +46,14 @@ func SetProfiles() {
 	for user := range users {
 		profile := new(Profile)
 		userPath := filepath.Join(profilesPath, user)
-		done := make(chan bool)
+		done := make(chan struct{})
 
 		go func() {
 			path := filepath.Join(userPath, "account.json")
 			if tools.FileExist(path) {
 				profile.Account = setAccount(path)
 			}
-			done <- true
+			done <- struct{}{}
 		}()
 
 		go func() {
@@ -72,7 +71,7 @@ func SetProfiles() {
 					}
 				}
 			}
-			done <- true
+			done <- struct{}{}
 		}()
 
 		go func() {
@@ -90,7 +89,7 @@ func SetProfiles() {
 					Mailbox:   make([]*Notification, 0),
 				}
 			}
-			done <- true
+			done <- struct{}{}
 		}()
 
 		go func() {
@@ -100,7 +99,7 @@ func SetProfiles() {
 			} else {
 				profile.Dialogue = &Dialogue{}
 			}
-			done <- true
+			done <- struct{}{}
 		}()
 
 		go func() {
@@ -110,14 +109,14 @@ func SetProfiles() {
 			} else {
 				profile.Friends = &Friends{}
 			}
-			done <- true
+			done <- struct{}{}
 		}()
 
 		for i := 0; i < 5; i++ {
 			<-done
 		}
 
-		profiles[user] = profile
+		db.profile[user] = profile
 		SetProfileCache(user)
 	}
 }
@@ -148,41 +147,41 @@ func (profile *Profile) SaveProfile() {
 			return
 		}
 	}
-	done := make(chan bool)
+	done := make(chan struct{})
 	go func() {
 		if err := profile.Account.SaveAccount(); err != nil {
 			log.Println(err)
 			return
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		if err := profile.Character.SaveCharacter(); err != nil {
 			log.Println(err)
 			return
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		if err := profile.Dialogue.SaveDialogue(sessionID); err != nil {
 			log.Println(err)
 			return
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		if err := profile.Storage.SaveStorage(sessionID); err != nil {
 			log.Println(err)
 			return
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		if err := profile.Friends.SaveFriends(sessionID); err != nil {
 			log.Println(err)
 			return
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
 	for i := 0; i < 5; i++ {
@@ -200,6 +199,7 @@ type Profile struct {
 	Friends   *Friends
 	Storage   *Storage
 	Dialogue  *Dialogue
+	Cache     *PlayerCache
 }
 
 type Dialogue map[string]*Dialog

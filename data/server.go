@@ -14,16 +14,16 @@ const (
 
 var coreServerData *serverData
 
-func SetServerConfig() {
+func setServerConfig() {
 	coreServerData = &serverData{
-		MainIPandPort:      net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Main),
-		MessagingIPandPort: net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Messaging),
-		TradingIPandPort:   net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Trading),
-		RagFairIPandPort:   net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Flea),
-		LobbyIPandPort:     net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Lobby),
+		MainIPandPort:      net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Main),
+		MessagingIPandPort: net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Messaging),
+		TradingIPandPort:   net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Trading),
+		RagFairIPandPort:   net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Flea),
+		LobbyIPandPort:     net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Lobby),
 	}
 
-	if core.ServerConfig.Secure {
+	if db.core.ServerConfig.Secure {
 		coreServerData.HTTPS = &serverDataHTTPS{
 			HTTPSAddress: fmt.Sprintf(HTTPSTemplate, coreServerData.MainIPandPort),
 			WSSAddress:   fmt.Sprintf(WSSTemplate, coreServerData.LobbyIPandPort),
@@ -83,7 +83,7 @@ func GetTradingIPandPort() string {
 }
 
 func AddToItemPresets(key string, value globalItemPreset) {
-	core.Globals.ItemPresets[key] = value
+	db.core.Globals.ItemPresets[key] = value
 }
 
 func GetMessagingIPandPort() string {

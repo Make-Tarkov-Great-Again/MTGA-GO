@@ -3,39 +3,35 @@ package data
 import (
 	"MT-GO/tools"
 	"log"
+	"path/filepath"
 
 	"github.com/goccy/go-json"
 )
 
-var core = Core{
-	Scav:              new(Scav),
-	MainSettings:      new(MainSettings),
-	ServerConfig:      new(ServerConfig),
-	Globals:           new(Globals),
-	MatchMetrics:      new(MatchMetrics),
-	AirdropParameters: new(AirdropParameters),
-}
-
 // #region Core getters
 
 func GetGlobals() *Globals {
-	return core.Globals
+	return db.core.Globals
+}
+
+func GetLanguages() map[string]string {
+	return db.core.Languages
 }
 
 func GetMainSettings() *MainSettings {
-	return core.MainSettings
+	return db.core.MainSettings
 }
 
 func GetAirdropParameters() *AirdropParameters {
-	return core.AirdropParameters
+	return db.core.AirdropParameters
 }
 
 func GetServerConfig() *ServerConfig {
-	return core.ServerConfig
+	return db.core.ServerConfig
 }
 
 func GetPlayerScav() *Scav {
-	return core.Scav
+	return db.core.Scav
 }
 
 // #endregion
@@ -43,49 +39,67 @@ func GetPlayerScav() *Scav {
 // #region Core setters
 
 func setCore() {
-	done := make(chan bool)
+	done := make(chan struct{})
+
+	db.core = &Core{
+		Languages:         make(map[string]string),
+		Scav:              new(Scav),
+		MainSettings:      new(MainSettings),
+		ServerConfig:      new(ServerConfig),
+		Globals:           new(Globals),
+		MatchMetrics:      new(MatchMetrics),
+		AirdropParameters: new(AirdropParameters),
+	}
 
 	go func() {
 		raw := tools.GetJSONRawMessage(playerScavPath)
-		if err := json.UnmarshalNoEscape(raw, &core.Scav); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &db.core.Scav); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(MainSettingsPath)
-		if err := json.UnmarshalNoEscape(raw, &core.MainSettings); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &db.core.MainSettings); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(serverConfigPath)
-		if err := json.UnmarshalNoEscape(raw, &core.ServerConfig); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &db.core.ServerConfig); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		setGlobals()
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(matchMetricsPath)
-		if err := json.UnmarshalNoEscape(raw, &core.MatchMetrics); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &db.core.MatchMetrics); err != nil {
 			log.Println(err)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(airdropFilePath)
-		if err := json.UnmarshalNoEscape(raw, &core.AirdropParameters); err != nil {
+		if err := json.UnmarshalNoEscape(raw, &db.core.AirdropParameters); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
-	for i := 0; i < 6; i++ {
+	go func() {
+		raw := tools.GetJSONRawMessage(filepath.Join(coreFilePath, "/languages.json"))
+		if err := json.UnmarshalNoEscape(raw, &db.core.Languages); err != nil {
+			log.Fatalln(err)
+		}
+		done <- struct{}{}
+	}()
+
+	for i := 0; i < 7; i++ {
 		<-done
 	}
 }
@@ -95,6 +109,7 @@ func setCore() {
 // #region Core structs
 
 type Core struct {
+	Languages         map[string]string
 	Scav              *Scav
 	MainSettings      *MainSettings
 	ServerConfig      *ServerConfig

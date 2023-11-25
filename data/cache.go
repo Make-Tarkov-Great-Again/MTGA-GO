@@ -9,8 +9,6 @@ import (
 	"slices"
 )
 
-var cacheMap = make(map[string]*Cache)
-
 const (
 	inventoryCacheNotExist string = "Inventory Cache for %s does not exist"
 	traderCacheNotExist    string = "Trader Cache for %s does not exist"
@@ -18,8 +16,8 @@ const (
 	cacheNotExist          string = "Cache for %s does not exist"
 )
 
-func GetCacheByID(uid string) (*Cache, error) {
-	if cache, ok := cacheMap[uid]; ok {
+func GetCacheByID(uid string) (*PlayerCache, error) {
+	if cache, ok := db.cache.Player[uid]; ok {
 		return cache, nil
 	}
 	return nil, fmt.Errorf(cacheNotExist, uid)
@@ -63,25 +61,25 @@ func GetInventoryCacheByID(uid string) (*InventoryContainer, error) {
 }
 
 func SetProfileCache(id string) {
-	if _, ok := cacheMap[id]; !ok && profiles[id].Character == nil {
+	if _, ok := db.cache.Player[id]; !ok && db.profile[id].Character == nil {
 		return
 	}
 
-	cache := &Cache{
+	cache := &PlayerCache{
 		Traders: &TraderCache{
 			Index:      make(map[string]*AssortIndex),
 			Assorts:    make(map[string]*Assort),
 			Insurances: make(map[string]*Insurances),
 		},
 	}
-	if profiles[id].Character != nil {
-		cache.SetCharacterCache(profiles[id].Character)
+	if db.profile[id].Character != nil {
+		cache.SetCharacterCache(db.profile[id].Character)
 	}
-	cacheMap[id] = cache
+	db.cache.Player[id] = cache
 }
 
-func (c *Cache) SetCharacterCache(character *Character) {
-	done := make(chan bool)
+func (c *PlayerCache) SetCharacterCache(character *Character) {
+	done := make(chan struct{})
 	go func() {
 		if len(character.Quests) != 0 {
 			c.Quests = &QuestCache{Index: make(map[string]int8)}
@@ -90,7 +88,7 @@ func (c *Cache) SetCharacterCache(character *Character) {
 			}
 		}
 
-		done <- true
+		done <- struct{}{}
 	}()
 
 	// Define a function to update the common skills map
@@ -101,7 +99,7 @@ func (c *Cache) SetCharacterCache(character *Character) {
 				c.Skills.Common[commonSkill.ID] = int8(index)
 			}
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
 	// Define a function to update the hideout areas map
@@ -112,21 +110,21 @@ func (c *Cache) SetCharacterCache(character *Character) {
 				c.Hideout.Areas[int8(area.Type)] = int8(index)
 			}
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
 	go func() {
 		if len(character.Inventory.Items) != 0 {
 			c.Inventory = SetInventoryContainer(&character.Inventory)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
 	for i := 0; i < 4; i++ {
 		<-done
 	}
 
-	cacheMap[character.ID] = c
+	db.cache.Player[character.ID] = c
 }
 
 func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
@@ -584,6 +582,11 @@ columnLoop:
 }
 
 type Cache struct {
+	Response *ResponseCache
+	Player   map[string]*PlayerCache
+}
+
+type PlayerCache struct {
 	Inventory *InventoryContainer
 	Skills    *SkillsCache
 	Hideout   *HideoutCache
@@ -598,24 +601,19 @@ type ResponseCache struct {
 	CachedResponses map[string]*[]byte
 }
 
-var cachedResponses = &ResponseCache{
-	Version:         "",
-	CachedResponses: nil,
-}
-
 func GetCachedResponses() *ResponseCache {
-	return cachedResponses
+	return db.cache.Response
 }
 
-func SetCachedResponses() {
+func setCachedResponses() {
 	cachePath := filepath.Join(coreFilePath, "response.json")
 	if !tools.FileExist(cachePath) {
-		cachedResponses.CachedResponses = map[string]*[]byte{
+		db.cache.Response.CachedResponses = map[string]*[]byte{
 			"/client/settings":                            nil,
 			"/client/customization":                       nil,
 			"/client/items":                               nil,
 			"/client/globals":                             nil,
-			"/client/locations":                           nil,
+			"/client/location":                            nil,
 			"/client/game/config":                         nil,
 			"/client/languages":                           nil,
 			"/client/handbook/templates":                  nil,
@@ -629,7 +627,7 @@ func SetCachedResponses() {
 	}
 
 	data := tools.GetJSONRawMessage(cachePath)
-	if err := json.UnmarshalNoEscape(data, &cachedResponses); err != nil {
+	if err := json.UnmarshalNoEscape(data, &db.cache.Response); err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("This needs to be adjusted in the future for modifications")
@@ -651,25 +649,25 @@ func (rsc *ResponseCache) SaveResponseCache() error {
 		return fmt.Errorf("response cache not saved: %w", err)
 	}
 	log.Println("Response Cache saved")
-	cachedResponses.Save = false
+	db.cache.Response.Save = false
 	return nil
 }
 
 func CheckRequestedResponseCache(route string) bool {
-	if _, ok := cachedResponses.Overwrite[route]; ok {
-		delete(cachedResponses.Overwrite, route)
+	if _, ok := db.cache.Response.Overwrite[route]; ok {
+		delete(db.cache.Response.Overwrite, route)
 		return false
 	}
-	return cachedResponses.CachedResponses[route] != nil
+	return db.cache.Response.CachedResponses[route] != nil
 }
 
 func GetRequestedResponseCache(route string) *[]byte {
-	return cachedResponses.CachedResponses[route]
+	return db.cache.Response.CachedResponses[route]
 }
 
 func SetResponseCacheForRoute(route string, data []byte) {
-	cachedResponses.Save = true
-	cachedResponses.CachedResponses[route] = &data
+	db.cache.Response.Save = true
+	db.cache.Response.CachedResponses[route] = &data
 }
 
 type SkillsCache struct {
