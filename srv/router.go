@@ -61,8 +61,10 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/match/group/status":                  hndlr.GroupStatus,
 	"/client/match/group/looking/start":           hndlr.LookingForGroupStart,
 	"/client/match/group/looking/stop":            hndlr.LookingForGroupStop,
+	"/client/match/updatePing":                    hndlr.MatchUpdatePing,
 	"/client/raid/configuration":                  hndlr.RaidConfiguration,
 	"/client/location/getLocalloot":               hndlr.GetLocalLoot,
+	"/client/insurance/items/cost":                hndlr.InsuranceItemsCost,
 	"/client/insurance/items/list/cost":           hndlr.InsuranceListCost,
 	"/client/game/bot/generate":                   hndlr.BotGenerate,
 }

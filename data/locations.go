@@ -2,6 +2,7 @@ package data
 
 import (
 	"MT-GO/tools"
+	"fmt"
 	"github.com/goccy/go-json"
 	"log"
 	"path/filepath"
@@ -59,20 +60,18 @@ func setLocations() {
 
 //make(map[string][]any)
 
-func GetLocalLootByNameAndIndex(name string, index int8) any {
+func GetLocalLootByNameAndIndex(name string, index int8) (any, error) {
 	location, ok := db.location.Loot[name]
 	if !ok {
 		log.Println("Location", name, "doesn't exist in localLoot map")
-		return nil
+		return nil, fmt.Errorf("Location %s does not exist", name)
 	}
 
 	loot := location[index]
 	if loot != nil {
-		return nil
+		return loot, nil
 	}
-
-	log.Println("Loot at index", index, "does not exist")
-	return nil
+	return nil, fmt.Errorf("loot index for %s does not exist", name)
 }
 
 // #endregion
@@ -240,7 +239,7 @@ type Location struct {
 }
 
 type Locations struct {
-	Locations map[string]LocationBase `json:"location"`
+	Locations map[string]LocationBase `json:"locations"`
 	Paths     []Path                  `json:"paths"`
 }
 

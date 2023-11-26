@@ -11,11 +11,6 @@ type Version struct {
 	LatestVersion string `json:"latestVersion"`
 }
 
-type ServerListing struct {
-	IP   string `json:"ip"`
-	Port int    `json:"port"`
-}
-
 type CurrentGroup struct {
 	Squad []any `json:"squad"`
 }

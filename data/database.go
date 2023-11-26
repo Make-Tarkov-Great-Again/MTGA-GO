@@ -53,7 +53,7 @@ type database struct {
 func SetDatabase() {
 	db = &database{
 		cache: &Cache{
-			Player: make(map[string]*PlayerCache),
+			player: make(map[string]*PlayerCache),
 		},
 	}
 

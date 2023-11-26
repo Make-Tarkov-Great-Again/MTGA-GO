@@ -3,6 +3,7 @@ package hndlr
 import (
 	"MT-GO/data"
 	"fmt"
+	probing "github.com/prometheus-community/pro-bing"
 	"log"
 	"net/http"
 	"strconv"
@@ -358,15 +359,38 @@ func MainRepeatableQuests(w http.ResponseWriter, _ *http.Request) {
 	pkg.SendZlibJSONReply(w, body)
 }
 
-var serverListings []ServerListing
-
 func GetServerList(w http.ResponseWriter, _ *http.Request) {
 	serverConfig := data.GetServerConfig()
 	port, _ := strconv.Atoi(serverConfig.Ports.Main)
-	serverListings = append(serverListings, ServerListing{
-		IP:   serverConfig.IP,
-		Port: port,
-	})
+
+	serverListings := data.HasGetServerListings()
+	if len(serverListings) == 0 {
+		serverListings = append(serverListings, data.ServerListing{
+			IP:   serverConfig.IP,
+			Port: port,
+		})
+	}
+
+	body := pkg.ApplyResponseBody(serverListings)
+	pkg.SendZlibJSONReply(w, body)
+}
+
+func MatchUpdatePing(w http.ResponseWriter, _ *http.Request) {
+	serverListings := data.HasGetServerListings()
+	for _, listing := range serverListings {
+		addr := listing.IP + ":" + strconv.Itoa(listing.Port)
+		probe, err := probing.NewPinger(addr)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		probe.Count = 3
+		err = probe.Run() // Blocks until finished.
+		if err != nil {
+			log.Fatalln(err)
+		}
+		avgRtt := probe.Statistics().AvgRtt
+		listing.Ping = int(avgRtt)
+	}
 
 	body := pkg.ApplyResponseBody(serverListings)
 	pkg.SendZlibJSONReply(w, body)
@@ -425,13 +449,18 @@ func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 	loot := new(localLoot)
 	input, err := json.Marshal(pkg.GetParsedBody(r))
 	if err != nil {
-		log.Println(err)
-	}
-	if err := json.Unmarshal(input, loot); err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 
-	output := data.GetLocalLootByNameAndIndex(loot.LocationID, loot.VariantID)
+	if err := json.Unmarshal(input, loot); err != nil {
+		log.Fatalln(err)
+	}
+
+	output, err := data.GetLocalLootByNameAndIndex(loot.LocationID, loot.VariantID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	body := pkg.ApplyResponseBody(output)
 	pkg.SendZlibJSONReply(w, body)
 }
@@ -469,6 +498,14 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.ApplyResponseBody(costs)
+	pkg.SendZlibJSONReply(w, body)
+}
+
+func InsuranceItemsCost(w http.ResponseWriter, r *http.Request) {
+	parsedBody := pkg.GetParsedBody(r)
+	fmt.Println(parsedBody)
+	fmt.Println(routeNotImplemented)
+	body := pkg.ApplyResponseBody(nil)
 	pkg.SendZlibJSONReply(w, body)
 }
 

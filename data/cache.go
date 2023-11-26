@@ -17,7 +17,7 @@ const (
 )
 
 func GetCacheByID(uid string) (*PlayerCache, error) {
-	if cache, ok := db.cache.Player[uid]; ok {
+	if cache, ok := db.cache.player[uid]; ok {
 		return cache, nil
 	}
 	return nil, fmt.Errorf(cacheNotExist, uid)
@@ -61,7 +61,7 @@ func GetInventoryCacheByID(uid string) (*InventoryContainer, error) {
 }
 
 func SetProfileCache(id string) {
-	if _, ok := db.cache.Player[id]; !ok && db.profile[id].Character == nil {
+	if _, ok := db.cache.player[id]; !ok && db.profile[id].Character == nil {
 		return
 	}
 
@@ -75,7 +75,7 @@ func SetProfileCache(id string) {
 	if db.profile[id].Character != nil {
 		cache.SetCharacterCache(db.profile[id].Character)
 	}
-	db.cache.Player[id] = cache
+	db.cache.player[id] = cache
 }
 
 func (c *PlayerCache) SetCharacterCache(character *Character) {
@@ -124,7 +124,7 @@ func (c *PlayerCache) SetCharacterCache(character *Character) {
 		<-done
 	}
 
-	db.cache.Player[character.ID] = c
+	db.cache.player[character.ID] = c
 }
 
 func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
@@ -582,8 +582,23 @@ columnLoop:
 }
 
 type Cache struct {
-	Response *ResponseCache
-	Player   map[string]*PlayerCache
+	serverListings []ServerListing
+	response       *ResponseCache
+	player         map[string]*PlayerCache
+}
+
+func HasGetServerListings() []ServerListing {
+	if db.cache.serverListings != nil {
+		return db.cache.serverListings
+	}
+	db.cache.serverListings = make([]ServerListing, 0)
+	return db.cache.serverListings
+}
+
+type ServerListing struct {
+	IP   string `json:"ip"`
+	Port int    `json:"port"`
+	Ping int    `json:"ping,omitempty"`
 }
 
 type PlayerCache struct {
@@ -602,18 +617,19 @@ type ResponseCache struct {
 }
 
 func GetCachedResponses() *ResponseCache {
-	return db.cache.Response
+	return db.cache.response
 }
 
 func setCachedResponses() {
 	cachePath := filepath.Join(coreFilePath, "response.json")
 	if !tools.FileExist(cachePath) {
-		db.cache.Response.CachedResponses = map[string]*[]byte{
+		db.cache.response = new(ResponseCache)
+		db.cache.response.CachedResponses = map[string]*[]byte{
 			"/client/settings":                            nil,
 			"/client/customization":                       nil,
 			"/client/items":                               nil,
 			"/client/globals":                             nil,
-			"/client/location":                            nil,
+			"/client/locations":                           nil,
 			"/client/game/config":                         nil,
 			"/client/languages":                           nil,
 			"/client/handbook/templates":                  nil,
@@ -627,7 +643,7 @@ func setCachedResponses() {
 	}
 
 	data := tools.GetJSONRawMessage(cachePath)
-	if err := json.UnmarshalNoEscape(data, &db.cache.Response); err != nil {
+	if err := json.UnmarshalNoEscape(data, &db.cache.response); err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("This needs to be adjusted in the future for modifications")
@@ -649,25 +665,25 @@ func (rsc *ResponseCache) SaveResponseCache() error {
 		return fmt.Errorf("response cache not saved: %w", err)
 	}
 	log.Println("Response Cache saved")
-	db.cache.Response.Save = false
+	db.cache.response.Save = false
 	return nil
 }
 
 func CheckRequestedResponseCache(route string) bool {
-	if _, ok := db.cache.Response.Overwrite[route]; ok {
-		delete(db.cache.Response.Overwrite, route)
+	if _, ok := db.cache.response.Overwrite[route]; ok {
+		delete(db.cache.response.Overwrite, route)
 		return false
 	}
-	return db.cache.Response.CachedResponses[route] != nil
+	return db.cache.response.CachedResponses[route] != nil
 }
 
 func GetRequestedResponseCache(route string) *[]byte {
-	return db.cache.Response.CachedResponses[route]
+	return db.cache.response.CachedResponses[route]
 }
 
 func SetResponseCacheForRoute(route string, data []byte) {
-	db.cache.Response.Save = true
-	db.cache.Response.CachedResponses[route] = &data
+	db.cache.response.Save = true
+	db.cache.response.CachedResponses[route] = &data
 }
 
 type SkillsCache struct {

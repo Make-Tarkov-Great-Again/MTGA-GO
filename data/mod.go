@@ -203,10 +203,10 @@ func SortAndQueueCustomItems(modName string, items map[string]*ModdingAPI) {
 			continue
 		}
 	}
-	db.cache.Response.Save = true
-	db.cache.Response.Overwrite["/client/items"] = nil
-	db.cache.Response.Overwrite["/client/handbook/templates"] = nil
-	db.cache.Response.Overwrite["/client/locale/"] = nil
+	db.cache.response.Save = true
+	db.cache.response.Overwrite["/client/items"] = nil
+	db.cache.response.Overwrite["/client/handbook/templates"] = nil
+	db.cache.response.Overwrite["/client/locale/"] = nil
 }
 
 func (i *DatabaseItem) GenerateTraderAssortSingleItem() []*AssortItem {
