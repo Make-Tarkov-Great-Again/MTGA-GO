@@ -146,7 +146,7 @@ func startHTTPServer(serverReady chan<- struct{}, mux *muxt) {
 	}
 
 	go func() {
-		fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
+		fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
 		serverReady <- struct{}{}
 
 		// Use a separate goroutine to handle graceful shutdown
@@ -245,6 +245,8 @@ func (cw *ConnectionWatcher) OnStateChange(_ net.Conn, state http.ConnState) {
 		cw.Add(1)
 	case http.StateHijacked, http.StateClosed: //Connection Closed
 		cw.Add(-1)
+	case http.StateActive, http.StateIdle:
+		return
 	default:
 		panic("unhandled default case")
 	}

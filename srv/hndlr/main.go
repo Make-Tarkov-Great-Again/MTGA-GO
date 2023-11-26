@@ -160,7 +160,7 @@ var keepAlive = &KeepAlive{
 
 func MainKeepAlive(w http.ResponseWriter, _ *http.Request) {
 	keepAlive.UtcTime = tools.GetCurrentTimeInSeconds()
-	data.GetCachedResponses().SaveIfRequired()
+	//data.GetCachedResponses().SaveIfRequired()
 
 	body := pkg.ApplyResponseBody(keepAlive)
 	pkg.SendZlibJSONReply(w, body)
@@ -421,7 +421,7 @@ func MainLogout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	profile.SaveProfile()
-	data.GetCachedResponses().SaveIfRequired()
+	//data.GetCachedResponses().SaveIfRequired()
 
 	body := pkg.ApplyResponseBody(map[string]any{"status": "ok"})
 	pkg.SendZlibJSONReply(w, body)

@@ -98,5 +98,6 @@ func CreateCachedResponse(input any) []byte {
 		log.Fatal(err)
 	}
 
-	return compressZlib(dataData, zlib.BestCompression)
+	//return compressZlib(dataData, zlib.BestCompression)
+	return compressZlib(dataData, zlib.BestSpeed)
 }

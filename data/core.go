@@ -26,8 +26,8 @@ func GetAirdropParameters() *AirdropParameters {
 	return db.core.AirdropParameters
 }
 
-func GetServerConfig() *ServerConfig {
-	return db.core.ServerConfig
+func GetServerConfig() ServerConfig {
+	return *db.core.ServerConfig
 }
 
 func GetPlayerScav() *Scav {
