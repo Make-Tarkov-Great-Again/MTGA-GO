@@ -433,6 +433,9 @@ const (
 )
 
 func LoadCustomItems() {
+	if len(itemsClone) == 0 {
+		return
+	}
 	startTime := time.Now()
 
 	itemsDatabase := GetItems()

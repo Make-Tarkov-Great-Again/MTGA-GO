@@ -33,6 +33,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/game/profile/nickname/validate":      hndlr.MainNicknameValidate,
 	"/client/game/profile/create":                 hndlr.MainProfileCreate,
 	"/client/game/profile/select":                 hndlr.MainProfileSelect,
+	"client/game/profile/voice":                   hndlr.ChangeVoice,
 	"/client/profile/status":                      hndlr.MainProfileStatus,
 	"/client/profile/settings":                    hndlr.MainProfileSettings,
 	"/client/weather":                             hndlr.MainWeather,

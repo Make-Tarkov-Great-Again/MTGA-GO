@@ -226,6 +226,15 @@ func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 	pkg.SendZlibJSONReply(w, body)
 }
 
+func ChangeVoice(w http.ResponseWriter, r *http.Request) {
+	parsed := pkg.GetParsedBody(r)
+	fmt.Println(parsed)
+	//character := data.GetCharacterByID(pkg.GetSessionID(r))
+
+	body := pkg.ApplyResponseBody(nil)
+	pkg.SendZlibJSONReply(w, body)
+}
+
 func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
 	statuses := pkg.GetProfileStatuses(pkg.GetSessionID(r))
 
