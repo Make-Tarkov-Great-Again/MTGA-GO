@@ -34,6 +34,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/game/profile/create":                 hndlr.MainProfileCreate,
 	"/client/game/profile/select":                 hndlr.MainProfileSelect,
 	"/client/profile/status":                      hndlr.MainProfileStatus,
+	"/client/profile/settings":                    hndlr.MainProfileSettings,
 	"/client/weather":                             hndlr.MainWeather,
 	"/client/locations":                           hndlr.MainLocations,
 	"/client/handbook/templates":                  hndlr.MainTemplates,

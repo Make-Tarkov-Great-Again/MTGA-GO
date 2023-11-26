@@ -233,6 +233,11 @@ func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
 	pkg.SendZlibJSONReply(w, body)
 }
 
+func MainProfileSettings(w http.ResponseWriter, _ *http.Request) {
+	body := pkg.ApplyResponseBody("")
+	pkg.SendZlibJSONReply(w, body)
+}
+
 func MainWeather(w http.ResponseWriter, _ *http.Request) {
 	weather := data.GetWeather()
 	body := pkg.ApplyResponseBody(weather)
@@ -435,8 +440,7 @@ func MainPrices(w http.ResponseWriter, _ *http.Request) {
 }
 
 func ExitFromMenu(w http.ResponseWriter, _ *http.Request) {
-	//TODO: IDK WHAT SIT NEEDS HERE
-	body := pkg.ApplyResponseBody(nil)
+	body := pkg.ApplyResponseBody(map[string]any{})
 	pkg.SendZlibJSONReply(w, body)
 }
 
@@ -466,14 +470,7 @@ func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func RaidConfiguration(w http.ResponseWriter, _ *http.Request) {
-	/*
-		TODO: Pre-raid nonsense that we might need to do
-		AKI does some shit with setting difficulties to bots or something? IDK
-		IDC
-		IM THE GREATEST
-	*/
-
-	body := pkg.ApplyResponseBody(nil)
+	body := pkg.ApplyResponseBody(map[string]any{})
 	pkg.SendZlibJSONReply(w, body)
 }
 
@@ -510,7 +507,7 @@ func InsuranceItemsCost(w http.ResponseWriter, r *http.Request) {
 }
 
 func InviteCancelAll(w http.ResponseWriter, _ *http.Request) {
-	body := pkg.ApplyResponseBody(nil)
+	body := pkg.ApplyResponseBody(map[string]any{})
 	pkg.SendZlibJSONReply(w, body)
 }
 

@@ -1126,7 +1126,11 @@ func CustomizationBuy(action map[string]any, id string) {
 		log.Println(err)
 		return
 	}
-	suitsIndex := trader.Index.Suits[customizationBuy.Offer]
+	suitsIndex, ok := trader.Index.Suits[customizationBuy.Offer]
+	if !ok {
+		log.Println("Suit doesn't exist")
+		return
+	}
 	suitID := trader.Suits[suitsIndex].SuiteID
 
 	storage, err := data.GetStorageByID(id)

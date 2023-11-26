@@ -417,7 +417,7 @@ func setTraderOfferLookup() {
 		if trader.Suits != nil {
 			trader.Index.Suits = make(map[string]int8)
 			for index, suit := range trader.Suits {
-				trader.Index.Suits[suit.SuiteID] = int8(index)
+				trader.Index.Suits[suit.ID] = int8(index)
 			}
 		}
 	}
