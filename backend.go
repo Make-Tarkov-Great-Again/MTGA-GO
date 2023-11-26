@@ -4,6 +4,7 @@ package main
 
 import (
 	"MT-GO/srv"
+	"MT-GO/user/mods"
 	"bufio"
 	"context"
 	"fmt"
@@ -19,7 +20,14 @@ import (
 
 func main() {
 	startTime := time.Now()
-	data.SetDatabase()
+	data.SetPrimaryDatabase()
+
+	mods.Init()
+	data.LoadBundleManifests()
+	data.LoadCustomItems()
+
+	data.SetCache()
+
 	endTime := time.Now()
 	fmt.Printf("Database initialized in %s\n\n", endTime.Sub(startTime))
 

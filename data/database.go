@@ -3,8 +3,6 @@ package data
 
 import (
 	"MT-GO/tools"
-	"MT-GO/user/mods"
-	"fmt"
 	"sync"
 )
 
@@ -50,7 +48,7 @@ type database struct {
 	weather       *Weather
 }
 
-func SetDatabase() {
+func SetPrimaryDatabase() {
 	db = &database{
 		cache: &Cache{
 			player: make(map[string]*PlayerCache),
@@ -60,7 +58,7 @@ func SetDatabase() {
 	var wg sync.WaitGroup
 	numWorkers := tools.CalculateWorkers() / 4
 
-	runTasks(&wg,
+	tools.RunTasks(&wg,
 		[]func(){
 			setBots, setEditions, setHideout,
 			setLocales, setTraders,
@@ -69,44 +67,19 @@ func SetDatabase() {
 			setLocations, setCustomization,
 		},
 		numWorkers)
+}
 
-	mods.Init()
-	LoadBundleManifests()
-	LoadCustomItems()
+func SetCache() {
+	var wg sync.WaitGroup
+	numWorkers := tools.CalculateWorkers() / 4
 
-	runTasks(&wg,
+	tools.RunTasks(&wg,
 		[]func(){
 			setProfiles, setQuestLookup, setTraderOfferLookup,
 			setServerConfig, setHideoutAreaLookup, setHideoutRecipeLookup,
 			setScavcaseRecipeLookup, setCachedResponses, setHandbookIndex,
 		},
 		numWorkers)
-	fmt.Println()
-}
-
-func runTasks(wg *sync.WaitGroup, tasks []func(), numWorkers int) {
-	workerCh := make(chan struct{}, numWorkers)
-	completionCh := make(chan struct{})
-
-	for _, task := range tasks {
-		wg.Add(1)
-		go func(taskFunc func()) {
-			defer wg.Done()
-			workerCh <- struct{}{}
-			taskFunc()
-			<-workerCh
-			completionCh <- struct{}{}
-		}(task)
-	}
-
-	go func() {
-		wg.Wait()
-		close(completionCh)
-	}()
-
-	for range tasks {
-		<-completionCh
-	}
 }
 
 // #region Database setters

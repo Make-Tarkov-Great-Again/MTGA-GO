@@ -15,7 +15,7 @@ import (
 const (
 	MTGOUserMods = "%s\"MT-GO/user/mods/%s\""
 	//MTGO_SERVER    = "\"MT-GO/srv\""
-	ModNameMod        = "%s.Mod(\"%s\")"
+	ModNameMod        = "%s.Mod()"
 	BundlesToLoad     = "var bundlesToLoad = []string{%s,\n}"
 	BundlesToLoadLoop = "for _, path := range bundlesToLoad {\n\t\tformattedPath := strings.Replace(path, \"\\\\\\\\\", \"\\\\\", -1)\n\t\tdata.AddModBundleDirPath(formattedPath)\n\t}"
 )
@@ -109,10 +109,10 @@ func main() {
 			var modCall string
 			if modConfig.PackageAlias == modConfig.PackageName {
 				modImport = fmt.Sprintf(MTGOUserMods, "", modConfig.PackageName)
-				modCall = fmt.Sprintf(ModNameMod, modConfig.PackageName, strings.Replace(dir, "\\", "\\\\", -1))
+				modCall = fmt.Sprintf(ModNameMod, modConfig.PackageName)
 			} else {
 				modImport = fmt.Sprintf(MTGOUserMods, modConfig.PackageAlias, modConfig.PackageName)
-				modCall = fmt.Sprintf(ModNameMod, modConfig.PackageAlias, strings.Replace(dir, "\\", "\\\\", -1))
+				modCall = fmt.Sprintf(ModNameMod, modConfig.PackageAlias)
 			}
 
 			imports = append(imports, modImport)

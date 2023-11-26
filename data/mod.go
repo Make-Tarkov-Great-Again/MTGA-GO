@@ -67,12 +67,6 @@ func LoadBundleManifests() {
 	bundleLoaded := 0
 	totalBundles := 0
 
-	isLocal := GetServerConfig().IP == "127.0.0.1"
-	var mainAddress string
-	if !isLocal {
-		mainAddress = GetMainAddress()
-	}
-
 	for _, path := range modBundleDirPaths {
 		bundlesSubDirectories, err := tools.GetDirectoriesFrom(path)
 		if err != nil {
@@ -117,10 +111,10 @@ func LoadBundleManifests() {
 				}
 
 				manifest.ModPath = bundlesFolder
-				if isLocal {
+				if GetServerConfig().IP == "127.0.0.1" {
 					manifest.Path = bundlePath
 				} else {
-					manifest.Path = filepath.Join(mainAddress, "files", "bundle", manifest.Key)
+					manifest.Path = filepath.Join(GetMainAddress(), "files", "bundle", manifest.Key)
 					manifest.FilePath = manifest.Path
 				}
 
