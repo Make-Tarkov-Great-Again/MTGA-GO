@@ -195,7 +195,7 @@ func (profile *Profile) SaveProfile() {
 
 type Profile struct {
 	Account   *Account
-	Character *Character
+	Character *Character[map[string]PlayerTradersInfo]
 	Friends   *Friends
 	Storage   *Storage
 	Dialogue  *Dialogue

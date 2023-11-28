@@ -130,7 +130,7 @@ func QuestAccept(qid string, id string, event *ProfileChangesEvent) {
 	}
 
 	//TODO: Get new player quests from data now that we've accepted one
-	quests, err := character.GetQuestsAvailableToPlayer()
+	quests, err := data.GetQuestsAvailableToPlayer(*character)
 	if err != nil {
 		log.Println(err)
 		return
@@ -781,7 +781,7 @@ func TradingConfirm(action map[string]any, id string, event *ProfileChangesEvent
 	}
 }
 
-func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, event *ProfileChangesEvent) {
+func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]data.PlayerTradersInfo], event *ProfileChangesEvent) {
 	invCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -980,7 +980,7 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character, event *Prof
 	log.Println(len(stackSlice), "of Item", tradeConfirm.ItemID, "purchased!")
 }
 
-func sellToTrader(tradeConfirm *sellTo, character *data.Character, event *ProfileChangesEvent) {
+func sellToTrader(tradeConfirm *sellTo, character *data.Character[map[string]data.PlayerTradersInfo], event *ProfileChangesEvent) {
 	invCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)

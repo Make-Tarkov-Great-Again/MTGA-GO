@@ -194,13 +194,13 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 
 				float, ok := props["value"].(float64)
 				if ok {
-					input.Level.Level = float
+					input.Level.Level = int8(float)
 					continue
 				}
 
 				i, ok := props["value"].(int)
 				if ok {
-					input.Level.Level = float64(i)
+					input.Level.Level = int8(i)
 					continue
 				}
 			case "Quest": //TODO sometimes availableAfter isn't available...
@@ -230,14 +230,14 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 
 				float, ok := props["value"].(float64)
 				if ok {
-					levelCondition.Level = float
+					levelCondition.Level = int8(float)
 					input.TraderLoyalty[props["target"].(string)] = levelCondition
 					continue
 				}
 
 				i, ok := props["value"].(int)
 				if ok {
-					levelCondition.Level = float64(i)
+					levelCondition.Level = int8(i)
 					input.TraderLoyalty[props["target"].(string)] = levelCondition
 					continue
 				}
@@ -252,14 +252,14 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 
 				float, ok := props["value"].(float64)
 				if ok {
-					levelCondition.Level = float
+					levelCondition.Level = int8(float)
 					input.TraderStanding[props["target"].(string)] = levelCondition
 					continue
 				}
 
 				i, ok := props["value"].(int)
 				if ok {
-					levelCondition.Level = float64(i)
+					levelCondition.Level = int8(i)
 					input.TraderStanding[props["target"].(string)] = levelCondition
 					continue
 				}
@@ -336,14 +336,14 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 
 				float, ok := props["value"].(float64)
 				if ok {
-					levelCondition.Level = float
+					levelCondition.Level = int8(float)
 					input.Skills[props["target"].(string)] = levelCondition
 					continue
 				}
 
 				i, ok := props["value"].(int)
 				if ok {
-					levelCondition.Level = float64(i)
+					levelCondition.Level = int8(i)
 					input.Skills[props["target"].(string)] = levelCondition
 					continue
 				}
@@ -543,7 +543,6 @@ func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
 				continue
 			}
 		}
-
 	}
 
 	go func() {
@@ -642,7 +641,7 @@ type QuestCondition struct {
 
 type LevelCondition struct {
 	CompareMethod string
-	Level         float64
+	Level         int8
 }
 
 type QuestRewardAvailabilityConditions struct {

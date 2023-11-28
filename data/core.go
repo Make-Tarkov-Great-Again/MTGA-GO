@@ -30,7 +30,7 @@ func GetServerConfig() ServerConfig {
 	return *db.core.ServerConfig
 }
 
-func GetPlayerScav() *Scav {
+func GetPlayerScav() *Character[[]any] {
 	return db.core.Scav
 }
 
@@ -43,7 +43,7 @@ func setCore() {
 
 	db.core = &Core{
 		Languages:         make(map[string]string),
-		Scav:              new(Scav),
+		Scav:              new(Character[[]any]),
 		MainSettings:      new(MainSettings),
 		ServerConfig:      new(ServerConfig),
 		Globals:           new(Globals),
@@ -110,7 +110,7 @@ func setCore() {
 
 type Core struct {
 	Languages         map[string]string
-	Scav              *Scav
+	Scav              *Character[[]any]
 	MainSettings      *MainSettings
 	ServerConfig      *ServerConfig
 	Globals           *Globals

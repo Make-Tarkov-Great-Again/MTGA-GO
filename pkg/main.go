@@ -126,8 +126,8 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 	if edition == nil {
 		log.Fatalln("[MainProfileCreate] Edition is nil, this ain't good fella!")
 	}
-	var pmc data.Character
 
+	var pmc data.Character[map[string]data.PlayerTradersInfo]
 	if side == "Bear" {
 		pmc = *edition.Bear
 		profile.Storage.Suites = edition.Storage.Bear
@@ -161,7 +161,7 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 
 	stats := &pmc.Stats.Eft
 	stats.SessionCounters = nil
-	stats.OverallCounters = map[string]any{"Items": []any{}}
+	stats.OverallCounters = data.Counter{Items: make([]any, 0)}
 	stats.Aggressor = nil
 	stats.DroppedItems = make([]any, 0)
 	stats.FoundInRaidItems = make([]any, 0)
@@ -178,8 +178,7 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 	commonSkills = append(commonSkills, pmc.Skills.Common...)
 	pmc.Skills.Common = commonSkills
 
-	hideout := &pmc.Hideout
-
+	hideout := pmc.Hideout
 	resizedAreas := make([]data.PlayerHideoutArea, 0, len(hideout.Areas))
 	resizedAreas = append(resizedAreas, hideout.Areas...)
 	hideout.Areas = resizedAreas
@@ -262,7 +261,8 @@ func GetBuildsList(sessionID string) (*data.Builds, error) {
 }
 
 func GetQuestList(sessionID string) ([]any, error) {
-	quests, err := data.GetCharacterByID(sessionID).GetQuestsAvailableToPlayer()
+	character := data.GetCharacterByID(sessionID)
+	quests, err := data.GetQuestsAvailableToPlayer(*character)
 	if err != nil {
 		log.Println(err)
 		return nil, err

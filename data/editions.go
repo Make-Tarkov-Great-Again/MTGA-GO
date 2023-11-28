@@ -34,8 +34,8 @@ func setEditions() {
 
 func setEdition(editionPath string) *Edition {
 	edition := &Edition{
-		Bear:    new(Character),
-		Usec:    new(Character),
+		Bear:    new(Character[map[string]PlayerTradersInfo]),
+		Usec:    new(Character[map[string]PlayerTradersInfo]),
 		Storage: new(EditionStorage),
 	}
 
@@ -73,9 +73,9 @@ func setEdition(editionPath string) *Edition {
 // #region Edition structs
 
 type Edition struct {
-	Bear    *Character      `json:"bear"`
-	Usec    *Character      `json:"usec"`
-	Storage *EditionStorage `json:"storage"`
+	Bear    *Character[map[string]PlayerTradersInfo] `json:"bear"`
+	Usec    *Character[map[string]PlayerTradersInfo] `json:"usec"`
+	Storage *EditionStorage                          `json:"storage"`
 }
 
 type EditionStorage struct {

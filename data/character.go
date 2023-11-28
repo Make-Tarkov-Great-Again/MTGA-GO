@@ -1,17 +1,16 @@
 package data
 
 import (
+	"MT-GO/tools"
 	"fmt"
 	"github.com/goccy/go-json"
 	"log"
 	"path/filepath"
 	"strings"
-
-	"MT-GO/tools"
 )
 
-func setCharacter(path string) *Character {
-	output := &Character{}
+func setCharacter(path string) *Character[map[string]PlayerTradersInfo] {
+	output := new(Character[map[string]PlayerTradersInfo])
 
 	data := tools.GetJSONRawMessage(path)
 	if err := json.UnmarshalNoEscape(data, output); err != nil {
@@ -21,7 +20,7 @@ func setCharacter(path string) *Character {
 	return output
 }
 
-func GetCharacterByID(uid string) *Character {
+func GetCharacterByID(uid string) *Character[map[string]PlayerTradersInfo] {
 	profile, ok := db.profile[uid]
 	if !ok {
 		log.Println(characterNotExist, uid)
@@ -30,20 +29,17 @@ func GetCharacterByID(uid string) *Character {
 	return profile.Character
 }
 
-func (c Character) GetQuestsAvailableToPlayer() ([]any, error) {
-	var output []any
-
-	query := GetQuestsQuery()
-
+func GetQuestsAvailableToPlayer(c Character[map[string]PlayerTradersInfo]) ([]any, error) {
 	cachedQuests, err := GetQuestCacheByID(c.ID)
 	if err != nil && len(c.Quests) != 0 {
 		return nil, err
 	}
 
 	characterHasQuests := cachedQuests != nil && len(cachedQuests.Index) != 0
-
+	var output []any
+	query := GetQuestsQuery()
 	for key, value := range query {
-		if CheckIfQuestForOtherFaction(c.Info.Side, key) || strings.Contains(value.Name, "-Event") {
+		if CheckIfQuestForOtherFaction(c.Info.Side, key) || strings.HasSuffix(value.Name, "-Event") {
 			continue
 		}
 
@@ -57,7 +53,7 @@ func (c Character) GetQuestsAvailableToPlayer() ([]any, error) {
 		if forStart.Level != nil {
 			if !tools.LevelComparisonCheck(
 				forStart.Level.Level,
-				float64(c.Info.Level),
+				c.Info.Level,
 				forStart.Level.CompareMethod) {
 				continue
 			}
@@ -72,17 +68,18 @@ func (c Character) GetQuestsAvailableToPlayer() ([]any, error) {
 		if forStart.TraderLoyalty != nil {
 			for trader, loyalty := range forStart.TraderLoyalty {
 				traderInfo, ok := c.TradersInfo[trader]
-				if !ok || traderInfo.LoyaltyLevel == 0 {
-					data, err := GetTraderByUID(trader)
-					if err != nil {
-						return nil, err
-					}
-					data.SetTraderLoyaltyLevel(&c)
+				if !ok {
+					log.Fatal("%s doesn't exist in TradersInfo", trader)
 				}
+				data, err := GetTraderByUID(trader)
+				if err != nil {
+					return nil, err
+				}
+				data.SetTraderLoyaltyLevel(&c)
 
 				loyaltyCheck = tools.LevelComparisonCheck(
 					loyalty.Level,
-					float64(traderInfo.LoyaltyLevel),
+					traderInfo.LoyaltyLevel,
 					loyalty.CompareMethod,
 				)
 			}
@@ -96,17 +93,18 @@ func (c Character) GetQuestsAvailableToPlayer() ([]any, error) {
 		if forStart.TraderStanding != nil {
 			for trader, loyalty := range forStart.TraderStanding {
 				traderInfo, ok := c.TradersInfo[trader]
-				if !ok || traderInfo.LoyaltyLevel == 0 {
-					data, err := GetTraderByUID(trader)
-					if err != nil {
-						return nil, err
-					}
-					data.SetTraderLoyaltyLevel(&c)
+				if !ok {
+					log.Fatal("%s doesn't exist in TradersInfo", trader)
 				}
+				data, err := GetTraderByUID(trader)
+				if err != nil {
+					return nil, err
+				}
+				data.SetTraderLoyaltyLevel(&c)
 
 				standingCheck = tools.LevelComparisonCheck(
 					loyalty.Level,
-					float64(traderInfo.LoyaltyLevel),
+					traderInfo.LoyaltyLevel,
 					loyalty.CompareMethod,
 				)
 			}
@@ -127,7 +125,7 @@ func (c Character) GetQuestsAvailableToPlayer() ([]any, error) {
 	return output, nil
 }
 
-func (c Character) IsPreviousQuestComplete(quests map[string]*QuestCondition, cachedQuests *QuestCache) bool {
+func (c Character[T]) IsPreviousQuestComplete(quests map[string]*QuestCondition, cachedQuests *QuestCache) bool {
 	previousQuestCompleted := false
 	for _, v := range quests {
 		index, ok := cachedQuests.Index[v.PreviousQuestID]
@@ -163,7 +161,7 @@ func (inv *Inventory) CleanInventoryOfDeletedItemMods() bool {
 
 }
 
-func (c Character) SaveCharacter() error {
+func (c Character[T]) SaveCharacter() error {
 	characterFilePath := filepath.Join(profilesPath, c.ID, "character.json")
 
 	if err := tools.WriteToFile(characterFilePath, c); err != nil {
@@ -178,7 +176,7 @@ const (
 	characterNotExist string = "Profile with UID %s does not exist"
 )
 
-type Character struct {
+type Character[T TradersInfo] struct {
 	ID                string              `json:"_id"`
 	AID               int                 `json:"aid"`
 	Savage            *string             `json:"savage"`
@@ -192,22 +190,32 @@ type Character struct {
 	ConditionCounters ConditionCounters   `json:"ConditionCounters"`
 	BackendCounters   map[string]any      `json:"BackendCounters"`
 	InsuredItems      []InsuredItem       `json:"InsuredItems"`
-	Hideout           PlayerHideout       `json:"Hideout"`
+	Hideout           *PlayerHideout      `json:"Hideout"`
 	Bonuses           []Bonus             `json:"Bonuses"`
-	Notes             struct {
-		Notes                [][]any `json:"Notes"`
-		TransactionInProcess struct {
-			HasCheckChanges bool `json:"HasCheckChanges"`
-			HasHandlers     bool `json:"HasHandlers"`
-		} `json:"TransactionInProcess,omitempty"`
-	} `json:"Notes"`
-	Quests       []CharacterQuest             `json:"Quests"`
-	RagfairInfo  PlayerRagfairInfo            `json:"RagfairInfo"`
-	WishList     []string                     `json:"WishList"`
-	TradersInfo  map[string]PlayerTradersInfo `json:"TradersInfo"`
-	UnlockedInfo struct {
-		UnlockedProductionRecipe []any `json:"unlockedProductionRecipe"`
-	} `json:"UnlockedInfo"`
+	Notes             Notes               `json:"Notes"`
+	Quests            []CharacterQuest    `json:"Quests"`
+	RagfairInfo       PlayerRagfairInfo   `json:"RagfairInfo"`
+	WishList          []string            `json:"WishList"`
+	TradersInfo       T                   `json:"TradersInfo"`
+	UnlockedInfo      Unlocked            `json:"UnlockedInfo"`
+}
+
+type TradersInfo interface {
+	[]any | map[string]PlayerTradersInfo
+}
+
+type Unlocked struct {
+	UnlockedProductionRecipe []any `json:"unlockedProductionRecipe"`
+}
+
+type Notes struct {
+	Notes                [][]any            `json:"Notes"`
+	TransactionInProcess TransactionProcess `json:"TransactionInProcess,omitempty"`
+}
+
+type TransactionProcess struct {
+	HasCheckChanges bool `json:"HasCheckChanges"`
+	HasHandlers     bool `json:"HasHandlers"`
 }
 
 type PlayerTradersInfo struct {
@@ -255,9 +263,13 @@ type StatCounters struct {
 	Items []any `json:"Items"`
 }
 
+type Counter struct {
+	Items []any
+}
+
 type EftStats struct {
-	SessionCounters        map[string]any `json:"SessionCounters"`
-	OverallCounters        map[string]any `json:"OverallCounters"`
+	SessionCounters        *Counter       `json:"SessionCounters"`
+	OverallCounters        Counter        `json:"OverallCounters"`
 	SessionExperienceMult  int            `json:"SessionExperienceMult"`
 	ExperienceBonusMult    int            `json:"ExperienceBonusMult"`
 	TotalSessionExperience int            `json:"TotalSessionExperience"`

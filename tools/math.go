@@ -5,6 +5,8 @@ import (
 	"math"
 	"math/rand"
 	"time"
+
+	"golang.org/x/exp/constraints"
 )
 
 var thyme = time.Now().UnixNano()
@@ -66,7 +68,11 @@ func GetPercentRandomBool(percentage int) bool {
 	return rand.Intn(100) < percentage
 }
 
-func LevelComparisonCheck(requiredLevel float64, currentLevel float64, compareMethod string) bool {
+type NumericType interface {
+	constraints.Signed
+}
+
+func LevelComparisonCheck[T NumericType](requiredLevel T, currentLevel T, compareMethod string) bool {
 	switch compareMethod {
 	case ">=":
 		return currentLevel >= requiredLevel

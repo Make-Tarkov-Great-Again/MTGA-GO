@@ -110,7 +110,7 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 	return items
 }
 
-func (t *Trader) GetStrippedAssort(character *Character) (*Assort, error) {
+func (t *Trader) GetStrippedAssort(character *Character[map[string]PlayerTradersInfo]) (*Assort, error) {
 	traderID := t.Base.ID
 
 	cache, err := GetTraderCacheByID(character.ID)
@@ -251,7 +251,7 @@ func SetResupplyTimer() int {
 }
 
 // SetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
-func (t *Trader) SetTraderLoyaltyLevel(character *Character) {
+func (t *Trader) SetTraderLoyaltyLevel(character *Character[map[string]PlayerTradersInfo]) {
 	loyaltyLevels := t.Base.LoyaltyLevels
 	traderID := t.Base.ID
 
@@ -267,7 +267,6 @@ func (t *Trader) SetTraderLoyaltyLevel(character *Character) {
 		if character.Info.Level < loyalty.MinLevel ||
 			character.TradersInfo[traderID].SalesSum < loyalty.MinSalesSum ||
 			character.TradersInfo[traderID].Standing < loyalty.MinStanding {
-
 			traderInfo.LoyaltyLevel = idx
 			character.TradersInfo[traderID] = traderInfo
 			return

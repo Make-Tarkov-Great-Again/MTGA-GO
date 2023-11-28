@@ -78,7 +78,7 @@ func SetProfileCache(id string) {
 	db.cache.player[id] = cache
 }
 
-func (c *PlayerCache) SetCharacterCache(character *Character) {
+func (c *PlayerCache) SetCharacterCache(character *Character[map[string]PlayerTradersInfo]) {
 	done := make(chan struct{})
 	go func() {
 		if len(character.Quests) != 0 {

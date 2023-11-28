@@ -62,7 +62,7 @@ func startHome() {
 }
 
 func registerAccount() {
-	account := data.Account{}
+	account := new(data.Account)
 	profiles := data.GetProfiles()
 	var input string
 	fmt.Println("What is your username?")
@@ -89,36 +89,38 @@ func registerAccount() {
 	account.UID = UID
 	account.AID = len(profiles)
 
-	profiles[UID] = &data.Profile{}
-	profiles[UID].Account = &account
-	profiles[UID].Character = &data.Character{
-		ID: UID,
-	}
-	profiles[UID].Storage = &data.Storage{
-		Suites: []string{},
-		Builds: &data.Builds{
-			EquipmentBuilds: []*data.EquipmentBuild{},
-			WeaponBuilds:    []*data.WeaponBuild{},
+	profiles[UID] = &data.Profile{
+		Account: account,
+		Character: &data.Character[map[string]data.PlayerTradersInfo]{
+			ID: UID,
 		},
-		Insurance: []any{},
-		Mailbox:   []*data.Notification{},
-	}
-	profiles[UID].Dialogue = &data.Dialogue{}
-	profiles[UID].Friends = &data.Friends{
-		Friends:             []data.FriendRequest{},
-		Ignore:              []string{},
-		InIgnoreList:        []string{},
-		Matching:            data.Matching{},
-		FriendRequestInbox:  []any{},
-		FriendRequestOutbox: []any{},
+		Friends: &data.Friends{
+			Friends:             []data.FriendRequest{},
+			Ignore:              []string{},
+			InIgnoreList:        []string{},
+			Matching:            data.Matching{},
+			FriendRequestInbox:  []any{},
+			FriendRequestOutbox: []any{},
+		},
+		Storage: &data.Storage{
+			Suites: []string{},
+			Builds: &data.Builds{
+				EquipmentBuilds: []*data.EquipmentBuild{},
+				WeaponBuilds:    []*data.WeaponBuild{},
+			},
+			Insurance: []any{},
+			Mailbox:   []*data.Notification{},
+		},
+		Dialogue: new(data.Dialogue),
+		Cache:    nil,
 	}
 
-	//save account
+	//save profile
 	profiles[UID].SaveProfile()
 
 	//login
 	fmt.Println("\nAccount created, logging in...")
-	loggedIn(&account)
+	loggedIn(profiles[UID].Account)
 }
 
 func validateUsername(profiles map[string]*data.Profile, username string) bool {
@@ -251,7 +253,7 @@ func wipeYoAss(account *data.Account) {
 	account.Wipe = true
 	profiles := data.GetProfiles()
 
-	profiles[account.UID].Character = &data.Character{}
+	profiles[account.UID].Character = &data.Character[map[string]data.PlayerTradersInfo]{}
 	profiles[account.UID].Storage = &data.Storage{
 		Suites: []string{},
 		Builds: &data.Builds{
