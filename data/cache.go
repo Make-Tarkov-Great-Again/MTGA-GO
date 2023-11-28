@@ -81,7 +81,7 @@ func SetProfileCache(id string) {
 func (c *PlayerCache) SetCharacterCache(character *Character[map[string]PlayerTradersInfo]) {
 	done := make(chan struct{})
 	go func() {
-		if len(character.Quests) != 0 {
+		if character.Quests != nil && len(character.Quests) != 0 {
 			c.Quests = &QuestCache{Index: make(map[string]int8)}
 			for index, quest := range character.Quests {
 				c.Quests.Index[quest.QID] = int8(index)
@@ -104,7 +104,7 @@ func (c *PlayerCache) SetCharacterCache(character *Character[map[string]PlayerTr
 
 	// Define a function to update the hideout areas map
 	go func() {
-		if len(character.Hideout.Areas) != 0 {
+		if character.Hideout != nil && len(character.Hideout.Areas) != 0 {
 			c.Hideout = &HideoutCache{Areas: make(map[int8]int8)}
 			for index, area := range character.Hideout.Areas {
 				c.Hideout.Areas[int8(area.Type)] = int8(index)
@@ -114,7 +114,7 @@ func (c *PlayerCache) SetCharacterCache(character *Character[map[string]PlayerTr
 	}()
 
 	go func() {
-		if len(character.Inventory.Items) != 0 {
+		if character.Inventory.Items != nil && len(character.Inventory.Items) != 0 {
 			c.Inventory = SetInventoryContainer(&character.Inventory)
 		}
 		done <- struct{}{}
@@ -137,10 +137,8 @@ func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
 }
 
 func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
-	var stash *Stash
 	if ic.Stash == nil {
 		ic.Stash = &Stash{}
-		stash = ic.Stash
 
 		item, err := GetItemByID(inventory.Items[ic.Lookup.Forward[inventory.Stash]].TPL)
 		if err != nil {
@@ -150,22 +148,20 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		grids := item.GetItemGrids()
 
 		for key, value := range grids {
-			stash.SlotID = key
+			ic.Stash.SlotID = key
 
 			height := value.Props.CellsV
 			width := value.Props.CellsH
 
 			arraySize := int(height) * int(width)
 
-			stash.Container = Map{
+			ic.Stash.Container = Map{
 				Height:  height,
 				Width:   width,
 				Map:     make([]string, arraySize),
 				FlatMap: make(map[string]FlatMapLookup),
 			}
 		}
-	} else {
-		stash = ic.Stash
 	}
 
 	var containerMap = ic.Stash.Container.Map
@@ -188,7 +184,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		if itemFlatMap.Height == 0 && itemFlatMap.Width == 0 {
 			if itemID = containerMap[itemFlatMap.StartX]; itemID != "" {
-				log.Println("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[itemFlatMap.StartX])
+				log.Println("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but is occupied by", ic.Stash.Container.Map[itemFlatMap.StartX])
 				return
 			}
 			containerMap[itemFlatMap.StartX] = itemInInventory.ID
@@ -200,7 +196,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
 			if itemID = containerMap[column]; itemID != "" {
-				log.Println("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[column])
+				log.Println("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", ic.Stash.Container.Map[column])
 				return
 			}
 			containerMap[column] = itemInInventory.ID
@@ -209,7 +205,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 			for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
 				var coordinate = row*stride + column
 				if itemID = containerMap[coordinate]; itemID != "" {
-					log.Println("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[coordinate])
+					log.Println("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but is occupied by", ic.Stash.Container.Map[coordinate])
 					return
 				}
 				containerMap[coordinate] = itemInInventory.ID

@@ -2,17 +2,22 @@ package data
 
 import (
 	"MT-GO/tools"
+	"fmt"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"github.com/goccy/go-json"
 )
 
 // #region Edition getters
 
-func GetEditionByName(version string) *Edition {
-	edition, _ := db.edition[version]
-	return edition
+func GetEditionByName(version string) (*Edition, error) {
+	edition, ok := db.edition[version]
+	if !ok {
+		return edition, fmt.Errorf("Edition %s does not exist", version)
+	}
+	return edition, nil
 }
 
 // #endregion
@@ -27,7 +32,7 @@ func setEditions() {
 	}
 
 	for directory := range directories {
-		editions[directory] = setEdition(filepath.Join(editionsDirPath, directory))
+		editions[strings.ToLower(directory)] = setEdition(filepath.Join(editionsDirPath, directory))
 	}
 	db.edition = editions
 }

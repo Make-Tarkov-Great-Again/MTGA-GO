@@ -122,9 +122,9 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 		log.Fatalln(err)
 	}
 
-	edition := data.GetEditionByName("Edge Of Darkness")
-	if edition == nil {
-		log.Fatalln("[MainProfileCreate] Edition is nil, this ain't good fella!")
+	edition, err := data.GetEditionByName(strings.ToLower(profile.Account.Edition))
+	if err != nil {
+		log.Fatalln(err)
 	}
 
 	var pmc data.Character[map[string]data.PlayerTradersInfo]
@@ -147,11 +147,11 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 
 	pmc.Info.LowerNickname = strings.ToLower(nickname)
 
-	if customization, err := data.GetCustomizationByID(voiceId); err != nil {
+	customization, err := data.GetCustomizationByID(voiceId)
+	if err != nil {
 		log.Fatalln(err)
-	} else {
-		pmc.Info.Voice = customization.Name
 	}
+	pmc.Info.Voice = customization.Name
 
 	time := int32(tools.GetCurrentTimeInSeconds())
 	pmc.Info.RegistrationDate = time

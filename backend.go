@@ -81,9 +81,40 @@ func registerAccount() {
 	account.Username = input
 
 	fmt.Println("What is your password?")
-	_, _ = fmt.Scanln(&input)
-	fmt.Printf("> ")
-	account.Password = input
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print("> ")
+	scanner.Scan()
+	account.Password = scanner.Text()
+
+	fmt.Println("Account Type? 1 - Dev, 2 - Edge of Darkness")
+	for account.Edition == "" {
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
+		switch input {
+		case "1":
+			account.Edition = "developer"
+		case "2":
+			account.Edition = "edge of darkness"
+		default:
+			fmt.Println("Invalid input bozo")
+		}
+	}
+
+	fmt.Println("Account Language? (ex: en, ru, sk, es-mx)")
+	for account.Lang == "" {
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
+		_, err := data.GetLocaleByName(input)
+		if err != nil {
+			fmt.Println("Invalid language bozo")
+			continue
+		}
+		account.Lang = input
+	}
 
 	UID := tools.GenerateMongoID()
 	account.UID = UID
@@ -276,38 +307,53 @@ const (
 	email  = "-bC5vLmcuaS5u={'email':'%s','password': '%s','toggle':true,'timestamp':0}"
 )
 
+func setTarkovPath() string {
+	fmt.Println("EscapeFromTarkov not found")
+	fmt.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
+	for {
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		path := scanner.Text()
+
+		exePath := filepath.Join(path, "BepInEx")
+		if !tools.FileExist(exePath) {
+			fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
+			continue
+		}
+
+		exePath = filepath.Join(path, "EscapeFromTarkov.exe")
+		if !tools.FileExist(exePath) {
+			fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
+			continue
+		}
+
+		fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
+		return exePath
+	}
+}
+
+func checkIfValidPath(path string) bool {
+	exePath := filepath.Join(path, "BepInEx")
+	if !tools.FileExist(exePath) {
+		fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
+		return false
+	}
+
+	exePath = filepath.Join(path, "EscapeFromTarkov.exe")
+	if !tools.FileExist(exePath) || path != exePath {
+		fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe'")
+		return false
+	}
+
+	return true
+}
+
 func launchTarkov(account *data.Account) {
-	if !tools.FileExist(account.TarkovPath) {
-		fmt.Println("EscapeFromTarkov not found")
-		fmt.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
-		for {
-			scanner := bufio.NewScanner(os.Stdin)
-			fmt.Print("> ")
-			scanner.Scan()
-			path := scanner.Text()
-
-			if !tools.FileExist(path) {
-				fmt.Println("Invalid path, directory does not exist, try again")
-				continue
-			}
-
-			if !tools.FileExist(filepath.Join(path, "BepInEx")) {
-				fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
-				continue
-			}
-
-			exePath := filepath.Join(path, "EscapeFromTarkov.exe")
-			if !tools.FileExist(exePath) {
-				fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
-				continue
-			}
-
-			account.TarkovPath = exePath
-			if err := account.SaveAccount(); err != nil {
-				log.Fatalln(err)
-			}
-			fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
-			break
+	if !checkIfValidPath(account.TarkovPath) {
+		account.TarkovPath = setTarkovPath()
+		if err := account.SaveAccount(); err != nil {
+			log.Fatalln(err)
 		}
 	}
 

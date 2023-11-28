@@ -72,6 +72,7 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 		if inventoryItem.SlotID == "hideout" && inventoryItem.ParentID == "hideout" {
 			inventoryItem.ParentID = *stashID
 
+			inventoryItem.UPD.BuyRestrictionMax = 0
 			inventoryItem.UPD.StackObjectsCount = 0
 			inventoryItem.UPD.UnlimitedCount = false
 

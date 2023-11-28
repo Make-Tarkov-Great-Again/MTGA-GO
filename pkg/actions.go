@@ -684,43 +684,45 @@ func ApplyInventoryChanges(action map[string]any, id string) {
 		}
 		itemInInventory.ParentID = parent
 
-		slotId, ok := properties["slotId"].(string)
+		slotID, ok := properties["slotId"].(string)
 		if !ok {
 			log.Println("Cannot type assert item `slotId` property from Auto-Sort items slice")
 			return
 		}
-		itemInInventory.SlotID = slotId
+		itemInInventory.SlotID = slotID
 
 		location, ok := properties["location"].(map[string]any)
 		if !ok {
 			itemInInventory.Location = nil
 			continue
+		}
+
+		r, ok := location["r"].(string)
+		if !ok {
+			log.Println("Cannot type assert item.Location `r` property from Auto-Sort items slice")
+			return
+		}
+
+		if r == "Horizontal" || r == "1" {
+			itemInInventory.Location.R = float64(0)
 		} else {
-			r, ok := location["r"].(string)
-			if !ok {
-				log.Println("Cannot type assert item.Location `r` property from Auto-Sort items slice")
-				return
-			}
+			itemInInventory.Location.R = float64(1)
+		}
 
-			if r == "Horizontal" || r == "1" {
-				itemInInventory.Location.R = float64(0)
-			} else {
-				itemInInventory.Location.R = float64(1)
-			}
+		if x, ok := location["r"].(float64); ok {
+			itemInInventory.Location.X = x
+		}
 
-			if x, ok := location["r"].(float64); ok {
-				itemInInventory.Location.X = x
-			}
+		if isSearched, ok := location["isSearched"].(bool); ok {
+			itemInInventory.Location.IsSearched = isSearched
+		}
 
-			if isSearched, ok := location["isSearched"].(bool); ok {
-				itemInInventory.Location.IsSearched = isSearched
-			}
-
-			if y, ok := location["r"].(float64); ok {
-				itemInInventory.Location.Y = y
-			}
+		if y, ok := location["r"].(float64); ok {
+			itemInInventory.Location.Y = y
 		}
 	}
+	cache.SetInventoryIndex(&character.Inventory)
+	cache.SetInventoryStash(&character.Inventory)
 }
 
 type buyFrom struct {
@@ -816,10 +818,10 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 	var stackSlice = GetCorrectAmountOfItemsPurchased(tradeConfirm.Count, stackMaxSize)
 	// Basically gets the correct amount of items to be created, based on StackSize
 
-	//Create copy-of Character.Inventory.Items for modification in the case of any failures to assign later
+	// Create copy-of Character.Inventory.Items for modification in the case of any failures to assign later
 	copyOfItems := make([]data.InventoryItem, 0, len(character.Inventory.Items)+(len(inventoryItems)*len(stackSlice)))
 	copyOfItems = append(copyOfItems, character.Inventory.Items...)
-	//Create copy-of invCache.Stash.Container for modification in the case of any failures to assign later
+	// Create copy-of invCache.Stash.Container for modification in the case of any failures to assign later
 	copyOfMap := invCache.Stash.Container
 
 	toAdd := make([]data.InventoryItem, 0, len(stackSlice))
