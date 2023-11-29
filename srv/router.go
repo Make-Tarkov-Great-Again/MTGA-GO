@@ -15,10 +15,10 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/getBundleList":             hndlr.GetBundleList,
 	"/raid/profile/save":         hndlr.RaidProfileSave,
 	"/sp/airdrop/config":         hndlr.AirdropConfig,
-	"/files/":                    pkg.ServeFiles,
+	"/files/{id}":                pkg.ServeFiles,
 
 	"/client/game/start":                          hndlr.MainGameStart,
-	"/client/menu/locale/":                        hndlr.MainMenuLocale,
+	"/client/menu/locale/{id}":                    hndlr.MainMenuLocale,
 	"/client/game/version/validate":               hndlr.MainVersionValidate,
 	"/client/languages":                           hndlr.MainLanguages,
 	"/client/game/config":                         hndlr.MainGameConfig,
@@ -28,13 +28,13 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/settings":                            hndlr.MainSettings,
 	"/client/game/profile/list":                   hndlr.MainProfileList,
 	"/client/account/customization":               hndlr.MainAccountCustomization,
-	"/client/locale/":                             hndlr.MainLocale,
+	"/client/locale/{id}":                         hndlr.MainLocale,
 	"/client/game/keepalive":                      hndlr.MainKeepAlive,
 	"/client/game/profile/nickname/reserved":      hndlr.MainNicknameReserved,
 	"/client/game/profile/nickname/validate":      hndlr.MainNicknameValidate,
 	"/client/game/profile/create":                 hndlr.MainProfileCreate,
 	"/client/game/profile/select":                 hndlr.MainProfileSelect,
-	"client/game/profile/voice":                   hndlr.ChangeVoice,
+	"/client/game/profile/voice":                  hndlr.ChangeVoice,
 	"/client/profile/status":                      hndlr.MainProfileStatus,
 	"/client/profile/settings":                    hndlr.MainProfileSettings,
 	"/client/weather":                             hndlr.MainWeather,
@@ -52,7 +52,7 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/server/list":                         hndlr.GetServerList,
 	"/client/checkVersion":                        hndlr.MainCheckVersion,
 	"/client/game/logout":                         hndlr.MainLogout,
-	"/client/items/prices/":                       hndlr.MainPrices,
+	"/client/items/prices/{id}":                   hndlr.MainPrices,
 	"/client/notifier/channel/create":             hndlr.MainChannelCreate,
 	"/client/game/profile/items/moving":           hndlr.MainItemsMoving,
 	"/client/match/offline/end":                   hndlr.OfflineMatchEnd,
@@ -99,11 +99,11 @@ func setMainRoutes(mux *chi.Mux) {
 }
 
 var tradingRouteHandlers = map[string]http.HandlerFunc{
-	"/client/trading/api/traderSettings":    hndlr.TradingTraderSettings,
-	"/client/trading/customization/storage": hndlr.TradingCustomizationStorage,
-	"/files/":                               pkg.ServeFiles,
-	"/client/trading/customization/":        hndlr.TradingClothingOffers,
-	"/client/trading/api/getTraderAssort/":  hndlr.TradingTraderAssort,
+	"/client/trading/api/traderSettings":       hndlr.TradingTraderSettings,
+	"/client/trading/customization/storage":    hndlr.TradingCustomizationStorage,
+	"/files/{file}":                            pkg.ServeFiles,
+	"/client/trading/customization/{id}":       hndlr.TradingClothingOffers,
+	"/client/trading/api/getTraderAssort/{id}": hndlr.TradingTraderAssort,
 }
 
 func AddTradingRoute(route string, handler http.HandlerFunc) {
@@ -210,8 +210,8 @@ func OverrideMessagingRoute(route string, handler http.HandlerFunc) {
 }
 
 var lobbyRouteHandlers = map[string]http.HandlerFunc{
-	"/push/notifier/get/":          hndlr.LobbyPushNotifier,
-	"/push/notifier/getwebsocket/": hndlr.LobbyGetWebSocket,
+	"/push/notifier/get/{id}":          hndlr.LobbyPushNotifier,
+	"/push/notifier/getwebsocket/{id}": hndlr.LobbyGetWebSocket,
 }
 
 func setLobbyRoutes(mux *chi.Mux) {

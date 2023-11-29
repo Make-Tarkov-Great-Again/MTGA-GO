@@ -1,22 +1,18 @@
 package srv
 
 import (
+	"MT-GO/data"
+	"MT-GO/pkg"
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"github.com/goccy/go-json"
 	"log"
 	"net"
 	"net/http"
-	"os"
-	"os/signal"
 	"strings"
 	"sync/atomic"
-	"syscall"
-	"time"
-
-	"MT-GO/data"
-	"MT-GO/pkg"
 
 	"github.com/gorilla/websocket"
 )
@@ -95,8 +91,11 @@ func logAndDecompress(next http.Handler) http.Handler {
 
 var CW = &ConnectionWatcher{}
 
-func startHTTPSServer(serverReady chan<- struct{}, certs *Certificate, mux *muxt) {
-	mux.initRoutes(mux.mux)
+func startSecure(serverReady chan<- struct{}, certs *Certificate, mux *muxt) {
+	r := chi.NewRouter()
+
+	r.Use(logAndDecompress)
+	mux.initRoutes(r)
 
 	httpsServer := &http.Server{
 		Addr:      mux.address,
@@ -105,31 +104,10 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *Certificate, mux *muxt
 			RootCAs:      nil,
 			Certificates: []tls.Certificate{certs.Certificate},
 		},
-		Handler: logAndDecompress(mux.mux),
 	}
 
-	go func() {
-		fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
-		serverReady <- struct{}{}
-
-		// Use a separate goroutine to handle graceful shutdown
-		stop := make(chan os.Signal, 1)
-		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-
-		// Wait for the interrupt signal
-		<-stop
-
-		fmt.Println("Shutting down " + mux.serverName + " server gracefully...")
-
-		// Create a context with a timeout to allow existing requests to finish
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		// Shutdown the server
-		if err := httpsServer.Shutdown(ctx); err != nil {
-			log.Println("Error shutting down server:", err)
-		}
-	}()
+	fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
+	serverReady <- struct{}{}
 
 	err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
 	if err != nil {
@@ -137,70 +115,48 @@ func startHTTPSServer(serverReady chan<- struct{}, certs *Certificate, mux *muxt
 	}
 }
 
-func startHTTPServer(serverReady chan<- struct{}, mux *muxt) {
-	mux.initRoutes(mux.mux)
+func startInsecure(serverReady chan<- struct{}, mux *muxt) {
+	r := chi.NewRouter()
 
-	httpServer := &http.Server{
-		Addr:    mux.address,
-		Handler: logAndDecompress(mux.mux),
-	}
+	//r.Use(middleware.URLFormat)
+	r.Use(logAndDecompress)
+	mux.initRoutes(r)
 
-	go func() {
-		fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
-		serverReady <- struct{}{}
+	fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
+	serverReady <- struct{}{}
 
-		// Use a separate goroutine to handle graceful shutdown
-		stop := make(chan os.Signal, 1)
-		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-
-		// Wait for the interrupt signal
-		<-stop
-
-		fmt.Println("Shutting down " + mux.serverName + " server gracefully...")
-
-		// Create a context with a timeout to allow existing requests to finish
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		// Shutdown the server
-		if err := httpServer.Shutdown(ctx); err != nil {
-			log.Println("Error shutting down server:", err)
-		}
-	}()
-
-	err := httpServer.ListenAndServe()
+	err := http.ListenAndServe(mux.address, r)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
 type muxt struct {
-	mux        *http.ServeMux
 	address    string
 	serverName string
-	initRoutes func(mux *http.ServeMux)
+	initRoutes func(mux *chi.Mux)
 }
 
 func SetServer() {
 	muxers := []*muxt{
 		{
-			mux: http.NewServeMux(), address: data.GetMainIPandPort(),
+			address:    data.GetMainIPandPort(),
 			serverName: "Main", initRoutes: setMainRoutes,
 		},
 		{
-			mux: http.NewServeMux(), address: data.GetTradingIPandPort(),
+			address:    data.GetTradingIPandPort(),
 			serverName: "Trading", initRoutes: setTradingRoutes,
 		},
 		{
-			mux: http.NewServeMux(), address: data.GetMessagingIPandPort(),
+			address:    data.GetMessagingIPandPort(),
 			serverName: "Messaging", initRoutes: setMessagingRoutes,
 		},
 		{
-			mux: http.NewServeMux(), address: data.GetRagFairIPandPort(),
+			address:    data.GetRagFairIPandPort(),
 			serverName: "RagFair", initRoutes: setRagfairRoutes,
 		},
 		{
-			mux: http.NewServeMux(), address: data.GetLobbyIPandPort(),
+			address:    data.GetLobbyIPandPort(),
 			serverName: "Lobby", initRoutes: setLobbyRoutes,
 		},
 	}
@@ -217,11 +173,11 @@ func SetServer() {
 		cert.Certificate = certs
 
 		for _, muxData := range muxers {
-			go startHTTPSServer(serverReady, cert, muxData)
+			go startSecure(serverReady, cert, muxData)
 		}
 	} else {
 		for _, muxData := range muxers {
-			go startHTTPServer(serverReady, muxData)
+			go startInsecure(serverReady, muxData)
 		}
 	}
 
