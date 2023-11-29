@@ -7,31 +7,33 @@ import (
 	"log"
 )
 
-var questsQuery = make(map[string]*Quest)
-var quests = make(map[string]map[string]any)
+type Quest struct {
+	quests map[string]map[string]any
+	query  map[string]*Query
+}
 
 // #region Quests getters
 
-func GetQuestsQuery() map[string]*Quest {
-	return questsQuery
+func GetQuestsQuery() map[string]*Query {
+	return db.quest.query
 }
 
-func GetQuestFromQueryByID(qid string) *Quest {
-	if query, ok := questsQuery[qid]; !ok {
+func GetQuestFromQueryByID(qid string) *Query {
+	query, ok := db.quest.query[qid]
+	if !ok {
 		log.Println("Quest", qid, "does not exist in quests query")
 		return nil
-	} else {
-		return query
 	}
+	return query
 }
 
 func GetQuestByID(qid string) any {
-	if quest, ok := quests[qid]; !ok {
+	quest, ok := db.quest.quests[qid]
+	if !ok {
 		log.Println("Quest", qid, "does not exist in quests")
 		return nil
-	} else {
-		return quest
 	}
+	return quest
 }
 
 // #endregion
@@ -49,43 +51,47 @@ const (
 )
 
 func setQuests() {
+	db.quest = &Quest{
+		quests: make(map[string]map[string]any),
+	}
 	raw := tools.GetJSONRawMessage(questsPath)
-	if err := json.UnmarshalNoEscape(raw, &quests); err != nil {
+	if err := json.UnmarshalNoEscape(raw, &db.quest.quests); err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func IndexQuests() {
-	for k, v := range quests {
-		done := make(chan bool)
-		quest := &Quest{
+func setQuestLookup() {
+	db.quest.query = map[string]*Query{}
+	for k, v := range db.quest.quests {
+		done := make(chan struct{})
+		query := &Query{
 			Name:   v["QuestName"].(string),
 			Trader: v["traderId"].(string),
 		}
 
 		go func() {
-			quest.Dialogue = setQuestDialogue(v)
-			done <- true
+			query.Dialogue = setQuestDialogue(v)
+			done <- struct{}{}
 		}()
 
 		go func() {
 			if questConditions, ok := v["conditions"].(map[string]any); ok {
-				quest.Conditions = setQuestConditions(questConditions)
+				query.Conditions = setQuestConditions(questConditions)
 			}
-			done <- true
+			done <- struct{}{}
 		}()
 
 		go func() {
 			if questRewards, _ := v["rewards"].(map[string]any); questRewards != nil {
-				quest.Rewards = setQuestRewards(questRewards)
+				query.Rewards = setQuestRewards(questRewards)
 			}
-			done <- true
+			done <- struct{}{}
 		}()
 
 		for i := int8(0); i < 3; i++ {
 			<-done
 		}
-		questsQuery[k] = quest
+		db.quest.query[k] = query
 	}
 
 	questConditionCheck = nil
@@ -150,7 +156,7 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 		Fail:               nil,
 	}
 
-	done := make(chan bool)
+	done := make(chan struct{})
 
 	processCategory := func(category string) {
 		conditionList, ok := conditions[category].([]any)
@@ -188,13 +194,13 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 
 				float, ok := props["value"].(float64)
 				if ok {
-					input.Level.Level = float
+					input.Level.Level = int8(float)
 					continue
 				}
 
 				i, ok := props["value"].(int)
 				if ok {
-					input.Level.Level = float64(i)
+					input.Level.Level = int8(i)
 					continue
 				}
 			case "Quest": //TODO sometimes availableAfter isn't available...
@@ -224,14 +230,14 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 
 				float, ok := props["value"].(float64)
 				if ok {
-					levelCondition.Level = float
+					levelCondition.Level = int8(float)
 					input.TraderLoyalty[props["target"].(string)] = levelCondition
 					continue
 				}
 
 				i, ok := props["value"].(int)
 				if ok {
-					levelCondition.Level = float64(i)
+					levelCondition.Level = int8(i)
 					input.TraderLoyalty[props["target"].(string)] = levelCondition
 					continue
 				}
@@ -246,14 +252,14 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 
 				float, ok := props["value"].(float64)
 				if ok {
-					levelCondition.Level = float
+					levelCondition.Level = int8(float)
 					input.TraderStanding[props["target"].(string)] = levelCondition
 					continue
 				}
 
 				i, ok := props["value"].(int)
 				if ok {
-					levelCondition.Level = float64(i)
+					levelCondition.Level = int8(i)
 					input.TraderStanding[props["target"].(string)] = levelCondition
 					continue
 				}
@@ -330,14 +336,14 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 
 				float, ok := props["value"].(float64)
 				if ok {
-					levelCondition.Level = float
+					levelCondition.Level = int8(float)
 					input.Skills[props["target"].(string)] = levelCondition
 					continue
 				}
 
 				i, ok := props["value"].(int)
 				if ok {
-					levelCondition.Level = float64(i)
+					levelCondition.Level = int8(i)
 					input.Skills[props["target"].(string)] = levelCondition
 					continue
 				}
@@ -353,15 +359,15 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 
 	go func() {
 		processCategory(Fail)
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		processCategory(ForStart)
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		processCategory(ForFinish)
-		done <- true
+		done <- struct{}{}
 	}()
 
 	for i := int8(0); i < 3; i++ {
@@ -385,7 +391,7 @@ var questStatus = map[int8]string{
 }
 
 func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
-	done := make(chan bool)
+	done := make(chan struct{})
 	output := QuestRewardAvailabilityConditions{
 		Start:   nil,
 		Success: nil,
@@ -537,20 +543,19 @@ func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
 				continue
 			}
 		}
-
 	}
 
 	go func() {
 		processCategory(Fail)
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		processCategory(Started)
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		processCategory(Success)
-		done <- true
+		done <- struct{}{}
 	}()
 
 	for i := int8(0); i < 3; i++ {
@@ -589,7 +594,7 @@ func CheckIfQuestForOtherFaction(side string, qid string) bool {
 
 // #region Quest structs
 
-type Quest struct {
+type Query struct {
 	Name       string
 	Trader     string
 	Dialogue   QuestDialogues                    `json:",omitempty"`
@@ -636,7 +641,7 @@ type QuestCondition struct {
 
 type LevelCondition struct {
 	CompareMethod string
-	Level         float64
+	Level         int8
 }
 
 type QuestRewardAvailabilityConditions struct {

@@ -15527,7 +15527,7 @@
       "_id": "64c1510bda0f6d156000cc17",
       "_items": [
         {
-          "_id": "64c3ca28c74a2f6285558ec8",
+          "_id": "64f58e9a8a8ce309480cda24",
           "_tpl": "6499849fc93611967b034949",
           "upd": {
             "Repairable": {
@@ -15537,68 +15537,74 @@
           }
         },
         {
-          "_id": "64c3ca28c74a2f6285558ec9",
+          "_id": "64f58e9a8a8ce309480cda25",
           "_tpl": "649ec107961514b22506b10c",
-          "parentId": "64c3ca28c74a2f6285558ec8",
+          "parentId": "64f58e9a8a8ce309480cda24",
           "slotId": "mod_gas_block"
         },
         {
-          "_id": "64c3ca28c74a2f6285558eca",
+          "_id": "64f58e9a8a8ce309480cda26",
           "_tpl": "5beec8ea0db834001a6f9dbf",
-          "parentId": "64c3ca28c74a2f6285558ec8",
+          "parentId": "64f58e9a8a8ce309480cda24",
           "slotId": "mod_pistol_grip"
         },
         {
-          "_id": "64c3ca28c74a2f6285558ecb",
+          "_id": "64f58e9a8a8ce309480cda27",
           "_tpl": "649ec127c93611967b034957",
-          "parentId": "64c3ca28c74a2f6285558ec8",
+          "parentId": "64f58e9a8a8ce309480cda24",
           "slotId": "mod_handguard"
         },
         {
-          "_id": "64c3ca28c74a2f6285558ecc",
+          "_id": "64f58e9a8a8ce309480cda28",
+          "_tpl": "5beecbb80db834001d2c465e",
+          "parentId": "64f58e9a8a8ce309480cda27",
+          "slotId": "mod_mount_001"
+        },
+        {
+          "_id": "64f58e9a8a8ce309480cda29",
           "_tpl": "649ec2af961514b22506b10f",
-          "parentId": "64c3ca28c74a2f6285558ec8",
+          "parentId": "64f58e9a8a8ce309480cda24",
           "slotId": "mod_muzzle"
         },
         {
-          "_id": "64c3ca28c74a2f6285558ecd",
+          "_id": "64f58e9a8a8ce309480cda2a",
           "_tpl": "649ec2f3961514b22506b111",
-          "parentId": "64c3ca28c74a2f6285558ec8",
+          "parentId": "64f58e9a8a8ce309480cda24",
           "slotId": "mod_reciever"
         },
         {
-          "_id": "64c3ca28c74a2f6285558ece",
+          "_id": "64f58e9a8a8ce309480cda2b",
           "_tpl": "649ec2da59cbb3c813042dca",
-          "parentId": "64c3ca28c74a2f6285558ecd",
+          "parentId": "64f58e9a8a8ce309480cda2a",
           "slotId": "mod_sight_rear"
         },
         {
-          "_id": "64c3ca28c74a2f6285558ecf",
+          "_id": "64f58e9a8a8ce309480cda2c",
           "_tpl": "649ec2cec93611967b03495e",
-          "parentId": "64c3ca28c74a2f6285558ece",
+          "parentId": "64f58e9a8a8ce309480cda2b",
           "slotId": "mod_sight_rear"
         },
         {
-          "_id": "64c3ca28c74a2f6285558ed0",
+          "_id": "64f58e9a8a8ce309480cda2d",
           "_tpl": "649ec30cb013f04a700e60fb",
-          "parentId": "64c3ca28c74a2f6285558ec8",
+          "parentId": "64f58e9a8a8ce309480cda24",
           "slotId": "mod_magazine"
         },
         {
-          "_id": "64c3ca28c74a2f6285558ed1",
+          "_id": "64f58e9a8a8ce309480cda2e",
           "_tpl": "649ec87d8007560a9001ab36",
-          "parentId": "64c3ca28c74a2f6285558ec8",
+          "parentId": "64f58e9a8a8ce309480cda24",
           "slotId": "mod_stock_001"
         },
         {
-          "_id": "64c3ca28c74a2f6285558ed2",
+          "_id": "64f58e9a8a8ce309480cda2f",
           "_tpl": "5beec8c20db834001d2c465c",
-          "parentId": "64c3ca28c74a2f6285558ed1",
+          "parentId": "64f58e9a8a8ce309480cda2e",
           "slotId": "mod_stock"
         }
       ],
       "_name": "AK-12_Default",
-      "_parent": "64c3ca28c74a2f6285558ec8",
+      "_parent": "64f58e9a8a8ce309480cda24",
       "_type": "Preset"
     },
     "64c151f83319a1cf380c4df7": {

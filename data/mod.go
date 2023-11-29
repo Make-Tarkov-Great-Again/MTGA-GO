@@ -67,12 +67,6 @@ func LoadBundleManifests() {
 	bundleLoaded := 0
 	totalBundles := 0
 
-	isLocal := GetServerConfig().IP == "127.0.0.1"
-	var mainAddress string
-	if !isLocal {
-		mainAddress = GetMainAddress()
-	}
-
 	for _, path := range modBundleDirPaths {
 		bundlesSubDirectories, err := tools.GetDirectoriesFrom(path)
 		if err != nil {
@@ -82,15 +76,15 @@ func LoadBundleManifests() {
 
 		for subDir := range bundlesSubDirectories {
 			bundleMainDirPath := filepath.Join(path, subDir)
-			bundlesJsonPath := filepath.Join(bundleMainDirPath, "bundles.json")
-			if !tools.FileExist(bundlesJsonPath) {
+			bundlesJSONPath := filepath.Join(bundleMainDirPath, "bundles.json")
+			if !tools.FileExist(bundlesJSONPath) {
 				err = fmt.Errorf("bundles.json file not located in %s, returning", path)
 				log.Println(err)
 				return
 			}
 
 			manifests := new(Manifests)
-			data := tools.GetJSONRawMessage(bundlesJsonPath)
+			data := tools.GetJSONRawMessage(bundlesJSONPath)
 			if err := json.Unmarshal(data, &manifests); err != nil {
 				log.Println(err)
 				return
@@ -117,10 +111,10 @@ func LoadBundleManifests() {
 				}
 
 				manifest.ModPath = bundlesFolder
-				if isLocal {
+				if GetServerConfig().IP == "127.0.0.1" {
 					manifest.Path = bundlePath
 				} else {
-					manifest.Path = filepath.Join(mainAddress, "files", "bundle", manifest.Key)
+					manifest.Path = filepath.Join(GetMainAddress(), "files", "bundle", manifest.Key)
 					manifest.FilePath = manifest.Path
 				}
 
@@ -202,59 +196,59 @@ func SortAndQueueCustomItems(modName string, items map[string]*ModdingAPI) {
 			//TODO: Custom whatever.... probably Trader or some shit
 			continue
 		}
-
 	}
+	db.cache.response.Save = true
+	db.cache.response.Overwrite["/client/items"] = nil
+	db.cache.response.Overwrite["/client/handbook/templates"] = nil
+	db.cache.response.Overwrite["/client/locale/"] = nil
 }
 
 func (i *DatabaseItem) GenerateTraderAssortSingleItem() []*AssortItem {
-	itemId := tools.GenerateMongoID()
+	itemID := tools.GenerateMongoID()
 	assortItem := &AssortItem{
-		ID:       itemId,
+		ID:       itemID,
 		Tpl:      i.ID,
 		ParentID: "hideout",
 		SlotID:   "hideout",
 	}
 
-	if upd, err := i.CreateItemUPD(); err != nil {
+	upd, err := i.CreateItemUPD()
+	if err != nil {
 		return []*AssortItem{assortItem}
-	} else {
-		assortItem.Upd = upd
 	}
+	assortItem.Upd = upd
 
 	return []*AssortItem{assortItem}
 }
 
 func (i *DatabaseItem) GenerateTraderAssortParentItem() []*AssortItem {
-	itemId := tools.GenerateMongoID()
+	itemID := tools.GenerateMongoID()
 	assortItem := &AssortItem{
-		ID:       itemId,
+		ID:       itemID,
 		Tpl:      i.ID,
 		ParentID: "hideout",
 		SlotID:   "hideout",
 	}
 
 	presetItem := &itemPresetItem{
-		ID:  itemId,
+		ID:  itemID,
 		Tpl: i.ID,
 	}
 
-	if upd, err := i.CreateItemUPD(); err != nil {
+	upd, err := i.CreateItemUPD()
+	if err != nil {
 		return []*AssortItem{assortItem}
-	} else {
-		assortItem.Upd = upd
-		presetItem.Upd = upd
-
-		if presetItem.Upd.StackObjectsCount != 0 {
-			presetItem.Upd.StackObjectsCount = 0
-		}
-
-		if presetItem.Upd.BuyRestrictionMax != 0 {
-			presetItem.Upd.BuyRestrictionMax = 0
-		}
-
-		if presetItem.Upd.BuyRestrictionCurrent != 0 {
-			presetItem.Upd.BuyRestrictionCurrent = 0
-		}
+	}
+	assortItem.Upd = upd
+	presetItem.Upd = upd
+	if presetItem.Upd.StackObjectsCount != 0 {
+		presetItem.Upd.StackObjectsCount = 0
+	}
+	if presetItem.Upd.BuyRestrictionMax != 0 {
+		presetItem.Upd.BuyRestrictionMax = 0
+	}
+	if presetItem.Upd.BuyRestrictionCurrent != 0 {
+		presetItem.Upd.BuyRestrictionCurrent = 0
 	}
 
 	globalPresetItems = append(globalPresetItems, presetItem)
@@ -268,7 +262,7 @@ func ProcessCustomItemSet(parentId string, set map[string]any) []*AssortItem {
 	}
 	output := make([]*AssortItem, 0, len(set))
 
-	for slotId, value := range set {
+	for slotID, value := range set {
 		setData, ok := value.(map[string]any)
 		if !ok {
 			log.Println()
@@ -279,14 +273,14 @@ func ProcessCustomItemSet(parentId string, set map[string]any) []*AssortItem {
 			ID:       id,
 			Tpl:      setData["_tpl"].(string),
 			ParentID: parentId,
-			SlotID:   slotId,
+			SlotID:   slotID,
 		}
 
 		attachment := &AssortItem{
 			ID:       id,
 			Tpl:      setData["_tpl"].(string),
 			ParentID: parentId,
-			SlotID:   slotId,
+			SlotID:   slotID,
 		}
 
 		output = append(output, attachment)
@@ -439,6 +433,9 @@ const (
 )
 
 func LoadCustomItems() {
+	if len(itemsClone) == 0 {
+		return
+	}
 	startTime := time.Now()
 
 	itemsDatabase := GetItems()
@@ -505,14 +502,13 @@ func LoadCustomItems() {
 
 			itemsDatabase[uid] = itemClone
 
-			handbookItemsDatabase = append(handbookItemsDatabase, HandbookItem{
-				Id:       uid,
-				ParentId: handbookEntry.ParentId,
+			handbookItemsDatabase = append(handbookItemsDatabase, TemplateItem{
+				ID:       uid,
+				ParentID: handbookEntry.ParentID,
 				Price:    int32(api.Parameters.HandbookPrice),
 			})
 
 			setCustomItemLocale(uid, api.Locale)
-			break
 		case api.Parameters.ClothingParameters != nil:
 			if api.Parameters.ClothingParameters.Side == nil || len(api.Parameters.ClothingParameters.Side) == 0 {
 				log.Println(uid, "does not have Side, skipping...")
@@ -527,11 +523,10 @@ func LoadCustomItems() {
 
 			locales := map[string]string{}
 			if params.UpperBody != nil {
-
-				locales[params.UpperBody.Id] = params.UpperBody.Name
+				locales[params.UpperBody.ID] = params.UpperBody.Name
 				upperBodySuit := TraderSuits{
 					ID:       params.UpperBody.Body.Id,
-					SuiteID:  params.UpperBody.Id,
+					SuiteID:  params.UpperBody.ID,
 					IsActive: true,
 				}
 
@@ -591,8 +586,8 @@ func LoadCustomItems() {
 					"rcid": "",
 				}
 
-				upper.ID = params.UpperBody.Id
-				upper.Name = params.UpperBody.Id
+				upper.ID = params.UpperBody.ID
+				upper.Name = params.UpperBody.ID
 				upper.Props.Body = body.ID
 				upper.Props.Hands = hands.ID
 				upper.Props.Side = params.Side
@@ -666,7 +661,6 @@ func LoadCustomItems() {
 			}
 
 			setCustomClothingLocation(locales)
-			break
 		//case api.Parameters.TraderParameters != nil
 		//case api.Parameters.RoutingParameters != nil
 		//case api.Parameters.???Parameters != nil
@@ -697,7 +691,7 @@ func setCustomClothingLocation(ids map[string]string) {
 	}
 
 	for _, lang := range mainLocales {
-		data, err := GetLocalesGlobalByName(lang)
+		data, err := GetLocaleGlobalByName(lang)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -726,7 +720,7 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 		}
 
 		for _, lang := range mainLocales {
-			data, err := GetLocalesGlobalByName(lang)
+			data, err := GetLocaleGlobalByName(lang)
 			if err != nil {
 				log.Println(err)
 				continue
@@ -735,19 +729,21 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 			data[localeShortName] = shortNameValue
 			data[localeDescription] = descriptionValue
 		}
-	} else {
-		for lang, value := range apiLocale {
-			locale, err := GetLocalesGlobalByName(lang)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			locale[localeName] = value.Name
-			locale[localeShortName] = value.ShortName
-			locale[localeDescription] = value.Description
-		}
+		return
 	}
+
+	for lang, value := range apiLocale {
+		locale, err := GetLocaleGlobalByName(lang)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		locale[localeName] = value.Name
+		locale[localeShortName] = value.ShortName
+		locale[localeDescription] = value.Description
+	}
+
 }
 
 type ModdingAPI struct {
@@ -796,7 +792,7 @@ type CustomClothingParams struct {
 }
 
 type UpperBodySuite struct {
-	Id          string
+	ID          string
 	Name        string
 	Body        CustomSuite
 	Hands       CustomSuite

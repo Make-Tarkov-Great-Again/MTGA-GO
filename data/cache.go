@@ -1,12 +1,13 @@
 package data
 
 import (
+	"MT-GO/tools"
 	"fmt"
+	"github.com/goccy/go-json"
 	"log"
+	"path/filepath"
 	"slices"
 )
-
-var cacheMap = make(map[string]*Cache)
 
 const (
 	inventoryCacheNotExist string = "Inventory Cache for %s does not exist"
@@ -15,8 +16,8 @@ const (
 	cacheNotExist          string = "Cache for %s does not exist"
 )
 
-func GetCacheByID(uid string) (*Cache, error) {
-	if cache, ok := cacheMap[uid]; ok {
+func GetCacheByID(uid string) (*PlayerCache, error) {
+	if cache, ok := db.cache.player[uid]; ok {
 		return cache, nil
 	}
 	return nil, fmt.Errorf(cacheNotExist, uid)
@@ -60,34 +61,34 @@ func GetInventoryCacheByID(uid string) (*InventoryContainer, error) {
 }
 
 func SetProfileCache(id string) {
-	if _, ok := cacheMap[id]; !ok && profiles[id].Character == nil {
+	if _, ok := db.cache.player[id]; !ok && db.profile[id].Character == nil {
 		return
 	}
 
-	cache := &Cache{
+	cache := &PlayerCache{
 		Traders: &TraderCache{
 			Index:      make(map[string]*AssortIndex),
 			Assorts:    make(map[string]*Assort),
 			Insurances: make(map[string]*Insurances),
 		},
 	}
-	if profiles[id].Character != nil {
-		cache.SetCharacterCache(profiles[id].Character)
+	if db.profile[id].Character != nil {
+		cache.SetCharacterCache(db.profile[id].Character)
 	}
-	cacheMap[id] = cache
+	db.cache.player[id] = cache
 }
 
-func (c *Cache) SetCharacterCache(character *Character) {
-	done := make(chan bool)
+func (c *PlayerCache) SetCharacterCache(character *Character[map[string]PlayerTradersInfo]) {
+	done := make(chan struct{})
 	go func() {
-		if len(character.Quests) != 0 {
+		if character.Quests != nil && len(character.Quests) != 0 {
 			c.Quests = &QuestCache{Index: make(map[string]int8)}
 			for index, quest := range character.Quests {
 				c.Quests.Index[quest.QID] = int8(index)
 			}
 		}
 
-		done <- true
+		done <- struct{}{}
 	}()
 
 	// Define a function to update the common skills map
@@ -98,32 +99,32 @@ func (c *Cache) SetCharacterCache(character *Character) {
 				c.Skills.Common[commonSkill.ID] = int8(index)
 			}
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
 	// Define a function to update the hideout areas map
 	go func() {
-		if len(character.Hideout.Areas) != 0 {
+		if character.Hideout != nil && len(character.Hideout.Areas) != 0 {
 			c.Hideout = &HideoutCache{Areas: make(map[int8]int8)}
 			for index, area := range character.Hideout.Areas {
 				c.Hideout.Areas[int8(area.Type)] = int8(index)
 			}
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
 	go func() {
-		if len(character.Inventory.Items) != 0 {
+		if character.Inventory.Items != nil && len(character.Inventory.Items) != 0 {
 			c.Inventory = SetInventoryContainer(&character.Inventory)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
 	for i := 0; i < 4; i++ {
 		<-done
 	}
 
-	cacheMap[character.ID] = c
+	db.cache.player[character.ID] = c
 }
 
 func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
@@ -136,10 +137,8 @@ func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
 }
 
 func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
-	var stash *Stash
 	if ic.Stash == nil {
 		ic.Stash = &Stash{}
-		stash = ic.Stash
 
 		item, err := GetItemByID(inventory.Items[ic.Lookup.Forward[inventory.Stash]].TPL)
 		if err != nil {
@@ -149,22 +148,20 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 		grids := item.GetItemGrids()
 
 		for key, value := range grids {
-			stash.SlotID = key
+			ic.Stash.SlotID = key
 
 			height := value.Props.CellsV
 			width := value.Props.CellsH
 
 			arraySize := int(height) * int(width)
 
-			stash.Container = Map{
+			ic.Stash.Container = Map{
 				Height:  height,
 				Width:   width,
 				Map:     make([]string, arraySize),
 				FlatMap: make(map[string]FlatMapLookup),
 			}
 		}
-	} else {
-		stash = ic.Stash
 	}
 
 	var containerMap = ic.Stash.Container.Map
@@ -187,7 +184,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		if itemFlatMap.Height == 0 && itemFlatMap.Width == 0 {
 			if itemID = containerMap[itemFlatMap.StartX]; itemID != "" {
-				log.Println("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[itemFlatMap.StartX])
+				log.Println("Flat Map Index of", itemFlatMap.StartX, "is trying to be filled by", itemInInventory.ID, "but is occupied by", ic.Stash.Container.Map[itemFlatMap.StartX])
 				return
 			}
 			containerMap[itemFlatMap.StartX] = itemInInventory.ID
@@ -199,7 +196,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 		for column := itemFlatMap.StartX; column <= itemFlatMap.EndX; column++ {
 			if itemID = containerMap[column]; itemID != "" {
-				log.Println("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[column])
+				log.Println("Flat Map Index of X position", column, "is trying to be filled by", itemInInventory.ID, "but is occupied by", ic.Stash.Container.Map[column])
 				return
 			}
 			containerMap[column] = itemInInventory.ID
@@ -208,7 +205,7 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 			for row := int16(1); row <= int16(itemFlatMap.Height); row++ {
 				var coordinate = row*stride + column
 				if itemID = containerMap[coordinate]; itemID != "" {
-					log.Println("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but is occupied by", stash.Container.Map[coordinate])
+					log.Println("Flat Map Index of Y position", row, "is trying to be filled by", itemInInventory.ID, "but is occupied by", ic.Stash.Container.Map[coordinate])
 					return
 				}
 				containerMap[coordinate] = itemInInventory.ID
@@ -581,11 +578,108 @@ columnLoop:
 }
 
 type Cache struct {
+	serverListings []ServerListing
+	response       *ResponseCache
+	player         map[string]*PlayerCache
+}
+
+func HasGetServerListings() []ServerListing {
+	if db.cache.serverListings != nil {
+		return db.cache.serverListings
+	}
+	db.cache.serverListings = make([]ServerListing, 0)
+	return db.cache.serverListings
+}
+
+type ServerListing struct {
+	IP   string `json:"ip"`
+	Port int    `json:"port"`
+	Ping int    `json:"ping,omitempty"`
+}
+
+type PlayerCache struct {
 	Inventory *InventoryContainer
 	Skills    *SkillsCache
 	Hideout   *HideoutCache
 	Quests    *QuestCache
 	Traders   *TraderCache
+}
+
+type ResponseCache struct {
+	Save            bool             `json:"-"`
+	Overwrite       map[string]*int8 `json:"-"`
+	Version         string
+	CachedResponses map[string]*[]byte
+}
+
+func GetCachedResponses() *ResponseCache {
+	return db.cache.response
+}
+
+func setCachedResponses() {
+	cachePath := filepath.Join(coreFilePath, "response.json")
+	if !tools.FileExist(cachePath) {
+		db.cache.response = new(ResponseCache)
+		db.cache.response.CachedResponses = map[string]*[]byte{
+			"/client/settings":                            nil,
+			"/client/customization":                       nil,
+			"/client/items":                               nil,
+			"/client/globals":                             nil,
+			"/client/locations":                           nil,
+			"/client/game/config":                         nil,
+			"/client/languages":                           nil,
+			"/client/handbook/templates":                  nil,
+			"/client/hideout/areas":                       nil,
+			"/client/hideout/qte/list":                    nil,
+			"/client/hideout/settings":                    nil,
+			"/client/hideout/production/recipes":          nil,
+			"/client/hideout/production/scavcase/recipes": nil,
+		}
+		return
+	}
+
+	data := tools.GetJSONRawMessage(cachePath)
+	if err := json.UnmarshalNoEscape(data, &db.cache.response); err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("This needs to be adjusted in the future for modifications")
+}
+
+func (rsc *ResponseCache) SaveIfRequired() {
+	if rsc.Save {
+		if err := rsc.SaveResponseCache(); err != nil {
+			log.Println(err)
+		}
+		rsc.Save = false
+	}
+}
+
+func (rsc *ResponseCache) SaveResponseCache() error {
+	responseCache := filepath.Join(coreFilePath, "response.json")
+
+	if err := tools.WriteToFile(responseCache, rsc); err != nil {
+		return fmt.Errorf("response cache not saved: %w", err)
+	}
+	log.Println("Response Cache saved")
+	db.cache.response.Save = false
+	return nil
+}
+
+func CheckRequestedResponseCache(route string) bool {
+	if _, ok := db.cache.response.Overwrite[route]; ok {
+		delete(db.cache.response.Overwrite, route)
+		return false
+	}
+	return db.cache.response.CachedResponses[route] != nil
+}
+
+func GetRequestedResponseCache(route string) *[]byte {
+	return db.cache.response.CachedResponses[route]
+}
+
+func SetResponseCacheForRoute(route string, data []byte) {
+	db.cache.response.Save = true
+	db.cache.response.CachedResponses[route] = &data
 }
 
 type SkillsCache struct {

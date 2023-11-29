@@ -12,32 +12,22 @@ const (
 	HTTPTemplate  = "http://%s"
 )
 
-var coreServerData = &serverData{
-	MainIPandPort:      "",
-	MainAddress:        "",
-	MessagingIPandPort: "",
-	MessageAddress:     "",
-	TradingIPandPort:   "",
-	TradingAddress:     "",
-	RagFairIPandPort:   "",
-	RagFairAddress:     "",
-	LobbyIPandPort:     "",
-	LobbyAddress:       "",
-}
+var coreServerData *serverData
 
-func SetServerConfig() {
+func setServerConfig() {
+	coreServerData = &serverData{
+		MainIPandPort:      net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Main),
+		MessagingIPandPort: net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Messaging),
+		TradingIPandPort:   net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Trading),
+		RagFairIPandPort:   net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Flea),
+		LobbyIPandPort:     net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Lobby),
+	}
 
-	coreServerData.MainIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Main)
-	coreServerData.MessagingIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Messaging)
-	coreServerData.TradingIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Trading)
-	coreServerData.RagFairIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Flea)
-	coreServerData.LobbyIPandPort = net.JoinHostPort(core.ServerConfig.IP, core.ServerConfig.Ports.Lobby)
-
-	if core.ServerConfig.Secure {
-		coreServerData.HTTPS = new(serverDataHTTPS)
-
-		coreServerData.HTTPS.HTTPSAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.MainIPandPort)
-		coreServerData.HTTPS.WSSAddress = fmt.Sprintf(WSSTemplate, coreServerData.LobbyIPandPort)
+	if db.core.ServerConfig.Secure {
+		coreServerData.HTTPS = &serverDataHTTPS{
+			HTTPSAddress: fmt.Sprintf(HTTPSTemplate, coreServerData.MainIPandPort),
+			WSSAddress:   fmt.Sprintf(WSSTemplate, coreServerData.LobbyIPandPort),
+		}
 
 		coreServerData.MainAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.MainIPandPort)
 		coreServerData.MessageAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.MessagingIPandPort)
@@ -45,10 +35,10 @@ func SetServerConfig() {
 		coreServerData.RagFairAddress = fmt.Sprintf(HTTPSTemplate, coreServerData.RagFairIPandPort)
 		coreServerData.LobbyAddress = fmt.Sprintf("wss://%s/sws", coreServerData.LobbyIPandPort)
 	} else {
-		coreServerData.HTTP = new(serverDataHTTP)
-
-		coreServerData.HTTP.HTTPAddress = fmt.Sprintf(HTTPTemplate, coreServerData.LobbyIPandPort)
-		coreServerData.HTTP.WSAddress = fmt.Sprintf(WSTemplate, coreServerData.LobbyIPandPort)
+		coreServerData.HTTP = &serverDataHTTP{
+			HTTPAddress: fmt.Sprintf(HTTPTemplate, coreServerData.LobbyIPandPort),
+			WSAddress:   fmt.Sprintf(WSTemplate, coreServerData.LobbyIPandPort),
+		}
 
 		coreServerData.MainAddress = fmt.Sprintf(HTTPTemplate, coreServerData.MainIPandPort)
 		coreServerData.MessageAddress = fmt.Sprintf(HTTPTemplate, coreServerData.MessagingIPandPort)
@@ -93,7 +83,7 @@ func GetTradingIPandPort() string {
 }
 
 func AddToItemPresets(key string, value globalItemPreset) {
-	core.Globals.ItemPresets[key] = value
+	db.core.Globals.ItemPresets[key] = value
 }
 
 func GetMessagingIPandPort() string {

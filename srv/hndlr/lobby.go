@@ -6,10 +6,10 @@ import (
 	"net/http"
 )
 
-func LobbyPushNotifier(w http.ResponseWriter, r *http.Request) {
+func LobbyPushNotifier(w http.ResponseWriter, _ *http.Request) {
 	log.Println("Push notification")
 	body := pkg.ApplyResponseBody([]any{})
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }
 
 func LobbyGetWebSocket(w http.ResponseWriter, r *http.Request) {
@@ -20,5 +20,5 @@ func LobbyGetWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := pkg.GetWebSocket(sessionID)
-	pkg.ZlibJSONReply(w, r.RequestURI, body)
+	pkg.SendZlibJSONReply(w, body)
 }

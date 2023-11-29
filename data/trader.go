@@ -11,17 +11,15 @@ import (
 	"github.com/goccy/go-json"
 )
 
-var traders = map[string]*Trader{}
-
 // #region Trader getters
 
 func GetTraders() map[string]*Trader {
-	return traders
+	return db.trader
 }
 
 // GetTraderByUID returns trader by UID
 func GetTraderByUID(UID string) (*Trader, error) {
-	trader, ok := traders[UID]
+	trader, ok := db.trader[UID]
 	if ok {
 		return trader, nil
 	}
@@ -59,7 +57,7 @@ func GetTraderByName(name string) (*Trader, error) {
 	if !ok {
 		return nil, fmt.Errorf("Trader with name", name, "does not exist, returning nil")
 	}
-	return traders[tid], nil
+	return db.trader[tid], nil
 }
 
 func CloneTrader(name string) *Trader {
@@ -112,7 +110,7 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 	return items
 }
 
-func (t *Trader) GetStrippedAssort(character *Character) (*Assort, error) {
+func (t *Trader) GetStrippedAssort(character *Character[map[string]PlayerTradersInfo]) (*Assort, error) {
 	traderID := t.Base.ID
 
 	cache, err := GetTraderCacheByID(character.ID)
@@ -253,7 +251,7 @@ func SetResupplyTimer() int {
 }
 
 // SetTraderLoyaltyLevel determines the loyalty level of a trader based on character attributes
-func (t *Trader) SetTraderLoyaltyLevel(character *Character) {
+func (t *Trader) SetTraderLoyaltyLevel(character *Character[map[string]PlayerTradersInfo]) {
 	loyaltyLevels := t.Base.LoyaltyLevels
 	traderID := t.Base.ID
 
@@ -269,7 +267,6 @@ func (t *Trader) SetTraderLoyaltyLevel(character *Character) {
 		if character.Info.Level < loyalty.MinLevel ||
 			character.TradersInfo[traderID].SalesSum < loyalty.MinSalesSum ||
 			character.TradersInfo[traderID].Standing < loyalty.MinStanding {
-
 			traderInfo.LoyaltyLevel = idx
 			character.TradersInfo[traderID] = traderInfo
 			return
@@ -302,82 +299,90 @@ func setTraders() {
 		return
 	}
 
+	db.trader = make(map[string]*Trader)
+
 	for dir := range directory {
+		count := 0
 		done := make(chan bool)
 		trader := new(Trader)
 		currentTraderPath := filepath.Join(traderPath, dir)
 
-		go func() {
-			basePath := filepath.Join(currentTraderPath, "base.json")
-			if tools.FileExist(basePath) {
+		basePath := filepath.Join(currentTraderPath, "base.json")
+		if tools.FileExist(basePath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(basePath)
 				trader.Base = new(TraderBase)
 				if err := json.UnmarshalNoEscape(raw, &trader.Base); err != nil {
 					log.Fatalln(err)
 				}
-			}
-			done <- true
-		}()
+				done <- true
+			}()
+		}
 
-		go func() {
-			assortPath := filepath.Join(currentTraderPath, "assort.json")
-			if tools.FileExist(assortPath) {
+		assortPath := filepath.Join(currentTraderPath, "assort.json")
+		if tools.FileExist(assortPath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(assortPath)
 				trader.Assort = new(Assort)
 				if err := json.UnmarshalNoEscape(raw, &trader.Assort); err != nil {
 					log.Fatalln(err)
 				}
-
 				trader.Assort.NextResupply = 0
-			}
-			done <- true
-		}()
 
-		go func() {
-			questsPath := filepath.Join(currentTraderPath, "questassort.json")
-			if tools.FileExist(questsPath) {
+				done <- true
+			}()
+		}
+
+		questsPath := filepath.Join(currentTraderPath, "questassort.json")
+		if tools.FileExist(questsPath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(questsPath)
 				trader.QuestAssort = make(map[string]map[string]string)
 				if err := json.UnmarshalNoEscape(raw, &trader.QuestAssort); err != nil {
 					log.Fatalln(err)
 				}
-			}
-			done <- true
-		}()
+				done <- true
+			}()
+		}
 
-		go func() {
-			suitsPath := filepath.Join(currentTraderPath, "suits.json")
-			if tools.FileExist(suitsPath) {
+		suitsPath := filepath.Join(currentTraderPath, "suits.json")
+		if tools.FileExist(suitsPath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(suitsPath)
 				trader.Suits = make([]TraderSuits, 0)
 				if err := json.UnmarshalNoEscape(raw, &trader.Suits); err != nil {
 					log.Println(err)
 				}
-			}
-			done <- true
-		}()
+				done <- true
+			}()
+		}
 
-		go func() {
-			dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
-			if tools.FileExist(dialoguesPath) {
+		dialoguesPath := filepath.Join(currentTraderPath, "dialogue.json")
+		if tools.FileExist(dialoguesPath) {
+			count++
+			go func() {
 				raw := tools.GetJSONRawMessage(dialoguesPath)
 				trader.Dialogue = make(map[string][]string)
 				if err := json.UnmarshalNoEscape(raw, &trader.Dialogue); err != nil {
 					log.Fatalln(err)
 				}
-			}
-			done <- true
-		}()
+				done <- true
+			}()
+		}
 
-		for i := 0; i < 5; i++ {
+		for i := 0; i < count; i++ {
 			<-done
 		}
-		traders[dir] = trader
+		db.trader[dir] = trader
 	}
 }
 
-func IndexTradeOffers() {
-	for _, trader := range traders {
+func setTraderOfferLookup() {
+	for _, trader := range db.trader {
 		if trader.Assort != nil {
 			trader.Index.Assort = &AssortIndex{}
 			parentItems := make(map[string]map[string]int16)
@@ -411,7 +416,7 @@ func IndexTradeOffers() {
 		if trader.Suits != nil {
 			trader.Index.Suits = make(map[string]int8)
 			for index, suit := range trader.Suits {
-				trader.Index.Suits[suit.SuiteID] = int8(index)
+				trader.Index.Suits[suit.ID] = int8(index)
 			}
 		}
 	}
@@ -533,7 +538,7 @@ type AssortItem struct {
 	ID       string      `json:"_id"`
 	Tpl      string      `json:"_tpl"`
 	ParentID string      `json:"parentId"`
-	SlotID   string      `json:"slotId"`
+	SlotID   string      `json:"slotId,omitempty"`
 	Upd      *ItemUpdate `json:"upd,omitempty"`
 }
 

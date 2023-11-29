@@ -82,16 +82,16 @@ func GetFriendRequestOutbox(r *http.Request) (*FriendRequestMailbox, error) {
 const dialogNotExist string = "Dialogue for %s does not exist"
 
 func GetMailDialogInfo(r *http.Request) (*data.DialogueInfo, error) {
-	dialogId, _ := GetParsedBody(r).(map[string]any)["dialogId"].(string)
+	dialogID, _ := GetParsedBody(r).(map[string]any)["dialogId"].(string)
 
 	dialogues, err := data.GetDialogueByID(GetSessionID(r))
 	if err != nil {
 		return nil, err
 	}
 
-	dialog, ok := (*dialogues)[dialogId]
+	dialog, ok := (*dialogues)[dialogID]
 	if !ok {
-		return nil, fmt.Errorf(dialogNotExist, dialogId)
+		return nil, fmt.Errorf(dialogNotExist, dialogID)
 	}
 
 	output := dialog.CreateQuestDialogueInfo()
@@ -143,7 +143,9 @@ func GetMailDialogView(r *http.Request) (*data.DialogMessageView, error) {
 	if dialog.New != 0 {
 		dialog.New = 0
 		dialog.AttachmentsNew = dialog.GetUnreadMessagesWithAttachments()
-		dialogues.SaveDialogue(sessionID)
+		if err := dialogues.SaveDialogue(sessionID); err != nil {
+			return nil, err
+		}
 	}
 
 	return output, nil
@@ -151,39 +153,43 @@ func GetMailDialogView(r *http.Request) (*data.DialogMessageView, error) {
 
 func PinMailDialog(r *http.Request) error {
 	sessionID := GetSessionID(r)
-	dialogId := GetParsedBody(r).(map[string]any)["dialogId"].(string)
+	dialogID := GetParsedBody(r).(map[string]any)["dialogId"].(string)
 
 	dialogues, err := data.GetDialogueByID(sessionID)
 	if err != nil {
 		return err
 	}
 
-	dialog, ok := (*dialogues)[dialogId]
+	dialog, ok := (*dialogues)[dialogID]
 	if !ok {
-		return fmt.Errorf(dialogNotExist, dialogId)
+		return fmt.Errorf(dialogNotExist, dialogID)
 	}
 
 	dialog.Pinned = true
-	dialogues.SaveDialogue(sessionID)
+	if err := dialogues.SaveDialogue(sessionID); err != nil {
+		return err
+	}
 	return nil
 }
 
 func UnpinMailDialog(r *http.Request) error {
 	sessionID := GetSessionID(r)
-	dialogId := GetParsedBody(r).(map[string]any)["dialogId"].(string)
+	dialogID := GetParsedBody(r).(map[string]any)["dialogId"].(string)
 
 	dialogues, err := data.GetDialogueByID(sessionID)
 	if err != nil {
 		return err
 	}
 
-	dialog, ok := (*dialogues)[dialogId]
+	dialog, ok := (*dialogues)[dialogID]
 	if !ok {
-		return fmt.Errorf(dialogNotExist, dialogId)
+		return fmt.Errorf(dialogNotExist, dialogID)
 	}
 
 	dialog.Pinned = false
-	dialogues.SaveDialogue(sessionID)
+	if err := dialogues.SaveDialogue(sessionID); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -191,16 +197,18 @@ func RemoveMailDialog(r *http.Request) error {
 	sessionID := GetSessionID(r)
 
 	parsedData := GetParsedBody(r)
-	dialogId, _ := parsedData.(map[string]any)["dialogId"].(string)
+	dialogID, _ := parsedData.(map[string]any)["dialogId"].(string)
 
 	dialogues, err := data.GetDialogueByID(sessionID)
 	if err != nil {
 		return err
 	}
 
-	delete(*dialogues, dialogId)
+	delete(*dialogues, dialogID)
 
-	dialogues.SaveDialogue(sessionID)
+	if err := dialogues.SaveDialogue(sessionID); err != nil {
+		return err
+	}
 	return nil
 }
 

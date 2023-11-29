@@ -4,13 +4,16 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/goccy/go-json"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
+	"strings"
 	"sync/atomic"
+	"syscall"
+	"time"
 
 	"MT-GO/data"
 	"MT-GO/pkg"
@@ -54,10 +57,13 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//const incomingRoute string = "[%s] %s on %s\n"
+const incomingRoute string = "[%s] %s on %s\n"
 
-func inflateRequest(next http.Handler) http.Handler {
+func logAndDecompress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Log the incoming request URL
+		log.Printf(incomingRoute, r.Method, r.URL.Path, strings.TrimPrefix(r.Host, "127.0.0.1"))
+
 		if websocket.IsWebSocketUpgrade(r) {
 			upgradeToWebsocket(w, r)
 		} else {
@@ -66,7 +72,7 @@ func inflateRequest(next http.Handler) http.Handler {
 				return
 			}
 
-			buffer := pkg.Inflate(r)
+			buffer := pkg.ZlibInflate(r)
 			if buffer == nil || buffer.Len() == 0 {
 				next.ServeHTTP(w, r)
 				return
@@ -79,93 +85,134 @@ func inflateRequest(next http.Handler) http.Handler {
 				return
 			}
 
-			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), pkg.ParsedBodyKey, parsedData)))
+			//ctx := context.WithValue(r.Context(), pkg.ParsedBodyKey, parsedData)
+			r = r.WithContext(context.WithValue(r.Context(), pkg.ParsedBodyKey, parsedData))
+
+			next.ServeHTTP(w, r)
 		}
 	})
 }
 
 var CW = &ConnectionWatcher{}
 
-func startHTTPSServer(serverReady chan<- bool, certs *Certificate, mux *muxt) {
+func startHTTPSServer(serverReady chan<- struct{}, certs *Certificate, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(inflateRequest)
-
-	/*httpsServer := &http.Server{
-		Addr: mux.address,
-		//ConnState: CW.OnStateChange,
+	httpsServer := &http.Server{
+		Addr:      mux.address,
+		ConnState: CW.OnStateChange,
 		TLSConfig: &tls.Config{
 			RootCAs:      nil,
 			Certificates: []tls.Certificate{certs.Certificate},
 		},
 		Handler: logAndDecompress(mux.mux),
-	}*/
+	}
 
-	log.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
-	serverReady <- true
+	go func() {
+		fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
+		serverReady <- struct{}{}
 
-	err := http.ListenAndServeTLS(mux.address, certs.CertFile, certs.KeyFile, r)
+		// Use a separate goroutine to handle graceful shutdown
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+		// Wait for the interrupt signal
+		<-stop
+
+		fmt.Println("Shutting down " + mux.serverName + " server gracefully...")
+
+		// Create a context with a timeout to allow existing requests to finish
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		// Shutdown the server
+		if err := httpsServer.Shutdown(ctx); err != nil {
+			log.Println("Error shutting down server:", err)
+		}
+	}()
+
+	err := httpsServer.ListenAndServeTLS(certs.CertFile, certs.KeyFile)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func startHTTPServer(serverReady chan<- bool, mux *muxt) {
-	mux.mux.Use(middleware.Logger)
-	mux.mux.Use(inflateRequest)
-
+func startHTTPServer(serverReady chan<- struct{}, mux *muxt) {
 	mux.initRoutes(mux.mux)
 
-	fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
-	serverReady <- true
+	httpServer := &http.Server{
+		Addr:    mux.address,
+		Handler: logAndDecompress(mux.mux),
+	}
 
-	err := http.ListenAndServe(mux.address, mux.mux)
+	go func() {
+		fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
+		serverReady <- struct{}{}
+
+		// Use a separate goroutine to handle graceful shutdown
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+		// Wait for the interrupt signal
+		<-stop
+
+		fmt.Println("Shutting down " + mux.serverName + " server gracefully...")
+
+		// Create a context with a timeout to allow existing requests to finish
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		// Shutdown the server
+		if err := httpServer.Shutdown(ctx); err != nil {
+			log.Println("Error shutting down server:", err)
+		}
+	}()
+
+	err := httpServer.ListenAndServe()
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
 type muxt struct {
-	mux        *chi.Mux
+	mux        *http.ServeMux
 	address    string
 	serverName string
-	initRoutes func(mux *chi.Mux)
+	initRoutes func(mux *http.ServeMux)
 }
 
 func SetServer() {
-	srv := data.GetServerConfig()
 	muxers := []*muxt{
 		{
-			mux: chi.NewMux(), address: data.GetMainIPandPort(),
+			mux: http.NewServeMux(), address: data.GetMainIPandPort(),
 			serverName: "Main", initRoutes: setMainRoutes,
 		},
 		{
-			mux: chi.NewMux(), address: data.GetTradingIPandPort(),
+			mux: http.NewServeMux(), address: data.GetTradingIPandPort(),
 			serverName: "Trading", initRoutes: setTradingRoutes,
 		},
 		{
-			mux: chi.NewMux(), address: data.GetMessagingIPandPort(),
+			mux: http.NewServeMux(), address: data.GetMessagingIPandPort(),
 			serverName: "Messaging", initRoutes: setMessagingRoutes,
 		},
 		{
-			mux: chi.NewMux(), address: data.GetRagFairIPandPort(),
+			mux: http.NewServeMux(), address: data.GetRagFairIPandPort(),
 			serverName: "RagFair", initRoutes: setRagfairRoutes,
 		},
 		{
-			mux: chi.NewMux(), address: data.GetLobbyIPandPort(),
+			mux: http.NewServeMux(), address: data.GetLobbyIPandPort(),
 			serverName: "Lobby", initRoutes: setLobbyRoutes,
 		},
 	}
 
-	serverReady := make(chan bool)
+	serverReady := make(chan struct{})
+	srv := data.GetServerConfig()
 
 	if srv.Secure {
 		cert := GetCertificate(srv.IP)
 		certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
 		if err != nil {
-			log.Fatalln(err)
+			log.Fatalf("Error loading X.509 key pair: %v", err)
 		}
 		cert.Certificate = certs
 
@@ -186,7 +233,6 @@ func SetServer() {
 	pkg.SetDownloadLocal(srv.DownloadImageFiles)
 	pkg.SetChannelTemplate()
 	pkg.SetGameConfig()
-
 }
 
 type ConnectionWatcher struct {
@@ -199,6 +245,10 @@ func (cw *ConnectionWatcher) OnStateChange(_ net.Conn, state http.ConnState) {
 		cw.Add(1)
 	case http.StateHijacked, http.StateClosed: //Connection Closed
 		cw.Add(-1)
+	case http.StateActive, http.StateIdle:
+		return
+	default:
+		panic("unhandled default case")
 	}
 }
 

@@ -1,6 +1,8 @@
 package data
 
-import "MT-GO/tools"
+import (
+	"MT-GO/tools"
+)
 
 var flea = Flea{
 	Offers:           nil,
@@ -15,8 +17,6 @@ func GetFlea() *Flea {
 	return &flea
 }
 
-var traderFleaOffer *Offer
-
 func createFleaOffer(userId string, items []AssortItem, scheme []*Scheme) *Offer {
 	return nil
 }
@@ -28,67 +28,77 @@ var fleaOffersCount int16
 
 func setFlea() {
 	output := make([]Offer, 0)
-	for tid, trader := range traders {
-		var scheme []*Scheme
-		var items []AssortItem
-		for _, idx := range trader.Index.Assort.Items {
-			item := *trader.Assort.Items[idx]
-
-			if _, ok := flea.Categories[item.Tpl]; !ok {
-				flea.Categories[item.Tpl] = 1
-			} else {
-				flea.Categories[item.Tpl]++
-			}
-
-			scheme = trader.Assort.BarterScheme[item.ID][0]
-			items = []AssortItem{item}
+	for tid, trader := range db.trader {
+		if trader.Assort == nil {
+			continue
 		}
-		for parentId, family := range trader.Index.Assort.ParentItems {
-			items = make([]AssortItem, 0, len(family))
-			scheme = trader.Assort.BarterScheme[parentId][0]
-			for _, value := range family {
-				item := *trader.Assort.Items[value]
 
-				if _, ok := flea.Categories[item.Tpl]; !ok {
-					flea.Categories[item.Tpl] = 1
-				} else {
+		//TODO: Sort offers by category, and just append shit
+		// Do []string of child nodes and keep main entry for them
+		for id, s := range trader.Assort.BarterScheme {
+			var scheme []*Scheme
+			var items []AssortItem
+			var main AssortItem
+
+			if idx, ok := trader.Index.Assort.Items[id]; ok {
+				main = *trader.Assort.Items[idx]
+				flea.Categories[main.Tpl]++
+				scheme = s[0]
+				items = []AssortItem{main}
+
+			} else if family, ok := trader.Index.Assort.ParentItems[id]; ok {
+				items = make([]AssortItem, 0, len(family))
+
+				scheme = s[0]
+				for _, value := range family {
+					item := *trader.Assort.Items[value]
+					if item.SlotID == "hideout" {
+						main = item
+						item.SlotID = ""
+					}
 					flea.Categories[item.Tpl]++
+					items = append(items, *trader.Assort.Items[value])
 				}
-				items = append(items, *trader.Assort.Items[value])
 			}
 
+			price, err := GetPriceByID(main.Tpl)
+			if err != nil {
+				panic(err)
+			}
+
+			offer := &Offer{
+				ID:    tools.GenerateMongoID(),
+				IntID: fleaOffersCount,
+				User: OfferUser{
+					ID:         tid,
+					MemberType: 4,
+				},
+				Root:             main.ID,
+				Items:            items,
+				ItemsCost:        price,
+				Requirements:     scheme,
+				RequirementsCost: int32(scheme[0].Count),
+				SummaryCost:      int32(scheme[0].Count),
+				SellInOnePiece:   false,
+				StartTime:        int32(tools.GetCurrentTimeInSeconds()),
+				EndTime:          int32(trader.Assort.NextResupply),
+				UnlimitedCount:   false,
+				LoyaltyLevel:     trader.Assort.LoyalLevelItems[main.ID],
+			}
+
+			if main.Upd.BuyRestrictionMax != 0 {
+				offer.BuyRestrictionMax = main.Upd.BuyRestrictionMax
+			} else {
+				offer.UnlimitedCount = true
+			}
+
+			output = append(output, *offer)
+			fleaOffersCount++
 		}
-
-		offer := traderFleaOffer
-		offer.ID = tools.GenerateMongoID()
-		offer.IntID = fleaOffersCount
-		offer.User = OfferUser{
-			ID:         tid,
-			MemberType: 4,
-		}
-
-		offer.SummaryCost = offer.RequirementsCost
-		offer.SellInOnePiece = false
-		offer.Root = items[0].ID
-		offer.LoyaltyLevel = trader.Assort.LoyalLevelItems[offer.Root]
-		if items[0].Upd.BuyRestrictionMax != 0 {
-			offer.BuyRestrictionMax = items[0].Upd.BuyRestrictionMax
-		}
-
-		offer.Items = items
-		offer.Requirements = scheme
-		offer.RequirementsCost = scheme[0].Count
-		offer.StartTime = int32(tools.GetCurrentTimeInSeconds())
-		offer.EndTime = int32(trader.Assort.NextResupply)
-
-		output = append(output, *offer)
-
-		fleaOffersCount++
 	}
 
 	flea.Offers = output
 	flea.OffersCount = fleaOffersCount
-
 	//TODO: Set Trader offers as flea offers
 	// Create Flea Index to match to Trader Offers?
 	// Cry
@@ -107,21 +117,22 @@ type Flea struct {
 type MemberCategory int
 
 type Offer struct { //nolint:maligned
-	ID                string       `json:"_id"`
-	IntID             int16        `json:"intId"`
-	User              OfferUser    `json:"user"`
-	Root              string       `json:"root"`
-	Items             []AssortItem `json:"items"`
-	ItemsCost         float32      `json:"itemsCost"` // handbook.GetPriceByID()
-	Requirements      []*Scheme    `json:"requirements"`
-	RequirementsCost  float32      `json:"requirementsCost"` // Requirements[0].Count, this, SummaryCost are all the same
-	SummaryCost       float32      `json:"summaryCost"`
-	SellInOnePiece    bool         `json:"sellInOnePiece"`
-	StartTime         int32        `json:"startTime"` // current time
-	EndTime           int32        `json:"endTime"`   //nextResupply
-	UnlimitedCount    bool         `json:"unlimitedCount"`
-	BuyRestrictionMax int16        `json:"buyRestrictionMax"`
-	LoyaltyLevel      int8         `json:"loyaltyLevel"`
+	ID                    string       `json:"_id"`
+	IntID                 int16        `json:"intId"`
+	User                  OfferUser    `json:"user"`
+	Root                  string       `json:"root"`
+	Items                 []AssortItem `json:"items"`
+	ItemsCost             int32        `json:"itemsCost"` // handbook.GetPriceByID()
+	Requirements          []*Scheme    `json:"requirements"`
+	RequirementsCost      int32        `json:"requirementsCost"` // Requirements[0].Count, this, SummaryCost are all the same
+	SummaryCost           int32        `json:"summaryCost"`
+	SellInOnePiece        bool         `json:"sellInOnePiece"`
+	StartTime             int32        `json:"startTime"` // current time
+	EndTime               int32        `json:"endTime"`   //nextResupply
+	UnlimitedCount        bool         `json:"unlimitedCount"`
+	BuyRestrictionMax     int16        `json:"buyRestrictionMax"`
+	BuyRestrictionCurrent int16        `json:"-"`
+	LoyaltyLevel          int8         `json:"loyaltyLevel"`
 }
 
 type RagfairFind struct {

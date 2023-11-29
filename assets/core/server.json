@@ -5,7 +5,7 @@
   "brandName": "MTGA",
   "version": "0.0.1",
   "secure": false,
-  "downloadImageFiles": false,
+  "downloadImageFiles": true,
   "ports": {
     "Main": "8080",
     "Messaging": "8081",

@@ -8,11 +8,6 @@ import (
 	"path/filepath"
 )
 
-var bots = Bots{
-	BotTypes:      make(map[string]*BotType),
-	BotAppearance: make(map[string]*BotAppearance),
-	BotNames:      new(BotNames),
-}
 var sacrificialBot DummyBot
 
 const (
@@ -21,7 +16,13 @@ const (
 )
 
 func setBots() {
-	done := make(chan bool)
+	bots := &Bots{
+		BotTypes:      make(map[string]*BotType),
+		BotAppearance: make(map[string]*BotAppearance),
+		BotNames:      new(BotNames),
+	}
+
+	done := make(chan struct{})
 
 	go func() {
 		directory, err := tools.GetDirectoriesFrom(botsMainDir)
@@ -32,33 +33,30 @@ func setBots() {
 		for dir := range directory {
 			bots.BotTypes[dir] = setBotType(filepath.Join(botsMainDir, dir))
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
-		raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "appearance.json"))
-		if err := json.Unmarshal(raw, &bots.BotAppearance); err != nil {
+		a := tools.GetJSONRawMessage(filepath.Join(botMainDir, "appearance.json"))
+		if err := json.Unmarshal(a, &bots.BotAppearance); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
-	}()
-	go func() {
-		raw := tools.GetJSONRawMessage(filepath.Join(botMainDir, "names.json"))
-		if err := json.Unmarshal(raw, bots.BotNames); err != nil {
+
+		n := tools.GetJSONRawMessage(filepath.Join(botMainDir, "names.json"))
+		if err := json.Unmarshal(n, bots.BotNames); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
-	}()
-	go func() {
-		raw := tools.GetJSONRawMessage(filepath.Join(databaseLibPath, "sacrificialBot.json"))
-		if err := json.Unmarshal(raw, &sacrificialBot); err != nil {
+
+		b := tools.GetJSONRawMessage(filepath.Join(databaseLibPath, "sacrificialBot.json"))
+		if err := json.Unmarshal(b, &sacrificialBot); err != nil {
 			log.Println(err)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 2; i++ {
 		<-done
 	}
+	db.bot = bots
 }
 
 func setBotType(dirPath string) *BotType {
@@ -128,12 +126,8 @@ func (i *DummyBot) Clone() DummyBot {
 	return *clone
 }
 
-func GetBots() *Bots {
-	return &bots
-}
-
 func GetBotByName(name string) (*BotType, error) {
-	botType, ok := bots.BotTypes[name]
+	botType, ok := db.bot.BotTypes[name]
 	if !ok {
 		return nil, fmt.Errorf(botNotExist, name)
 	}

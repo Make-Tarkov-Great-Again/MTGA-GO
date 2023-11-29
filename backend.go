@@ -4,6 +4,9 @@ package main
 
 import (
 	"MT-GO/srv"
+	"MT-GO/user/mods"
+	"bufio"
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -17,7 +20,14 @@ import (
 
 func main() {
 	startTime := time.Now()
-	data.SetDatabase()
+	data.SetPrimaryDatabase()
+
+	mods.Init()
+	data.LoadBundleManifests()
+	data.LoadCustomItems()
+
+	data.SetCache()
+
 	endTime := time.Now()
 	fmt.Printf("Database initialized in %s\n\n", endTime.Sub(startTime))
 
@@ -31,10 +41,11 @@ func startHome() {
 	fmt.Println("1. Register an Account")
 	fmt.Println("2. Login")
 	fmt.Println("\n69. Exit")
-	var input string
 	for {
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
 
 		switch input {
 		case "1":
@@ -51,14 +62,16 @@ func startHome() {
 }
 
 func registerAccount() {
-	account := data.Account{}
+	account := new(data.Account)
 	profiles := data.GetProfiles()
 	var input string
-
 	fmt.Println("What is your username?")
 	for {
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input = scanner.Text()
+
 		if !validateUsername(profiles, input) {
 			fmt.Println("Username taken, try again")
 			continue
@@ -68,44 +81,77 @@ func registerAccount() {
 	account.Username = input
 
 	fmt.Println("What is your password?")
-	_, _ = fmt.Scanln(&input)
-	fmt.Printf("> ")
-	account.Password = input
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print("> ")
+	scanner.Scan()
+	account.Password = scanner.Text()
+
+	fmt.Println("Account Type? 1 - Dev, 2 - Edge of Darkness")
+	for account.Edition == "" {
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
+		switch input {
+		case "1":
+			account.Edition = "developer"
+		case "2":
+			account.Edition = "edge of darkness"
+		default:
+			fmt.Println("Invalid input bozo")
+		}
+	}
+
+	fmt.Println("Account Language? (ex: en, ru, sk, es-mx)")
+	for account.Lang == "" {
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
+		_, err := data.GetLocaleByName(input)
+		if err != nil {
+			fmt.Println("Invalid language bozo")
+			continue
+		}
+		account.Lang = input
+	}
 
 	UID := tools.GenerateMongoID()
 	account.UID = UID
 	account.AID = len(profiles)
 
-	profiles[UID] = &data.Profile{}
-	profiles[UID].Account = &account
-	profiles[UID].Character = &data.Character{
-		ID: UID,
-	}
-	profiles[UID].Storage = &data.Storage{
-		Suites: []string{},
-		Builds: &data.Builds{
-			EquipmentBuilds: []*data.EquipmentBuild{},
-			WeaponBuilds:    []*data.WeaponBuild{},
+	profiles[UID] = &data.Profile{
+		Account: account,
+		Character: &data.Character[map[string]data.PlayerTradersInfo]{
+			ID: UID,
 		},
-		Insurance: []any{},
-		Mailbox:   []*data.Notification{},
-	}
-	profiles[UID].Dialogue = &data.Dialogue{}
-	profiles[UID].Friends = &data.Friends{
-		Friends:             []data.FriendRequest{},
-		Ignore:              []string{},
-		InIgnoreList:        []string{},
-		Matching:            data.Matching{},
-		FriendRequestInbox:  []any{},
-		FriendRequestOutbox: []any{},
+		Friends: &data.Friends{
+			Friends:             []data.FriendRequest{},
+			Ignore:              []string{},
+			InIgnoreList:        []string{},
+			Matching:            data.Matching{},
+			FriendRequestInbox:  []any{},
+			FriendRequestOutbox: []any{},
+		},
+		Storage: &data.Storage{
+			Suites: []string{},
+			Builds: &data.Builds{
+				EquipmentBuilds: []*data.EquipmentBuild{},
+				WeaponBuilds:    []*data.WeaponBuild{},
+			},
+			Insurance: []any{},
+			Mailbox:   []*data.Notification{},
+		},
+		Dialogue: new(data.Dialogue),
+		Cache:    nil,
 	}
 
-	//save account
+	//save profile
 	profiles[UID].SaveProfile()
 
 	//login
 	fmt.Println("\nAccount created, logging in...")
-	loggedIn(&account)
+	loggedIn(profiles[UID].Account)
 }
 
 func validateUsername(profiles map[string]*data.Profile, username string) bool {
@@ -129,8 +175,10 @@ func login() {
 
 	for {
 		fmt.Println("What is your username?")
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input = scanner.Text()
 
 		for _, profile := range profiles {
 			if profile.Account.Username == input {
@@ -145,7 +193,8 @@ func login() {
 
 		fmt.Println("What is your password?")
 		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner.Scan()
+		input = scanner.Text()
 
 		if account.Password != input {
 			fmt.Println("Invalid password, try again moron")
@@ -168,10 +217,11 @@ func loggedIn(account *data.Account) {
 	fmt.Println("\n69. Exit")
 
 	for {
-		var input string
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
 
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
 		switch input {
 		case "1":
 			launchTarkov(account)
@@ -180,10 +230,10 @@ func loggedIn(account *data.Account) {
 		case "3":
 			wipeYoAss(account)
 		case "69":
-			fmt.Println("Adios faggot")
+			fmt.Println("Adios")
 			return
 		default:
-			fmt.Println("Invalid input, retard")
+			fmt.Println("Invalid input")
 		}
 	}
 }
@@ -194,20 +244,21 @@ func editAccountInfo(account *data.Account) {
 	fmt.Println("69. Go back to Login Menu")
 
 	for {
-		var input string
-
-		fmt.Printf("> ")
-		_, _ = fmt.Scanln(&input)
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		input := scanner.Text()
 
 		switch input {
 		case "1":
 			for {
-				var tarkovPath string
-
 				fmt.Println("\nSet new Path to Tarkov executable")
-				fmt.Printf("> ")
-				_, _ = fmt.Scanln(&tarkovPath)
-				exePath := filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
+				scanner := bufio.NewScanner(os.Stdin)
+				fmt.Print("> ")
+				scanner.Scan()
+				path := scanner.Text()
+
+				exePath := filepath.Join(path, "EscapeFromTarkov.exe")
 				if tools.FileExist(exePath) && exePath != account.TarkovPath {
 					account.TarkovPath = exePath
 					fmt.Println("Path has been set")
@@ -224,7 +275,7 @@ func editAccountInfo(account *data.Account) {
 		case "69":
 			loggedIn(account)
 		default:
-			fmt.Println("Invalid input, retard")
+			fmt.Println("Invalid input")
 		}
 	}
 }
@@ -233,7 +284,7 @@ func wipeYoAss(account *data.Account) {
 	account.Wipe = true
 	profiles := data.GetProfiles()
 
-	profiles[account.UID].Character = &data.Character{}
+	profiles[account.UID].Character = &data.Character[map[string]data.PlayerTradersInfo]{}
 	profiles[account.UID].Storage = &data.Storage{
 		Suites: []string{},
 		Builds: &data.Builds{
@@ -256,32 +307,53 @@ const (
 	email  = "-bC5vLmcuaS5u={'email':'%s','password': '%s','toggle':true,'timestamp':0}"
 )
 
+func setTarkovPath() string {
+	fmt.Println("EscapeFromTarkov not found")
+	fmt.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
+	for {
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Print("> ")
+		scanner.Scan()
+		path := scanner.Text()
+
+		exePath := filepath.Join(path, "BepInEx")
+		if !tools.FileExist(exePath) {
+			fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
+			continue
+		}
+
+		exePath = filepath.Join(path, "EscapeFromTarkov.exe")
+		if !tools.FileExist(exePath) {
+			fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
+			continue
+		}
+
+		fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
+		return exePath
+	}
+}
+
+func checkIfValidPath(path string) bool {
+	exePath := filepath.Join(path, "BepInEx")
+	if !tools.FileExist(exePath) {
+		fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
+		return false
+	}
+
+	exePath = filepath.Join(path, "EscapeFromTarkov.exe")
+	if !tools.FileExist(exePath) || path != exePath {
+		fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe'")
+		return false
+	}
+
+	return true
+}
+
 func launchTarkov(account *data.Account) {
-	if account.TarkovPath == "" || !tools.FileExist(account.TarkovPath) {
-		fmt.Println("EscapeFromTarkov not found")
-		fmt.Println("Input the folder/directory path to your 'EscapeFromTarkov.exe'")
-		for {
-			var tarkovPath string
-
-			fmt.Printf("> ")
-			_, _ = fmt.Scanln(&tarkovPath)
-			if !tools.FileExist(filepath.Join(tarkovPath, "BepInEx")) {
-				fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
-				continue
-			}
-
-			account.TarkovPath = filepath.Join(tarkovPath, "EscapeFromTarkov.exe")
-			if !tools.FileExist(account.TarkovPath) {
-				fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
-				continue
-			}
-			if err := account.SaveAccount(); err != nil {
-				log.Println(err)
-				return
-			}
-			fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
-
-			break
+	if !checkIfValidPath(account.TarkovPath) {
+		account.TarkovPath = setTarkovPath()
+		if err := account.SaveAccount(); err != nil {
+			log.Fatalln(err)
 		}
 	}
 
@@ -291,19 +363,20 @@ func launchTarkov(account *data.Account) {
 		fmt.Sprintf(config, data.GetMainAddress()),
 	}
 
-	cmd := exec.Command(account.TarkovPath, cmdArgs...)
+	ctx, cancel := context.WithCancel(context.Background())
+	cmd := exec.CommandContext(ctx, account.TarkovPath, cmdArgs...)
+	defer cancel()
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	err := cmd.Start()
+	err := cmd.Run()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		fmt.Println("Client has been closed")
-		//data.GetProfileByUID(account.UID).SaveProfile()
-		//os.Exit(0)
+		log.Println("Client has been closed with an error:", err)
+		os.Exit(1)
 	}
 }

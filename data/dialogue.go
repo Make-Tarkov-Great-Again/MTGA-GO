@@ -67,7 +67,7 @@ type DialogMessage struct {
 
 type DialogMessageView struct {
 	Messages              []DialogMessage  `json:"messages"`
-	Profiles              []DialogUserInfo `json:"profiles"`
+	Profiles              []DialogUserInfo `json:"profile"`
 	HasMessageWithRewards bool             `json:"hasMessageWithRewards"`
 }
 

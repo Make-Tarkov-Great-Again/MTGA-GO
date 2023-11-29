@@ -9,29 +9,32 @@ import (
 	"net/http"
 )
 
-var cachedZlib = map[string][]byte{
-	"/client/settings":      nil,
-	"/client/customization": nil,
-	"/client/locale/":       nil,
-	"/client/items":         nil,
-	"/client/globals":       nil,
-	"/client/locations":     nil,
-	"/client/game/config":   nil,
-	"/client/languages":     nil,
-	"/client/menu/locale/":  nil,
-	//"/client/location/getLocalloot": {}, don't fully understand why this would be cached
-}
-
-func ZlibReply(w http.ResponseWriter, path string, data any) {
-	deflate(w, path, data)
-}
-
-func ZlibJSONReply(w http.ResponseWriter, path string, data any) {
+// SendJSONReply sends pre-compressed zlib JSON to client
+func SendJSONReply(w http.ResponseWriter, data []byte) {
 	w.Header().Set("Content-Type", "application/json")
-	deflate(w, path, data)
+	w.WriteHeader(http.StatusOK)
+
+	_, err := w.Write(data)
+	if err != nil {
+		http.Error(w, "Failed to write compressed data", http.StatusInternalServerError)
+		return
+	}
 }
 
-func Inflate(r *http.Request) *bytes.Buffer {
+// SendZlibJSONReply compresses and sends JSON with zlib.BestSpeed
+func SendZlibJSONReply(w http.ResponseWriter, data any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	compressed := ZlibDeflate(data)
+	_, err := w.Write(compressed)
+	if err != nil {
+		http.Error(w, "Failed to write compressed data", http.StatusInternalServerError)
+		return
+	}
+}
+
+func ZlibInflate(r *http.Request) *bytes.Buffer {
 	buffer := new(bytes.Buffer)
 
 	// Inflate r.Body with zlib
@@ -39,80 +42,62 @@ func Inflate(r *http.Request) *bytes.Buffer {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer func(reader io.ReadCloser) {
-		err := reader.Close()
-		if err != nil {
-			log.Fatalln(err)
+	defer func() {
+		if err := reader.Close(); err != nil {
+			log.Fatal(err)
 		}
-	}(reader)
+	}()
 
 	// Read the decompressed data
 	_, err = io.Copy(buffer, reader)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
 
 	return buffer
-
 }
 
-func deflate(w http.ResponseWriter, path string, data any) {
-	cached, ok := cachedZlib[path]
-	if ok && cached != nil {
-		w.WriteHeader(http.StatusOK)
-
-		_, err := w.Write(cached)
-		if err != nil {
-			http.Error(w, "Failed to write compressed data", http.StatusInternalServerError)
-			return
-		}
-		return
-	}
-
-	// Convert data to JSON bytes
+func ZlibDeflate(data any) []byte {
 	input, err := json.MarshalNoEscape(data)
 	if err != nil {
-		http.Error(w, "Failed to marshal data to JSON", http.StatusInternalServerError)
-		return
+		log.Println("Failed to marshal data to JSON")
+		return nil
 	}
 
-	// Compress the JSON bytes
-	compressed := compressZlib(input)
-	if ok {
-		cachedZlib[path] = compressed
-	}
-
-	// Set appropriate response headers
-	w.WriteHeader(http.StatusOK)
-
-	// Write the compressed data to the response
-	_, err = w.Write(compressed)
-	if err != nil {
-		http.Error(w, "Failed to write compressed data", http.StatusInternalServerError)
-		return
-	}
+	return compressZlib(input, zlib.BestSpeed)
 }
 
-func compressZlib(data []byte) []byte {
-	buffer := &bytes.Buffer{}
-	writer, _ := zlib.NewWriterLevel(buffer, zlib.BestSpeed)
-
-	defer func(writer *zlib.Writer) {
-		err := writer.Close()
-		if err != nil {
-			log.Fatalln(err)
-		}
-	}(writer)
-
-	_, err := writer.Write(data)
+func compressZlib(data []byte, speed int) []byte {
+	buffer := bytes.NewBuffer(nil)
+	writer, err := zlib.NewWriterLevel(buffer, speed)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
+	}
+	defer func() {
+		if err := writer.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	_, err = writer.Write(data)
+	if err != nil {
+		log.Panicln(err)
 	}
 
 	err = writer.Flush()
 	if err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
 
 	return buffer.Bytes()
+}
+
+func CreateCachedResponse(input any) []byte {
+	dataData, err := json.MarshalNoEscape(ApplyResponseBody(input))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//return compressZlib(dataData, zlib.BestCompression)
+	return compressZlib(dataData, zlib.BestSpeed)
 }

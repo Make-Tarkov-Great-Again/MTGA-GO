@@ -13,7 +13,7 @@ We are developing this emulator to offer an accessible experience, that is up-to
 
 ## Community
 
-Discord: [https://discord.gg/7p8hY7nsM4](https://discord.gg/7p8hY7nsM4)
+Discord: [https://discord.gg/maketarkovgreatagain](https://discord.gg/maketarkovgreatagain)
 
 ## Contribution
 

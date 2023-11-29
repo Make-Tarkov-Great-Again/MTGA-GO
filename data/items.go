@@ -7,18 +7,16 @@ import (
 	"log"
 )
 
-var items map[string]*DatabaseItem
-
 // #region Item getters
 
 func GetItems() map[string]*DatabaseItem {
-	return items
+	return db.item
 }
 
 func GetItemByID(uid string) (*DatabaseItem, error) {
-	item, ok := items[uid]
+	item, ok := db.item[uid]
 	if !ok {
-		return nil, fmt.Errorf("Item %s not found in data", uid)
+		return nil, fmt.Errorf("item %s not found in data", uid)
 	}
 	return item, nil
 }
@@ -58,10 +56,10 @@ func (i *DatabaseItem) Clone() *DatabaseItem {
 }
 
 // GetItemPrice Gets item... price...
-func (i *DatabaseItem) GetItemPrice() (*int32, error) {
+func (i *DatabaseItem) GetItemPrice() (int32, error) {
 	price, err := GetPriceByID(i.ID)
 	if err != nil {
-		return nil, err
+		return -1, err
 	}
 	return price, nil
 }
@@ -113,7 +111,9 @@ func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 	if !ok {
 		log.Println("Item:", i.ID, " does not have Grid property")
 		return nil
-	} else if len(grids) == 0 {
+	}
+
+	if len(grids) == 0 {
 		log.Println("Item:", i.ID, " does not have any Grid components")
 		return nil
 	}
@@ -126,8 +126,7 @@ func (i *DatabaseItem) GetItemGrids() map[string]*Grid {
 			log.Println(err)
 			return nil
 		}
-		err = json.Unmarshal(data, grid)
-		if err != nil {
+		if err = json.Unmarshal(data, grid); err != nil {
 			log.Println(err)
 			return nil
 		}
@@ -143,7 +142,8 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 	if !ok {
 		log.Println("Item:", i.ID, " does not have Slot property")
 		return nil
-	} else if len(slots) == 0 {
+	}
+	if len(slots) == 0 {
 		log.Println("Item:", i.ID, " does not have Slot components")
 		return nil
 	}
@@ -156,8 +156,7 @@ func (i *DatabaseItem) GetItemSlots() map[string]*Slot {
 			log.Println(err)
 			return nil
 		}
-		err = json.Unmarshal(data, slot)
-		if err != nil {
+		if err = json.Unmarshal(data, slot); err != nil {
 			log.Println(err)
 			return nil
 		}
@@ -178,34 +177,34 @@ func (i *DatabaseItem) GetStackMaxSize() int32 {
 
 func setItems() {
 	raw := tools.GetJSONRawMessage(itemsPath)
-	if err := json.Unmarshal(raw, &items); err != nil {
+	if err := json.Unmarshal(raw, &db.item); err != nil {
 		log.Println(err)
 		return
 	}
 }
 
 func SetNewItem(entry DatabaseItem) {
-	items[entry.ID] = &entry
+	db.item[entry.ID] = &entry
 }
 
 const handbookItemEntryNotExist string = "Handbook Item for %s entry doesn't exist"
 
-func (i *DatabaseItem) GetHandbookItemEntry() (*HandbookItem, error) {
-	idx, ok := handbookIndex[i.ID]
+func (i *DatabaseItem) GetHandbookItemEntry() (*TemplateItem, error) {
+	idx, ok := db.template.index.Item[i.ID]
 	if !ok {
 		return nil, fmt.Errorf(handbookItemEntryNotExist, i.ID)
 	}
-	return &handbook.Items[idx], nil
+	return &db.template.handbook.Items[idx], nil
 }
 
 const couldNotCreateClone string = "Could not create clone of entry, %s"
 
-func (i *DatabaseItem) CloneHandbookItemEntry() (*HandbookItem, error) {
+func (i *DatabaseItem) CloneHandbookItemEntry() (*TemplateItem, error) {
 	handbookEntry, err := i.GetHandbookItemEntry()
 	if err != nil {
 		return nil, fmt.Errorf(couldNotCreateClone, err)
 	}
-	return &HandbookItem{Id: "", ParentId: handbookEntry.ParentId, Price: 0}, nil
+	return &TemplateItem{ID: "", ParentID: handbookEntry.ParentID, Price: 0}, nil
 }
 
 func (i *DatabaseItem) CreateItemUPD() (*ItemUpdate, error) {
@@ -364,7 +363,7 @@ func (i *DatabaseItem) IsWeapon() bool {
 		return false
 	}
 
-	if i.Parent == weaponBaseClass || items[i.Parent].Parent == weaponBaseClass {
+	if i.Parent == weaponBaseClass || db.item[i.Parent].Parent == weaponBaseClass {
 		return true
 	}
 

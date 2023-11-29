@@ -21,7 +21,7 @@ user/profiles/
 user/cert/
 user/backup/
 user/mods/
-questsDatabase.json
+responses.json
 *.png
 *.jpg
 .idea/

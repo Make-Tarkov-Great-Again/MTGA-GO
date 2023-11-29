@@ -2,23 +2,22 @@ package data
 
 import (
 	"MT-GO/tools"
+	"fmt"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"github.com/goccy/go-json"
 )
 
-var editions = make(map[string]*Edition)
-
 // #region Edition getters
 
-func GetEditions() map[string]*Edition {
-	return editions
-}
-
-func GetEditionByName(version string) *Edition {
-	edition, _ := editions[version]
-	return edition
+func GetEditionByName(version string) (*Edition, error) {
+	edition, ok := db.edition[version]
+	if !ok {
+		return edition, fmt.Errorf("Edition %s does not exist", version)
+	}
+	return edition, nil
 }
 
 // #endregion
@@ -26,44 +25,46 @@ func GetEditionByName(version string) *Edition {
 // #region Edition setters
 
 func setEditions() {
+	editions := make(map[string]*Edition)
 	directories, err := tools.GetDirectoriesFrom(editionsDirPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	for directory := range directories {
-		editions[directory] = setEdition(filepath.Join(editionsDirPath, directory))
+		editions[strings.ToLower(directory)] = setEdition(filepath.Join(editionsDirPath, directory))
 	}
+	db.edition = editions
 }
 
 func setEdition(editionPath string) *Edition {
 	edition := &Edition{
-		Bear:    new(Character),
-		Usec:    new(Character),
+		Bear:    new(Character[map[string]PlayerTradersInfo]),
+		Usec:    new(Character[map[string]PlayerTradersInfo]),
 		Storage: new(EditionStorage),
 	}
 
-	done := make(chan bool)
+	done := make(chan struct{})
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "storage.json"))
 		if err := json.UnmarshalNoEscape(raw, edition.Storage); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_usec.json"))
 		if err := json.UnmarshalNoEscape(raw, edition.Usec); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_bear.json"))
 		if err := json.UnmarshalNoEscape(raw, edition.Bear); err != nil {
 			log.Fatalln(err)
 		}
-		done <- true
+		done <- struct{}{}
 	}()
 
 	for i := 0; i < 3; i++ {
@@ -77,9 +78,9 @@ func setEdition(editionPath string) *Edition {
 // #region Edition structs
 
 type Edition struct {
-	Bear    *Character      `json:"bear"`
-	Usec    *Character      `json:"usec"`
-	Storage *EditionStorage `json:"storage"`
+	Bear    *Character[map[string]PlayerTradersInfo] `json:"bear"`
+	Usec    *Character[map[string]PlayerTradersInfo] `json:"usec"`
+	Storage *EditionStorage                          `json:"storage"`
 }
 
 type EditionStorage struct {

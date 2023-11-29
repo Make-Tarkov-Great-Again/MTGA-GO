@@ -64,46 +64,6 @@ func GetGameConfig(sessionID string) (*GameConfig, error) {
 	return &config, nil
 }
 
-func GetMainItems() *CRCResponseBody {
-	if CheckIfResponseIsCached(itemsRoute) {
-		crc := GetCachedCRC(itemsRoute)
-		return ApplyCRCResponseBody(nil, crc)
-	}
-	in := data.GetItems()
-	crc := GetCachedCRC(itemsRoute)
-	return ApplyCRCResponseBody(in, crc)
-}
-
-func GetMainCustomization() *CRCResponseBody {
-	if CheckIfResponseIsCached(customizationRoute) {
-		crc := GetCachedCRC(customizationRoute)
-		return ApplyCRCResponseBody(nil, crc)
-	}
-	in := data.GetCustomizations()
-	crc := GetCachedCRC(customizationRoute)
-	return ApplyCRCResponseBody(in, crc)
-}
-
-func GetMainGlobals() *CRCResponseBody {
-	if CheckIfResponseIsCached(globalsRoute) {
-		crc := GetCachedCRC(globalsRoute)
-		return ApplyCRCResponseBody(nil, crc)
-	}
-	in := data.GetGlobals()
-	crc := GetCachedCRC(globalsRoute)
-	return ApplyCRCResponseBody(in, crc)
-}
-
-func GetMainSettings() *CRCResponseBody {
-	if CheckIfResponseIsCached(mainSettingsRoute) {
-		crc := GetCachedCRC(mainSettingsRoute)
-		return ApplyCRCResponseBody(nil, crc)
-	}
-	in := data.GetMainSettings()
-	crc := GetCachedCRC(mainSettingsRoute)
-	return ApplyCRCResponseBody(in, crc)
-}
-
 func GetMainProfileList(sessionID string) []any {
 	character := data.GetCharacterByID(sessionID)
 	profiles := make([]any, 0, 2)
@@ -131,19 +91,6 @@ func GetMainAccountCustomization() []string {
 		output = append(output, id)
 	}
 	return output
-}
-
-func GetMainLocale(lang string) (*CRCResponseBody, error) {
-	if CheckIfResponseIsCached(localeRoute) {
-		crc := GetCachedCRC(localeRoute)
-		return ApplyCRCResponseBody(nil, crc), nil
-	}
-	locale, err := data.GetLocalesGlobalByName(lang)
-	if err != nil {
-		return nil, err
-	}
-	crc := GetCachedCRC(localeRoute)
-	return ApplyCRCResponseBody(locale, crc), nil
 }
 
 func ValidateNickname(nickname string) *ResponseBody {
@@ -175,12 +122,12 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 		log.Fatalln(err)
 	}
 
-	edition := data.GetEditionByName("Edge Of Darkness")
-	if edition == nil {
-		log.Fatalln("[MainProfileCreate] Edition is nil, this ain't good fella!")
+	edition, err := data.GetEditionByName(strings.ToLower(profile.Account.Edition))
+	if err != nil {
+		log.Fatalln(err)
 	}
-	var pmc data.Character
 
+	var pmc data.Character[map[string]data.PlayerTradersInfo]
 	if side == "Bear" {
 		pmc = *edition.Bear
 		profile.Storage.Suites = edition.Storage.Bear
@@ -200,11 +147,11 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 
 	pmc.Info.LowerNickname = strings.ToLower(nickname)
 
-	if customization, err := data.GetCustomizationByID(voiceId); err != nil {
+	customization, err := data.GetCustomizationByID(voiceId)
+	if err != nil {
 		log.Fatalln(err)
-	} else {
-		pmc.Info.Voice = customization.Name
 	}
+	pmc.Info.Voice = customization.Name
 
 	time := int32(tools.GetCurrentTimeInSeconds())
 	pmc.Info.RegistrationDate = time
@@ -214,7 +161,7 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 
 	stats := &pmc.Stats.Eft
 	stats.SessionCounters = nil
-	stats.OverallCounters = map[string]any{"Items": []any{}}
+	stats.OverallCounters = data.Counter{Items: make([]any, 0)}
 	stats.Aggressor = nil
 	stats.DroppedItems = make([]any, 0)
 	stats.FoundInRaidItems = make([]any, 0)
@@ -231,8 +178,7 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 	commonSkills = append(commonSkills, pmc.Skills.Common...)
 	pmc.Skills.Common = commonSkills
 
-	hideout := &pmc.Hideout
-
+	hideout := pmc.Hideout
 	resizedAreas := make([]data.PlayerHideoutArea, 0, len(hideout.Areas))
 	resizedAreas = append(resizedAreas, hideout.Areas...)
 	hideout.Areas = resizedAreas
@@ -315,7 +261,8 @@ func GetBuildsList(sessionID string) (*data.Builds, error) {
 }
 
 func GetQuestList(sessionID string) ([]any, error) {
-	quests, err := data.GetCharacterByID(sessionID).GetQuestsAvailableToPlayer()
+	character := data.GetCharacterByID(sessionID)
+	quests, err := data.GetQuestsAvailableToPlayer(*character)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -394,7 +341,7 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 			if err != nil {
 				return nil, err
 			}
-			insuranceCost := int32(math.Round(float64(*itemPrice) * 0.3))
+			insuranceCost := int32(math.Round(float64(itemPrice) * 0.3))
 			if traderCache.Insurances[tid].PriceCoef > 0 {
 				insuranceCost *= int32(1 - traderCache.Insurances[tid].PriceCoef/100)
 			}
