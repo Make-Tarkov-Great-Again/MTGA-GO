@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"MT-GO/data"
@@ -166,13 +167,13 @@ func validateUsername(profiles map[string]*data.Profile, username string) bool {
 func login() {
 	fmt.Println()
 	var input string
-	var account *data.Account
 	profiles := data.GetProfiles()
 	if len(profiles) == 0 {
 		fmt.Println("No profiles, redirecting to Account Register...")
 		registerAccount()
 	}
 
+	var account *data.Account
 	for {
 		fmt.Println("What is your username?")
 		scanner := bufio.NewScanner(os.Stdin)
@@ -203,7 +204,7 @@ func login() {
 
 		fmt.Println("Logging in...")
 
-		loggedIn(profiles[account.UID].Account)
+		loggedIn(account)
 		break
 	}
 
@@ -259,7 +260,12 @@ func editAccountInfo(account *data.Account) {
 				path := scanner.Text()
 
 				exePath := filepath.Join(path, "EscapeFromTarkov.exe")
-				if tools.FileExist(exePath) && exePath != account.TarkovPath {
+				if exePath != account.TarkovPath {
+					fmt.Println("Path is the same as the old one...")
+					continue
+				}
+
+				if checkIfValidPath(exePath) {
 					account.TarkovPath = exePath
 					fmt.Println("Path has been set")
 
@@ -284,7 +290,7 @@ func wipeYoAss(account *data.Account) {
 	account.Wipe = true
 	profiles := data.GetProfiles()
 
-	profiles[account.UID].Character = &data.Character[map[string]data.PlayerTradersInfo]{}
+	profiles[account.UID].Character = new(data.Character[map[string]data.PlayerTradersInfo])
 	profiles[account.UID].Storage = &data.Storage{
 		Suites: []string{},
 		Builds: &data.Builds{
@@ -316,15 +322,15 @@ func setTarkovPath() string {
 		scanner.Scan()
 		path := scanner.Text()
 
-		exePath := filepath.Join(path, "BepInEx")
+		exePath := filepath.Join(path, "EscapeFromTarkov.exe")
 		if !tools.FileExist(exePath) {
-			fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
+			fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
 			continue
 		}
 
-		exePath = filepath.Join(path, "EscapeFromTarkov.exe")
+		exePath = filepath.Join(path, "BepInEx")
 		if !tools.FileExist(exePath) {
-			fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe', try again")
+			fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
 			continue
 		}
 
@@ -334,15 +340,23 @@ func setTarkovPath() string {
 }
 
 func checkIfValidPath(path string) bool {
-	exePath := filepath.Join(path, "BepInEx")
-	if !tools.FileExist(exePath) {
-		fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
-		return false
+	if !strings.HasSuffix(path, "EscapeFromTarkov.exe") {
+		exePath := filepath.Join(path, "BepInEx")
+		if !tools.FileExist(exePath) {
+			fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
+			return false
+		}
+
+		exePath = filepath.Join(path, "EscapeFromTarkov.exe")
+		if !tools.FileExist(exePath) || path != exePath {
+			fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe'")
+			return false
+		}
 	}
 
-	exePath = filepath.Join(path, "EscapeFromTarkov.exe")
-	if !tools.FileExist(exePath) || path != exePath {
-		fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe'")
+	exePath := strings.Replace(path, "EscapeFromTarkov.exe", "BepInEx", -1)
+	if !tools.FileExist(exePath) {
+		fmt.Println("This folder doesn't contain the 'BepInEx' directory, set path to your non-live 'EscapeFromTarkov' directory")
 		return false
 	}
 
