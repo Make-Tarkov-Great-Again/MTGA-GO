@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	MTGOUserMods = "%s\"MT-GO/user/mods/%s\""
+	MTGOUserMods = "%s\"MT-GO/mods/%s\""
 	//MTGO_SERVER    = "\"MT-GO/server\""
 	ModNameMod        = "%s.Mod()"
 	BundlesToLoad     = "var bundlesToLoad = []string{%s,\n}"
@@ -28,31 +28,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	user := filepath.Join(wd, "user")
+	mods := filepath.Join(wd, "mods")
 
-	if !tools.FileExist(user) {
-		if err := tools.CreateDirectory(user); err != nil {
-			log.Fatalln(err)
-		}
-	}
-
-	profilesPath := filepath.Join(user, "profiles")
-	if !tools.FileExist(profilesPath) {
-		if err := tools.CreateDirectory(profilesPath); err != nil {
-			log.Fatalln(err)
-		}
-	}
-
-	modDir := filepath.Join(user, "mods")
-	log.Println("Mod directory:", modDir)
-	if !tools.FileExist(modDir) {
-		if err := tools.CreateDirectory(modDir); err != nil {
+	log.Println("Mod directory:", mods)
+	if !tools.FileExist(mods) {
+		if err := tools.CreateDirectory(mods); err != nil {
 			log.Fatalln(err)
 		}
 	}
 
 	// List all subdirectories in the "mods" folder.
-	modSubDirs, err := tools.GetDirectoriesFrom(modDir)
+	modSubDirs, err := tools.GetDirectoriesFrom(mods)
 	if err != nil {
 		log.Fatalln("Error listing subdirectories in the 'mods' folder:", err)
 	}
@@ -73,7 +59,7 @@ func main() {
 			log.Println("Checking directory:", name)
 
 			// Check if there's a "mod-info.json" file in the subdirectory.
-			ModInfoPath := filepath.Join(modDir, name, "mod-info.json")
+			ModInfoPath := filepath.Join(mods, name, "mod-info.json")
 			if !tools.FileExist(ModInfoPath) {
 				log.Println("Did not find 'mod-info.json' in:", name, ", continuing...")
 				continue
@@ -88,7 +74,7 @@ func main() {
 			}
 			// Construct the mod import and function call with alias.
 
-			dir := filepath.Join(modDir, name)
+			dir := filepath.Join(mods, name)
 			if tools.FileExist(filepath.Join(dir, "bundles")) {
 				if !bundleLoader {
 					imports = append(imports, "\"MT-GO/data\"", "\"strings\"")
@@ -127,7 +113,7 @@ func main() {
 	}
 
 	// Update the "mods.go" file.
-	modFile := filepath.Join(modDir, "mods.go")
+	modFile := filepath.Join(mods, "mods.go")
 	log.Println("Updating 'mods.go' file:", modFile)
 	if err := updateModsFile(modFile, imports, variables, calls); err != nil {
 		log.Fatalln("Error updating mods.go:", err)
