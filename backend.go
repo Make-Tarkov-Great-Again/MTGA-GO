@@ -4,8 +4,8 @@ package main
 
 import (
 	"MT-GO/cli"
+	"MT-GO/mods"
 	"MT-GO/srv"
-	"MT-GO/user/mods"
 	"fmt"
 	"time"
 

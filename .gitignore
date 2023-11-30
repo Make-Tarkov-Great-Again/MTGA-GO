@@ -20,7 +20,7 @@ go.work
 user/profiles/
 user/cert/
 user/backup/
-user/mods/
+mods/
 responses.json
 *.png
 *.jpg
