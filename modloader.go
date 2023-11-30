@@ -47,14 +47,12 @@ func main() {
 	imports := []string{"\"fmt\"", "\"time\""}
 	calls := make([]string, 0)
 	variables := make([]string, 0)
-	bundlesToLoad := make([]string, 0)
-
-	//var modAdvanced []string
-	var modConfig *data.ModInfo
-
-	var bundleLoader bool
 
 	if len(modSubDirs) != 0 {
+		var bundleLoader bool
+		var modConfig *data.ModInfo
+		bundlesToLoad := make([]string, 0)
+
 		for name := range modSubDirs {
 			log.Println("Checking directory:", name)
 
