@@ -48,17 +48,14 @@ type ragfairOffers struct {
 
 func RagfairFind(w http.ResponseWriter, r *http.Request) {
 	ragfair := new(ragfairOffers)
-	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
-	if err != nil {
+	if input, err := json.MarshalNoEscape(pkg.GetParsedBody(r)); err != nil {
 		log.Fatalln(err)
-	}
-	if err := json.UnmarshalNoEscape(input, &ragfair); err != nil {
+	} else if err := json.UnmarshalNoEscape(input, &ragfair); err != nil {
 		log.Fatalln(err)
 	}
 
 	flea := data.GetFlea()
 
-	log.Println(routeNotImplemented)
 	body := pkg.ApplyResponseBody(flea)
 	pkg.SendZlibJSONReply(w, body)
 }

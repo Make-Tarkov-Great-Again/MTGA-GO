@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
 	"time"
@@ -26,7 +27,7 @@ func TradingTraderSettings(w http.ResponseWriter, _ *http.Request) {
 }
 
 func TradingClothingOffers(w http.ResponseWriter, r *http.Request) {
-	suits, err := pkg.GetTraderSuits(r.URL.Path[30:54])
+	suits, err := pkg.GetTraderSuits(chi.URLParam(r, "id"))
 	if err != nil {
 		log.Println(err)
 	}

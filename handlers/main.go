@@ -3,6 +3,7 @@ package handlers
 import (
 	"MT-GO/data"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	probing "github.com/prometheus-community/pro-bing"
 	"log"
 	"net/http"
@@ -39,7 +40,7 @@ func MainGameStart(w http.ResponseWriter, _ *http.Request) {
 func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
-		input, _ := data.GetLocaleMenuByName(route[20:])
+		input, _ := data.GetLocaleMenuByName(chi.URLParam(r, "id"))
 		cache := pkg.CreateCachedResponse(input)
 		data.SetResponseCacheForRoute(route, cache)
 	}
@@ -144,7 +145,7 @@ func MainAccountCustomization(w http.ResponseWriter, _ *http.Request) {
 func MainLocale(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
-		lang := route[15:]
+		lang := chi.URLParam(r, "id")
 		input, _ := data.GetLocaleGlobalByName(lang)
 		cache := pkg.CreateCachedResponse(input)
 		data.SetResponseCacheForRoute(route, cache)

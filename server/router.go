@@ -2,7 +2,7 @@
 package server
 
 import (
-	handler2 "MT-GO/handlers"
+	"MT-GO/handlers"
 	"MT-GO/pkg"
 	"github.com/go-chi/chi/v5"
 	"log"
@@ -10,66 +10,66 @@ import (
 )
 
 var mainRouteHandlers = map[string]http.HandlerFunc{
-	"/getBrandName":              handler2.GetBrandName,
-	"/sp/config/bots/difficulty": handler2.GetBotDifficulty,
-	"/getBundleList":             handler2.GetBundleList,
-	"/raid/profile/save":         handler2.RaidProfileSave,
-	"/sp/airdrop/config":         handler2.AirdropConfig,
+	"/getBrandName":              handlers.GetBrandName,
+	"/sp/config/bots/difficulty": handlers.GetBotDifficulty,
+	"/getBundleList":             handlers.GetBundleList,
+	"/raid/profile/save":         handlers.RaidProfileSave,
+	"/sp/airdrop/config":         handlers.AirdropConfig,
 	"/files/{id}":                pkg.ServeFiles,
 
-	"/client/game/start":                          handler2.MainGameStart,
-	"/client/menu/locale/{id}":                    handler2.MainMenuLocale,
-	"/client/game/version/validate":               handler2.MainVersionValidate,
-	"/client/languages":                           handler2.MainLanguages,
-	"/client/game/config":                         handler2.MainGameConfig,
-	"/client/items":                               handler2.MainItems,
-	"/client/customization":                       handler2.MainCustomization,
-	"/client/globals":                             handler2.MainGlobals,
-	"/client/settings":                            handler2.MainSettings,
-	"/client/game/profile/list":                   handler2.MainProfileList,
-	"/client/account/customization":               handler2.MainAccountCustomization,
-	"/client/locale/{id}":                         handler2.MainLocale,
-	"/client/game/keepalive":                      handler2.MainKeepAlive,
-	"/client/game/profile/nickname/reserved":      handler2.MainNicknameReserved,
-	"/client/game/profile/nickname/validate":      handler2.MainNicknameValidate,
-	"/client/game/profile/create":                 handler2.MainProfileCreate,
-	"/client/game/profile/select":                 handler2.MainProfileSelect,
-	"/client/game/profile/voice":                  handler2.ChangeVoice,
-	"/client/profile/status":                      handler2.MainProfileStatus,
-	"/client/profile/settings":                    handler2.MainProfileSettings,
-	"/client/weather":                             handler2.MainWeather,
-	"/client/locations":                           handler2.MainLocations,
-	"/client/handbook/templates":                  handler2.MainTemplates,
-	"/client/hideout/areas":                       handler2.MainHideoutAreas,
-	"/client/hideout/qte/list":                    handler2.MainHideoutQTE,
-	"/client/hideout/settings":                    handler2.MainHideoutSettings,
-	"/client/hideout/production/recipes":          handler2.MainHideoutRecipes,
-	"/client/hideout/production/scavcase/recipes": handler2.MainHideoutScavRecipes,
-	"/client/handbook/builds/my/list":             handler2.MainBuildsList,
-	"/client/quest/list":                          handler2.MainQuestList,
-	"/client/match/group/current":                 handler2.MainCurrentGroup,
-	"/client/repeatalbeQuests/activityPeriods":    handler2.MainRepeatableQuests,
-	"/client/server/list":                         handler2.GetServerList,
-	"/client/checkVersion":                        handler2.MainCheckVersion,
-	"/client/game/logout":                         handler2.MainLogout,
-	"/client/items/prices/{id}":                   handler2.MainPrices,
-	"/client/notifier/channel/create":             handler2.MainChannelCreate,
-	"/client/game/profile/items/moving":           handler2.MainItemsMoving,
-	"/client/match/offline/end":                   handler2.OfflineMatchEnd,
-	"/client/match/group/exit_from_menu":          handler2.ExitFromMenu,
-	"/client/match/group/invite/cancel-all":       handler2.InviteCancelAll,
-	"/client/match/available":                     handler2.MatchAvailable,
-	"/client/match/raid/not-ready":                handler2.RaidNotReady,
-	"/client/match/raid/ready":                    handler2.RaidReady,
-	"/client/match/group/status":                  handler2.GroupStatus,
-	"/client/match/group/looking/start":           handler2.LookingForGroupStart,
-	"/client/match/group/looking/stop":            handler2.LookingForGroupStop,
-	"/client/match/updatePing":                    handler2.MatchUpdatePing,
-	"/client/raid/configuration":                  handler2.RaidConfiguration,
-	"/client/location/getLocalloot":               handler2.GetLocalLoot,
-	"/client/insurance/items/cost":                handler2.InsuranceItemsCost,
-	"/client/insurance/items/list/cost":           handler2.InsuranceListCost,
-	"/client/game/bot/generate":                   handler2.BotGenerate,
+	"/client/game/start":                          handlers.MainGameStart,
+	"/client/menu/locale/{id}":                    handlers.MainMenuLocale,
+	"/client/game/version/validate":               handlers.MainVersionValidate,
+	"/client/languages":                           handlers.MainLanguages,
+	"/client/game/config":                         handlers.MainGameConfig,
+	"/client/items":                               handlers.MainItems,
+	"/client/customization":                       handlers.MainCustomization,
+	"/client/globals":                             handlers.MainGlobals,
+	"/client/settings":                            handlers.MainSettings,
+	"/client/game/profile/list":                   handlers.MainProfileList,
+	"/client/account/customization":               handlers.MainAccountCustomization,
+	"/client/locale/{id}":                         handlers.MainLocale,
+	"/client/game/keepalive":                      handlers.MainKeepAlive,
+	"/client/game/profile/nickname/reserved":      handlers.MainNicknameReserved,
+	"/client/game/profile/nickname/validate":      handlers.MainNicknameValidate,
+	"/client/game/profile/create":                 handlers.MainProfileCreate,
+	"/client/game/profile/select":                 handlers.MainProfileSelect,
+	"/client/game/profile/voice":                  handlers.ChangeVoice,
+	"/client/profile/status":                      handlers.MainProfileStatus,
+	"/client/profile/settings":                    handlers.MainProfileSettings,
+	"/client/weather":                             handlers.MainWeather,
+	"/client/locations":                           handlers.MainLocations,
+	"/client/handbook/templates":                  handlers.MainTemplates,
+	"/client/hideout/areas":                       handlers.MainHideoutAreas,
+	"/client/hideout/qte/list":                    handlers.MainHideoutQTE,
+	"/client/hideout/settings":                    handlers.MainHideoutSettings,
+	"/client/hideout/production/recipes":          handlers.MainHideoutRecipes,
+	"/client/hideout/production/scavcase/recipes": handlers.MainHideoutScavRecipes,
+	"/client/handbook/builds/my/list":             handlers.MainBuildsList,
+	"/client/quest/list":                          handlers.MainQuestList,
+	"/client/match/group/current":                 handlers.MainCurrentGroup,
+	"/client/repeatalbeQuests/activityPeriods":    handlers.MainRepeatableQuests,
+	"/client/server/list":                         handlers.GetServerList,
+	"/client/checkVersion":                        handlers.MainCheckVersion,
+	"/client/game/logout":                         handlers.MainLogout,
+	"/client/items/prices/{id}":                   handlers.MainPrices,
+	"/client/notifier/channel/create":             handlers.MainChannelCreate,
+	"/client/game/profile/items/moving":           handlers.MainItemsMoving,
+	"/client/match/offline/end":                   handlers.OfflineMatchEnd,
+	"/client/match/group/exit_from_menu":          handlers.ExitFromMenu,
+	"/client/match/group/invite/cancel-all":       handlers.InviteCancelAll,
+	"/client/match/available":                     handlers.MatchAvailable,
+	"/client/match/raid/not-ready":                handlers.RaidNotReady,
+	"/client/match/raid/ready":                    handlers.RaidReady,
+	"/client/match/group/status":                  handlers.GroupStatus,
+	"/client/match/group/looking/start":           handlers.LookingForGroupStart,
+	"/client/match/group/looking/stop":            handlers.LookingForGroupStop,
+	"/client/match/updatePing":                    handlers.MatchUpdatePing,
+	"/client/raid/configuration":                  handlers.RaidConfiguration,
+	"/client/location/getLocalloot":               handlers.GetLocalLoot,
+	"/client/insurance/items/cost":                handlers.InsuranceItemsCost,
+	"/client/insurance/items/list/cost":           handlers.InsuranceListCost,
+	"/client/game/bot/generate":                   handlers.BotGenerate,
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {
@@ -99,11 +99,11 @@ func loadMainRoutes(mux *chi.Mux) {
 }
 
 var tradingRouteHandlers = map[string]http.HandlerFunc{
-	"/client/trading/api/traderSettings":       handler2.TradingTraderSettings,
-	"/client/trading/customization/storage":    handler2.TradingCustomizationStorage,
+	"/client/trading/api/traderSettings":       handlers.TradingTraderSettings,
+	"/client/trading/customization/storage":    handlers.TradingCustomizationStorage,
 	"/files/{file}":                            pkg.ServeFiles,
-	"/client/trading/customization/{id}":       handler2.TradingClothingOffers,
-	"/client/trading/api/getTraderAssort/{id}": handler2.TradingTraderAssort,
+	"/client/trading/customization/{id}":       handlers.TradingClothingOffers,
+	"/client/trading/api/getTraderAssort/{id}": handlers.TradingTraderAssort,
 }
 
 func AddTradingRoute(route string, handler http.HandlerFunc) {
@@ -135,7 +135,7 @@ func loadTradingRoutes(mux *chi.Mux) {
 var ragfairRouteHandlers = map[string]http.HandlerFunc{
 	//"/client/ragfair/offer/findbyid"
 	//"/client/ragfair/itemMarketPrice"
-	"/client/ragfair/find": handler2.RagfairFind,
+	"/client/ragfair/find": handlers.RagfairFind,
 }
 
 func loadRagfairRoutes(mux *chi.Mux) {
@@ -155,16 +155,16 @@ func OverrideRagfairRoute(route string, handler http.HandlerFunc) {
 }
 
 var messagingRouteHandlers = map[string]http.HandlerFunc{
-	"/client/friend/list":                handler2.MessagingFriendList,
-	"/client/mail/dialog/list":           handler2.MessagingDialogList,
-	"/client/friend/request/list/inbox":  handler2.MessagingFriendRequestInbox,
-	"/client/friend/request/list/outbox": handler2.MessagingFriendRequestOutbox,
-	"/client/mail/dialog/info":           handler2.MessagingMailDialogInfo,
-	"/client/mail/dialog/view":           handler2.MessagingMailDialogView,
-	"/client/mail/dialog/pin":            handler2.MessagingMailDialogPin,
-	"/client/mail/dialog/unpin":          handler2.MessagingMailDialogUnpin,
-	"/client/mail/dialog/remove":         handler2.MessagingMailDialogRemove,
-	"/client/mail/dialog/clear":          handler2.MessagingMailDialogClear,
+	"/client/friend/list":                handlers.MessagingFriendList,
+	"/client/mail/dialog/list":           handlers.MessagingDialogList,
+	"/client/friend/request/list/inbox":  handlers.MessagingFriendRequestInbox,
+	"/client/friend/request/list/outbox": handlers.MessagingFriendRequestOutbox,
+	"/client/mail/dialog/info":           handlers.MessagingMailDialogInfo,
+	"/client/mail/dialog/view":           handlers.MessagingMailDialogView,
+	"/client/mail/dialog/pin":            handlers.MessagingMailDialogPin,
+	"/client/mail/dialog/unpin":          handlers.MessagingMailDialogUnpin,
+	"/client/mail/dialog/remove":         handlers.MessagingMailDialogRemove,
+	"/client/mail/dialog/clear":          handlers.MessagingMailDialogClear,
 }
 
 func loadMessagingRoutes(mux *chi.Mux) {
@@ -210,8 +210,8 @@ func OverrideMessagingRoute(route string, handler http.HandlerFunc) {
 }
 
 var lobbyRouteHandlers = map[string]http.HandlerFunc{
-	"/push/notifier/get/{id}":          handler2.LobbyPushNotifier,
-	"/push/notifier/getwebsocket/{id}": handler2.LobbyGetWebSocket,
+	"/push/notifier/get/{id}":          handlers.LobbyPushNotifier,
+	"/push/notifier/getwebsocket/{id}": handlers.LobbyGetWebSocket,
 }
 
 func loadLobbyRoutes(mux *chi.Mux) {

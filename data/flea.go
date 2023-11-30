@@ -45,7 +45,6 @@ func setFlea() {
 				flea.Categories[main.Tpl]++
 				scheme = s[0]
 				items = []AssortItem{main}
-
 			} else if family, ok := trader.Index.Assort.ParentItems[id]; ok {
 				items = make([]AssortItem, 0, len(family))
 

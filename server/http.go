@@ -6,8 +6,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"log"
 	"net/http"
+	"time"
 )
 
 type muxt struct {
@@ -41,13 +43,13 @@ func Start() {
 	}
 
 	serverReady := make(chan struct{})
-	srv := data.GetServerConfig()
-	pkg.SetDownloadLocal(srv.DownloadImageFiles)
+	serverConfig := data.GetServerConfig()
+	pkg.SetDownloadLocal(serverConfig.DownloadImageFiles)
 	pkg.SetChannelTemplate()
 	pkg.SetGameConfig()
 
-	if srv.Secure {
-		cert := GetCertificate(srv.IP)
+	if serverConfig.Secure {
+		cert := GetCertificate(serverConfig.IP)
 		certs, err := tls.LoadX509KeyPair(cert.CertFile, cert.KeyFile)
 		if err != nil {
 			log.Fatalf("Error loading X.509 key pair: %v", err)
@@ -72,15 +74,21 @@ func Start() {
 func startInsecure(serverReady chan<- struct{}, mux *muxt) {
 	r := chi.NewRouter()
 
-	//r.Use(middleware.URLFormat)
+	r.Use(middleware.URLFormat)
 	r.Use(logAndDecompress)
 	mux.initRoutes(r)
+
+	server := http.Server{
+		Addr:              mux.address,
+		ReadTimeout:       time.Second * 5,
+		ReadHeaderTimeout: time.Second * 5,
+		Handler:           r,
+	}
 
 	fmt.Println("Started " + mux.serverName + " HTTP server on " + mux.address)
 	serverReady <- struct{}{}
 
-	err := http.ListenAndServe(mux.address, r)
-	if err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -89,6 +97,7 @@ func startSecure(serverReady chan<- struct{}, certs *Certificate, mux *muxt) {
 	r := chi.NewRouter()
 
 	r.Use(logAndDecompress)
+
 	mux.initRoutes(r)
 
 	httpsServer := &http.Server{
@@ -97,7 +106,11 @@ func startSecure(serverReady chan<- struct{}, certs *Certificate, mux *muxt) {
 		TLSConfig: &tls.Config{
 			RootCAs:      nil,
 			Certificates: []tls.Certificate{certs.Certificate},
+			MinVersion:   tls.VersionTLS12,
 		},
+		ReadTimeout:       time.Second * 5,
+		ReadHeaderTimeout: time.Second * 5,
+		Handler:           r,
 	}
 
 	fmt.Println("Started " + mux.serverName + " HTTPS server on " + mux.address)
