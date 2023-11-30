@@ -45,7 +45,6 @@ func GetCertificate(ip string) *Certificate {
 	if cert.verifyCertificate() {
 		return &cert
 	} else {
-
 		if !tools.FileExist(certPath) {
 			err := os.Mkdir(certPath, 0700)
 			if err != nil {

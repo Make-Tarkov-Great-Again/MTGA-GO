@@ -1,4 +1,4 @@
-package hndlr
+package handlers
 
 import (
 	"MT-GO/pkg"
