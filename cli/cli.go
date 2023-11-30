@@ -306,7 +306,7 @@ func setTarkovPath() string {
 		}
 
 		fmt.Println("Valid path to 'EscapeFromTarkov.exe' has been set")
-		return exePath
+		return path
 	}
 }
 
@@ -318,7 +318,7 @@ func checkIfValidPath(path string) bool {
 	}
 
 	exePath = filepath.Join(path, "EscapeFromTarkov.exe")
-	if !tools.FileExist(exePath) || path != exePath {
+	if !tools.FileExist(exePath) {
 		fmt.Println("Invalid path, does not contain 'EscapeFromTarkov.exe'")
 		return false
 	}
@@ -343,7 +343,8 @@ func launchTarkov(account *data.Account) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, account.TarkovPath, cmdArgs...)
+	exePath := filepath.Join(account.TarkovPath, "EscapeFromTarkov.exe")
+	cmd := exec.CommandContext(ctx, exePath, cmdArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

@@ -14,7 +14,7 @@ import (
 
 const (
 	MTGOUserMods = "%s\"MT-GO/user/mods/%s\""
-	//MTGO_SERVER    = "\"MT-GO/srv\""
+	//MTGO_SERVER    = "\"MT-GO/server\""
 	ModNameMod        = "%s.Mod()"
 	BundlesToLoad     = "var bundlesToLoad = []string{%s,\n}"
 	BundlesToLoadLoop = "for _, path := range bundlesToLoad {\n\t\tformattedPath := strings.Replace(path, \"\\\\\\\\\", \"\\\\\", -1)\n\t\tdata.AddModBundleDirPath(formattedPath)\n\t}"

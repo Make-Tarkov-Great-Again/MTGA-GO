@@ -1,5 +1,5 @@
-// Package routes houses all routes to the client and srv
-package srv
+// Package routes houses all routes to the client and server
+package server
 
 import (
 	handler2 "MT-GO/handlers"

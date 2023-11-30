@@ -1,4 +1,4 @@
-package srv
+package server
 
 import (
 	"MT-GO/data"
@@ -30,7 +30,6 @@ func upgradeToWebsocket(w http.ResponseWriter, r *http.Request) {
 		}
 	}(conn)
 
-	//sessionID := pkg.GetSessionID(r)
 	sessionID := r.URL.Path[28:] //mongoID is 24 chars
 	data.SetConnection(sessionID, conn)
 

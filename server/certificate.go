@@ -1,5 +1,5 @@
 // Package certificate acquires a self-signed certificate
-package srv
+package server
 
 import (
 	"crypto/rand"
@@ -35,7 +35,7 @@ type Certificate struct {
 const certSubject string = "CN=MTGA Root CA Certificate, O=Make Tarkov Great Again"
 const commonName string = "MTGA Root CA Certificate"
 
-// GetCertificate returns a Certificate for HTTPS srv
+// GetCertificate returns a Certificate for HTTPS server
 func GetCertificate(ip string) *Certificate {
 	cert := Certificate{
 		CertFile: filepath.Join(certPath, "cert.pem"),
@@ -58,7 +58,7 @@ func GetCertificate(ip string) *Certificate {
 	}
 }
 
-// Generate SHA256 certificate for HTTPS srv
+// Generate SHA256 certificate for HTTPS server
 func (cg *Certificate) setCertificate(ip string) {
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

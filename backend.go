@@ -5,7 +5,7 @@ package main
 import (
 	"MT-GO/cli"
 	"MT-GO/mods"
-	"MT-GO/srv"
+	"MT-GO/server"
 	"fmt"
 	"time"
 
@@ -25,6 +25,6 @@ func main() {
 	endTime := time.Now()
 	fmt.Printf("Database initialized in %s\n\n", endTime.Sub(startTime))
 
-	srv.Start()
+	server.Start()
 	cli.Start()
 }
