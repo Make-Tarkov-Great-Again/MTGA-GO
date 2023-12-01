@@ -2,6 +2,7 @@ package data
 
 import (
 	"MT-GO/tools"
+	"log"
 )
 
 var flea = Flea{
@@ -11,9 +12,15 @@ var flea = Flea{
 	Categories:       make(map[string]int),
 }
 
+var fleaOfferCategories = make(map[string][]Offer)
+
 // #region Flea getters
 
 func GetFlea() *Flea {
+	if flea.Offers == nil {
+		log.Println("Setting Flea Market...")
+		setFlea()
+	}
 	return &flea
 }
 
@@ -92,11 +99,14 @@ func setFlea() {
 			}
 
 			output = append(output, *offer)
+			fleaOfferCategories[main.Tpl] = append(fleaOfferCategories[main.Tpl], *offer)
 			fleaOffersCount++
 		}
 	}
 
-	flea.Offers = output
+	flea.Offers = make([]Offer, 0, len(output))
+	flea.Offers = append(flea.Offers, output...)
+	output = nil
 	flea.OffersCount = fleaOffersCount
 	//TODO: Set Trader offers as flea offers
 	// Create Flea Index to match to Trader Offers?
