@@ -12,7 +12,11 @@ var flea = Flea{
 	Categories:       make(map[string]int),
 }
 
-var fleaOfferCategories = make(map[string][]Offer)
+type Ragfair struct {
+	AllOffers     []Offer
+	AllCategories map[string][]string
+	Index         map[string]int16
+}
 
 // #region Flea getters
 
@@ -30,18 +34,20 @@ func createFleaOffer(userId string, items []AssortItem, scheme []*Scheme) *Offer
 
 // #region Flea setters
 
-// TODO: TraderID, check if items > 1 for trader.Index.Assort.ParentItems
-var fleaOffersCount int16
-
 func setFlea() {
+	db.ragfair = &Ragfair{
+		AllCategories: make(map[string][]string),
+		Index:         make(map[string]int16),
+	}
+
 	output := make([]Offer, 0)
+	var fleaOffersCount int16
+
 	for tid, trader := range db.trader {
 		if trader.Assort == nil {
 			continue
 		}
 
-		//TODO: Sort offers by category, and just append shit
-		// Do []string of child nodes and keep main entry for them
 		for id, s := range trader.Assort.BarterScheme {
 			var scheme []*Scheme
 			var items []AssortItem
@@ -99,18 +105,13 @@ func setFlea() {
 			}
 
 			output = append(output, *offer)
-			fleaOfferCategories[main.Tpl] = append(fleaOfferCategories[main.Tpl], *offer)
+			db.ragfair.AllCategories[main.Tpl] = append(db.ragfair.AllCategories[main.Tpl], offer.ID)
+			db.ragfair.Index[offer.ID] = fleaOffersCount
 			fleaOffersCount++
 		}
 	}
 
-	flea.Offers = make([]Offer, 0, len(output))
-	flea.Offers = append(flea.Offers, output...)
-	output = nil
-	flea.OffersCount = fleaOffersCount
-	//TODO: Set Trader offers as flea offers
-	// Create Flea Index to match to Trader Offers?
-	// Cry
+	db.ragfair.AllOffers = append(make([]Offer, 0, len(output)), output...)
 }
 
 // #endregion

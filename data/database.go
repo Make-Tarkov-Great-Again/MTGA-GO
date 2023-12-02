@@ -45,6 +45,7 @@ type database struct {
 	profile       map[string]*Profile
 	trader        map[string]*Trader
 	quest         *Quest
+	ragfair       *Ragfair
 	weather       *Weather
 }
 
