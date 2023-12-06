@@ -4,20 +4,20 @@ import (
 	"MT-GO/data"
 	"MT-GO/tools"
 	"fmt"
+	"github.com/dolthub/swiss"
 	"log"
 	"math"
 	"strings"
 )
 
 func GetBrandName() map[string]string {
-	config := data.GetServerConfig()
+	brandName := data.GetServerConfig().BrandName
 	brand := make(map[string]string)
-	if config.BrandName != "" {
-		brand["name"] = config.BrandName
-	} else {
-		brand["name"] = "MTGA"
+	if brandName != "" {
+		brand["name"] = brandName
+		return brand
 	}
-
+	brand["name"] = "MTGA"
 	return brand
 }
 
@@ -102,8 +102,7 @@ func ValidateNickname(nickname string) *ResponseBody {
 		return body
 	}
 
-	_, ok := data.Nicknames[nickname]
-	if ok {
+	if _, ok := data.Nicknames[nickname]; ok {
 		body := ApplyResponseBody(nil)
 		body.Err = 225
 		body.Errmsg = "225 - "
@@ -316,24 +315,32 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 		changed := int8(0)
 
 		trader.SetTraderLoyaltyLevel(character)
-		if traderCache.Insurances[tid] != nil && traderCache.Insurances[tid].LoyaltyLevel != character.TradersInfo[tid].LoyaltyLevel {
-			traderCache.Insurances[tid].LoyaltyLevel = character.TradersInfo[tid].LoyaltyLevel
-			traderCache.Insurances[tid].PriceCoef = trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef
+		traderInsurance, ok := traderCache.Insurances.Get(tid)
+		if !ok {
+			fmt.Println()
+		}
+
+		if traderInsurance.LoyaltyLevel != character.TradersInfo[tid].LoyaltyLevel {
+			traderInsurance.LoyaltyLevel = character.TradersInfo[tid].LoyaltyLevel
+			traderInsurance.PriceCoef = trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef
 			changed = 1
 		} else {
-			traderCache.Insurances[tid] = &data.Insurances{
+			traderCache.Insurances.Put(tid, &data.Insurances{
 				LoyaltyLevel: character.TradersInfo[tid].LoyaltyLevel,
 				PriceCoef:    trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef,
-				Items:        make(map[string]int32),
-			}
+				Items:        *swiss.NewMap[string, int32](uint32(len(items))),
+			})
 		}
 
 		output[tid] = make(map[string]int32)
 
 		for _, itemID := range items {
 			itemTPL := character.Inventory.Items[*invCache.GetIndexOfItemByID(itemID)].TPL
-			if _, ok := traderCache.Insurances[tid].Items[itemTPL]; ok && changed == 0 {
-				output[tid][itemTPL] = traderCache.Insurances[tid].Items[itemTPL]
+
+			traderInsurance, _ := traderCache.Insurances.Get(tid)
+			item, ok := traderInsurance.Items.Get(itemTPL)
+			if ok && changed == 0 {
+				output[tid][itemTPL] = item
 				continue
 			}
 
@@ -342,16 +349,16 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 				return nil, err
 			}
 			insuranceCost := int32(math.Round(float64(itemPrice) * 0.3))
-			if traderCache.Insurances[tid].PriceCoef > 0 {
-				insuranceCost *= int32(1 - traderCache.Insurances[tid].PriceCoef/100)
+			if traderInsurance.PriceCoef > 0 {
+				insuranceCost *= int32(1 - traderInsurance.PriceCoef/100)
 			}
 
-			if traderCache.Insurances[tid].Items[itemTPL] != insuranceCost {
-				traderCache.Insurances[tid].Items[itemTPL] = insuranceCost
+			if item != insuranceCost {
+				item = insuranceCost
 			}
 
 			//TODO: continue with cache
-			output[tid][itemTPL] = traderCache.Insurances[tid].Items[itemTPL]
+			output[tid][itemTPL] = item
 		}
 	}
 
@@ -364,17 +371,7 @@ const (
 	channelNotExist         = "Channel for %s does not exist"
 	notiFormat              = "%s/push/notifier/get/%s"
 	wssFormat               = "%s/push/notifier/getwebsocket/%s"
-	localeRoute             = "/client/locale/"
-	itemsRoute              = "/client/items"
-	customizationRoute      = "/client/customization"
-	globalsRoute            = "/client/globals"
-	mainSettingsRoute       = "/client/settings"
 )
-
-type traderInsuranceInfo struct {
-	LoyaltyLevel int8
-	PriceCoef    int16
-}
 
 type SupplyData struct {
 	SupplyNextTime  int              `json:"supplyNextTime"`

@@ -46,7 +46,7 @@ func GetPriceByID(id string) (int32, error) {
 // #endregion
 
 // #region Handbook setters
-var handbookCategories = make(map[string][]string)
+var handbookCategories = make(map[string]map[string]struct{})
 
 func setHandbook() {
 	db.template = &Template{
@@ -56,6 +56,14 @@ func setHandbook() {
 	if err := json.UnmarshalNoEscape(raw, &db.template.handbook); err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func GetHandbookCategory(category string) (map[string]struct{}, error) {
+	output, ok := handbookCategories[category]
+	if !ok {
+		return output, fmt.Errorf("handbook category does not exist")
+	}
+	return output, nil
 }
 
 func setHandbookIndex() {
@@ -68,17 +76,17 @@ func setHandbookIndex() {
 		if _, ok := handbookCategories[v.ParentID]; !ok {
 			if v.ParentID == "" {
 				if _, ok := handbookCategories[v.ID]; !ok {
-					handbookCategories[v.ID] = make([]string, 0)
+					handbookCategories[v.ID] = make(map[string]struct{})
 				}
 			} else {
-				handbookCategories[v.ParentID] = make([]string, 0)
-				handbookCategories[v.ParentID] = append(handbookCategories[v.ParentID], v.ID)
+				handbookCategories[v.ParentID] = make(map[string]struct{})
+				handbookCategories[v.ParentID][v.ID] = struct{}{}
 			}
 		} else {
-			handbookCategories[v.ParentID] = append(handbookCategories[v.ParentID], v.ID)
+			handbookCategories[v.ParentID][v.ParentID] = struct{}{}
 		}
 		if _, ok := handbookCategories[v.ID]; !ok {
-			handbookCategories[v.ID] = make([]string, 0)
+			handbookCategories[v.ID] = make(map[string]struct{})
 		}
 	}
 
@@ -87,10 +95,10 @@ func setHandbookIndex() {
 		db.template.index.Item[v.ID] = int16(idx)
 
 		if _, ok := handbookCategories[v.ParentID]; !ok {
-			handbookCategories[v.ParentID] = make([]string, 0)
-			handbookCategories[v.ParentID] = append(handbookCategories[v.ParentID], v.ID)
+			handbookCategories[v.ParentID] = make(map[string]struct{})
+			handbookCategories[v.ParentID][v.ID] = struct{}{}
 		} else {
-			handbookCategories[v.ParentID] = append(handbookCategories[v.ParentID], v.ID)
+			handbookCategories[v.ParentID][v.ID] = struct{}{}
 		}
 
 		db.template.prices[v.ID] = v.Price
@@ -101,12 +109,10 @@ func setHandbookIndex() {
 			delete(handbookCategories, id)
 			continue
 		}
-		if len(v) != cap(v) {
-			nv := make([]string, 0, len(v))
-			nv = append(nv, v...)
-			handbookCategories[id] = nv
-		}
 	}
+
+	//_ = tools.WriteToFile("faggot.json", handbookCategories)
+	//fmt.Println()
 }
 
 func ConvertFromRouble(amount int32, currency string) (float64, error) {

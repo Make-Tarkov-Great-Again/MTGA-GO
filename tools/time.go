@@ -4,14 +4,12 @@ import (
 	"time"
 )
 
-var now = time.Now()
-
 // GetCurrentTimeInSeconds returns the current time in seconds
 func GetCurrentTimeInSeconds() int64 {
-	return now.Unix()
+	return time.Now().Unix()
 }
 
 // TimeInHMSFormat returns the current time in the format HH-MM-SS
 func TimeInHMSFormat() string {
-	return now.Format("15-04-05")
+	return time.Now().Format("15-04-05")
 }

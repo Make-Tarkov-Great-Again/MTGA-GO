@@ -104,9 +104,9 @@ func AssignNewIDs(inventoryItems []InventoryItem) []InventoryItem {
 	convertedIDs := make(map[string]string)
 
 	for _, inventoryItem := range inventoryItems {
-		newId := tools.GenerateMongoID()
-		convertedIDs[inventoryItem.ID] = newId
-		inventoryItem.ID = newId
+		newID := tools.GenerateMongoID()
+		convertedIDs[inventoryItem.ID] = newID
+		inventoryItem.ID = newID
 
 		input = append(input, inventoryItem)
 	}
@@ -124,7 +124,6 @@ func AssignNewIDs(inventoryItems []InventoryItem) []InventoryItem {
 		}
 		item.ParentID = CID
 		output = append(output, item)
-
 	}
 	output = append(output, parent)
 	return output

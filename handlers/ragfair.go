@@ -54,8 +54,20 @@ func RagfairFind(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 	}
 
-	flea := data.GetFlea()
+	flea := *data.GetFlea()
 
 	body := pkg.ApplyResponseBody(flea)
+	categories, err := data.GetHandbookCategory(ragfair.HandbookId)
+	if err != nil {
+		log.Fatalln("Ragfair failed: %w", err)
+	}
+	offers := make([]data.Offer, 0)
+	for _, offer := range flea {
+		if _, ok := categories[offer.Items[0].Tpl]; !ok {
+			continue
+		}
+		offers = append(offers, offer)
+	}
+
 	pkg.SendZlibJSONReply(w, body)
 }

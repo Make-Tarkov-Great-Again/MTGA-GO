@@ -2,7 +2,6 @@ package data
 
 import (
 	"MT-GO/tools"
-	"log"
 )
 
 var flea = Flea{
@@ -20,16 +19,16 @@ type Ragfair struct {
 
 // #region Flea getters
 
-func GetFlea() *Flea {
-	if flea.Offers == nil {
-		log.Println("Setting Flea Market...")
-		setFlea()
-	}
-	return &flea
+func GetFlea() *[]Offer {
+	return &db.ragfair.AllOffers
 }
 
 func createFleaOffer(userId string, items []AssortItem, scheme []*Scheme) *Offer {
 	return nil
+}
+
+func GetRequestedFlea() {
+
 }
 
 // #region Flea setters
