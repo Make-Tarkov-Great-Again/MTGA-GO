@@ -13,12 +13,22 @@ import (
 type Template struct {
 	index    *TemplateIndex
 	handbook *Templates
-	prices   map[string]int32
 }
 
 type TemplateIndex struct {
-	Item       map[string]int16
-	Categories map[string][]string
+	Item       *HandbookItemIndex
+	Categories *HandbookCategoryIndex
+}
+
+type HandbookCategoryIndex struct {
+	Index map[string]int16
+	Main  map[string][]string
+	Sub   map[string][]string
+}
+
+type HandbookItemIndex struct {
+	Prices map[string]int32
+	Index  map[string]int16
 }
 
 // #region Handbook getters
@@ -29,14 +39,14 @@ func GetHandbook() *Templates {
 
 // GetPrices Get prices of all items
 func GetPrices() map[string]int32 {
-	return db.template.prices
+	return db.template.index.Item.Prices
 }
 
 const priceNotFound string = "price of %s not found"
 
 // GetPriceByID Get item price by ID
 func GetPriceByID(id string) (int32, error) {
-	price, ok := db.template.prices[id]
+	price, ok := db.template.index.Item.Prices[id]
 	if !ok {
 		return -1, fmt.Errorf(priceNotFound, id)
 	}
@@ -46,7 +56,6 @@ func GetPriceByID(id string) (int32, error) {
 // #endregion
 
 // #region Handbook setters
-var handbookCategories = make(map[string]map[string]struct{})
 
 func setHandbook() {
 	db.template = &Template{
@@ -58,60 +67,132 @@ func setHandbook() {
 	}
 }
 
-func GetHandbookCategory(category string) (map[string]struct{}, error) {
-	output, ok := handbookCategories[category]
+func HasGetMainHandbookCategory(id string) ([]string, error) {
+	categories, ok := db.template.index.Categories.Main[id]
 	if !ok {
-		return output, fmt.Errorf("handbook category does not exist")
+		return nil, fmt.Errorf("sub category %s does not exist", id)
 	}
-	return output, nil
+
+	if _, ok := db.template.index.Categories.Main[categories[0]]; !ok {
+		return categories, nil
+	}
+
+	output := make([]string, 0)
+	for _, c := range categories {
+		category, ok := db.template.index.Categories.Main[c]
+		if !ok {
+			continue
+		}
+		output = append(output, category...)
+	}
+
+	if len(output) != 0 {
+		return output, nil
+	}
+
+	return nil, fmt.Errorf("main category %s does not exist", id)
+}
+
+func HasGetHandbookSubCategory(id string) ([]string, error) {
+	categories, ok := db.template.index.Categories.Sub[id]
+	if !ok {
+		return nil, fmt.Errorf("sub category %s does not exist", id)
+	}
+
+	if _, ok := db.template.index.Categories.Sub[categories[0]]; !ok {
+		return categories, nil
+	}
+
+	output := make([]string, 0)
+	for _, c := range categories {
+		category, ok := db.template.index.Categories.Sub[c]
+		if !ok {
+			continue
+		}
+		output = append(output, category...)
+	}
+
+	if len(output) != 0 {
+		return output, nil
+	}
+
+	return nil, fmt.Errorf("sub category %s does not exist", id)
 }
 
 func setHandbookIndex() {
 	db.template.index = &TemplateIndex{
-		Item:       make(map[string]int16),
-		Categories: make(map[string][]string),
+		Item: &HandbookItemIndex{
+			Prices: make(map[string]int32),
+			Index:  make(map[string]int16),
+		},
+		Categories: &HandbookCategoryIndex{
+			Index: make(map[string]int16),
+			Main:  make(map[string][]string),
+			Sub:   make(map[string][]string),
+		},
 	}
 
-	for _, v := range db.template.handbook.Categories {
-		if _, ok := handbookCategories[v.ParentID]; !ok {
-			if v.ParentID == "" {
-				if _, ok := handbookCategories[v.ID]; !ok {
-					handbookCategories[v.ID] = make(map[string]struct{})
-				}
-			} else {
-				handbookCategories[v.ParentID] = make(map[string]struct{})
-				handbookCategories[v.ParentID][v.ID] = struct{}{}
-			}
-		} else {
-			handbookCategories[v.ParentID][v.ParentID] = struct{}{}
-		}
-		if _, ok := handbookCategories[v.ID]; !ok {
-			handbookCategories[v.ID] = make(map[string]struct{})
-		}
-	}
+	temp := make(map[string][]string)
+	for idx, category := range db.template.handbook.Categories {
+		db.template.index.Categories.Index[category.ID] = int16(idx)
 
-	db.template.prices = make(map[string]int32)
-	for idx, v := range db.template.handbook.Items {
-		db.template.index.Item[v.ID] = int16(idx)
-
-		if _, ok := handbookCategories[v.ParentID]; !ok {
-			handbookCategories[v.ParentID] = make(map[string]struct{})
-			handbookCategories[v.ParentID][v.ID] = struct{}{}
-		} else {
-			handbookCategories[v.ParentID][v.ID] = struct{}{}
-		}
-
-		db.template.prices[v.ID] = v.Price
-	}
-
-	for id, v := range handbookCategories {
-		if len(v) == 0 {
-			delete(handbookCategories, id)
+		if _, ok := db.template.index.Categories.Main[category.ID]; !ok && category.ParentID == "" {
+			db.template.index.Categories.Main[category.ID] = make([]string, 0)
 			continue
 		}
+
+		if _, ok := temp[category.ParentID]; !ok {
+			temp[category.ParentID] = make([]string, 0)
+			temp[category.ParentID] = append(temp[category.ParentID], category.ID)
+			continue
+		}
+		temp[category.ParentID] = append(temp[category.ParentID], category.ID)
 	}
 
-	//_ = tools.WriteToFile("faggot.json", handbookCategories)
+	for key, value := range temp {
+		if _, ok := db.template.index.Categories.Main[key]; ok {
+			db.template.index.Categories.Main[key] = value
+			continue
+		}
+
+		if _, ok := db.template.index.Categories.Sub[key]; ok {
+			db.template.index.Categories.Sub[key] = value
+			continue
+		}
+
+		db.template.index.Categories.Main[key] = value
+	}
+
+	for key, value := range db.template.index.Categories.Main {
+		if len(value) == 0 {
+			db.template.index.Categories.Sub[key] = value
+			delete(db.template.index.Categories.Main, key)
+		}
+	}
+
+	temp = make(map[string][]string)
+	for idx, item := range db.template.handbook.Items {
+		db.template.index.Item.Index[item.ID] = int16(idx)
+		db.template.index.Item.Prices[item.ID] = item.Price
+
+		if _, ok := temp[item.ParentID]; !ok {
+			temp[item.ParentID] = make([]string, 0)
+			temp[item.ParentID] = append(temp[item.ParentID], item.ID)
+			continue
+		}
+		temp[item.ParentID] = append(temp[item.ParentID], item.ID)
+	}
+
+	for key, value := range temp {
+		if _, ok := db.template.index.Categories.Sub[key]; ok {
+			db.template.index.Categories.Sub[key] = make([]string, 0, len(value))
+			db.template.index.Categories.Sub[key] = append(db.template.index.Categories.Sub[key], value...)
+			continue
+		}
+		db.template.index.Categories.Sub[key] = value
+	}
+
+	//_ = tools.WriteToFile("faggot.json", db.template.index)
 	//fmt.Println()
 }
 
@@ -133,12 +214,12 @@ func ConvertToRouble(amount int32, currency string) float64 {
 
 func (hbi *TemplateItem) SetHandbookItemEntry() {
 	db.template.handbook.Items = append(db.template.handbook.Items, *hbi)
-	db.template.index.Item[hbi.ID] = int16(len(db.template.handbook.Items) - 1)
+	db.template.index.Item.Index[hbi.ID] = int16(len(db.template.handbook.Items) - 1)
 }
 
 func SetHandbookItemEntry(entry TemplateItem) {
 	db.template.handbook.Items = append(db.template.handbook.Items, entry)
-	db.template.index.Item[entry.ID] = int16(len(db.template.handbook.Items) - 1)
+	db.template.index.Item.Index[entry.ID] = int16(len(db.template.handbook.Items) - 1)
 }
 
 // #endregion

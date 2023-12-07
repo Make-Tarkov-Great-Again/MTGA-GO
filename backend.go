@@ -21,7 +21,7 @@ func main() {
 	data.LoadCustomItems()
 
 	data.SetCache()
-
+	data.SetFlea()
 	endTime := time.Now()
 	fmt.Printf("Database initialized in %s\n\n", endTime.Sub(startTime))
 

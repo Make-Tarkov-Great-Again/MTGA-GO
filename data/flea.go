@@ -2,46 +2,40 @@ package data
 
 import (
 	"MT-GO/tools"
+	"fmt"
 )
 
-var flea = Flea{
-	Offers:           nil,
-	OffersCount:      0,
-	SelectedCategory: "",
-	Categories:       make(map[string]int),
-}
-
 type Ragfair struct {
-	AllOffers     []Offer
-	AllCategories map[string][]string
-	Index         map[string]int16
+	Catalog map[string][]Offer
+	Market  Flea
 }
 
 // #region Flea getters
-
-func GetFlea() *[]Offer {
-	return &db.ragfair.AllOffers
+func GetFlea() *Ragfair {
+	return db.ragfair
 }
 
-func createFleaOffer(userId string, items []AssortItem, scheme []*Scheme) *Offer {
-	return nil
-}
-
-func GetRequestedFlea() {
-
+func GetFleaCatalog(id string) ([]Offer, error) {
+	catalog, ok := db.ragfair.Catalog[id]
+	if !ok {
+		return catalog, fmt.Errorf("catalog of %s does not exist", id)
+	}
+	return catalog, nil
 }
 
 // #region Flea setters
 
-func setFlea() {
+func SetFlea() {
 	db.ragfair = &Ragfair{
-		AllCategories: make(map[string][]string),
-		Index:         make(map[string]int16),
+		Catalog: make(map[string][]Offer),
+		Market: Flea{
+			Offers:           nil,
+			OffersCount:      0,
+			SelectedCategory: "",
+			Categories:       make(map[string]int16),
+		},
 	}
-
-	output := make([]Offer, 0)
 	var fleaOffersCount int16
-
 	for tid, trader := range db.trader {
 		if trader.Assort == nil {
 			continue
@@ -54,7 +48,6 @@ func setFlea() {
 
 			if idx, ok := trader.Index.Assort.Items[id]; ok {
 				main = *trader.Assort.Items[idx]
-				flea.Categories[main.Tpl]++
 				scheme = s[0]
 				items = []AssortItem{main}
 			} else if family, ok := trader.Index.Assort.ParentItems[id]; ok {
@@ -67,7 +60,6 @@ func setFlea() {
 						main = item
 						item.SlotID = ""
 					}
-					flea.Categories[item.Tpl]++
 					items = append(items, *trader.Assort.Items[value])
 				}
 			}
@@ -103,14 +95,15 @@ func setFlea() {
 				offer.UnlimitedCount = true
 			}
 
-			output = append(output, *offer)
-			db.ragfair.AllCategories[main.Tpl] = append(db.ragfair.AllCategories[main.Tpl], offer.ID)
-			db.ragfair.Index[offer.ID] = fleaOffersCount
-			fleaOffersCount++
+			if db.ragfair.Catalog[main.Tpl] == nil {
+				db.ragfair.Catalog[main.Tpl] = make([]Offer, 0)
+			}
+			db.ragfair.Catalog[main.Tpl] = append(db.ragfair.Catalog[main.Tpl], *offer)
+			db.ragfair.Market.Categories[main.Tpl]++
 		}
+		fleaOffersCount++
 	}
-
-	db.ragfair.AllOffers = append(make([]Offer, 0, len(output)), output...)
+	fmt.Println()
 }
 
 // #endregion
@@ -118,10 +111,10 @@ func setFlea() {
 // #region Flea structs
 
 type Flea struct {
-	Offers           []Offer        `json:"offers"`
-	OffersCount      int16          `json:"offersCount"`
-	SelectedCategory string         `json:"selectedCategory"` //selected item category
-	Categories       map[string]int `json:"categories"`       //categories are the TPL of an offer
+	Offers           []Offer          `json:"offers"`
+	OffersCount      int16            `json:"offersCount"`
+	SelectedCategory string           `json:"selectedCategory"` //selected item category
+	Categories       map[string]int16 `json:"categories"`       //categories are the TPL of an offer
 }
 type MemberCategory int
 

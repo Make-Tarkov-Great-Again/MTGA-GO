@@ -4,7 +4,6 @@ import (
 	"MT-GO/data"
 	"MT-GO/tools"
 	"fmt"
-	"github.com/dolthub/swiss"
 	"log"
 	"math"
 	"strings"
@@ -304,6 +303,8 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 	traderCache, err := data.GetTraderCacheByID(character.ID)
 	if err != nil {
 		return nil, err
+	} else if traderCache.Insurances == nil {
+		traderCache.Insurances = make(map[string]*data.Insurances)
 	}
 
 	for _, tid := range traders {
@@ -315,30 +316,25 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 		changed := int8(0)
 
 		trader.SetTraderLoyaltyLevel(character)
-		traderInsurance, ok := traderCache.Insurances.Get(tid)
-		if !ok {
-			fmt.Println()
-		}
+		traderInsurance := traderCache.Insurances[tid]
 
-		if traderInsurance.LoyaltyLevel != character.TradersInfo[tid].LoyaltyLevel {
+		if traderInsurance != nil && traderInsurance.LoyaltyLevel != character.TradersInfo[tid].LoyaltyLevel {
 			traderInsurance.LoyaltyLevel = character.TradersInfo[tid].LoyaltyLevel
 			traderInsurance.PriceCoef = trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef
 			changed = 1
 		} else {
-			traderCache.Insurances.Put(tid, &data.Insurances{
+			traderInsurance = &data.Insurances{
 				LoyaltyLevel: character.TradersInfo[tid].LoyaltyLevel,
 				PriceCoef:    trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef,
-				Items:        *swiss.NewMap[string, int32](uint32(len(items))),
-			})
+				Items:        make(map[string]int32),
+			}
 		}
 
 		output[tid] = make(map[string]int32)
 
 		for _, itemID := range items {
 			itemTPL := character.Inventory.Items[*invCache.GetIndexOfItemByID(itemID)].TPL
-
-			traderInsurance, _ := traderCache.Insurances.Get(tid)
-			item, ok := traderInsurance.Items.Get(itemTPL)
+			item, ok := traderInsurance.Items[itemTPL]
 			if ok && changed == 0 {
 				output[tid][itemTPL] = item
 				continue

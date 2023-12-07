@@ -14,6 +14,8 @@ func setGlobals() {
 	if err := json.UnmarshalNoEscape(raw, &db.core.Globals); err != nil {
 		log.Fatalln(err)
 	}
+
+	db.core.Globals.Config.Handbook.DefaultCategory = ""
 }
 
 func IndexWeaponMasteries() {
