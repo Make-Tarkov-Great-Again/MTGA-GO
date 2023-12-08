@@ -40,7 +40,7 @@ func setProfiles() {
 		return
 	}
 
-	db.profile = haxmap.New[string, *Profile](uintptr(len(users)))
+	db.profile = haxmap.New[string, *Profile]()
 
 	if len(users) == 0 {
 		return

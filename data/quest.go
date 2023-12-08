@@ -3,23 +3,24 @@ package data
 import (
 	"MT-GO/tools"
 	"fmt"
+	"github.com/alphadose/haxmap"
 	"github.com/goccy/go-json"
 	"log"
 )
 
 type Quest struct {
-	quests map[string]map[string]any
-	query  map[string]*Query
+	quests *haxmap.Map[string, map[string]any] //map[string]map[string]any
+	query  *haxmap.Map[string, *Query]         //map[string]*Query
 }
 
 // #region Quests getters
 
-func GetQuestsQuery() map[string]*Query {
+func GetQuestsQuery() *haxmap.Map[string, *Query] {
 	return db.quest.query
 }
 
 func GetQuestFromQueryByID(qid string) *Query {
-	query, ok := db.quest.query[qid]
+	query, ok := db.quest.query.Get(qid)
 	if !ok {
 		log.Println("Quest", qid, "does not exist in quests query")
 		return nil
@@ -28,7 +29,7 @@ func GetQuestFromQueryByID(qid string) *Query {
 }
 
 func GetQuestByID(qid string) any {
-	quest, ok := db.quest.quests[qid]
+	quest, ok := db.quest.quests.Get(qid)
 	if !ok {
 		log.Println("Quest", qid, "does not exist in quests")
 		return nil
@@ -52,7 +53,7 @@ const (
 
 func setQuests() {
 	db.quest = &Quest{
-		quests: make(map[string]map[string]any),
+		quests: haxmap.New[string, map[string]any](), //make(map[string]map[string]any),
 	}
 	raw := tools.GetJSONRawMessage(questsPath)
 	if err := json.UnmarshalNoEscape(raw, &db.quest.quests); err != nil {
@@ -61,8 +62,8 @@ func setQuests() {
 }
 
 func setQuestLookup() {
-	db.quest.query = map[string]*Query{}
-	for k, v := range db.quest.quests {
+	db.quest.query = haxmap.New[string, *Query]() //map[string]*Query{}
+	db.quest.quests.ForEach(func(k string, v map[string]any) bool {
 		done := make(chan struct{})
 		query := &Query{
 			Name:   v["QuestName"].(string),
@@ -91,8 +92,9 @@ func setQuestLookup() {
 		for i := int8(0); i < 3; i++ {
 			<-done
 		}
-		db.quest.query[k] = query
-	}
+		db.quest.query.Set(k, query)
+		return true
+	})
 
 	questConditionCheck = nil
 }

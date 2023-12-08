@@ -3,6 +3,7 @@ package data
 import (
 	"MT-GO/tools"
 	"fmt"
+	"github.com/alphadose/haxmap"
 	"log"
 	"path/filepath"
 	"strings"
@@ -13,7 +14,7 @@ import (
 // #region Edition getters
 
 func GetEditionByName(version string) (*Edition, error) {
-	edition, ok := db.edition[version]
+	edition, ok := db.edition.Get(version)
 	if !ok {
 		return edition, fmt.Errorf("Edition %s does not exist", version)
 	}
@@ -25,16 +26,16 @@ func GetEditionByName(version string) (*Edition, error) {
 // #region Edition setters
 
 func setEditions() {
-	editions := make(map[string]*Edition)
+	db.edition = haxmap.New[string, *Edition]() //make(map[string]*Edition)
 	directories, err := tools.GetDirectoriesFrom(editionsDirPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	for directory := range directories {
-		editions[strings.ToLower(directory)] = setEdition(filepath.Join(editionsDirPath, directory))
+		edition := setEdition(filepath.Join(editionsDirPath, directory))
+		db.edition.Set(strings.ToLower(directory), edition)
 	}
-	db.edition = editions
 }
 
 func setEdition(editionPath string) *Edition {

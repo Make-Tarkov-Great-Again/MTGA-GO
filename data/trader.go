@@ -336,7 +336,6 @@ func setTraders() {
 		if tools.FileExist(assortPath) {
 			count++
 			go func() {
-				dynamic := make(map[string]json.RawMessage)
 				raw := tools.GetJSONRawMessage(assortPath)
 				trader.Assort = &Assort{
 					NextResupply:    0,
@@ -344,25 +343,8 @@ func setTraders() {
 					Items:           make([]*AssortItem, 0),
 					LoyalLevelItems: haxmap.New[string, int8](),
 				}
-				if err := json.Unmarshal(raw, &dynamic); err != nil {
+				if err := json.Unmarshal(raw, &trader.Assort); err != nil {
 					log.Fatalln(err)
-				}
-				for key, value := range dynamic {
-					if key == "barter_scheme" {
-						if err := json.Unmarshal(value, &trader.Assort.BarterScheme); err != nil {
-							log.Println()
-						}
-					}
-					if key == "items" {
-						if err := json.Unmarshal(value, &trader.Assort.Items); err != nil {
-							log.Println()
-						}
-					}
-					if key == "loyal_level_items" {
-						if err := json.Unmarshal(value, &trader.Assort.LoyalLevelItems); err != nil {
-							log.Println()
-						}
-					}
 				}
 
 				done <- true
@@ -374,7 +356,7 @@ func setTraders() {
 			count++
 			go func() {
 				raw := tools.GetJSONRawMessage(questsPath)
-				trader.QuestAssort = make(map[string]map[string]string)
+				trader.QuestAssort = haxmap.New[string, map[string]string]() //make(map[string]map[string]string)
 				if err := json.UnmarshalNoEscape(raw, &trader.QuestAssort); err != nil {
 					log.Fatalln(err)
 				}
@@ -400,7 +382,7 @@ func setTraders() {
 			count++
 			go func() {
 				raw := tools.GetJSONRawMessage(dialoguesPath)
-				trader.Dialogue = make(map[string][]string)
+				trader.Dialogue = haxmap.New[string, []string]() //make(map[string][]string)
 				if err := json.UnmarshalNoEscape(raw, &trader.Dialogue); err != nil {
 					log.Fatalln(err)
 				}
@@ -456,12 +438,12 @@ func setTraderOfferLookup() {
 }
 
 type Trader struct {
-	Index       TraderIndex                  `json:",omitempty"`
-	Base        *TraderBase                  `json:",omitempty"`
-	Assort      *Assort                      `json:",omitempty"`
-	QuestAssort map[string]map[string]string `json:",omitempty"`
-	Suits       []TraderSuits                `json:",omitempty"`
-	Dialogue    map[string][]string          `json:",omitempty"`
+	Index       TraderIndex                            `json:",omitempty"`
+	Base        *TraderBase                            `json:",omitempty"`
+	Assort      *Assort                                `json:",omitempty"`
+	QuestAssort *haxmap.Map[string, map[string]string] `json:",omitempty"` //map[string]map[string]string `json:",omitempty"`
+	Suits       []TraderSuits                          `json:",omitempty"`
+	Dialogue    *haxmap.Map[string, []string]          `json:",omitempty"` //map[string][]string          `json:",omitempty"`
 }
 
 type TraderIndex struct {

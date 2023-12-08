@@ -37,12 +37,12 @@ type database struct {
 	core          *Core
 	customization *haxmap.Map[string, *Customization] //map[string]*Customization
 	bot           *Bots
-	edition       map[string]*Edition
+	edition       *haxmap.Map[string, *Edition] //map[string]*Edition
 	template      *Template
 	hideout       *Hideout
 	item          *haxmap.Map[string, *DatabaseItem]
 	location      *Location
-	locale        map[string]*Locale
+	locale        *haxmap.Map[string, *Locale]  //map[string]*Locale
 	profile       *haxmap.Map[string, *Profile] //map[string]*Profile
 	trader        *haxmap.Map[string, *Trader]  //map[string]*Trader
 	quest         *Quest

@@ -38,14 +38,14 @@ func GetQuestsAvailableToPlayer(c Character[map[string]PlayerTradersInfo]) ([]an
 	characterHasQuests := cachedQuests != nil && len(cachedQuests.Index) != 0
 	var output []any
 	query := GetQuestsQuery()
-	for key, value := range query {
+	query.ForEach(func(key string, value *Query) bool {
 		if CheckIfQuestForOtherFaction(c.Info.Side, key) || strings.HasSuffix(value.Name, "-Event") {
-			continue
+			return true
 		}
 
 		if value.Conditions.AvailableForStart == nil {
 			output = append(output, GetQuestByID(key))
-			continue
+			return true
 		}
 
 		forStart := value.Conditions.AvailableForStart
@@ -55,13 +55,13 @@ func GetQuestsAvailableToPlayer(c Character[map[string]PlayerTradersInfo]) ([]an
 				forStart.Level.Level,
 				c.Info.Level,
 				forStart.Level.CompareMethod) {
-				continue
+				return true
 			}
 		}
 
 		if forStart.Quest == nil && forStart.TraderLoyalty == nil && forStart.TraderStanding == nil {
 			output = append(output, GetQuestByID(key))
-			continue
+			return true
 		}
 
 		loyaltyCheck := false
@@ -73,7 +73,7 @@ func GetQuestsAvailableToPlayer(c Character[map[string]PlayerTradersInfo]) ([]an
 				}
 				data, err := GetTraderByUID(trader)
 				if err != nil {
-					return nil, err
+					log.Fatal(err)
 				}
 				data.SetTraderLoyaltyLevel(&c)
 
@@ -85,7 +85,7 @@ func GetQuestsAvailableToPlayer(c Character[map[string]PlayerTradersInfo]) ([]an
 			}
 
 			if !loyaltyCheck {
-				continue
+				return true
 			}
 		}
 
@@ -98,7 +98,7 @@ func GetQuestsAvailableToPlayer(c Character[map[string]PlayerTradersInfo]) ([]an
 				}
 				data, err := GetTraderByUID(trader)
 				if err != nil {
-					return nil, err
+					log.Fatal(err)
 				}
 				data.SetTraderLoyaltyLevel(&c)
 
@@ -110,17 +110,18 @@ func GetQuestsAvailableToPlayer(c Character[map[string]PlayerTradersInfo]) ([]an
 			}
 
 			if !standingCheck {
-				continue
+				return true
 			}
 		}
 
 		if forStart.Quest != nil && characterHasQuests {
 			if c.IsPreviousQuestComplete(forStart.Quest, cachedQuests) {
 				output = append(output, GetQuestByID(key))
-				continue
+				return true
 			}
 		}
-	}
+		return true
+	})
 
 	return output, nil
 }

@@ -700,7 +700,7 @@ func setCustomClothingLocation(ids map[string]string) {
 		}
 
 		for name, value := range formatted {
-			data[name] = value
+			data.Set(name, value)
 		}
 	}
 }
@@ -727,9 +727,9 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 				log.Println(err)
 				continue
 			}
-			data[localeName] = nameValue
-			data[localeShortName] = shortNameValue
-			data[localeDescription] = descriptionValue
+			data.Set(localeName, nameValue)
+			data.Set(localeShortName, shortNameValue)
+			data.Set(localeDescription, descriptionValue)
 		}
 		return
 	}
@@ -741,9 +741,9 @@ func setCustomItemLocale(uid string, apiLocale map[string]*CustomItemLocale) {
 			continue
 		}
 
-		locale[localeName] = value.Name
-		locale[localeShortName] = value.ShortName
-		locale[localeDescription] = value.Description
+		locale.Set(localeName, value.Name)
+		locale.Set(localeShortName, value.ShortName)
+		locale.Set(localeDescription, value.Description)
 	}
 
 }

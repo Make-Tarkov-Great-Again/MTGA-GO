@@ -3,6 +3,7 @@ package data
 import (
 	"MT-GO/tools"
 	"fmt"
+	"github.com/alphadose/haxmap"
 	"log"
 	"path/filepath"
 	"strings"
@@ -14,7 +15,7 @@ import (
 
 func GetLocaleByName(input string) (*Locale, error) {
 	name := strings.ToLower(input)
-	if locale, ok := db.locale[name]; ok {
+	if locale, ok := db.locale.Get(name); ok {
 		return locale, nil
 	}
 	return nil, fmt.Errorf("locale %s doesn't exist", name)
@@ -33,7 +34,7 @@ func GetLocaleMenuByName(name string) (*LocaleMenu, error) {
 	return nil, fmt.Errorf("locale %s menu doesn't exist", name)
 }
 
-func GetLocaleGlobalByName(name string) (map[string]any, error) {
+func GetLocaleGlobalByName(name string) (*haxmap.Map[string, any], error) {
 	locale, err := GetLocaleByName(name)
 	if err != nil {
 		return nil, err
@@ -56,12 +57,12 @@ func setLocales() {
 		log.Fatalln(err)
 	}
 
-	db.locale = make(map[string]*Locale)
+	db.locale = haxmap.New[string, *Locale](uintptr(len(directories))) //make(map[string]*Locale)
 
 	for dir := range directories {
 		localeData := &Locale{
-			Global: make(map[string]any),
-			Menu:   new(LocaleMenu),
+			Global: haxmap.New[string, any](), //make(map[string]any),
+			Menu:   &LocaleMenu{Menu: haxmap.New[string, string]()},
 		}
 		dirPath := filepath.Join(localesPath, dir)
 		localeFiles, err := tools.GetFilesFrom(dirPath)
@@ -86,7 +87,7 @@ func setLocales() {
 			}
 		}
 
-		db.locale[dir] = localeData
+		db.locale.Set(dir, localeData)
 	}
 }
 
@@ -95,12 +96,12 @@ func setLocales() {
 // #region Locale struct
 
 type Locale struct {
-	Global map[string]any
+	Global *haxmap.Map[string, any] //map[string]any
 	Menu   *LocaleMenu
 }
 
 type LocaleMenu struct {
-	Menu map[string]string `json:"menu"`
+	Menu *haxmap.Map[string, string] `json:"menu"` //map[string]string `json:"menu"`
 }
 
 // #endregion
