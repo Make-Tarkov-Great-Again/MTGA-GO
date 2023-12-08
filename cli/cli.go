@@ -365,14 +365,5 @@ func launchTarkov(account *data.Account) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	err := cmd.Run()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		log.Println("Client has been closed with an error:", err)
-		os.Exit(1)
-	}
+	_ = cmd.Run()
 }
