@@ -191,9 +191,6 @@ func setHandbookIndex() {
 		}
 		db.template.index.Categories.Sub[key] = value
 	}
-
-	//_ = tools.WriteToFile("faggot.json", db.template.index)
-	//fmt.Println()
 }
 
 func ConvertFromRouble(amount int32, currency string) (float64, error) {

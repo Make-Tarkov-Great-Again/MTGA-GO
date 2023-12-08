@@ -10,12 +10,12 @@ import (
 )
 
 var mainRouteHandlers = map[string]http.HandlerFunc{
-	"/getBrandName":              handlers.GetBrandName,
-	"/sp/config/bots/difficulty": handlers.GetBotDifficulty,
-	"/getBundleList":             handlers.GetBundleList,
-	"/raid/profile/save":         handlers.RaidProfileSave,
-	"/sp/airdrop/config":         handlers.AirdropConfig,
-	"/files/{id}":                pkg.ServeFiles,
+	"/getBrandName":               handlers.GetBrandName,
+	"/sp/config/bots/difficulty":  handlers.GetBotDifficulty,
+	"/getBundleList":              handlers.GetBundleList,
+	"/raid/profile/save":          handlers.RaidProfileSave,
+	"/sp/airdrop/config":          handlers.AirdropConfig,
+	"/files/{main}/{type}/{file}": pkg.ServeFiles,
 
 	"/client/game/start":                          handlers.MainGameStart,
 	"/client/menu/locale/{id}":                    handlers.MainMenuLocale,
@@ -99,11 +99,11 @@ func loadMainRoutes(mux *chi.Mux) {
 }
 
 var tradingRouteHandlers = map[string]http.HandlerFunc{
-	"/client/trading/api/traderSettings":       handlers.TradingTraderSettings,
-	"/client/trading/customization/storage":    handlers.TradingCustomizationStorage,
-	"/files/{file}":                            pkg.ServeFiles,
-	"/client/trading/customization/{id}":       handlers.TradingClothingOffers,
-	"/client/trading/api/getTraderAssort/{id}": handlers.TradingTraderAssort,
+	"/client/trading/api/traderSettings":        handlers.TradingTraderSettings,
+	"/client/trading/customization/storage":     handlers.TradingCustomizationStorage,
+	"/files/{main}/{type}/{file}":               pkg.ServeFiles,
+	"/client/trading/customization/{id}/offers": handlers.TradingClothingOffers,
+	"/client/trading/api/getTraderAssort/{id}":  handlers.TradingTraderAssort,
 }
 
 func AddTradingRoute(route string, handler http.HandlerFunc) {

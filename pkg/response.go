@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"github.com/go-chi/chi/v5"
 	"io"
 	"log"
 	"net/http"
@@ -66,8 +67,7 @@ func SetDownloadLocal(result bool) {
 }
 
 func ServeFiles(w http.ResponseWriter, r *http.Request) {
-	icon := strings.Split(r.RequestURI, "/")
-	imagePath := filepath.Join(imagesPath, icon[2], icon[3], strings.TrimSuffix(icon[4], ".jpg"))
+	imagePath := filepath.Join(imagesPath, chi.URLParam(r, "main"), chi.URLParam(r, "type"), strings.TrimSuffix(chi.URLParam(r, "file"), ".jpg"))
 
 	for ext, mimeType := range mime {
 		path := imagePath + ext
