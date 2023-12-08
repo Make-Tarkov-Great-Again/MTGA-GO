@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/alphadose/haxmap v1.3.0 // indirect
 	github.com/google/uuid v1.4.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect

@@ -45,7 +45,7 @@ func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -61,7 +61,7 @@ func MainLanguages(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -74,7 +74,7 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -86,7 +86,7 @@ func MainItems(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 	endTime := time.Now()
 	elapsedTime := endTime.Sub(startTime)
@@ -101,7 +101,7 @@ func MainCustomization(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -113,7 +113,7 @@ func MainGlobals(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -125,7 +125,7 @@ func MainSettings(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -151,7 +151,7 @@ func MainLocale(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -265,7 +265,7 @@ func MainLocations(w http.ResponseWriter, r *http.Request) {
 		locationsSet = true
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -277,7 +277,7 @@ func MainTemplates(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -289,7 +289,7 @@ func MainHideoutAreas(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -301,7 +301,7 @@ func MainHideoutQTE(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -313,7 +313,7 @@ func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -325,7 +325,7 @@ func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 
@@ -337,7 +337,7 @@ func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
-	input := *data.GetRequestedResponseCache(route)
+	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
 }
 

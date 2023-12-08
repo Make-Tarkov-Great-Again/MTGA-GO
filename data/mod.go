@@ -198,9 +198,9 @@ func SortAndQueueCustomItems(modName string, items map[string]*ModdingAPI) {
 		}
 	}
 	db.cache.response.Save = true
-	db.cache.response.Overwrite["/client/items"] = nil
-	db.cache.response.Overwrite["/client/handbook/templates"] = nil
-	db.cache.response.Overwrite["/client/locale/"] = nil
+	db.cache.response.Overwrite.Set("/client/items", nil)
+	db.cache.response.Overwrite.Set("/client/handbook/templates", nil)
+	db.cache.response.Overwrite.Set("/client/locale/", nil)
 }
 
 func (i *DatabaseItem) GenerateTraderAssortSingleItem() []*AssortItem {
@@ -380,8 +380,10 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 			}
 			parent.Upd.StackObjectsCount = int32(barter.AmountInStock)
 
-			if trader.Assort.BarterScheme[parent.ID] == nil {
-				trader.Assort.BarterScheme[parent.ID] = make([][]*Scheme, 0, 1)
+			scheme, _ := trader.Assort.BarterScheme.Get(parent.ID)
+			if scheme == nil {
+				trader.Assort.BarterScheme.Set(parent.ID, make([][]*Scheme, 0, 1))
+				scheme, _ = trader.Assort.BarterScheme.Get(parent.ID)
 			}
 
 			for bid, value := range barter.BarterScheme {
@@ -393,8 +395,8 @@ func (i *DatabaseItem) GenerateTraderAssortEntry(params *CustomItemParams) {
 				schemes = append(schemes, scheme)
 			}
 
-			trader.Assort.LoyalLevelItems[parent.ID] = barter.LoyaltyLevel
-			trader.Assort.BarterScheme[parent.ID] = append(trader.Assort.BarterScheme[parent.ID], schemes)
+			trader.Assort.LoyalLevelItems.Set(parent.ID, barter.LoyaltyLevel)
+			scheme = append(scheme, schemes)
 			trader.Assort.Items = append(trader.Assort.Items, assortItem...)
 		}
 	}
@@ -481,8 +483,8 @@ func LoadCustomItems() {
 				continue
 			}
 
-			original := itemsDatabase[api.Parameters.ItemParameters.ReferenceItemTPL]
-			if original == nil {
+			original, ok := itemsDatabase.Get(api.Parameters.ItemParameters.ReferenceItemTPL)
+			if !ok {
 				log.Println("ReferenceItemTPL:", api.Parameters.ItemParameters.ReferenceItemTPL, "for UID:", uid, "is invalid, skipping...")
 				continue
 			}
@@ -500,7 +502,7 @@ func LoadCustomItems() {
 				continue
 			}
 
-			itemsDatabase[uid] = itemClone
+			itemsDatabase.Set(uid, itemClone)
 
 			handbookItemsDatabase = append(handbookItemsDatabase, TemplateItem{
 				ID:       uid,
@@ -592,9 +594,9 @@ func LoadCustomItems() {
 				upper.Props.Hands = hands.ID
 				upper.Props.Side = params.Side
 
-				customization[body.ID] = body
-				customization[hands.ID] = hands
-				customization[upper.ID] = upper
+				customization.Set(body.ID, body)
+				customization.Set(hands.ID, hands)
+				customization.Set(upper.ID, upper)
 			}
 
 			if params.LowerBody != nil {
@@ -649,7 +651,7 @@ func LoadCustomItems() {
 					"path": params.LowerBody.Feet.Prefab,
 					"rcid": "",
 				}
-				customization[feet.ID] = feet
+				customization.Set(feet.ID, feet)
 
 				lower := custLower.Clone()
 				lower.ID = params.LowerBody.Id
@@ -657,7 +659,7 @@ func LoadCustomItems() {
 				lower.Props.Side = params.Side
 				lower.Props.Feet = feet.ID
 
-				customization[lower.ID] = lower
+				customization.Set(lower.ID, lower)
 			}
 
 			setCustomClothingLocation(locales)

@@ -21,7 +21,7 @@ func setCharacter(path string) *Character[map[string]PlayerTradersInfo] {
 }
 
 func GetCharacterByID(uid string) *Character[map[string]PlayerTradersInfo] {
-	profile, ok := db.profile[uid]
+	profile, ok := db.profile.Get(uid)
 	if !ok {
 		log.Println(characterNotExist, uid)
 		return nil
@@ -145,7 +145,7 @@ func (inv *Inventory) CleanInventoryOfDeletedItemMods() bool {
 
 	cleaned := 0
 	for _, item := range inv.Items {
-		if _, ok := allItems[item.TPL]; !ok {
+		if _, ok := allItems.Get(item.TPL); !ok {
 			cleaned++
 			continue
 		}

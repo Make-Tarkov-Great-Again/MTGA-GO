@@ -82,13 +82,14 @@ func GetMainProfileList(sessionID string) []any {
 
 func GetMainAccountCustomization() []string {
 	customization := data.GetCustomizations()
-	output := make([]string, 0, len(customization))
-	for id, c := range customization {
+	output := make([]string, 0, customization.Len())
+	customization.ForEach(func(id string, c *data.Customization) bool {
 		if c.Props.Side == nil || len(c.Props.Side) == 0 {
-			continue
+			return true
 		}
 		output = append(output, id)
-	}
+		return true
+	})
 	return output
 }
 

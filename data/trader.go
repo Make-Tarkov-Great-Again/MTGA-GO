@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"github.com/alphadose/haxmap"
 	"log"
 	"path/filepath"
 	"time"
@@ -13,38 +14,28 @@ import (
 
 // #region Trader getters
 
-func GetTraders() map[string]*Trader {
+func GetTraders() *haxmap.Map[string, *Trader] {
 	return db.trader
 }
 
 // GetTraderByUID returns trader by UID
 func GetTraderByUID(UID string) (*Trader, error) {
-	trader, ok := db.trader[UID]
+	trader, ok := db.trader.Get(UID)
 	if ok {
 		return trader, nil
 	}
-	return nil, fmt.Errorf("Trader with UID", UID, "does not exist, returning nil")
+	return nil, fmt.Errorf("trader %s does not exist, returning nil", UID)
 }
 
-var tradersByName = map[string]string{
-	"Prapor":           "54cb50c76803fa8b248b4571",
-	"Therapist":        "54cb57776803fa99248b456e",
-	"Fence":            "579dc571d53a0658a154fbec",
-	"Skier":            "58330581ace78e27b8b10cee",
-	"PeaceKeeper":      "5935c25fb3acc3127c3d8cd9",
-	"Mechanic":         "5a7c2eca46aef81a7ca2145d",
-	"Ragman":           "5ac3b934156ae10c4430e83c",
-	"Jaeger":           "5c0647fdd443bc2504c2d371",
-	"LighthouseKeeper": "638f541a29ffd1183d187f57",
-}
+var tradersByName = haxmap.New[string, string]()
 
 // GetTraderIDByName returns the TID by their name
 //
 // Prapor, Therapist, Fence, Skier, PeaceKeeper, Mechanic, Ragman, Jaeger, LighthouseKeeper
 func GetTraderIDByName(name string) (*string, error) {
-	tid, ok := tradersByName[name]
+	tid, ok := tradersByName.Get(name)
 	if !ok {
-		return nil, fmt.Errorf("Trader with name", name, "does not exist, returning nil")
+		return nil, fmt.Errorf("trader %s does not exist, returning nil", name)
 	}
 	return &tid, nil
 }
@@ -53,11 +44,17 @@ func GetTraderIDByName(name string) (*string, error) {
 //
 // Prapor, Therapist, Fence, Skier, PeaceKeeper, Mechanic, Ragman, Jaeger, LighthouseKeeper
 func GetTraderByName(name string) (*Trader, error) {
-	tid, ok := tradersByName[name]
+	tid, ok := tradersByName.Get(name)
 	if !ok {
-		return nil, fmt.Errorf("Trader with name", name, "does not exist, returning nil")
+		return nil, fmt.Errorf("trader with name %s does not exist, returning nil", name)
 	}
-	return db.trader[tid], nil
+
+	trader, ok := db.trader.Get(tid)
+	if !ok {
+		return nil, fmt.Errorf("trader %s does not exist, returning nil", name)
+	}
+
+	return trader, nil
 }
 
 func CloneTrader(name string) *Trader {
@@ -84,12 +81,12 @@ func CloneTrader(name string) *Trader {
 
 // GetAssortItemByID returns entire item from assort as a slice (to get parent item use [0] when calling)
 func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
-	item, ok := t.Index.Assort.Items[id]
+	item, ok := t.Index.Assort.Items.Get(id)
 	if ok {
 		return []*AssortItem{t.Assort.Items[item]}
 	}
 
-	parentItems, parentOK := t.Index.Assort.ParentItems[id]
+	parentItems, parentOK := t.Index.Assort.ParentItems.Get(id)
 	if !parentOK {
 		log.Println("Assort Item", id, "does not exist for", t.Base.Nickname)
 		return nil
@@ -108,6 +105,10 @@ func (t *Trader) GetAssortItemByID(id string) []*AssortItem {
 
 	items = append(items, parent)
 	return items
+}
+
+func (t *Trader) GetIndexOfItem(id string) int16 {
+	return 0
 }
 
 func (t *Trader) GetStrippedAssort(character *Character[map[string]PlayerTradersInfo]) (*Assort, error) {
@@ -130,22 +131,23 @@ func (t *Trader) GetStrippedAssort(character *Character[map[string]PlayerTraders
 	loyaltyLevel := character.TradersInfo[traderID].LoyaltyLevel
 
 	assortIndex := AssortIndex{
-		Items:       map[string]int16{},
-		ParentItems: map[string]map[string]int16{},
+		Items:       haxmap.New[string, int16](),            //map[string]int16{},
+		ParentItems: haxmap.New[string, map[string]int16](), //map[string]map[string]int16{},
 	}
 
 	assort := Assort{
 		NextResupply:    0,
-		BarterScheme:    make(map[string][][]*Scheme),
+		BarterScheme:    haxmap.New[string, [][]*Scheme](), //make(map[string][][]*Scheme),
 		Items:           make([]*AssortItem, 0, len(t.Assort.Items)),
-		LoyalLevelItems: make(map[string]int8),
+		LoyalLevelItems: haxmap.New[string, int8](),
 	}
 
 	// TODO: add quest checks
-	for loyalID, loyalLevel := range t.Assort.LoyalLevelItems {
+
+	var counter int16
+	t.Assort.LoyalLevelItems.ForEach(func(loyalID string, loyalLevel int8) bool {
 		if loyaltyLevel >= loyalLevel {
-			assort.LoyalLevelItems[loyalID] = loyalLevel
-			continue
+			assort.LoyalLevelItems.Set(loyalID, loyalLevel)
 
 			/* if t.QuestAssort == nil {
 				loyalLevelItems[loyalID] = loyalLevel
@@ -163,31 +165,36 @@ func (t *Trader) GetStrippedAssort(character *Character[map[string]PlayerTraders
 				}
 			} */
 		}
-	}
+		return true
+	})
 
-	var counter int16
-	for itemID := range assort.LoyalLevelItems {
-		index, ok := t.Index.Assort.Items[itemID]
-		if ok {
-			assort.BarterScheme[itemID] = t.Assort.BarterScheme[itemID]
+	assort.LoyalLevelItems.ForEach(func(loyalID string, _ int8) bool {
+		if index, ok := t.Index.Assort.Items.Get(loyalID); ok {
+			barterScheme, ok := t.Assort.BarterScheme.Get(loyalID)
+			if !ok {
+				log.Fatal("ya momma")
+			}
 
-			assortIndex.Items[itemID] = counter
+			assort.BarterScheme.Set(loyalID, barterScheme)
+			assortIndex.Items.Set(loyalID, counter)
 			counter++
 			assort.Items = append(assort.Items, t.Assort.Items[index])
-		} else {
-			family, ok := t.Index.Assort.ParentItems[itemID]
-			if ok {
-				assort.BarterScheme[itemID] = t.Assort.BarterScheme[itemID]
-
-				assortIndex.ParentItems[itemID] = make(map[string]int16)
-				for k, v := range family {
-					assortIndex.ParentItems[itemID][k] = counter
-					counter++
-					assort.Items = append(assort.Items, t.Assort.Items[v])
-				}
+		} else if family, ok := t.Index.Assort.ParentItems.Get(loyalID); ok {
+			barterScheme, ok := t.Assort.BarterScheme.Get(loyalID)
+			if !ok {
+				log.Fatal("ya momma")
+			}
+			assort.BarterScheme.Set(loyalID, barterScheme)
+			assortIndex.ParentItems.Set(loyalID, make(map[string]int16))
+			parentItems, _ := assortIndex.ParentItems.Get(loyalID)
+			for k, v := range family {
+				parentItems[k] = counter
+				counter++
+				assort.Items = append(assort.Items, t.Assort.Items[v])
 			}
 		}
-	}
+		return true
+	})
 
 	assort.NextResupply = SetResupplyTimer()
 
@@ -202,7 +209,7 @@ type ResupplyTimer struct {
 	ResupplyTimeInSeconds int
 	NextResupplyTime      int
 	TimerSet              bool
-	Profiles              map[string]*Profile
+	Profiles              []string
 }
 
 var rs = &ResupplyTimer{
@@ -210,7 +217,7 @@ var rs = &ResupplyTimer{
 	ResupplyTimeInSeconds: 3600, //1 hour
 	NextResupplyTime:      0,
 	TimerSet:              false,
-	Profiles:              nil,
+	Profiles:              make([]string, 0),
 }
 
 func SetResupplyTimer() int {
@@ -218,10 +225,14 @@ func SetResupplyTimer() int {
 		return rs.NextResupplyTime
 	}
 
-	//TODO: Adjust rs.ResupplyTimeInSeconds based on a config
-
 	rs.NextResupplyTime = int(tools.GetCurrentTimeInSeconds()) + rs.ResupplyTimeInSeconds
 	rs.TimerResupplyTime = time.Duration(rs.ResupplyTimeInSeconds) * time.Second
+
+	profiles := GetProfiles()
+	profiles.ForEach(func(key string, value *Profile) bool {
+		rs.Profiles = append(rs.Profiles, value.Account.UID)
+		return true
+	})
 
 	rs.TimerSet = true
 
@@ -230,10 +241,9 @@ func SetResupplyTimer() int {
 		for {
 			<-timer.C
 			rs.NextResupplyTime += rs.ResupplyTimeInSeconds
-			rs.Profiles = GetProfiles()
 
-			for _, profile := range rs.Profiles {
-				traders, err := GetTraderCacheByID(profile.Character.ID)
+			for _, pid := range rs.Profiles {
+				traders, err := GetTraderCacheByID(pid)
 				if err != nil {
 					continue
 				}
@@ -299,7 +309,7 @@ func setTraders() {
 		return
 	}
 
-	db.trader = make(map[string]*Trader)
+	db.trader = haxmap.New[string, *Trader](uintptr(len(directory))) //make(map[string]*Trader)
 
 	for dir := range directory {
 		count := 0
@@ -316,6 +326,8 @@ func setTraders() {
 				if err := json.UnmarshalNoEscape(raw, &trader.Base); err != nil {
 					log.Fatalln(err)
 				}
+
+				tradersByName.Set(trader.Base.Nickname, trader.Base.ID)
 				done <- true
 			}()
 		}
@@ -324,12 +336,34 @@ func setTraders() {
 		if tools.FileExist(assortPath) {
 			count++
 			go func() {
+				dynamic := make(map[string]json.RawMessage)
 				raw := tools.GetJSONRawMessage(assortPath)
-				trader.Assort = new(Assort)
-				if err := json.UnmarshalNoEscape(raw, &trader.Assort); err != nil {
+				trader.Assort = &Assort{
+					NextResupply:    0,
+					BarterScheme:    haxmap.New[string, [][]*Scheme](),
+					Items:           make([]*AssortItem, 0),
+					LoyalLevelItems: haxmap.New[string, int8](),
+				}
+				if err := json.Unmarshal(raw, &dynamic); err != nil {
 					log.Fatalln(err)
 				}
-				trader.Assort.NextResupply = 0
+				for key, value := range dynamic {
+					if key == "barter_scheme" {
+						if err := json.Unmarshal(value, &trader.Assort.BarterScheme); err != nil {
+							log.Println()
+						}
+					}
+					if key == "items" {
+						if err := json.Unmarshal(value, &trader.Assort.Items); err != nil {
+							log.Println()
+						}
+					}
+					if key == "loyal_level_items" {
+						if err := json.Unmarshal(value, &trader.Assort.LoyalLevelItems); err != nil {
+							log.Println()
+						}
+					}
+				}
 
 				done <- true
 			}()
@@ -377,21 +411,22 @@ func setTraders() {
 		for i := 0; i < count; i++ {
 			<-done
 		}
-		db.trader[dir] = trader
+		db.trader.Set(dir, trader)
 	}
 }
 
 func setTraderOfferLookup() {
-	for _, trader := range db.trader {
-		if trader.Assort != nil {
-			trader.Index.Assort = &AssortIndex{}
-			parentItems := make(map[string]map[string]int16)
-			childlessItems := make(map[string]int16)
+	db.trader.ForEach(func(_ string, trader *Trader) bool {
+		if trader.Assort != nil && len(trader.Assort.Items) != 0 {
+			trader.Index.Assort = &AssortIndex{
+				Items:       haxmap.New[string, int16](),            //make(map[string]int16),
+				ParentItems: haxmap.New[string, map[string]int16](), //make(map[string]map[string]int16),
+			}
 
 			for index, item := range trader.Assort.Items {
 				itemChildren := GetItemFamilyTree(trader.Assort.Items, item.ID)
 				if len(itemChildren) == 1 {
-					childlessItems[item.ID] = int16(index)
+					trader.Index.Assort.Items.Set(item.ID, int16(index))
 					continue
 				}
 
@@ -406,11 +441,8 @@ func setTraderOfferLookup() {
 						break
 					}
 				}
-				parentItems[item.ID] = family
+				trader.Index.Assort.ParentItems.Set(item.ID, family)
 			}
-
-			trader.Index.Assort.ParentItems = parentItems
-			trader.Index.Assort.Items = childlessItems
 		}
 
 		if trader.Suits != nil {
@@ -419,7 +451,8 @@ func setTraderOfferLookup() {
 				trader.Index.Suits[suit.ID] = int8(index)
 			}
 		}
-	}
+		return true
+	})
 }
 
 type Trader struct {
@@ -437,8 +470,8 @@ type TraderIndex struct {
 }
 
 type AssortIndex struct {
-	Items       map[string]int16
-	ParentItems map[string]map[string]int16 `json:",omitempty"`
+	Items       *haxmap.Map[string, int16]            //map[string]int16
+	ParentItems *haxmap.Map[string, map[string]int16] `json:",omitempty"` //map[string]map[string]int16
 }
 
 type TraderBase struct {
@@ -528,10 +561,10 @@ type SuitRequirements struct {
 }
 
 type Assort struct {
-	NextResupply    int                    `json:"nextResupply"`
-	BarterScheme    map[string][][]*Scheme `json:"barter_scheme"`
-	Items           []*AssortItem          `json:"items"`
-	LoyalLevelItems map[string]int8        `json:"loyal_level_items"`
+	NextResupply    int                              `json:"nextResupply"`
+	BarterScheme    *haxmap.Map[string, [][]*Scheme] `json:"barter_scheme"` //map[string][][]*Scheme
+	Items           []*AssortItem                    `json:"items"`
+	LoyalLevelItems *haxmap.Map[string, int8]        `json:"loyal_level_items"` //map[string]int8
 }
 
 type AssortItem struct {

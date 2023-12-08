@@ -3,6 +3,7 @@ package data
 
 import (
 	"MT-GO/tools"
+	"github.com/alphadose/haxmap"
 	"sync"
 )
 
@@ -34,53 +35,66 @@ var db *database
 type database struct {
 	cache         *Cache
 	core          *Core
-	customization map[string]*Customization
+	customization *haxmap.Map[string, *Customization] //map[string]*Customization
 	bot           *Bots
 	edition       map[string]*Edition
 	template      *Template
 	hideout       *Hideout
-	item          map[string]*DatabaseItem
+	item          *haxmap.Map[string, *DatabaseItem]
 	location      *Location
 	locale        map[string]*Locale
-	profile       map[string]*Profile
-	trader        map[string]*Trader
+	profile       *haxmap.Map[string, *Profile] //map[string]*Profile
+	trader        *haxmap.Map[string, *Trader]  //map[string]*Trader
 	quest         *Quest
 	ragfair       *Ragfair
 	weather       *Weather
 }
 
+var workers = tools.CalculateWorkers() / 3
+
 func SetPrimaryDatabase() {
 	db = &database{
 		cache: &Cache{
-			player: make(map[string]*PlayerCache),
+			player: haxmap.New[string, *PlayerCache](),
 		},
 	}
 
-	var wg sync.WaitGroup
-	numWorkers := tools.CalculateWorkers() / 4
-
-	tools.RunTasks(&wg,
+	wg := &sync.WaitGroup{}
+	tools.RunTasks(wg,
 		[]func(){
-			setBots, setEditions, setHideout,
-			setLocales, setTraders,
-			setCore, setHandbook,
-			setQuests, setItems, setWeather,
-			setLocations, setCustomization,
+			setBots,
+			setEditions,
+			setHideout,
+			setLocales,
+			setTraders,
+			setCore,
+			setHandbook,
+			setQuests,
+			setItems,
+			setWeather,
+			setLocations,
+			setCustomization,
 		},
-		numWorkers)
+		workers)
 }
 
 func SetCache() {
-	var wg sync.WaitGroup
-	numWorkers := tools.CalculateWorkers() / 4
-
-	tools.RunTasks(&wg,
+	wg := &sync.WaitGroup{}
+	tools.RunTasks(wg,
 		[]func(){
-			setProfiles, setQuestLookup, setTraderOfferLookup,
-			setServerConfig, setHideoutAreaLookup, setHideoutRecipeLookup,
-			setScavcaseRecipeLookup, setCachedResponses, setHandbookIndex,
+			setProfiles,
+			setQuestLookup,
+			setTraderOfferLookup,
+			setServerConfig,
+			setHideoutAreaLookup,
+			setHideoutRecipeLookup,
+			setScavcaseRecipeLookup,
+			setCachedResponses,
+			setHandbookIndex,
 		},
-		numWorkers)
+		workers)
+
+	setProfiles()
 }
 
 // #region Database setters

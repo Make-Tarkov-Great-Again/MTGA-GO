@@ -3,18 +3,19 @@ package data
 import (
 	"MT-GO/tools"
 	"fmt"
+	"github.com/alphadose/haxmap"
 	"github.com/goccy/go-json"
 	"log"
 )
 
 // #region Item getters
 
-func GetItems() map[string]*DatabaseItem {
+func GetItems() *haxmap.Map[string, *DatabaseItem] {
 	return db.item
 }
 
 func GetItemByID(uid string) (*DatabaseItem, error) {
-	item, ok := db.item[uid]
+	item, ok := db.item.Get(uid)
 	if !ok {
 		return nil, fmt.Errorf("item %s not found in data", uid)
 	}
@@ -176,6 +177,7 @@ func (i *DatabaseItem) GetStackMaxSize() int32 {
 // #region Item setters
 
 func setItems() {
+	db.item = haxmap.New[string, *DatabaseItem]()
 	raw := tools.GetJSONRawMessage(itemsPath)
 	if err := json.Unmarshal(raw, &db.item); err != nil {
 		log.Println(err)
@@ -184,7 +186,7 @@ func setItems() {
 }
 
 func SetNewItem(entry DatabaseItem) {
-	db.item[entry.ID] = &entry
+	db.item.Set(entry.ID, &entry)
 }
 
 const handbookItemEntryNotExist string = "Handbook Item for %s entry doesn't exist"
@@ -363,7 +365,13 @@ func (i *DatabaseItem) IsWeapon() bool {
 		return false
 	}
 
-	if i.Parent == weaponBaseClass || db.item[i.Parent].Parent == weaponBaseClass {
+	item, ok := db.item.Get(i.Parent)
+	if !ok {
+		log.Printf("Item %s does not exist\n", i.Parent)
+		return false
+	}
+
+	if i.Parent == weaponBaseClass || item.Parent == weaponBaseClass {
 		return true
 	}
 

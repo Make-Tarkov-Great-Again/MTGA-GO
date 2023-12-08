@@ -3,6 +3,7 @@ package data
 import (
 	"MT-GO/tools"
 	"fmt"
+	"github.com/alphadose/haxmap"
 	"github.com/goccy/go-json"
 	"log"
 	"path/filepath"
@@ -17,7 +18,7 @@ const (
 )
 
 func GetCacheByID(uid string) (*PlayerCache, error) {
-	if cache, ok := db.cache.player[uid]; ok {
+	if cache, ok := db.cache.player.Get(uid); ok {
 		return cache, nil
 	}
 	return nil, fmt.Errorf(cacheNotExist, uid)
@@ -45,7 +46,15 @@ func GetTraderCacheByID(uid string) (*TraderCache, error) {
 	if cache.Traders != nil {
 		return cache.Traders, nil
 	}
-	return nil, fmt.Errorf(traderCacheNotExist, uid)
+
+	//log.Printf("trader cache for %s does not exist, creating...\n", uid)
+	cache.Traders = &TraderCache{
+		Index:      make(map[string]*AssortIndex),
+		Assorts:    make(map[string]*Assort),
+		Insurances: make(map[string]*Insurances),
+	}
+
+	return cache.Traders, nil
 }
 
 func GetInventoryCacheByID(uid string) (*InventoryContainer, error) {
@@ -61,21 +70,20 @@ func GetInventoryCacheByID(uid string) (*InventoryContainer, error) {
 }
 
 func SetProfileCache(id string) {
-	if _, ok := db.cache.player[id]; !ok && db.profile[id].Character == nil {
+	profile, ok := db.profile.Get(id)
+	if !ok {
 		return
 	}
+	if profile.Character == nil {
+		return
+	}
+	if db.cache.player == nil {
+		db.cache.player = haxmap.New[string, *PlayerCache]()
+	}
 
-	cache := &PlayerCache{
-		Traders: &TraderCache{
-			Index:      make(map[string]*AssortIndex),
-			Assorts:    make(map[string]*Assort),
-			Insurances: make(map[string]*Insurances),
-		},
-	}
-	if db.profile[id].Character != nil {
-		cache.SetCharacterCache(db.profile[id].Character)
-	}
-	db.cache.player[id] = cache
+	cache := new(PlayerCache)
+	cache.SetCharacterCache(profile.Character)
+	db.cache.player.Set(id, cache)
 }
 
 func (c *PlayerCache) SetCharacterCache(character *Character[map[string]PlayerTradersInfo]) {
@@ -123,8 +131,6 @@ func (c *PlayerCache) SetCharacterCache(character *Character[map[string]PlayerTr
 	for i := 0; i < 4; i++ {
 		<-done
 	}
-
-	db.cache.player[character.ID] = c
 }
 
 func SetInventoryContainer(inventory *Inventory) *InventoryContainer {
@@ -580,7 +586,7 @@ columnLoop:
 type Cache struct {
 	serverListings []ServerListing
 	response       *ResponseCache
-	player         map[string]*PlayerCache
+	player         *haxmap.Map[string, *PlayerCache]
 }
 
 func HasGetServerListings() []ServerListing {
@@ -606,10 +612,10 @@ type PlayerCache struct {
 }
 
 type ResponseCache struct {
-	Save            bool             `json:"-"`
-	Overwrite       map[string]*int8 `json:"-"`
+	Save            bool                       `json:"-"`
+	Overwrite       *haxmap.Map[string, *int8] `json:"-"`
 	Version         string
-	CachedResponses map[string]*[]byte
+	CachedResponses *haxmap.Map[string, []byte]
 }
 
 func GetCachedResponses() *ResponseCache {
@@ -618,9 +624,12 @@ func GetCachedResponses() *ResponseCache {
 
 func setCachedResponses() {
 	cachePath := filepath.Join(coreFilePath, "response.json")
+	if db.cache == nil {
+		db.cache = new(Cache)
+	}
+
 	if !tools.FileExist(cachePath) {
-		db.cache.response = new(ResponseCache)
-		db.cache.response.CachedResponses = map[string]*[]byte{
+		response := map[string][]byte{
 			"/client/settings":                            nil,
 			"/client/customization":                       nil,
 			"/client/items":                               nil,
@@ -634,6 +643,16 @@ func setCachedResponses() {
 			"/client/hideout/settings":                    nil,
 			"/client/hideout/production/recipes":          nil,
 			"/client/hideout/production/scavcase/recipes": nil,
+		}
+
+		db.cache.response = &ResponseCache{
+			Save:            false,
+			Overwrite:       haxmap.New[string, *int8](),
+			Version:         "",
+			CachedResponses: haxmap.New[string, []byte](uintptr(len(response))),
+		}
+		for k, v := range response {
+			db.cache.response.CachedResponses.Set(k, v)
 		}
 		return
 	}
@@ -666,20 +685,27 @@ func (rsc *ResponseCache) SaveResponseCache() error {
 }
 
 func CheckRequestedResponseCache(route string) bool {
-	if _, ok := db.cache.response.Overwrite[route]; ok {
-		delete(db.cache.response.Overwrite, route)
+	if _, ok := db.cache.response.Overwrite.Get(route); ok {
+		db.cache.response.Overwrite.Del(route)
 		return false
 	}
-	return db.cache.response.CachedResponses[route] != nil
+
+	response, _ := db.cache.response.CachedResponses.Get(route)
+	return response != nil
 }
 
-func GetRequestedResponseCache(route string) *[]byte {
-	return db.cache.response.CachedResponses[route]
+func GetRequestedResponseCache(route string) []byte {
+	response, ok := db.cache.response.CachedResponses.Get(route)
+	if !ok {
+		log.Printf("response for %s does not exist\n", route)
+		return nil
+	}
+	return response
 }
 
 func SetResponseCacheForRoute(route string, data []byte) {
 	db.cache.response.Save = true
-	db.cache.response.CachedResponses[route] = &data
+	db.cache.response.CachedResponses.Set(route, data)
 }
 
 type SkillsCache struct {

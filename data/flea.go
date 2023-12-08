@@ -3,6 +3,7 @@ package data
 import (
 	"MT-GO/tools"
 	"fmt"
+	"log"
 )
 
 type Ragfair struct {
@@ -36,21 +37,21 @@ func SetFlea() {
 		},
 	}
 	var fleaOffersCount int16
-	for tid, trader := range db.trader {
-		if trader.Assort == nil {
-			continue
-		}
 
-		for id, s := range trader.Assort.BarterScheme {
+	db.trader.ForEach(func(tid string, trader *Trader) bool {
+		if trader.Assort == nil {
+			return true
+		}
+		trader.Assort.BarterScheme.ForEach(func(id string, s [][]*Scheme) bool {
 			var scheme []*Scheme
 			var items []AssortItem
 			var main AssortItem
 
-			if idx, ok := trader.Index.Assort.Items[id]; ok {
+			if idx, ok := trader.Index.Assort.Items.Get(id); ok {
 				main = *trader.Assort.Items[idx]
 				scheme = s[0]
 				items = []AssortItem{main}
-			} else if family, ok := trader.Index.Assort.ParentItems[id]; ok {
+			} else if family, ok := trader.Index.Assort.ParentItems.Get(id); ok {
 				items = make([]AssortItem, 0, len(family))
 
 				scheme = s[0]
@@ -67,6 +68,11 @@ func SetFlea() {
 			price, err := GetPriceByID(main.Tpl)
 			if err != nil {
 				panic(err)
+			}
+
+			loyalItem, ok := trader.Assort.LoyalLevelItems.Get(main.ID)
+			if !ok {
+				log.Fatal("loyalitem doesn't exist")
 			}
 
 			offer := &Offer{
@@ -86,7 +92,7 @@ func SetFlea() {
 				StartTime:        int32(tools.GetCurrentTimeInSeconds()),
 				EndTime:          int32(trader.Assort.NextResupply),
 				UnlimitedCount:   false,
-				LoyaltyLevel:     trader.Assort.LoyalLevelItems[main.ID],
+				LoyaltyLevel:     loyalItem,
 			}
 
 			if main.Upd.BuyRestrictionMax != 0 {
@@ -100,10 +106,11 @@ func SetFlea() {
 			}
 			db.ragfair.Catalog[main.Tpl] = append(db.ragfair.Catalog[main.Tpl], *offer)
 			db.ragfair.Market.Categories[main.Tpl]++
-		}
+			return true
+		})
 		fleaOffersCount++
-	}
-	fmt.Println()
+		return true
+	})
 }
 
 // #endregion

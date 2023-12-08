@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"github.com/alphadose/haxmap"
 	"log"
 
 	"MT-GO/tools"
@@ -11,14 +12,14 @@ import (
 
 // #region Customization getters
 
-func GetCustomizations() map[string]*Customization {
+func GetCustomizations() *haxmap.Map[string, *Customization] {
 	return db.customization
 }
 
 func GetCustomizationByID(id string) (*Customization, error) {
-	customization, ok := db.customization[id]
+	customization, ok := db.customization.Get(id)
 	if !ok {
-		return nil, fmt.Errorf("Customization with ID", id, "does not exist")
+		return nil, fmt.Errorf("customization with ID %s does not exist", id)
 	}
 	return customization, nil
 }
@@ -63,7 +64,7 @@ func (c *Customization) Clone() *Customization {
 // #region Customization setters
 
 func setCustomization() {
-	db.customization = make(map[string]*Customization)
+	db.customization = haxmap.New[string, *Customization]() //make(map[string]*Customization)
 	raw := tools.GetJSONRawMessage(customizationPath)
 	if err := json.UnmarshalNoEscape(raw, &db.customization); err != nil {
 		log.Fatalln("Set Customization:", err)

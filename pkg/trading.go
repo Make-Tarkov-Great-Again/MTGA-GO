@@ -45,11 +45,12 @@ func GetSuitesStorage(sessionID string) (map[string]any, error) {
 
 func GetTraderSettings() []*data.TraderBase {
 	traders := data.GetTraders()
-	output := make([]*data.TraderBase, 0, len(traders))
+	output := make([]*data.TraderBase, 0, traders.Len())
 
-	for _, trader := range traders {
+	traders.ForEach(func(_ string, trader *data.Trader) bool {
 		output = append(output, trader.Base)
-	}
+		return true
+	})
 
 	sort.SliceStable(output, func(i, j int) bool {
 		return output[i].ID < output[j].ID
@@ -67,12 +68,11 @@ func GetTraderSuits(id string) ([]data.TraderSuits, error) {
 		return trader.Suits, nil
 	}
 
-	return nil, fmt.Errorf("Trader %s suits does not exist", id)
+	return nil, fmt.Errorf("trader %s suits does not exist", id)
 }
 
 func GetTraderAssort(r *http.Request) (*data.Assort, error) {
-	sessionID := GetSessionID(r)
-	character := data.GetCharacterByID(sessionID)
+	character := data.GetCharacterByID(GetSessionID(r))
 	trader, err := data.GetTraderByUID(chi.URLParam(r, "id"))
 	if err != nil {
 		return nil, err

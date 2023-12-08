@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"github.com/alphadose/haxmap"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,14 +16,14 @@ const profilesPath string = "user/profiles/"
 
 // #region Profile getters
 
-func GetProfiles() map[string]*Profile {
+func GetProfiles() *haxmap.Map[string, *Profile] {
 	return db.profile
 }
 
 const profileNotExist string = "Profile for %s does not exist"
 
 func GetProfileByUID(uid string) (*Profile, error) {
-	if profile, ok := db.profile[uid]; ok {
+	if profile, ok := db.profile.Get(uid); ok {
 		return profile, nil
 	}
 	return nil, fmt.Errorf(profileNotExist, uid)
@@ -33,12 +34,13 @@ func GetProfileByUID(uid string) (*Profile, error) {
 // #region Profile setters
 
 func setProfiles() {
-	db.profile = make(map[string]*Profile)
 	users, err := tools.GetDirectoriesFrom(profilesPath)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
+	db.profile = haxmap.New[string, *Profile](uintptr(len(users)))
 
 	if len(users) == 0 {
 		return
@@ -116,8 +118,8 @@ func setProfiles() {
 			<-done
 		}
 
-		db.profile[user] = profile
-		SetProfileCache(user)
+		db.profile.Set(user, profile)
+		SetProfileCache(user) //MAYBE I SET THIS SECONDARY
 	}
 }
 

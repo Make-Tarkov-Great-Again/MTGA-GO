@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/alphadose/haxmap"
 	"log"
 	"os"
 	"os/exec"
@@ -95,9 +96,9 @@ func registerAccount() {
 
 	UID := tools.GenerateMongoID()
 	account.UID = UID
-	account.AID = len(profiles)
+	account.AID = int(profiles.Len())
 
-	profiles[UID] = &data.Profile{
+	profiles.Set(UID, &data.Profile{
 		Account: account,
 		Character: &data.Character[map[string]data.PlayerTradersInfo]{
 			ID: UID,
@@ -121,23 +122,30 @@ func registerAccount() {
 		},
 		Dialogue: new(data.Dialogue),
 		Cache:    nil,
-	}
+	})
 
+	profile, ok := profiles.Get(UID)
+	if !ok {
+		log.Fatalln("profile does not exist")
+	}
 	//save profile
-	profiles[UID].SaveProfile()
+	profile.SaveProfile()
 
 	//login
 	fmt.Println("\nAccount created, logging in...")
-	loggedIn(profiles[UID].Account)
+	loggedIn(profile.Account)
 }
 
-func validateUsername(profiles map[string]*data.Profile, username string) bool {
-	for _, profile := range profiles {
-		if profile.Account.Username == username {
+func validateUsername(profiles *haxmap.Map[string, *data.Profile], username string) bool {
+	output := true
+	profiles.ForEach(func(key string, value *data.Profile) bool {
+		if value.Account.Username == username {
+			output = false
 			return false
 		}
-	}
-	return true
+		return true
+	})
+	return output
 }
 
 func login() {
@@ -145,7 +153,7 @@ func login() {
 	var input string
 	var account *data.Account
 	profiles := data.GetProfiles()
-	if len(profiles) == 0 {
+	if int(profiles.Len()) == 0 {
 		fmt.Println("No profiles, redirecting to Account Register...")
 		registerAccount()
 	}
@@ -157,11 +165,14 @@ func login() {
 		scanner.Scan()
 		input = scanner.Text()
 
-		for _, profile := range profiles {
-			if profile.Account.Username == input {
-				account = profile.Account
+		profiles.ForEach(func(_ string, profile *data.Profile) bool {
+			if profile.Account.Username != input {
+				return true
 			}
-		}
+			account = profile.Account
+			return false
+
+		})
 
 		if account == nil {
 			fmt.Println("Invalid username, try again moron")
@@ -180,7 +191,7 @@ func login() {
 
 		fmt.Println("Logging in...")
 
-		loggedIn(profiles[account.UID].Account)
+		loggedIn(account)
 		break
 	}
 
@@ -261,8 +272,14 @@ func wipeYoAss(account *data.Account) {
 	account.Wipe = true
 	profiles := data.GetProfiles()
 
-	profiles[account.UID].Character = &data.Character[map[string]data.PlayerTradersInfo]{}
-	profiles[account.UID].Storage = &data.Storage{
+	profile, ok := profiles.Get(account.UID)
+	if !ok {
+		log.Println("profile does not exist")
+		return
+	}
+
+	profile.Character = &data.Character[map[string]data.PlayerTradersInfo]{}
+	profile.Storage = &data.Storage{
 		Suites: []string{},
 		Builds: &data.Builds{
 			EquipmentBuilds: []*data.EquipmentBuild{},
@@ -271,9 +288,9 @@ func wipeYoAss(account *data.Account) {
 		Insurance: []any{},
 		Mailbox:   []*data.Notification{},
 	}
-	profiles[account.UID].Dialogue = &data.Dialogue{}
+	profile.Dialogue = &data.Dialogue{}
 	fmt.Println("Yo ass is clean")
-	profiles[account.UID].SaveProfile()
+	profile.SaveProfile()
 	loggedIn(account)
 }
 
