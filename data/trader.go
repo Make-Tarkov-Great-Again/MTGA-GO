@@ -15,25 +15,23 @@ import (
 // #region Trader getters
 
 func GetTraders() *haxmap.Map[string, *Trader] {
-	return db.trader
+	return db.trader.Traders
 }
 
 // GetTraderByUID returns trader by UID
 func GetTraderByUID(UID string) (*Trader, error) {
-	trader, ok := db.trader.Get(UID)
+	trader, ok := db.trader.Traders.Get(UID)
 	if ok {
 		return trader, nil
 	}
 	return nil, fmt.Errorf("trader %s does not exist, returning nil", UID)
 }
 
-var tradersByName = haxmap.New[string, string]()
-
 // GetTraderIDByName returns the TID by their name
 //
 // Prapor, Therapist, Fence, Skier, PeaceKeeper, Mechanic, Ragman, Jaeger, LighthouseKeeper
 func GetTraderIDByName(name string) (*string, error) {
-	tid, ok := tradersByName.Get(name)
+	tid, ok := db.trader.Names.Get(name)
 	if !ok {
 		return nil, fmt.Errorf("trader %s does not exist, returning nil", name)
 	}
@@ -44,12 +42,12 @@ func GetTraderIDByName(name string) (*string, error) {
 //
 // Prapor, Therapist, Fence, Skier, PeaceKeeper, Mechanic, Ragman, Jaeger, LighthouseKeeper
 func GetTraderByName(name string) (*Trader, error) {
-	tid, ok := tradersByName.Get(name)
+	tid, ok := db.trader.Names.Get(name)
 	if !ok {
 		return nil, fmt.Errorf("trader with name %s does not exist, returning nil", name)
 	}
 
-	trader, ok := db.trader.Get(tid)
+	trader, ok := db.trader.Traders.Get(tid)
 	if !ok {
 		return nil, fmt.Errorf("trader %s does not exist, returning nil", name)
 	}
@@ -302,14 +300,46 @@ func GetItemFamilyTree(items []*AssortItem, parent string) []string {
 	return list
 }
 
+func GetSupplyData() *SupplyData {
+	supplyData := db.trader.LogisticData
+	if supplyData == nil {
+		prices := GetPrices()
+
+		rub, _ := prices.Get(*GetCurrencyByName("RUB"))
+		eur, _ := prices.Get(*GetCurrencyByName("EUR"))
+		usd, _ := prices.Get(*GetCurrencyByName("USD"))
+
+		db.trader.LogisticData = &SupplyData{
+			SupplyNextTime: 0,
+			Prices:         make(map[string]int32),
+			CurrencyCourses: CurrencyCourses{
+				RUB: rub,
+				EUR: eur,
+				DOL: usd,
+			},
+		}
+
+		prices.ForEach(func(key string, value int32) bool {
+			db.trader.LogisticData.Prices[key] = value
+			return true
+		})
+
+		return db.trader.LogisticData
+	}
+	return supplyData
+}
+
 func setTraders() {
 	directory, err := tools.GetDirectoriesFrom(traderPath)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	db.trader = haxmap.New[string, *Trader](uintptr(len(directory))) //make(map[string]*Trader)
+	db.trader = &Traders{
+		LogisticData: nil,
+		Names:        haxmap.New[string, string](),
+		Traders:      haxmap.New[string, *Trader](uintptr(len(directory))),
+	}
 
 	for dir := range directory {
 		count := 0
@@ -327,7 +357,7 @@ func setTraders() {
 					log.Fatalln(err)
 				}
 
-				tradersByName.Set(trader.Base.Nickname, trader.Base.ID)
+				db.trader.Names.Set(trader.Base.Nickname, trader.Base.ID)
 				done <- true
 			}()
 		}
@@ -393,12 +423,12 @@ func setTraders() {
 		for i := 0; i < count; i++ {
 			<-done
 		}
-		db.trader.Set(dir, trader)
+		db.trader.Traders.Set(dir, trader)
 	}
 }
 
 func setTraderOfferLookup() {
-	db.trader.ForEach(func(_ string, trader *Trader) bool {
+	db.trader.Traders.ForEach(func(_ string, trader *Trader) bool {
 		if trader.Assort != nil && len(trader.Assort.Items) != 0 {
 			trader.Index.Assort = &AssortIndex{
 				Items:       haxmap.New[string, int16](),            //make(map[string]int16),
@@ -435,6 +465,24 @@ func setTraderOfferLookup() {
 		}
 		return true
 	})
+}
+
+type Traders struct {
+	LogisticData *SupplyData
+	Names        *haxmap.Map[string, string]
+	Traders      *haxmap.Map[string, *Trader]
+}
+
+type SupplyData struct {
+	SupplyNextTime  int              `json:"supplyNextTime"`
+	Prices          map[string]int32 `json:"prices"`
+	CurrencyCourses CurrencyCourses  `json:"currencyCourses"`
+}
+
+type CurrencyCourses struct {
+	RUB int32 `json:"5449016a4bdc2d6f028b456f"`
+	EUR int32 `json:"569668774bdc2da2298b4568"`
+	DOL int32 `json:"5696686a4bdc2da3298b456a"`
 }
 
 type Trader struct {

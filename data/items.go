@@ -192,7 +192,7 @@ func SetNewItem(entry DatabaseItem) {
 const handbookItemEntryNotExist string = "Handbook Item for %s entry doesn't exist"
 
 func (i *DatabaseItem) GetHandbookItemEntry() (*TemplateItem, error) {
-	idx, ok := db.template.index.Item.Index[i.ID]
+	idx, ok := db.template.index.Item.Index.Get(i.ID)
 	if !ok {
 		return nil, fmt.Errorf(handbookItemEntryNotExist, i.ID)
 	}
@@ -210,7 +210,6 @@ func (i *DatabaseItem) CloneHandbookItemEntry() (*TemplateItem, error) {
 }
 
 func (i *DatabaseItem) CreateItemUPD() (*ItemUpdate, error) {
-
 	itemUpd := new(ItemUpdate)
 	switch i.Parent {
 	case "590c745b86f7743cc433c5f2":

@@ -63,7 +63,7 @@ func setProfiles() {
 			if tools.FileExist(path) {
 				profile.Character = setCharacter(path)
 				if profile.Character.Info.Nickname != "" {
-					Nicknames[profile.Character.Info.Nickname] = nil
+					db.cache.nicknames.Set(profile.Character.Info.Nickname, struct{}{})
 				}
 
 				if profile.Character.Inventory.CleanInventoryOfDeletedItemMods() {
@@ -205,8 +205,6 @@ type Profile struct {
 }
 
 type Dialogue map[string]*Dialog
-
-var Nicknames = make(map[string]*struct{})
 
 type Friends struct {
 	Friends             []FriendRequest `json:"Friends"`

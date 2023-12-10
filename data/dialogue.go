@@ -9,7 +9,7 @@ import (
 	"MT-GO/tools"
 )
 
-var MessageType = map[string]int8{
+var messageType = map[string]int8{
 	"User":         1,
 	"Trader":       2,
 	"Auction":      3,
@@ -231,8 +231,8 @@ const (
 func CreateQuestDialogue(playerID string, sender string, traderID string, dialogueID string) (*Dialog, *DialogMessage) {
 	contents := &DialogueDetails{
 		RecipientID:                    playerID,
-		Sender:                         MessageType[sender],
-		DialogType:                     MessageType["Trader"],
+		Sender:                         messageType[sender],
+		DialogType:                     messageType["Trader"],
 		Trader:                         traderID,
 		TemplateID:                     dialogueID,
 		ItemsMaxStorageLifetimeSeconds: redeemTime,

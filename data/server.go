@@ -12,10 +12,8 @@ const (
 	HTTPTemplate  = "http://%s"
 )
 
-var coreServerData *serverData
-
 func setServerConfig() {
-	coreServerData = &serverData{
+	coreServerData := &serverData{
 		MainIPandPort:      net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Main),
 		MessagingIPandPort: net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Messaging),
 		TradingIPandPort:   net.JoinHostPort(db.core.ServerConfig.IP, db.core.ServerConfig.Ports.Trading),
@@ -46,40 +44,41 @@ func setServerConfig() {
 		coreServerData.RagFairAddress = fmt.Sprintf(HTTPTemplate, coreServerData.RagFairIPandPort)
 		coreServerData.LobbyAddress = fmt.Sprintf("ws://%s/sws", coreServerData.LobbyIPandPort)
 	}
+	db.cache.server.core = coreServerData
 }
 
 func GetMainAddress() string {
-	return coreServerData.MainAddress
+	return db.cache.server.core.MainAddress
 }
 
 func GetTradingAddress() string {
-	return coreServerData.TradingAddress
+	return db.cache.server.core.TradingAddress
 }
 
 func GetMessageAddress() string {
-	return coreServerData.MessageAddress
+	return db.cache.server.core.MessageAddress
 }
 
 func GetRagFairAddress() string {
-	return coreServerData.RagFairAddress
+	return db.cache.server.core.RagFairAddress
 }
 
 func GetLobbyAddress() string {
-	return coreServerData.LobbyAddress
+	return db.cache.server.core.LobbyAddress
 }
 func GetWebSocketAddress() string {
-	if coreServerData.HTTPS != nil {
-		return coreServerData.HTTPS.WSSAddress
+	if db.cache.server.core.HTTPS != nil {
+		return db.cache.server.core.HTTPS.WSSAddress
 	}
-	return coreServerData.HTTP.WSAddress
+	return db.cache.server.core.HTTP.WSAddress
 }
 
 func GetMainIPandPort() string {
-	return coreServerData.MainIPandPort
+	return db.cache.server.core.MainIPandPort
 }
 
 func GetTradingIPandPort() string {
-	return coreServerData.TradingIPandPort
+	return db.cache.server.core.TradingIPandPort
 }
 
 func AddToItemPresets(key string, value globalItemPreset) {
@@ -87,15 +86,15 @@ func AddToItemPresets(key string, value globalItemPreset) {
 }
 
 func GetMessagingIPandPort() string {
-	return coreServerData.MessagingIPandPort
+	return db.cache.server.core.MessagingIPandPort
 }
 
 func GetLobbyIPandPort() string {
-	return coreServerData.LobbyIPandPort
+	return db.cache.server.core.LobbyIPandPort
 }
 
 func GetRagFairIPandPort() string {
-	return coreServerData.RagFairIPandPort
+	return db.cache.server.core.RagFairIPandPort
 }
 
 type serverData struct {

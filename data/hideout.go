@@ -82,7 +82,7 @@ func GetHideoutAreaByAreaType(_type int8) *map[string]any {
 
 // GetHideoutAreaByName retrieves a hideout area by its name.
 func GetHideoutAreaByName(name string) *map[string]any {
-	area, ok := HideoutAreaNames[name]
+	area, ok := db.hideout.Index.Name[name]
 	if !ok {
 		log.Println(areaNotExist, name)
 		return nil
@@ -128,6 +128,35 @@ func GetScavCaseRecipeByID(rid string) *map[string]any {
 func setHideout() {
 	db.hideout = &Hideout{
 		Index: HideoutIndex{
+			Name: map[string]int8{
+				"NotSet":               -1,
+				"Vents":                0,
+				"Security":             1,
+				"Lavatory":             2,
+				"Stash":                3,
+				"Generator":            4,
+				"Heating":              5,
+				"WaterCollector":       6,
+				"MedStation":           7,
+				"NutritionUnit":        8,
+				"RestSpace":            9,
+				"Workbench":            10,
+				"IntelCenter":          11,
+				"ShootingRange":        12,
+				"Library":              13,
+				"ScavCase":             14,
+				"Illumination":         15,
+				"PlaceOfFame":          16,
+				"AirFiltering":         17,
+				"SolarPower":           18,
+				"BoozeGenerator":       19,
+				"BitcoinFarm":          20,
+				"ChristmasTree":        21,
+				"EmergencyWall":        22,
+				"Gym":                  23,
+				"WeaponStand":          24,
+				"WeaponStandSecondary": 25,
+			},
 			Areas:    make(map[int8]int8),
 			ScavCase: make(map[string]int8),
 			Recipes:  make(map[string]int16),
@@ -221,6 +250,7 @@ type Hideout struct {
 }
 
 type HideoutIndex struct {
+	Name     map[string]int8
 	Areas    map[int8]int8
 	ScavCase map[string]int8
 	Recipes  map[string]int16
@@ -231,36 +261,6 @@ type HideoutSettings struct {
 	GeneratorFuelFlowRate     float64 `json:"generatorFuelFlowRate"`
 	AirFilterUnitFlowRate     float64 `json:"airFilterUnitFlowRate"`
 	GPUBoostRate              float64 `json:"gpuBoostRate"`
-}
-
-var HideoutAreaNames = map[string]int8{
-	"NotSet":               -1,
-	"Vents":                0,
-	"Security":             1,
-	"Lavatory":             2,
-	"Stash":                3,
-	"Generator":            4,
-	"Heating":              5,
-	"WaterCollector":       6,
-	"MedStation":           7,
-	"NutritionUnit":        8,
-	"RestSpace":            9,
-	"Workbench":            10,
-	"IntelCenter":          11,
-	"ShootingRange":        12,
-	"Library":              13,
-	"ScavCase":             14,
-	"Illumination":         15,
-	"PlaceOfFame":          16,
-	"AirFiltering":         17,
-	"SolarPower":           18,
-	"BoozeGenerator":       19,
-	"BitcoinFarm":          20,
-	"ChristmasTree":        21,
-	"EmergencyWall":        22,
-	"Gym":                  23,
-	"WeaponStand":          24,
-	"WeaponStandSecondary": 25,
 }
 
 // #endregion
