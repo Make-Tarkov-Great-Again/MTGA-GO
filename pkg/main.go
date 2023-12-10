@@ -96,7 +96,7 @@ func GetMainAccountCustomization() []string {
 }
 
 func ValidateNickname(nickname string) *ResponseBody {
-	if len(nickname) == 0 {
+	if len(nickname) < 3 {
 		body := ApplyResponseBody(nil)
 		body.Err = 226
 		body.Errmsg = "226 - "
@@ -104,7 +104,7 @@ func ValidateNickname(nickname string) *ResponseBody {
 		return body
 	}
 
-	if _, ok := data.Nicknames[nickname]; ok {
+	if data.IsNicknameUnavailable(nickname) {
 		body := ApplyResponseBody(nil)
 		body.Err = 225
 		body.Errmsg = "225 - "
@@ -338,7 +338,6 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 const (
 	storageBuildNotExist    = "Storage builds for %s does not exist"
 	channelNotifierNotExist = "Channel.Notifier for %s does not exist"
-	channelNotExist         = "Channel for %s does not exist"
 	notiFormat              = "%s/push/notifier/get/%s"
 	wssFormat               = "%s/push/notifier/getwebsocket/%s"
 )

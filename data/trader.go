@@ -335,9 +335,12 @@ func setTraders() {
 		log.Println(err)
 		return
 	}
+	db.trader = &Traders{
+		LogisticData: nil,
+		Names:        haxmap.New[string, string](),
+		Traders:      haxmap.New[string, *Trader](uintptr(len(directory))),
+	}
 
-	db.trader.Traders = haxmap.New[string, *Trader](uintptr(len(directory))) //make(map[string]*Trader)
-	db.trader.Names = haxmap.New[string, string]()
 	for dir := range directory {
 		count := 0
 		done := make(chan bool)

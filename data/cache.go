@@ -590,6 +590,13 @@ type Cache struct {
 	channel        *Channels
 	gameConfig     *GameConfig
 	brandName      *BrandName
+	websocket      *haxmap.Map[string, *Connect]
+	nicknames      *haxmap.Map[string, struct{}]
+}
+
+type ServerData struct {
+	websocket *haxmap.Map[string, *Connect]
+	core      *serverData
 }
 type BrandName map[string]string
 
@@ -599,6 +606,11 @@ func GetBrandName() *BrandName {
 
 func (bn *BrandName) SetBrandName() {
 	db.cache.brandName = bn
+}
+
+func IsNicknameUnavailable(name string) bool {
+	_, ok := db.cache.nicknames.Get(name)
+	return ok
 }
 
 type GameConfig struct {

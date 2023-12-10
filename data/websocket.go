@@ -6,40 +6,31 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var connections = make(map[string]*Connect)
-
 type Connect struct {
 	*websocket.Conn
 }
 
 func DeleteConnection(sessionID string) {
-	_, ok := connections[sessionID]
+	_, ok := db.cache.websocket.GetAndDel(sessionID)
 	if ok {
 		log.Println("Connection deleted")
-
-		//TODO: Check if they were in raid, if they were they lose their stuff
-
-		delete(connections, sessionID)
 		return
 	}
-	log.Println("Connection does not exist to delete")
+	log.Println("Connection does not exist")
 	return
 }
 
 func SetConnection(sessionID string, conn *websocket.Conn) {
-	_, ok := connections[sessionID]
+	_, ok := db.cache.websocket.GetOrSet(sessionID, &Connect{conn})
 	if ok {
 		log.Println("Websocket connection has already been established for sessionID:", sessionID)
 		return
 	}
-
-	connection := &Connect{conn}
-	connections[sessionID] = connection
 	log.Println("Websocket connection has been established for sessionID:", sessionID)
 }
 
 func GetConnection(sessionID string) *Connect {
-	conn, ok := connections[sessionID]
+	conn, ok := db.cache.websocket.Get(sessionID)
 	if !ok {
 		log.Println("Websocket connection has not been established for sessionID:", sessionID, ". Returning nil...")
 		return nil
@@ -48,10 +39,9 @@ func GetConnection(sessionID string) *Connect {
 	return conn
 }
 
-func (conn *Connect) SendMessage(notification *Notification) {
-	err := conn.WriteJSON(notification)
-	if err != nil {
-		log.Println(err)
-		return
+func (conn *Connect) SendMessage(notification *Notification) error {
+	if err := conn.WriteJSON(notification); err != nil {
+		return err
 	}
+	return nil
 }

@@ -9,8 +9,15 @@ import (
 )
 
 type Quest struct {
-	quests *haxmap.Map[string, map[string]any] //map[string]map[string]any
-	query  *haxmap.Map[string, *Query]         //map[string]*Query
+	quests        *haxmap.Map[string, map[string]any] //map[string]map[string]any
+	query         *haxmap.Map[string, *Query]         //map[string]*Query
+	factionQuests *FactionQuests
+	status        *haxmap.Map[int8, string]
+}
+
+type FactionQuests struct {
+	Bear *haxmap.Map[string, struct{}]
+	Usec *haxmap.Map[string, struct{}]
 }
 
 // #region Quests getters
@@ -62,41 +69,91 @@ func setQuests() {
 }
 
 func setQuestLookup() {
-	db.quest.query = haxmap.New[string, *Query]() //map[string]*Query{}
-	db.quest.quests.ForEach(func(k string, v map[string]any) bool {
-		done := make(chan struct{})
-		query := &Query{
-			Name:   v["QuestName"].(string),
-			Trader: v["traderId"].(string),
+	db.quest.query = haxmap.New[string, *Query]()
+	db.quest.status = haxmap.New[int8, string]()
+	db.quest.factionQuests = &FactionQuests{
+		Bear: haxmap.New[string, struct{}](uintptr(4)),
+		Usec: haxmap.New[string, struct{}](uintptr(4)),
+	}
+	questStatus := map[int8]string{
+		0: "Locked",
+		1: "AvailableForStart",
+		2: "Started",
+		3: "AvailableForFinish",
+		4: "Success",
+		5: "Fail",
+		6: "FailRestartable",
+		7: "MarkedAsFailed",
+		8: "Expired",
+		9: "AvailableAfter",
+	}
+	bearOnlyQuests := []string{
+		"6179b5b06e9dd54ac275e409",
+		"5e381b0286f77420e3417a74",
+		"5e4d4ac186f774264f758336",
+		"639136d68ba6894d155e77cf",
+	}
+	usecOnlyQuests := []string{
+		"6179b5eabca27a099552e052",
+		"5e383a6386f77465910ce1f3",
+		"5e4d515e86f77438b2195244",
+		"639282134ed9512be67647ed",
+	}
+
+	done := make(chan struct{})
+
+	go func() {
+		for key, value := range questStatus {
+			db.quest.status.Set(key, value)
 		}
-
-		go func() {
-			query.Dialogue = setQuestDialogue(v)
-			done <- struct{}{}
-		}()
-
-		go func() {
-			if questConditions, ok := v["conditions"].(map[string]any); ok {
-				query.Conditions = setQuestConditions(questConditions)
-			}
-			done <- struct{}{}
-		}()
-
-		go func() {
-			if questRewards, _ := v["rewards"].(map[string]any); questRewards != nil {
-				query.Rewards = setQuestRewards(questRewards)
-			}
-			done <- struct{}{}
-		}()
-
-		for i := int8(0); i < 3; i++ {
-			<-done
+		for _, key := range bearOnlyQuests {
+			db.quest.factionQuests.Bear.Set(key, struct{}{})
 		}
-		db.quest.query.Set(k, query)
-		return true
-	})
+		for _, key := range usecOnlyQuests {
+			db.quest.factionQuests.Usec.Set(key, struct{}{})
+		}
+		done <- struct{}{}
+	}()
 
-	questConditionCheck = nil
+	go func() {
+		db.quest.quests.ForEach(func(k string, v map[string]any) bool {
+			done2 := make(chan struct{})
+			query := &Query{
+				Name:   v["QuestName"].(string),
+				Trader: v["traderId"].(string),
+			}
+
+			go func() {
+				query.Dialogue = setQuestDialogue(v)
+				done2 <- struct{}{}
+			}()
+
+			go func() {
+				if questConditions, ok := v["conditions"].(map[string]any); ok {
+					query.Conditions = setQuestConditions(questConditions)
+				}
+				done2 <- struct{}{}
+			}()
+
+			go func() {
+				if questRewards, _ := v["rewards"].(map[string]any); questRewards != nil {
+					query.Rewards = setQuestRewards(questRewards)
+				}
+				done2 <- struct{}{}
+			}()
+
+			for i := int8(0); i < 3; i++ {
+				<-done2
+			}
+			db.quest.query.Set(k, query)
+			return true
+		})
+		done <- struct{}{}
+	}()
+
+	for i := int8(0); i < 2; i++ {
+		<-done
+	}
 }
 
 func setQuestDialogue(quest map[string]any) QuestDialogues {
@@ -148,8 +205,6 @@ func setQuestDialogue(quest map[string]any) QuestDialogues {
 
 	return *dialogues*/
 }
-
-var questConditionCheck = new(QuestConditionTypes)
 
 func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 	output := QuestAvailabilityConditions{
@@ -210,8 +265,9 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 					input.Quest = make(map[string]*QuestCondition)
 				}
 
+				status, _ := db.quest.status.Get(int8(props["status"].([]any)[0].(float64)))
 				input.Quest[props["id"].(string)] = &QuestCondition{
-					Status:          questStatus[int8(props["status"].([]any)[0].(float64))],
+					Status:          status,
 					PreviousQuestID: props["target"].(string),
 				}
 
@@ -354,7 +410,7 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 			}
 		}
 
-		if input == questConditionCheck {
+		if input == new(QuestConditionTypes) {
 			input = nil
 		}
 	}
@@ -377,19 +433,6 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 	}
 
 	return output
-}
-
-var questStatus = map[int8]string{
-	0: "Locked",
-	1: "AvailableForStart",
-	2: "Started",
-	3: "AvailableForFinish",
-	4: "Success",
-	5: "Fail",
-	6: "FailRestartable",
-	7: "MarkedAsFailed",
-	8: "Expired",
-	9: "AvailableAfter",
 }
 
 func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
@@ -569,27 +612,14 @@ func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
 // #endregion
 
 // #region Quest functions
-var bearOnlyQuests = map[string]bool{
-	"6179b5eabca27a099552e052": true,
-	"5e383a6386f77465910ce1f3": true,
-	"5e4d515e86f77438b2195244": true,
-	"639282134ed9512be67647ed": true,
-}
-
-var usecOnlyQuests = map[string]bool{
-	"6179b5eabca27a099552e052": true,
-	"5e383a6386f77465910ce1f3": true,
-	"5e4d515e86f77438b2195244": true,
-	"639282134ed9512be67647ed": true,
-}
-
-//TODO: Remove hard-coded quests
 
 func CheckIfQuestForOtherFaction(side string, qid string) bool {
 	if side == "Bear" {
-		return usecOnlyQuests[qid]
+		_, ok := db.quest.factionQuests.Usec.Get(qid)
+		return ok
 	}
-	return bearOnlyQuests[qid]
+	_, ok := db.quest.factionQuests.Bear.Get(qid)
+	return ok
 }
 
 // #endregion

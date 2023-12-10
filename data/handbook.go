@@ -15,6 +15,12 @@ type Template struct {
 	index     *TemplateIndex
 	handbook  *Templates
 	blacklist *haxmap.Map[string, string]
+	currency  *Currencies
+}
+
+type Currencies struct {
+	byName *haxmap.Map[string, string]
+	Is     *haxmap.Map[string, struct{}]
 }
 
 type TemplateIndex struct {
@@ -39,29 +45,14 @@ func GetHandbook() *Templates {
 	return db.template.handbook
 }
 
-var currencyName = map[string]string{
-	"RUB": "5449016a4bdc2d6f028b456f",
-	"EUR": "569668774bdc2da2298b4568",
-	"USD": "5696686a4bdc2da3298b456a",
-}
-
-var currencyByID = map[string]*struct{}{
-	"5449016a4bdc2d6f028b456f": nil, //RUB
-	"569668774bdc2da2298b4568": nil, //EUR
-	"5696686a4bdc2da3298b456a": nil, //USD
-}
-
 func IsCurrencyByID(UID string) bool {
-	_, ok := currencyByID[UID]
+	_, ok := db.template.currency.Is.Get(UID)
 	return ok
 }
 
 func GetCurrencyByName(name string) *string {
-	currency, ok := currencyName[name]
-	if ok {
-		return &currency
-	}
-	return nil
+	currency, _ := db.template.currency.byName.Get(name)
+	return &currency
 }
 
 // GetPrices Get prices of all items
@@ -147,6 +138,22 @@ func HasGetHandbookSubCategory(id string) ([]string, error) {
 }
 
 func setHandbookIndex() {
+	currencyName := map[string]string{
+		"RUB": "5449016a4bdc2d6f028b456f",
+		"EUR": "569668774bdc2da2298b4568",
+		"USD": "5696686a4bdc2da3298b456a",
+	}
+
+	db.template.currency = &Currencies{
+		byName: haxmap.New[string, string](uintptr(len(currencyName))),
+		Is:     haxmap.New[string, struct{}](uintptr(len(currencyName))),
+	}
+
+	for key, value := range currencyName {
+		db.template.currency.byName.Set(key, value)
+		db.template.currency.Is.Set(value, struct{}{})
+	}
+
 	db.template.index = &TemplateIndex{
 		Item: &HandbookItemIndex{
 			Prices: haxmap.New[string, int32](), //make(map[string]int32),

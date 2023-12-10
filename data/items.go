@@ -210,7 +210,6 @@ func (i *DatabaseItem) CloneHandbookItemEntry() (*TemplateItem, error) {
 }
 
 func (i *DatabaseItem) CreateItemUPD() (*ItemUpdate, error) {
-
 	itemUpd := new(ItemUpdate)
 	switch i.Parent {
 	case "590c745b86f7743cc433c5f2":
