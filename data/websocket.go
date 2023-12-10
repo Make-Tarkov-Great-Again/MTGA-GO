@@ -11,8 +11,7 @@ type Connect struct {
 }
 
 func DeleteConnection(sessionID string) {
-	_, ok := db.cache.server.websocket.GetAndDel(sessionID)
-	if ok {
+	if _, ok := db.cache.server.websocket.GetAndDel(sessionID); ok {
 		log.Println("Connection deleted")
 		return
 	}
@@ -20,8 +19,7 @@ func DeleteConnection(sessionID string) {
 }
 
 func SetConnection(sessionID string, conn *websocket.Conn) {
-	_, ok := db.cache.server.websocket.GetOrSet(sessionID, &Connect{conn})
-	if ok {
+	if _, ok := db.cache.server.websocket.GetOrSet(sessionID, &Connect{conn}); ok {
 		log.Println("Websocket connection has already been established for sessionID:", sessionID)
 		return
 	}

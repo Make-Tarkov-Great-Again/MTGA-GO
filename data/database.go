@@ -74,6 +74,10 @@ func SetPrimaryDatabase() {
 				websocket: haxmap.New[string, *Connect](),
 			},
 			nicknames: haxmap.New[string, struct{}](),
+			profileChanges: &ProfileChangesEvent{
+				Warnings:       make([]*Warning, 0),
+				ProfileChanges: haxmap.New[string, *ProfileChanges](),
+			},
 		},
 	}
 

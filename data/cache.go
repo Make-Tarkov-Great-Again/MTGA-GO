@@ -584,7 +584,6 @@ columnLoop:
 }
 
 type Cache struct {
-	serverListings []ServerListing
 	response       *ResponseCache
 	player         *haxmap.Map[string, *PlayerCache]
 	channel        *Channels
@@ -592,11 +591,80 @@ type Cache struct {
 	brandName      *BrandName
 	server         *ServerData
 	nicknames      *haxmap.Map[string, struct{}]
+	profileChanges *ProfileChangesEvent
+}
+
+func GetProfileChangesEvent(id string) ProfileChangesEvent {
+	character := GetCharacterByID(id)
+	if character == nil {
+		log.Fatalln("character doesn't exist")
+	}
+	change, ok := db.cache.profileChanges.ProfileChanges.GetOrSet(id, &ProfileChanges{
+		ID:              character.ID,
+		Experience:      character.Info.Experience,
+		Quests:          make([]any, 0),
+		RagfairOffers:   make([]any, 0),
+		WeaponBuilds:    make([]any, 0),
+		EquipmentBuilds: make([]any, 0),
+		Items:           ItemChanges{},
+		Improvements:    make(map[string]any),
+		Skills:          character.Skills,
+		Health:          character.Health,
+		TraderRelations: make(map[string]PlayerTradersInfo),
+		QuestsStatus:    make([]CharacterQuest, 0),
+	})
+	if !ok {
+		return *db.cache.profileChanges
+	}
+
+	change.Experience = character.Info.Experience
+	change.Skills = character.Skills
+	change.Health = character.Health
+	db.cache.profileChanges.ProfileChanges.Set(id, change)
+	return *db.cache.profileChanges
+}
+
+type ProfileChangesEvent struct {
+	Warnings       []*Warning                           `json:"warnings"`
+	ProfileChanges *haxmap.Map[string, *ProfileChanges] `json:"profileChanges"` //map[string]*ProfileChanges
+}
+
+type Warning struct {
+	Index  int    `json:"index"`
+	Errmsg string `json:"errmsg"`
+	Code   string `json:"code,omitempty"`
+	Data   any    `json:"data,omitempty"`
+}
+
+type ItemChanges struct {
+	New    []InventoryItem `json:"new,omitempty"`
+	Change []InventoryItem `json:"change,omitempty"`
+	Del    []InventoryItem `json:"del,omitempty"`
+}
+
+type ProfileChanges struct {
+	ID                    string                       `json:"_id"`
+	Experience            int32                        `json:"experience"`
+	Quests                []any                        `json:"quests"`
+	QuestsStatus          []CharacterQuest             `json:"questsStatus"`
+	RagfairOffers         []any                        `json:"ragFairOffers"`
+	WeaponBuilds          []any                        `json:"weaponBuilds"`
+	EquipmentBuilds       []any                        `json:"equipmentBuilds"`
+	Items                 ItemChanges                  `json:"items"`
+	Production            *map[string]any              `json:"production"`
+	Improvements          map[string]any               `json:"improvements"`
+	Skills                PlayerSkills                 `json:"skills"`
+	Health                HealthInfo                   `json:"health"`
+	TraderRelations       map[string]PlayerTradersInfo `json:"traderRelations"`
+	RepeatableQuests      *[]any                       `json:"repeatableQuests,omitempty"`
+	RecipeUnlocked        *map[string]bool             `json:"recipeUnlocked,omitempty"`
+	ChangedHideoutStashes *map[string]any              `json:"changedHideoutStashes,omitempty"`
 }
 
 type ServerData struct {
 	websocket *haxmap.Map[string, *Connect]
 	core      *serverData
+	servers   []ServerListing
 }
 type BrandName map[string]string
 
@@ -684,11 +752,11 @@ func GetChannelsTemplate() Channel {
 }
 
 func HasGetServerListings() []ServerListing {
-	if db.cache.serverListings != nil {
-		return db.cache.serverListings
+	if db.cache.server.servers != nil {
+		return db.cache.server.servers
 	}
-	db.cache.serverListings = make([]ServerListing, 0)
-	return db.cache.serverListings
+	db.cache.server.servers = make([]ServerListing, 0)
+	return db.cache.server.servers
 }
 
 type ServerListing struct {
