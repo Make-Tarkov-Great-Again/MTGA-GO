@@ -873,8 +873,8 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 
 		itemInInventory := copyOfItems[*index]
 
-		currency := *GetCurrencyByName(trader.Base.Currency)
-		if IsCurrencyByID(itemInInventory.TPL) {
+		currency := *data.GetCurrencyByName(trader.Base.Currency)
+		if data.IsCurrencyByID(itemInInventory.TPL) {
 			traderRelations.SalesSum += float32(scheme.Count)
 		} else {
 			priceOfItem, err := data.GetPriceByID(itemInInventory.TPL)
@@ -995,7 +995,7 @@ func sellToTrader(tradeConfirm *sellTo, character *data.Character[map[string]dat
 		return
 	}
 
-	saleCurrency := *GetCurrencyByName(trader.Base.Currency)
+	saleCurrency := *data.GetCurrencyByName(trader.Base.Currency)
 
 	remainingBalance := tradeConfirm.Price
 

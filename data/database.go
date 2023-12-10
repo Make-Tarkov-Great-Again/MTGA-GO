@@ -44,7 +44,7 @@ type database struct {
 	location      *Location
 	locale        *haxmap.Map[string, *Locale]  //map[string]*Locale
 	profile       *haxmap.Map[string, *Profile] //map[string]*Profile
-	trader        *haxmap.Map[string, *Trader]  //map[string]*Trader
+	trader        *Traders                      //map[string]*Trader
 	quest         *Quest
 	ragfair       *Ragfair
 	weather       *Weather
@@ -56,6 +56,20 @@ func SetPrimaryDatabase() {
 	db = &database{
 		cache: &Cache{
 			player: haxmap.New[string, *PlayerCache](),
+			channel: &Channels{
+				Template: &Channel{
+					Status: "ok",
+					Notifier: &Notifier{
+						Server:         "",
+						ChannelID:      "",
+						URL:            "",
+						NotifierServer: "",
+						WS:             "",
+					},
+					NotifierServer: "",
+				},
+				channels: haxmap.New[string, Channel](),
+			},
 		},
 	}
 

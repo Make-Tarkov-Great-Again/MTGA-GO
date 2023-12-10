@@ -38,7 +38,7 @@ func SetFlea() {
 	}
 	var fleaOffersCount int16
 
-	db.trader.ForEach(func(tid string, trader *Trader) bool {
+	db.trader.Traders.ForEach(func(tid string, trader *Trader) bool {
 		if trader.Assort == nil {
 			return true
 		}

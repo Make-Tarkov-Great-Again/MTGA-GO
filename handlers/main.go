@@ -491,11 +491,9 @@ type insuranceList struct {
 
 func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	insurances := new(insuranceList)
-	input, err := json.Marshal(pkg.GetParsedBody(r))
-	if err != nil {
+	if input, err := json.Marshal(pkg.GetParsedBody(r)); err != nil {
 		log.Println(err)
-	}
-	if err := json.Unmarshal(input, insurances); err != nil {
+	} else if err := json.Unmarshal(input, insurances); err != nil {
 		log.Println(err)
 	}
 
@@ -571,22 +569,6 @@ type botDifficulties struct {
 }
 
 func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
-	//TODO: For change
-	/*
-		bots := pkg.GetParsedBody(r).([]string)
-			data := make(map[string]*botDifficulties)
-			for _, key := range bots {
-				difficulties := new(botDifficulties)
-				if bot, _ := data.GetBotByName(strings.ToLower(pkg.GetParsedBody(r).(map[string]any)["name"].(string))); bot != nil {
-					difficulties.Easy = bot.Difficulties["easy"]
-					difficulties.Normal = bot.Difficulties["normal"]
-					difficulties.Hard = bot.Difficulties["hard"]
-					difficulties.Impossible = bot.Difficulties["impossible"]
-				}
-				data[key] = difficulties
-			}
-			pkg.SendZlibJSONReply(w, data)
-	*/
 	parsedBody := pkg.GetParsedBody(r)
 	botName := strings.ToLower(parsedBody.(map[string]any)["name"].(string))
 

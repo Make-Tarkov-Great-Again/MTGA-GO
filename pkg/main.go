@@ -9,25 +9,26 @@ import (
 	"strings"
 )
 
-func GetBrandName() map[string]string {
-	brandName := data.GetServerConfig().BrandName
-	brand := make(map[string]string)
-	if brandName != "" {
-		brand["name"] = brandName
-		return brand
+func GetBrandName() *data.BrandName {
+	brand := data.GetBrandName()
+	if brand == nil {
+		brand := data.BrandName{}
+		brandName := data.GetServerConfig().BrandName
+		if brandName != "" {
+			brand["name"] = brandName
+		}
+		brand["name"] = "MTGA"
+		brand.SetBrandName()
 	}
-	brand["name"] = "MTGA"
 	return brand
 }
 
-var gameConfig *GameConfig
-
 func SetGameConfig() {
-	gameConfig = &GameConfig{
+	output := &data.GameConfig{
 		Languages: data.GetLanguages(),
 		NdaFree:   false,
 		Taxonomy:  6,
-		Backend: Backend{
+		Backend: data.Backend{
 			Lobby:     data.GetLobbyAddress(),
 			Trading:   data.GetTradingAddress(),
 			Messaging: data.GetMessageAddress(),
@@ -38,9 +39,10 @@ func SetGameConfig() {
 		ReportAvailable:   true,
 		TwitchEventMember: false,
 	}
+	output.Set()
 }
 
-func GetGameConfig(sessionID string) (*GameConfig, error) {
+func GetGameConfig(sessionID string) (*data.GameConfig, error) {
 	lang := "en"
 	profile, err := data.GetProfileByUID(sessionID)
 	if err != nil {
@@ -50,7 +52,7 @@ func GetGameConfig(sessionID string) (*GameConfig, error) {
 		lang = profile.Account.Lang
 	}
 
-	config := *gameConfig
+	config := data.GetGameConfig()
 	config.Aid = sessionID
 	config.Lang = lang
 	config.ActiveProfileID = sessionID
@@ -190,38 +192,25 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 	profile.SaveProfile()
 }
 
-var channels = map[string]Channel{}
-
-var templateChannel = &Channel{
-	Status: "ok",
-	Notifier: &Notifier{
-		Server:         "",
-		ChannelID:      "",
-		URL:            "",
-		NotifierServer: "",
-		WS:             "",
-	},
-	NotifierServer: "",
-}
-
 func SetChannelTemplate() {
-	templateChannel.Notifier.Server = data.GetLobbyIPandPort()
+	channel := data.GetChannels()
+	channel.Template.Notifier.Server = data.GetLobbyIPandPort()
 }
 
-func GetChannel(sessionID string) Channel {
-	channel := *templateChannel
+func GetChannel(sessionID string) data.Channel {
+	channel := data.GetChannelsTemplate()
 	channel.Notifier.ChannelID = sessionID
 	channel.Notifier.NotifierServer = fmt.Sprintf(notiFormat, data.GetLobbyIPandPort(), sessionID)
 	channel.Notifier.WS = fmt.Sprintf(wssFormat, data.GetWebSocketAddress(), sessionID)
-	channels[sessionID] = channel
+	channel.SetChannel(sessionID)
 
 	return channel
 }
 
-func GetChannelNotifier(sessionID string) (*Notifier, error) {
-	channel, ok := channels[sessionID]
-	if !ok {
-		return nil, fmt.Errorf(channelNotExist, sessionID)
+func GetChannelNotifier(sessionID string) (*data.Notifier, error) {
+	channel, err := data.GetChannel(sessionID)
+	if err != nil {
+		return nil, err
 	}
 
 	if channel.Notifier == nil {
@@ -269,26 +258,9 @@ func GetQuestList(sessionID string) ([]any, error) {
 	return quests, nil
 }
 
-var supplyData *SupplyData
-
-func GetMainPrices() *SupplyData {
-	if supplyData != nil {
-		supplyData.SupplyNextTime = data.SetResupplyTimer()
-		return supplyData
-	}
-
-	prices := data.GetPrices()
-	nextResupply := data.SetResupplyTimer()
-
-	supplyData = &SupplyData{
-		SupplyNextTime: nextResupply,
-		Prices:         prices,
-		CurrencyCourses: CurrencyCourses{
-			RUB: prices[*GetCurrencyByName("RUB")],
-			EUR: prices[*GetCurrencyByName("EUR")],
-			DOL: prices[*GetCurrencyByName("USD")],
-		},
-	}
+func GetMainPrices() *data.SupplyData {
+	supplyData := data.GetSupplyData()
+	supplyData.SupplyNextTime = data.SetResupplyTimer()
 	return supplyData
 }
 
@@ -335,16 +307,17 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 
 		for _, itemID := range items {
 			itemTPL := character.Inventory.Items[*invCache.GetIndexOfItemByID(itemID)].TPL
+			if value, ok := data.IsItemBlacklist(itemTPL); ok && value == "node" {
+				continue
+			}
+
 			item, ok := traderInsurance.Items[itemTPL]
 			if ok && changed == 0 {
 				output[tid][itemTPL] = item
 				continue
 			}
 
-			itemPrice, err := data.GetPriceByID(itemTPL)
-			if err != nil {
-				return nil, err
-			}
+			itemPrice, _ := data.GetPriceByID(itemTPL)
 			insuranceCost := int32(math.Round(float64(itemPrice) * 0.3))
 			if traderInsurance.PriceCoef > 0 {
 				insuranceCost *= int32(1 - traderInsurance.PriceCoef/100)
@@ -370,18 +343,6 @@ const (
 	wssFormat               = "%s/push/notifier/getwebsocket/%s"
 )
 
-type SupplyData struct {
-	SupplyNextTime  int              `json:"supplyNextTime"`
-	Prices          map[string]int32 `json:"prices"`
-	CurrencyCourses CurrencyCourses  `json:"currencyCourses"`
-}
-
-type CurrencyCourses struct {
-	RUB int32 `json:"5449016a4bdc2d6f028b456f"`
-	EUR int32 `json:"569668774bdc2da2298b4568"`
-	DOL int32 `json:"5696686a4bdc2da3298b456a"`
-}
-
 type ProfileStatuses struct {
 	MaxPVECountExceeded bool            `json:"maxPveCountExceeded"`
 	Profiles            []ProfileStatus `json:"profiles"`
@@ -398,41 +359,4 @@ type ProfileStatus struct {
 
 type NicknameValidate struct {
 	Status string `json:"status"`
-}
-
-type Backend struct {
-	Lobby     string `json:"Lobby"`
-	Trading   string `json:"Trading"`
-	Messaging string `json:"Messaging"`
-	Main      string `json:"Main"`
-	RagFair   string `json:"RagFair"`
-}
-
-type GameConfig struct {
-	Aid               string            `json:"aid"`
-	Lang              string            `json:"lang"`
-	Languages         map[string]string `json:"languages"`
-	NdaFree           bool              `json:"ndaFree"`
-	Taxonomy          int               `json:"taxonomy"`
-	ActiveProfileID   string            `json:"activeProfileId"`
-	Backend           Backend           `json:"backend"`
-	UseProtobuf       bool              `json:"useProtobuf"`
-	UtcTime           int64             `json:"utc_time"`
-	TotalInGame       int               `json:"totalInGame"`
-	ReportAvailable   bool              `json:"reportAvailable"`
-	TwitchEventMember bool              `json:"twitchEventMember"`
-}
-
-type Notifier struct {
-	Server         string `json:"server"`
-	ChannelID      string `json:"channel_id"`
-	URL            string `json:"url"`
-	NotifierServer string `json:"notifierServer"`
-	WS             string `json:"ws"`
-}
-
-type Channel struct {
-	Status         string    `json:"status"`
-	Notifier       *Notifier `json:"notifier"`
-	NotifierServer string    `json:"notifierServer"`
 }

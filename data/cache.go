@@ -587,6 +587,88 @@ type Cache struct {
 	serverListings []ServerListing
 	response       *ResponseCache
 	player         *haxmap.Map[string, *PlayerCache]
+	channel        *Channels
+	gameConfig     *GameConfig
+	brandName      *BrandName
+}
+type BrandName map[string]string
+
+func GetBrandName() *BrandName {
+	return db.cache.brandName
+}
+
+func (bn *BrandName) SetBrandName() {
+	db.cache.brandName = bn
+}
+
+type GameConfig struct {
+	Aid               string            `json:"aid"`
+	Lang              string            `json:"lang"`
+	Languages         map[string]string `json:"languages"`
+	NdaFree           bool              `json:"ndaFree"`
+	Taxonomy          int               `json:"taxonomy"`
+	ActiveProfileID   string            `json:"activeProfileId"`
+	Backend           Backend           `json:"backend"`
+	UseProtobuf       bool              `json:"useProtobuf"`
+	UtcTime           int64             `json:"utc_time"`
+	TotalInGame       int               `json:"totalInGame"`
+	ReportAvailable   bool              `json:"reportAvailable"`
+	TwitchEventMember bool              `json:"twitchEventMember"`
+}
+
+type Backend struct {
+	Lobby     string `json:"Lobby"`
+	Trading   string `json:"Trading"`
+	Messaging string `json:"Messaging"`
+	Main      string `json:"Main"`
+	RagFair   string `json:"RagFair"`
+}
+
+func GetGameConfig() GameConfig {
+	return *db.cache.gameConfig
+}
+
+func (gc *GameConfig) Set() {
+	db.cache.gameConfig = gc
+}
+
+type Channels struct {
+	Template *Channel
+	channels *haxmap.Map[string, Channel]
+}
+
+type Notifier struct {
+	Server         string `json:"server"`
+	ChannelID      string `json:"channel_id"`
+	URL            string `json:"url"`
+	NotifierServer string `json:"notifierServer"`
+	WS             string `json:"ws"`
+}
+
+type Channel struct {
+	Status         string    `json:"status"`
+	Notifier       *Notifier `json:"notifier"`
+	NotifierServer string    `json:"notifierServer"`
+}
+
+func GetChannels() *Channels {
+	return db.cache.channel
+}
+
+func (c *Channel) SetChannel(sessionID string) {
+	db.cache.channel.channels.Set(sessionID, *c)
+}
+
+func GetChannel(sessionID string) (*Channel, error) {
+	channel, ok := db.cache.channel.channels.Get(sessionID)
+	if !ok {
+		return nil, fmt.Errorf("channel for %s does not exist\n", sessionID)
+	}
+	return &channel, nil
+}
+
+func GetChannelsTemplate() Channel {
+	return *db.cache.channel.Template
 }
 
 func HasGetServerListings() []ServerListing {
