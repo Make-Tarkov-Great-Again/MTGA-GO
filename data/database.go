@@ -70,7 +70,9 @@ func SetPrimaryDatabase() {
 				},
 				channels: haxmap.New[string, Channel](),
 			},
-			websocket: haxmap.New[string, *Connect](),
+			server: &ServerData{
+				websocket: haxmap.New[string, *Connect](),
+			},
 			nicknames: haxmap.New[string, struct{}](),
 		},
 	}

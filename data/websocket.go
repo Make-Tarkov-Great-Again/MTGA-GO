@@ -11,17 +11,16 @@ type Connect struct {
 }
 
 func DeleteConnection(sessionID string) {
-	_, ok := db.cache.websocket.GetAndDel(sessionID)
+	_, ok := db.cache.server.websocket.GetAndDel(sessionID)
 	if ok {
 		log.Println("Connection deleted")
 		return
 	}
 	log.Println("Connection does not exist")
-	return
 }
 
 func SetConnection(sessionID string, conn *websocket.Conn) {
-	_, ok := db.cache.websocket.GetOrSet(sessionID, &Connect{conn})
+	_, ok := db.cache.server.websocket.GetOrSet(sessionID, &Connect{conn})
 	if ok {
 		log.Println("Websocket connection has already been established for sessionID:", sessionID)
 		return
@@ -30,7 +29,7 @@ func SetConnection(sessionID string, conn *websocket.Conn) {
 }
 
 func GetConnection(sessionID string) *Connect {
-	conn, ok := db.cache.websocket.Get(sessionID)
+	conn, ok := db.cache.server.websocket.Get(sessionID)
 	if !ok {
 		log.Println("Websocket connection has not been established for sessionID:", sessionID, ". Returning nil...")
 		return nil

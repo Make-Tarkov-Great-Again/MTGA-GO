@@ -590,7 +590,7 @@ type Cache struct {
 	channel        *Channels
 	gameConfig     *GameConfig
 	brandName      *BrandName
-	websocket      *haxmap.Map[string, *Connect]
+	server         *ServerData
 	nicknames      *haxmap.Map[string, struct{}]
 }
 
