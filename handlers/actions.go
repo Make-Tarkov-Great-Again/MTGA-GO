@@ -76,23 +76,28 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	body := pkg.GetParsedBody(r).(map[string]any)["data"].([]any)
 	length := int8(len(body)) - 1
 
-	id := pkg.GetSessionID(r)
-	profileChangeEvent := data.GetProfileChangesEvent(id)
+	sessionID := pkg.GetSessionID(r)
+	profileChangeEvent := data.GetProfileChangesEvent(sessionID)
 
-	for i := int8(0); i <= length; i++ {
+	for i := int8(0); i != length; i++ {
 		moveAction := body[i].(map[string]any)
 		action := moveAction["Action"].(string)
 		log.Printf(actionLog, i, length, action)
 
 		if handler, ok := actionHandlers[action]; ok {
-			handler(moveAction, id, &profileChangeEvent)
+			handler(moveAction, sessionID, &profileChangeEvent)
 		} else {
 			log.Printf(actionNotSupported, action)
 		}
 	}
 
-	if err := data.GetCharacterByID(id).SaveCharacter(); err != nil {
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
 		log.Fatal(err)
+	}
+
+	if err := character.SaveCharacter(); err != nil {
+		log.Fatalln(err)
 	}
 	pkg.SendZlibJSONReply(w, pkg.ApplyResponseBody(profileChangeEvent))
 }

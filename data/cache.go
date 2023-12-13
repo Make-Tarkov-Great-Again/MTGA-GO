@@ -595,9 +595,9 @@ type Cache struct {
 }
 
 func GetProfileChangesEvent(id string) ProfileChangesEvent {
-	character := GetCharacterByID(id)
-	if character == nil {
-		log.Fatalln("character doesn't exist")
+	character, err := GetCharacterByID(id)
+	if err != nil {
+		log.Fatalln(err)
 	}
 	change, ok := db.cache.profileChanges.ProfileChanges.GetOrSet(id, &ProfileChanges{
 		ID:              character.ID,

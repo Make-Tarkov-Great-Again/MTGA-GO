@@ -66,7 +66,10 @@ func GetGameConfig(sessionID string) (*data.GameConfig, error) {
 }
 
 func GetMainProfileList(sessionID string) []any {
-	character := data.GetCharacterByID(sessionID)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	profiles := make([]any, 0, 2)
 	if character == nil || character.Info.Nickname == "" {
 		log.Println("Character doesn't exist, begin creation")
@@ -221,7 +224,10 @@ func GetChannelNotifier(sessionID string) (*data.Notifier, error) {
 }
 
 func GetProfileStatuses(sessionID string) *ProfileStatuses {
-	character := data.GetCharacterByID(sessionID)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	return &ProfileStatuses{
 		Profiles: []ProfileStatus{
 			{
@@ -249,7 +255,10 @@ func GetBuildsList(sessionID string) (*data.Builds, error) {
 }
 
 func GetQuestList(sessionID string) ([]any, error) {
-	character := data.GetCharacterByID(sessionID)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	quests, err := data.GetQuestsAvailableToPlayer(*character)
 	if err != nil {
 		log.Println(err)
@@ -266,7 +275,10 @@ func GetMainPrices() *data.SupplyData {
 
 func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[string]map[string]int32, error) {
 	output := make(map[string]map[string]int32)
-	character := data.GetCharacterByID(sessionID)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	invCache, err := data.GetInventoryCacheByID(sessionID)
 	if err != nil {

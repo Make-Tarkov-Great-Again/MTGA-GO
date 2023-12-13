@@ -16,8 +16,11 @@ type transfer struct {
 }
 
 // QuestAccept updates an existing Accepted quest, or creates and appends new Accepted Quest to cache and Character
-func QuestAccept(qid string, id string, event *data.ProfileChangesEvent) {
-	character := data.GetCharacterByID(id)
+func QuestAccept(qid string, sessionID string, event *data.ProfileChangesEvent) {
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	cachedQuests, err := data.GetQuestCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -29,13 +32,12 @@ func QuestAccept(qid string, id string, event *data.ProfileChangesEvent) {
 	query := data.GetQuestFromQueryByID(qid)
 
 	quest, ok := cachedQuests.Index[qid]
-	if ok { //if exists, update cache and copy to quest on character
+	if ok { // if exists, update cache and copy to quest on character
 		cachedQuest := character.Quests[quest]
 
 		cachedQuest.Status = "Started"
 		cachedQuest.StartTime = time
 		cachedQuest.StatusTimers[cachedQuest.Status] = time
-
 	} else {
 		quest := &data.CharacterQuest{
 			QID:          qid,
@@ -48,7 +50,6 @@ func QuestAccept(qid string, id string, event *data.ProfileChangesEvent) {
 			startCondition := query.Conditions.AvailableForStart.Quest
 			for _, questCondition := range startCondition {
 				if questCondition.AvailableAfter > 0 {
-
 					quest.StartTime = 0
 					quest.Status = "AvailableAfter"
 					quest.AvailableAfter = time + questCondition.AvailableAfter
@@ -137,7 +138,7 @@ type fromOwner struct {
 	Type string `json:"type"`
 }
 
-func ExamineItem(action map[string]any, id string) {
+func ExamineItem(action map[string]any, sessionID string) {
 	examine := new(examine)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -148,7 +149,10 @@ func ExamineItem(action map[string]any, id string) {
 		log.Println(err)
 		return
 	}
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	var item *data.DatabaseItem
 	if examine.FromOwner == nil {
 		log.Println("Examining Item from Player Inventory")
@@ -238,7 +242,7 @@ type moveToLocation struct {
 	IsSearched bool    `json:"isSearched"`
 }
 
-func MoveItemInStash(action map[string]any, id string, event *data.ProfileChangesEvent) {
+func MoveItemInStash(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	move := new(move)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -250,7 +254,10 @@ func MoveItemInStash(action map[string]any, id string, event *data.ProfileChange
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -306,7 +313,7 @@ type swap struct {
 	To2    moveTo `json:"to2"`
 }
 
-func SwapItemInStash(action map[string]any, id string, event *data.ProfileChangesEvent) {
+func SwapItemInStash(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	swap := new(swap)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -318,7 +325,10 @@ func SwapItemInStash(action map[string]any, id string, event *data.ProfileChange
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -386,7 +396,7 @@ type foldItem struct {
 	Value  bool   `json:"value"`
 }
 
-func FoldItem(action map[string]any, id string, event *data.ProfileChangesEvent) {
+func FoldItem(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	fold := new(foldItem)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -398,7 +408,10 @@ func FoldItem(action map[string]any, id string, event *data.ProfileChangesEvent)
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	inventoryCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -429,7 +442,7 @@ type readEncyclopedia struct {
 	IDs    []string `json:"ids"`
 }
 
-func ReadEncyclopedia(action map[string]any, id string) {
+func ReadEncyclopedia(action map[string]any, sessionID string) {
 	readEncyclopedia := new(readEncyclopedia)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -441,7 +454,10 @@ func ReadEncyclopedia(action map[string]any, id string) {
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	for _, id := range readEncyclopedia.IDs {
 		character.Encyclopedia[id] = true
 	}
@@ -453,7 +469,7 @@ type merge struct {
 	With   string `json:"with"`
 }
 
-func MergeItem(action map[string]any, id string, event *data.ProfileChangesEvent) {
+func MergeItem(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	merge := new(merge)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -465,7 +481,10 @@ func MergeItem(action map[string]any, id string, event *data.ProfileChangesEvent
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	inventoryCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -490,7 +509,7 @@ func MergeItem(action map[string]any, id string, event *data.ProfileChangesEvent
 	}
 }
 
-func TransferItem(action map[string]any, id string) {
+func TransferItem(action map[string]any, sessionID string) {
 	transfer := new(transfer)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -502,7 +521,10 @@ func TransferItem(action map[string]any, id string) {
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	inventoryCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -527,7 +549,7 @@ type split struct {
 	Count     int32  `json:"count"`
 }
 
-func SplitItem(action map[string]any, id string, event *data.ProfileChangesEvent) {
+func SplitItem(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	split := new(split)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -539,7 +561,10 @@ func SplitItem(action map[string]any, id string, event *data.ProfileChangesEvent
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	invCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -588,10 +613,10 @@ func SplitItem(action map[string]any, id string, event *data.ProfileChangesEvent
 
 type remove struct {
 	Action string `json:"Action"`
-	ItemId string `json:"item"`
+	ItemID string `json:"item"`
 }
 
-func RemoveItem(action map[string]any, id string, event *data.ProfileChangesEvent) {
+func RemoveItem(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	remove := new(remove)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -603,13 +628,16 @@ func RemoveItem(action map[string]any, id string, event *data.ProfileChangesEven
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	inventoryCache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	itemChildren := data.GetInventoryItemFamilyTreeIDs(character.Inventory.Items, remove.ItemId)
+	itemChildren := data.GetInventoryItemFamilyTreeIDs(character.Inventory.Items, remove.ItemID)
 
 	var itemIndex int16
 	toDelete := make([]int16, 0, len(itemChildren))
@@ -618,11 +646,11 @@ func RemoveItem(action map[string]any, id string, event *data.ProfileChangesEven
 		toDelete = append(toDelete, itemIndex)
 	}
 
-	inventoryCache.ClearItemFromContainer(remove.ItemId)
+	inventoryCache.ClearItemFromContainer(remove.ItemID)
 	character.Inventory.RemoveItemsFromInventoryByIndices(toDelete)
 	inventoryCache.SetInventoryIndex(&character.Inventory)
 	if changes, ok := event.ProfileChanges.Get(character.ID); ok {
-		changes.Items.Del = append(changes.Items.Del, data.InventoryItem{ID: remove.ItemId})
+		changes.Items.Del = append(changes.Items.Del, data.InventoryItem{ID: remove.ItemID})
 	}
 }
 
@@ -633,7 +661,7 @@ type applyInventoryChanges struct {
 
 //TODO: Make ApplyInventoryChanges not look like shit
 
-func ApplyInventoryChanges(action map[string]any, id string) {
+func ApplyInventoryChanges(action map[string]any, sessionID string) {
 	applyInventoryChanges := new(applyInventoryChanges)
 	input, _ := json.Marshal(action)
 	if err := json.Unmarshal(input, &applyInventoryChanges); err != nil {
@@ -641,7 +669,10 @@ func ApplyInventoryChanges(action map[string]any, id string) {
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -739,8 +770,11 @@ type soldItems struct {
 	SchemeID int8   `json:"scheme_id"`
 }
 
-func TradingConfirm(action map[string]any, id string, event *data.ProfileChangesEvent) {
-	character := data.GetCharacterByID(id)
+func TradingConfirm(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	switch action["type"] {
 	case "buy_from_trader":
@@ -871,7 +905,7 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 				return
 			}
 
-			if "RUB" != trader.Base.Currency {
+			if trader.Base.Currency != "RUB" {
 				if conversion, err := data.ConvertFromRouble(priceOfItem, currency); err == nil {
 					traderRelations.SalesSum += float32(conversion)
 				} else {
@@ -1107,7 +1141,7 @@ type buyCustomization struct {
 	Items  []map[string]any `json:"items"`
 }
 
-func CustomizationBuy(action map[string]any, id string) {
+func CustomizationBuy(action map[string]any, sessionID string) {
 	customizationBuy := new(buyCustomization)
 	input, _ := json.Marshal(action)
 	err := json.Unmarshal(input, &customizationBuy)
@@ -1128,7 +1162,7 @@ func CustomizationBuy(action map[string]any, id string) {
 	}
 	suitID := trader.Suits[suitsIndex].SuiteID
 
-	storage, err := data.GetStorageByID(id)
+	storage, err := data.GetStorageByID(sessionID)
 	if err != nil {
 		log.Println(err)
 		return
@@ -1138,7 +1172,7 @@ func CustomizationBuy(action map[string]any, id string) {
 		//TODO: Pay for suite before appending to profile
 		if len(customizationBuy.Items) == 0 {
 			storage.Suites = append(storage.Suites, suitID)
-			err = storage.SaveStorage(id)
+			err = storage.SaveStorage(sessionID)
 			if err != nil {
 				return
 			}
@@ -1160,7 +1194,7 @@ const (
 	upperParentID = "5cd944ca1388ce03a44dc2a4"
 )
 
-func CustomizationWear(action map[string]any, id string) {
+func CustomizationWear(action map[string]any, sessionID string) {
 	customizationWear := new(wearCustomization)
 	input, _ := json.Marshal(action)
 	err := json.Unmarshal(input, &customizationWear)
@@ -1169,7 +1203,10 @@ func CustomizationWear(action map[string]any, id string) {
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	for _, SID := range customizationWear.Suites {
 		customization, err := data.GetCustomizationByID(SID)
 		if err != nil {
@@ -1199,7 +1236,7 @@ type hideoutUpgrade struct {
 	TimeStamp float64         `json:"timeStamp"`
 }
 
-func HideoutUpgrade(action map[string]any, id string, event *data.ProfileChangesEvent) {
+func HideoutUpgrade(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	log.Println("HideoutUpgrade")
 	upgrade := new(hideoutUpgrade)
 	input, err := json.Marshal(action)
@@ -1208,7 +1245,7 @@ func HideoutUpgrade(action map[string]any, id string, event *data.ProfileChanges
 		return
 	}
 
-	//character:= data.GetCharacterByID(id)
+	// character:= data.GetCharacterByID(sessionID)
 	if err := json.Unmarshal(input, &upgrade); err != nil {
 		log.Println(err)
 		return
@@ -1225,7 +1262,7 @@ type bindItem struct {
 	Index  string `json:"index"`
 }
 
-func BindItem(action map[string]any, id string) {
+func BindItem(action map[string]any, sessionID string) {
 	bind := new(bindItem)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -1237,7 +1274,10 @@ func BindItem(action map[string]any, id string) {
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	if _, ok := character.Inventory.FastPanel[bind.Index]; !ok {
 		character.Inventory.FastPanel[bind.Index] = bind.Item
 	} else {
@@ -1256,7 +1296,7 @@ type tagItem struct {
 	TagColor string `json:"TagColor"`
 }
 
-func TagItem(action map[string]any, id string) {
+func TagItem(action map[string]any, sessionID string) {
 	tag := new(tagItem)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -1268,7 +1308,10 @@ func TagItem(action map[string]any, id string) {
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -1276,24 +1319,20 @@ func TagItem(action map[string]any, id string) {
 	}
 
 	index := *cache.GetIndexOfItemByID(tag.Item)
-	if character.Inventory.Items[index].UPD == nil {
+	switch {
+	case character.Inventory.Items[index].UPD == nil:
 		character.Inventory.Items[index].UPD = new(data.ItemUpdate)
 		character.Inventory.Items[index].UPD.Tag = new(data.Tag)
-
 		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
 		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
-
-	} else if character.Inventory.Items[index].UPD.Tag == nil {
+	case character.Inventory.Items[index].UPD.Tag == nil:
 		character.Inventory.Items[index].UPD.Tag = new(data.Tag)
-
 		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
 		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
-
-	} else {
+	default:
 		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
 		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
 	}
-
 }
 
 type toggleItem struct {
@@ -1302,7 +1341,7 @@ type toggleItem struct {
 	Value  bool   `json:"value"`
 }
 
-func ToggleItem(action map[string]any, id string) {
+func ToggleItem(action map[string]any, sessionID string) {
 	toggle := new(toggleItem)
 	input, err := json.Marshal(action)
 	if err != nil {
@@ -1314,7 +1353,10 @@ func ToggleItem(action map[string]any, id string) {
 		return
 	}
 
-	character := data.GetCharacterByID(id)
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
@@ -1342,7 +1384,7 @@ type hideoutUpgradeComplete struct {
 	TimeStamp float64 `json:"timeStamp"`
 }
 
-func HideoutUpgradeComplete(action map[string]any, id string, event *data.ProfileChangesEvent) {
+func HideoutUpgradeComplete(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	log.Println("HideoutUpgradeComplete")
 	upgradeComplete := new(hideoutUpgradeComplete)
 	input, err := json.Marshal(action)
@@ -1355,10 +1397,10 @@ func HideoutUpgradeComplete(action map[string]any, id string, event *data.Profil
 		return
 	}
 
-	//character := data.GetCharacterByID(id)
+	// character := data.GetCharacterByID(sessionID)
 	log.Println(upgradeComplete)
 }
 
-func Insure(action map[string]any, id string, event *data.ProfileChangesEvent) {
+func Insure(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 
 }
