@@ -20,13 +20,12 @@ func setCharacter(path string) *Character[map[string]PlayerTradersInfo] {
 	return output
 }
 
-func GetCharacterByID(uid string) *Character[map[string]PlayerTradersInfo] {
+func GetCharacterByID(uid string) (*Character[map[string]PlayerTradersInfo], error) {
 	profile, ok := db.profile.Get(uid)
 	if !ok {
-		log.Println(characterNotExist, uid)
-		return nil
+		return nil, fmt.Errorf(characterNotExist, uid)
 	}
-	return profile.Character
+	return profile.Character, nil
 }
 
 func GetQuestsAvailableToPlayer(c Character[map[string]PlayerTradersInfo]) ([]any, error) {
