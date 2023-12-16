@@ -75,7 +75,7 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		log.Println("Image exists in ", path, " serving...")
+		log.Println("Image exists in", path, ", serving...")
 		ServeFileLocal(w, path, mimeType)
 		return
 	}
