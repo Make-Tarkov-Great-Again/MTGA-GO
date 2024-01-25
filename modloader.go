@@ -30,7 +30,7 @@ func main() {
 
 	mods := filepath.Join(wd, "mods")
 
-	log.Println("Mod directory:", mods)
+	//log.Println("Mod directory:", mods)
 	if !tools.FileExist(mods) {
 		if err := tools.CreateDirectory(mods); err != nil {
 			log.Fatalln(err)
