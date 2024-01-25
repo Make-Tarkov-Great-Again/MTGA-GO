@@ -6,6 +6,8 @@ import (
 	"github.com/alphadose/haxmap"
 	"github.com/goccy/go-json"
 	"log"
+	"strconv"
+	"strings"
 )
 
 type Quest struct {
@@ -163,13 +165,6 @@ func setQuestDialogue(quest map[string]any) QuestDialogues {
 		Success:     quest["successMessageText"].(string),
 		Fail:        quest["failMessageText"].(string),
 	}
-	/*dialogues := new(QuestDialogues)
-
-		description, ok := quest["description"].(string)
-		if !ok {
-			log.Println("quest[`description`]")
-		}
-	dialogues.Description = description*/
 
 	//TODO: remove if not needed
 	/* 	complete, ok := quest["completePlayerMessage"].(string)
@@ -177,24 +172,6 @@ func setQuestDialogue(quest map[string]any) QuestDialogues {
 	   		log.Println("quest[`completePlayerMessage`]")
 	   	}
 	   	dialogues.Complete = complete */
-
-	/*fail, ok := quest["failMessageText"].(string)
-	if !ok {
-		log.Println("quest[`failMessageText`]")
-	}
-	dialogues.Fail = fail
-
-	started, ok := quest["startedMessageText"].(string)
-	if !ok {
-		log.Println("quest[`startedMessageText`]")
-	}
-	dialogues.Started = started
-
-	success, ok := quest["successMessageText"].(string)
-	if !ok {
-		log.Println("quest[`successMessageText`]")
-	}
-	dialogues.Success = success*/
 
 	//TODO: remove if not needed
 	/* 	accepted, ok := quest["acceptPlayerMessage"].(string)
@@ -240,22 +217,21 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 				continue
 			}
 
-			props := condition[props].(map[string]any)
-			name := condition[parent].(string)
+			conditionType := condition["conditionType"].(string)
 
-			switch name {
+			switch conditionType {
 			case "Level":
 				input.Level = &LevelCondition{
-					CompareMethod: props["compareMethod"].(string),
+					CompareMethod: condition["compareMethod"].(string),
 				}
 
-				float, ok := props["value"].(float64)
+				float, ok := condition["value"].(float64)
 				if ok {
 					input.Level.Level = int8(float)
 					continue
 				}
 
-				i, ok := props["value"].(int)
+				i, ok := condition["value"].(int)
 				if ok {
 					input.Level.Level = int8(i)
 					continue
@@ -265,15 +241,29 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 					input.Quest = make(map[string]*QuestCondition)
 				}
 
-				status, _ := db.quest.status.Get(int8(props["status"].([]any)[0].(float64)))
-				input.Quest[props["id"].(string)] = &QuestCondition{
-					Status:          status,
-					PreviousQuestID: props["target"].(string),
+				var conditionStatus float64
+				if f, ok := condition["status"].([]any)[0].(float64); ok {
+					conditionStatus = f
 				}
 
-				avail, _ := props["availableAfter"].(float64)
+				if s, ok := condition["status"].([]any)[0].(string); ok {
+					value, err := strconv.ParseFloat(s, 64)
+					if err != nil {
+						log.Fatal(err)
+					}
+					conditionStatus = value
+				}
+
+				status, _ := db.quest.status.Get(int8(conditionStatus))
+
+				input.Quest[condition["id"].(string)] = &QuestCondition{
+					Status:          status,
+					PreviousQuestID: condition["target"].(string),
+				}
+
+				avail, _ := condition["availableAfter"].(float64)
 				if ok {
-					input.Quest[props["id"].(string)].AvailableAfter = int(avail)
+					input.Quest[condition["id"].(string)].AvailableAfter = int(avail)
 				}
 
 				continue
@@ -283,20 +273,20 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 				}
 
 				levelCondition := &LevelCondition{
-					CompareMethod: props["compareMethod"].(string),
+					CompareMethod: condition["compareMethod"].(string),
 				}
 
-				float, ok := props["value"].(float64)
+				float, ok := condition["value"].(float64)
 				if ok {
 					levelCondition.Level = int8(float)
-					input.TraderLoyalty[props["target"].(string)] = levelCondition
+					input.TraderLoyalty[condition["target"].(string)] = levelCondition
 					continue
 				}
 
-				i, ok := props["value"].(int)
+				i, ok := condition["value"].(int)
 				if ok {
 					levelCondition.Level = int8(i)
-					input.TraderLoyalty[props["target"].(string)] = levelCondition
+					input.TraderLoyalty[condition["target"].(string)] = levelCondition
 					continue
 				}
 			case "TraderStanding":
@@ -305,20 +295,20 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 				}
 
 				levelCondition := &LevelCondition{
-					CompareMethod: props["compareMethod"].(string),
+					CompareMethod: condition["compareMethod"].(string),
 				}
 
-				float, ok := props["value"].(float64)
+				float, ok := condition["value"].(float64)
 				if ok {
 					levelCondition.Level = int8(float)
-					input.TraderStanding[props["target"].(string)] = levelCondition
+					input.TraderStanding[condition["target"].(string)] = levelCondition
 					continue
 				}
 
-				i, ok := props["value"].(int)
+				i, ok := condition["value"].(int)
 				if ok {
 					levelCondition.Level = int8(i)
-					input.TraderStanding[props["target"].(string)] = levelCondition
+					input.TraderStanding[condition["target"].(string)] = levelCondition
 					continue
 				}
 			case "HandoverItem":
@@ -326,20 +316,20 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 					input.HandoverItem = make(map[string]*HandoverCondition)
 				}
 				handover := &HandoverCondition{
-					ItemToHandover: props["target"].([]any)[0].(string),
+					ItemToHandover: condition["target"].([]any)[0].(string),
 				}
 
-				isFloat, ok := props["value"].(float64)
+				isFloat, ok := condition["value"].(float64)
 				if ok {
 					handover.Amount = isFloat
-					input.HandoverItem[props["id"].(string)] = handover
+					input.HandoverItem[condition["id"].(string)] = handover
 					continue
 				}
 
-				isInt, ok := props["value"].(int)
+				isInt, ok := condition["value"].(int)
 				if ok {
 					handover.Amount = float64(isInt)
-					input.HandoverItem[props["id"].(string)] = handover
+					input.HandoverItem[condition["id"].(string)] = handover
 					continue
 				}
 			case "WeaponAssembly":
@@ -347,20 +337,20 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 					input.WeaponAssembly = make(map[string]*HandoverCondition)
 				}
 				handover := &HandoverCondition{
-					ItemToHandover: props["target"].([]any)[0].(string),
+					ItemToHandover: condition["target"].([]any)[0].(string),
 				}
 
-				isFloat, ok := props["value"].(float64)
+				isFloat, ok := condition["value"].(float64)
 				if ok {
 					handover.Amount = isFloat
-					input.WeaponAssembly[props["id"].(string)] = handover
+					input.WeaponAssembly[condition["id"].(string)] = handover
 					continue
 				}
 
-				isInt, ok := props["value"].(int)
+				isInt, ok := condition["value"].(int)
 				if ok {
 					handover.Amount = float64(isInt)
-					input.WeaponAssembly[props["id"].(string)] = handover
+					input.WeaponAssembly[condition["id"].(string)] = handover
 					continue
 				}
 			case "FindItem":
@@ -368,20 +358,20 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 					input.FindItem = make(map[string]*HandoverCondition)
 				}
 				handover := &HandoverCondition{
-					ItemToHandover: props["target"].([]any)[0].(string),
+					ItemToHandover: condition["target"].([]any)[0].(string),
 				}
 
-				isFloat, ok := props["value"].(float64)
+				isFloat, ok := condition["value"].(float64)
 				if ok {
 					handover.Amount = isFloat
-					input.FindItem[props["id"].(string)] = handover
+					input.FindItem[condition["id"].(string)] = handover
 					continue
 				}
 
-				isInt, ok := props["value"].(int)
+				isInt, ok := condition["value"].(int)
 				if ok {
 					handover.Amount = float64(isInt)
-					input.FindItem[props["id"].(string)] = handover
+					input.FindItem[condition["id"].(string)] = handover
 					continue
 				}
 			case "Skill":
@@ -389,20 +379,20 @@ func setQuestConditions(conditions map[string]any) QuestAvailabilityConditions {
 					input.Skills = make(map[string]*LevelCondition)
 				}
 				levelCondition := &LevelCondition{
-					CompareMethod: props["compareMethod"].(string),
+					CompareMethod: condition["compareMethod"].(string),
 				}
 
-				float, ok := props["value"].(float64)
+				float, ok := condition["value"].(float64)
 				if ok {
 					levelCondition.Level = int8(float)
-					input.Skills[props["target"].(string)] = levelCondition
+					input.Skills[condition["target"].(string)] = levelCondition
 					continue
 				}
 
-				i, ok := props["value"].(int)
+				i, ok := condition["value"].(int)
 				if ok {
 					levelCondition.Level = int8(i)
-					input.Skills[props["target"].(string)] = levelCondition
+					input.Skills[condition["target"].(string)] = levelCondition
 					continue
 				}
 			default:
@@ -474,11 +464,20 @@ func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
 
 			switch name {
 			case "Experience":
-				float, ok := reward["value"].(float64)
-				if ok {
+				if float, ok := reward["value"].(float64); ok {
 					input.Experience = int(float)
 					continue
 				}
+
+				if isString, ok := reward["value"].(string); ok {
+					value, err := strconv.Atoi(isString)
+					if err != nil {
+						log.Fatal(err)
+					}
+					input.Experience = value
+					continue
+				}
+
 				input.Experience = reward["value"].(int)
 				continue
 			case "Item":
@@ -494,14 +493,24 @@ func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
 					questRewardItem.Items = append(questRewardItem.Items, idem)
 				}
 
-				float, ok := reward["value"].(float64)
-				if ok {
+				if float, ok := reward["value"].(float64); ok {
 					questRewardItem.Value = int(float)
 					input.Items[reward["target"].(string)] = questRewardItem
 					continue
 				}
 
-				questRewardItem.Value = reward["value"].(int)
+				if isString, ok := reward["value"].(string); ok {
+					value, err := strconv.Atoi(isString)
+					if err != nil {
+						log.Fatal(err)
+					}
+					questRewardItem.Value = value
+				}
+
+				if isInt, ok := reward["value"].(int); ok {
+					questRewardItem.Value = isInt
+				}
+
 				input.Items[reward["target"].(string)] = questRewardItem
 				continue
 			case "AssortmentUnlock":
@@ -511,15 +520,23 @@ func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
 				if input.TraderStanding == nil {
 					input.TraderStanding = make(map[string]float64)
 				}
-				float, ok := reward["value"].(float64)
-				if ok {
+
+				if float, ok := reward["value"].(float64); ok {
 					input.TraderStanding[reward["target"].(string)] = float
 					continue
 				}
 
-				i, ok := reward["value"].(int)
-				if ok {
+				if i, ok := reward["value"].(int); ok {
 					input.TraderStanding[reward["target"].(string)] = float64(i)
+					continue
+				}
+
+				if s, ok := reward["value"].(string); ok {
+					value, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
+					if err != nil {
+						log.Fatal(err)
+					}
+					input.TraderStanding[reward["target"].(string)] = value
 					continue
 				}
 
@@ -549,16 +566,24 @@ func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
 				if input.Skills == nil {
 					input.Skills = make(map[string]int)
 				}
-				float, ok := reward["value"].(float64)
-				if ok {
+
+				if float, ok := reward["value"].(float64); ok {
 					input.Skills[reward["target"].(string)] = int(float)
 					continue
 				}
-				i, ok := reward["value"].(int)
-				if ok {
+				if i, ok := reward["value"].(int); ok {
 					input.Skills[reward["target"].(string)] = i
 					continue
 				}
+				if s, ok := reward["value"].(string); ok {
+					value, err := strconv.Atoi(s)
+					if err != nil {
+						log.Fatal(err)
+					}
+					input.Skills[reward["target"].(string)] = value
+					continue
+				}
+
 				fmt.Println("SKILL NOT FOUND")
 				continue
 			case "ProductionScheme":
@@ -569,11 +594,20 @@ func setQuestRewards(rewards map[string]any) QuestRewardAvailabilityConditions {
 				scheme.LoyaltyLevel = int(reward["loyaltyLevel"].(float64))
 				scheme.Item = reward["items"].([]any)[0].(map[string]any)["_tpl"].(string)
 
-				ifFloat, ok := reward["traderId"].(float64)
-				if ok {
-					scheme.AreaID = int(ifFloat)
-				} else {
-					scheme.AreaID = reward["traderId"].(int)
+				if f, ok := reward["traderId"].(float64); ok {
+					scheme.AreaID = int(f)
+				}
+
+				if s, ok := reward["traderId"].(string); ok {
+					value, err := strconv.Atoi(s)
+					if err != nil {
+						log.Fatal(err)
+					}
+					scheme.AreaID = value
+				}
+
+				if i, ok := reward["traderId"].(int); ok {
+					scheme.AreaID = i
 				}
 				/*
 					item, ok := reward["items"].([]any)[0].(map[string]any)["_tpl"].(string)
