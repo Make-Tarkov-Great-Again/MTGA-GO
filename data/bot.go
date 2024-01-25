@@ -40,12 +40,16 @@ func setBots() {
 		if err := json.Unmarshal(a, &bots.BotAppearance); err != nil {
 			log.Fatalln(err)
 		}
-
+		done <- struct{}{}
+	}()
+	go func() {
 		n := tools.GetJSONRawMessage(filepath.Join(botMainDir, "names.json"))
 		if err := json.Unmarshal(n, bots.BotNames); err != nil {
 			log.Fatalln(err)
 		}
-
+		done <- struct{}{}
+	}()
+	go func() {
 		b := tools.GetJSONRawMessage(filepath.Join(databaseLibPath, "sacrificialBot.json"))
 		if err := json.Unmarshal(b, &sacrificialBot); err != nil {
 			log.Println(err)
@@ -53,7 +57,7 @@ func setBots() {
 		done <- struct{}{}
 	}()
 
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 4; i++ {
 		<-done
 	}
 	db.bot = bots
