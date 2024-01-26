@@ -177,27 +177,27 @@ const (
 )
 
 type Character[T TradersInfo] struct {
-	ID                string              `json:"_id"`
-	AID               int                 `json:"aid"`
-	Savage            *string             `json:"savage"`
-	Info              PlayerInfo          `json:"Info"`
-	Customization     PlayerCustomization `json:"Customization"`
-	Health            HealthInfo          `json:"Health"`
-	Inventory         Inventory           `json:"Inventory"`
-	Skills            PlayerSkills        `json:"Skills"`
-	Stats             PlayerStats         `json:"Stats"`
-	Encyclopedia      map[string]bool     `json:"Encyclopedia"`
-	ConditionCounters ConditionCounters   `json:"ConditionCounters"`
-	BackendCounters   map[string]any      `json:"BackendCounters"`
-	InsuredItems      []InsuredItem       `json:"InsuredItems"`
-	Hideout           *PlayerHideout      `json:"Hideout"`
-	Bonuses           []Bonus             `json:"Bonuses"`
-	Notes             Notes               `json:"Notes"`
-	Quests            []CharacterQuest    `json:"Quests"`
-	RagfairInfo       PlayerRagfairInfo   `json:"RagfairInfo"`
-	WishList          []string            `json:"WishList"`
-	TradersInfo       T                   `json:"TradersInfo"`
-	UnlockedInfo      Unlocked            `json:"UnlockedInfo"`
+	ID                    string              `json:"_id"`
+	AID                   int                 `json:"aid"`
+	Savage                *string             `json:"savage"`
+	Info                  PlayerInfo          `json:"Info"`
+	Customization         PlayerCustomization `json:"Customization"`
+	Health                HealthInfo          `json:"Health"`
+	Inventory             Inventory           `json:"Inventory"`
+	Skills                PlayerSkills        `json:"Skills"`
+	Stats                 PlayerStats         `json:"Stats"`
+	Encyclopedia          map[string]bool     `json:"Encyclopedia"`
+	ConditionCounters     ConditionCounters   `json:"ConditionCounters"`
+	TaskConditionCounters map[string]any      `json:"TaskConditionCounters"`
+	InsuredItems          []InsuredItem       `json:"InsuredItems"`
+	Hideout               *PlayerHideout      `json:"Hideout"`
+	Bonuses               []Bonus             `json:"Bonuses"`
+	Notes                 Notes               `json:"Notes"`
+	Quests                []CharacterQuest    `json:"Quests"`
+	RagfairInfo           PlayerRagfairInfo   `json:"RagfairInfo"`
+	WishList              []string            `json:"WishList"`
+	TradersInfo           T                   `json:"TradersInfo"`
+	UnlockedInfo          Unlocked            `json:"UnlockedInfo"`
 }
 
 type TradersInfo interface {
