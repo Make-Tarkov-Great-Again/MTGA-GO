@@ -19,17 +19,6 @@ import (
 
 const routeNotImplemented = "Route is not implemented yet, using empty values instead"
 
-// GetBundleList returns a list of custom bundles to the client
-func GetBundleList(w http.ResponseWriter, _ *http.Request) {
-	manifests := data.GetBundleManifests()
-	pkg.SendZlibJSONReply(w, manifests)
-}
-
-func GetBrandName(w http.ResponseWriter, _ *http.Request) {
-	brand := pkg.GetBrandName()
-	pkg.SendZlibJSONReply(w, brand)
-}
-
 func MainGameStart(w http.ResponseWriter, _ *http.Request) {
 	body := pkg.ApplyResponseBody(map[string]any{
 		"utc_time": tools.GetCurrentTimeInSeconds(),
@@ -688,4 +677,20 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 func AirdropConfig(w http.ResponseWriter, _ *http.Request) {
 	airdropParams := data.GetAirdropParameters()
 	pkg.SendZlibJSONReply(w, airdropParams)
+}
+
+func GetAchievements(w http.ResponseWriter, _ *http.Request) {
+	log.Println("/client/achievement/list not implemented")
+	body := pkg.ApplyResponseBody(map[string][]string{
+		"elements": make([]string, 0),
+	})
+	pkg.SendZlibJSONReply(w, body)
+}
+
+func GetAchievementStats(w http.ResponseWriter, _ *http.Request) {
+	log.Println("/client/achievement/statistic not implemented")
+	body := pkg.ApplyResponseBody(map[string]map[string]int{
+		"elements": make(map[string]int),
+	})
+	pkg.SendZlibJSONReply(w, body)
 }

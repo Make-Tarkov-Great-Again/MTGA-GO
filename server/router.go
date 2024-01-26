@@ -10,9 +10,7 @@ import (
 )
 
 var mainRouteHandlers = map[string]http.HandlerFunc{
-	"/getBrandName":               handlers.GetBrandName,
 	"/sp/config/bots/difficulty":  handlers.GetBotDifficulty,
-	"/getBundleList":              handlers.GetBundleList,
 	"/raid/profile/save":          handlers.RaidProfileSave,
 	"/sp/airdrop/config":          handlers.AirdropConfig,
 	"/files/{main}/{type}/{file}": pkg.ServeFiles,
@@ -70,6 +68,12 @@ var mainRouteHandlers = map[string]http.HandlerFunc{
 	"/client/insurance/items/cost":                handlers.InsuranceItemsCost,
 	"/client/insurance/items/list/cost":           handlers.InsuranceListCost,
 	"/client/game/bot/generate":                   handlers.BotGenerate,
+
+	//.14
+	"/client/achievement/statistic": handlers.GetAchievementStats,
+	"/client/achievement/list":      handlers.GetAchievements,
+	"/client/builds/list":           handlers.MainBuildsList,
+	//"/client/handbook/builds/my/list" check if still used
 }
 
 func AddMainRoute(route string, handler http.HandlerFunc) {

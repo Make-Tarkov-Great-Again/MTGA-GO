@@ -248,6 +248,7 @@ type Storage struct {
 type Builds struct {
 	EquipmentBuilds []*EquipmentBuild `json:"equipmentBuilds"`
 	WeaponBuilds    []*WeaponBuild    `json:"weaponBuilds"`
+	MagazineBuilds  []*struct{}       `json:"magazineBuilds"`
 }
 
 type WeaponBuild struct {
