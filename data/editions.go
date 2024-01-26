@@ -2,7 +2,6 @@ package data
 
 import (
 	"MT-GO/tools"
-	"errors"
 	"fmt"
 	"github.com/alphadose/haxmap"
 	"log"
@@ -49,25 +48,21 @@ func setEdition(editionPath string) *Edition {
 	done := make(chan struct{})
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "storage.json"))
-		if err := json.Unmarshal(raw, edition.Storage); err != nil {
+		if err := json.UnmarshalNoEscape(raw, edition.Storage); err != nil {
 			log.Fatalln(err)
 		}
 		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_usec.json"))
-		if err := json.Unmarshal(raw, edition.Usec); err != nil {
+		if err := json.UnmarshalNoEscape(raw, edition.Usec); err != nil {
 			log.Fatalln(err)
 		}
 		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_bear.json"))
-		if err := json.Unmarshal(raw, edition.Bear); err != nil {
-			var e *json.SyntaxError
-			if errors.As(err, &e) {
-				log.Printf("syntax error at byte offset %d", e.Offset)
-			}
+		if err := json.UnmarshalNoEscape(raw, edition.Bear); err != nil {
 			log.Fatalln(err)
 		}
 		done <- struct{}{}
