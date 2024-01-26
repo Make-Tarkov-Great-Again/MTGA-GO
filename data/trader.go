@@ -280,6 +280,8 @@ func (t *Trader) SetTraderLoyaltyLevel(character *Character[map[string]PlayerTra
 			return
 		}
 	}
+	traderInfo.LoyaltyLevel = length
+	character.TradersInfo[traderID] = traderInfo
 }
 
 /*
@@ -505,31 +507,32 @@ type AssortIndex struct {
 }
 
 type TraderBase struct {
-	ID                  string               `json:"_id"`
-	AvailableInRaid     bool                 `json:"availableInRaid"`
-	Avatar              string               `json:"avatar"`
-	BalanceDol          int32                `json:"balance_dol"`
-	BalanceEur          int32                `json:"balance_eur"`
-	BalanceRub          int32                `json:"balance_rub"`
-	BuyerUp             bool                 `json:"buyer_up"`
-	Currency            string               `json:"currency"`
-	CustomizationSeller bool                 `json:"customization_seller"`
-	Discount            int8                 `json:"discount"`
-	DiscountEnd         int8                 `json:"discount_end"`
-	GridHeight          int16                `json:"gridHeight"`
-	Insurance           TraderInsurance      `json:"insurance"`
-	ItemsBuy            ItemsBuy             `json:"items_buy"`
-	ItemsBuyProhibited  ItemsBuy             `json:"items_buy_prohibited"`
-	Location            string               `json:"location"`
-	LoyaltyLevels       []TraderLoyaltyLevel `json:"loyaltyLevels"`
-	Medic               bool                 `json:"medic"`
-	Name                string               `json:"name"`
-	NextResupply        int32                `json:"nextResupply"`
-	Nickname            string               `json:"nickname"`
-	Repair              TraderRepair         `json:"repair"`
-	SellCategory        []string             `json:"sell_category"`
-	Surname             string               `json:"surname"`
-	UnlockedByDefault   bool                 `json:"unlockedByDefault"`
+	ID                             string               `json:"_id"`
+	AvailableInRaid                bool                 `json:"availableInRaid"`
+	Avatar                         string               `json:"avatar"`
+	BalanceDol                     int32                `json:"balance_dol"`
+	BalanceEur                     int32                `json:"balance_eur"`
+	BalanceRub                     int32                `json:"balance_rub"`
+	BuyerUp                        bool                 `json:"buyer_up"`
+	Currency                       string               `json:"currency"`
+	CustomizationSeller            bool                 `json:"customization_seller"`
+	Discount                       int8                 `json:"discount"`
+	DiscountEnd                    int8                 `json:"discount_end"`
+	GridHeight                     int16                `json:"gridHeight"`
+	Insurance                      TraderInsurance      `json:"insurance"`
+	ItemsBuy                       ItemsBuy             `json:"items_buy"`
+	ItemsBuyProhibited             ItemsBuy             `json:"items_buy_prohibited"`
+	Location                       string               `json:"location"`
+	LoyaltyLevels                  []TraderLoyaltyLevel `json:"loyaltyLevels"`
+	Medic                          bool                 `json:"medic"`
+	Name                           string               `json:"name"`
+	NextResupply                   int32                `json:"nextResupply"`
+	Nickname                       string               `json:"nickname"`
+	Repair                         TraderRepair         `json:"repair"`
+	SellCategory                   []string             `json:"sell_category"`
+	Surname                        string               `json:"surname"`
+	UnlockedByDefault              bool                 `json:"unlockedByDefault"`
+	SellModifierForProhibitedItems int8                 `json:"sell_modifier_for_prohibited_items"`
 }
 
 type TraderInsurance struct {
