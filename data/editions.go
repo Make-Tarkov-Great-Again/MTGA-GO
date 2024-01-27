@@ -54,14 +54,14 @@ func setEdition(editionPath string) *Edition {
 		done <- struct{}{}
 	}()
 	go func() {
-		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_usec.json"))
+		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "usec.json"))
 		if err := json.UnmarshalNoEscape(raw, edition.Usec); err != nil {
 			log.Fatalln(err)
 		}
 		done <- struct{}{}
 	}()
 	go func() {
-		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "character_bear.json"))
+		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "bear.json"))
 		if err := json.UnmarshalNoEscape(raw, edition.Bear); err != nil {
 			log.Fatalln(err)
 		}

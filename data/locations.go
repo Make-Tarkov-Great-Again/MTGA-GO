@@ -21,40 +21,19 @@ func GetLocations() *Locations {
 func setLocations() {
 	db.location = &Location{
 		Bases: Locations{},
-		Loot: map[string][]map[string]any{
-			"bigmap":         make([]map[string]any, 0, 6),
-			"factory4_day":   make([]map[string]any, 0, 6),
-			"factory4_night": make([]map[string]any, 0, 6),
-			"Laboratory":     make([]map[string]any, 0, 6),
-			"Lighthouse":     make([]map[string]any, 0, 6),
-			"RezervBase":     make([]map[string]any, 0, 6),
-			"Shoreline":      make([]map[string]any, 0, 6),
-			"TarkovStreets":  make([]map[string]any, 0, 6),
-			"Woods":          make([]map[string]any, 0, 6),
-		},
+		Loot:  make(map[string][]map[string]any),
 	}
 
-	raw := tools.GetJSONRawMessage(locationsFilePath)
-	if err := json.Unmarshal(raw, &db.location.Bases); err != nil {
+	base := tools.GetJSONRawMessage(filepath.Join(locationsPath, "locations.json"))
+	if err := json.UnmarshalNoEscape(base, &db.location.Bases); err != nil {
 		log.Fatalln(err)
 	}
 
-	files, err := tools.GetFilesFrom(locationsPath)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	for file := range files {
-		name := file[:len(file)-6]
-		filePath := filepath.Join(locationsPath, file)
-
-		raw := tools.GetJSONRawMessage(filePath)
-		format := new(map[string]any)
-		if err = json.UnmarshalNoEscape(raw, format); err != nil {
-			log.Fatalln(err)
-		}
-
-		db.location.Loot[name] = append(db.location.Loot[name], *format)
+	directories, _ := tools.GetDirectoriesFrom(locationsPath)
+	for dir := range directories {
+		directory := filepath.Join(locationsPath, dir)
+		files, _ := tools.GetFilesFrom(directory)
+		print(files)
 	}
 }
 
