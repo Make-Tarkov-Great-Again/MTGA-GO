@@ -173,7 +173,8 @@ func setHideout() {
 	go func() {
 		areas := tools.GetJSONRawMessage(areasPath)
 		if err := json.UnmarshalNoEscape(areas, &db.hideout.Areas); err != nil {
-			log.Println(err)
+			msg := tools.CheckParsingError(areas, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
@@ -181,7 +182,8 @@ func setHideout() {
 	go func() {
 		recipes := tools.GetJSONRawMessage(productionPath)
 		if err := json.UnmarshalNoEscape(recipes, &db.hideout.Recipes); err != nil {
-			log.Println(err)
+			msg := tools.CheckParsingError(recipes, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
@@ -189,7 +191,8 @@ func setHideout() {
 	go func() {
 		scavcase := tools.GetJSONRawMessage(scavcasePath)
 		if err := json.UnmarshalNoEscape(scavcase, &db.hideout.ScavCase); err != nil {
-			log.Println(err)
+			msg := tools.CheckParsingError(scavcase, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
@@ -197,7 +200,8 @@ func setHideout() {
 	go func() {
 		qte := tools.GetJSONRawMessage(qtePath)
 		if err := json.UnmarshalNoEscape(qte, &db.hideout.QTE); err != nil {
-			log.Println(err)
+			msg := tools.CheckParsingError(qte, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
@@ -205,7 +209,8 @@ func setHideout() {
 	go func() {
 		settings := tools.GetJSONRawMessage(hideoutSettingsPath)
 		if err := json.UnmarshalNoEscape(settings, &db.hideout.Settings); err != nil {
-			log.Println(err)
+			msg := tools.CheckParsingError(settings, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()

@@ -14,7 +14,8 @@ func setStorage(path string) *Storage {
 
 	data := tools.GetJSONRawMessage(path)
 	if err := json.UnmarshalNoEscape(data, output); err != nil {
-		log.Println(err)
+		msg := tools.CheckParsingError(data, err)
+		log.Fatalln(msg)
 	}
 
 	return output

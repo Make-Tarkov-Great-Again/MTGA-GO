@@ -54,21 +54,24 @@ func setCore() {
 	go func() {
 		raw := tools.GetJSONRawMessage(playerScavPath)
 		if err := json.UnmarshalNoEscape(raw, &db.core.Scav); err != nil {
-			log.Fatalln(err)
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(MainSettingsPath)
 		if err := json.UnmarshalNoEscape(raw, &db.core.MainSettings); err != nil {
-			log.Fatalln(err)
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(serverConfigPath)
 		if err := json.UnmarshalNoEscape(raw, &db.core.ServerConfig); err != nil {
-			log.Fatalln(err)
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
@@ -79,14 +82,16 @@ func setCore() {
 	go func() {
 		raw := tools.GetJSONRawMessage(matchMetricsPath)
 		if err := json.UnmarshalNoEscape(raw, &db.core.MatchMetrics); err != nil {
-			log.Println(err)
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(airdropFilePath)
 		if err := json.UnmarshalNoEscape(raw, &db.core.AirdropParameters); err != nil {
-			log.Fatalln(err)
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
@@ -94,7 +99,8 @@ func setCore() {
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(coreFilePath, "/languages.json"))
 		if err := json.UnmarshalNoEscape(raw, &db.core.Languages); err != nil {
-			log.Fatalln(err)
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()

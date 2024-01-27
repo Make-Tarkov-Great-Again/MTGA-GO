@@ -24,9 +24,10 @@ func setLocations() {
 		Loot:  make(map[string][]map[string]any),
 	}
 
-	base := tools.GetJSONRawMessage(filepath.Join(locationsPath, "locations.json"))
-	if err := json.UnmarshalNoEscape(base, &db.location.Bases); err != nil {
-		log.Fatalln(err)
+	raw := tools.GetJSONRawMessage(filepath.Join(locationsPath, "locations.json"))
+	if err := json.UnmarshalNoEscape(raw, &db.location.Bases); err != nil {
+		msg := tools.CheckParsingError(raw, err)
+		log.Fatalln(msg)
 	}
 
 	directories, _ := tools.GetDirectoriesFrom(locationsPath)

@@ -64,27 +64,18 @@ func setLocales() {
 			Global: haxmap.New[string, any](), //make(map[string]any),
 			Menu:   &LocaleMenu{Menu: haxmap.New[string, string]()},
 		}
+
 		dirPath := filepath.Join(localesPath, dir)
-		localeFiles, err := tools.GetFilesFrom(dirPath)
-		if err != nil {
-			log.Fatalln(err)
+		fileContent := tools.GetJSONRawMessage(filepath.Join(dirPath, "locale.json"))
+		if err := json.UnmarshalNoEscape(fileContent, &localeData.Global); err != nil {
+			msg := tools.CheckParsingError(fileContent, err)
+			log.Fatalln(msg)
 		}
 
-		for file := range localeFiles {
-			fileContent := tools.GetJSONRawMessage(filepath.Join(dirPath, file))
-
-			switch file {
-			case "locale.json":
-				if err := json.UnmarshalNoEscape(fileContent, &localeData.Global); err != nil {
-					log.Fatalln(err)
-				}
-			case "menu.json":
-				if err := json.UnmarshalNoEscape(fileContent, &localeData.Menu); err != nil {
-					log.Fatalln(err)
-				}
-			default:
-				log.Println("huh")
-			}
+		fileContent = tools.GetJSONRawMessage(filepath.Join(dirPath, "menu.json"))
+		if err := json.UnmarshalNoEscape(fileContent, &localeData.Menu); err != nil {
+			msg := tools.CheckParsingError(fileContent, err)
+			log.Fatalln(msg)
 		}
 
 		db.locale.Set(dir, localeData)

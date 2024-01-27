@@ -49,21 +49,24 @@ func setEdition(editionPath string) *Edition {
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "storage.json"))
 		if err := json.UnmarshalNoEscape(raw, edition.Storage); err != nil {
-			log.Fatalln(err)
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "usec.json"))
 		if err := json.UnmarshalNoEscape(raw, edition.Usec); err != nil {
-			log.Fatalln(err)
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()
 	go func() {
 		raw := tools.GetJSONRawMessage(filepath.Join(editionPath, "bear.json"))
 		if err := json.UnmarshalNoEscape(raw, edition.Bear); err != nil {
-			log.Fatalln(err)
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
 		}
 		done <- struct{}{}
 	}()

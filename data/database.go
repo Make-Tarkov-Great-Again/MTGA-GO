@@ -98,6 +98,7 @@ func SetPrimaryDatabase() {
 			setCustomization,
 		},
 		workers)
+	println("primary done")
 }
 
 func SetCache() {

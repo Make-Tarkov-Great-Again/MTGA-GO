@@ -356,7 +356,8 @@ func setTraders() {
 				raw := tools.GetJSONRawMessage(basePath)
 				trader.Base = new(TraderBase)
 				if err := json.UnmarshalNoEscape(raw, &trader.Base); err != nil {
-					log.Fatalln(err)
+					msg := tools.CheckParsingError(raw, err)
+					log.Fatalln(msg)
 				}
 
 				db.trader.Names.Set(trader.Base.Nickname, trader.Base.ID)
@@ -376,7 +377,8 @@ func setTraders() {
 					LoyalLevelItems: haxmap.New[string, int8](),
 				}
 				if err := json.Unmarshal(raw, &trader.Assort); err != nil {
-					log.Fatalln(err)
+					msg := tools.CheckParsingError(raw, err)
+					log.Fatalln(msg)
 				}
 
 				done <- true
@@ -390,7 +392,8 @@ func setTraders() {
 				raw := tools.GetJSONRawMessage(questsPath)
 				trader.QuestAssort = haxmap.New[string, map[string]string]() //make(map[string]map[string]string)
 				if err := json.UnmarshalNoEscape(raw, &trader.QuestAssort); err != nil {
-					log.Fatalln(err)
+					msg := tools.CheckParsingError(raw, err)
+					log.Fatalln(msg)
 				}
 				done <- true
 			}()
@@ -403,7 +406,8 @@ func setTraders() {
 				raw := tools.GetJSONRawMessage(suitsPath)
 				trader.Suits = make([]TraderSuits, 0)
 				if err := json.UnmarshalNoEscape(raw, &trader.Suits); err != nil {
-					log.Println(err)
+					msg := tools.CheckParsingError(raw, err)
+					log.Fatalln(msg)
 				}
 				done <- true
 			}()
@@ -416,7 +420,8 @@ func setTraders() {
 				raw := tools.GetJSONRawMessage(dialoguesPath)
 				trader.Dialogue = haxmap.New[string, []string]() //make(map[string][]string)
 				if err := json.UnmarshalNoEscape(raw, &trader.Dialogue); err != nil {
-					log.Fatalln(err)
+					msg := tools.CheckParsingError(raw, err)
+					log.Fatalln(msg)
 				}
 				done <- true
 			}()

@@ -67,7 +67,8 @@ func setCustomization() {
 	db.customization = haxmap.New[string, *Customization]() //make(map[string]*Customization)
 	raw := tools.GetJSONRawMessage(customizationPath)
 	if err := json.UnmarshalNoEscape(raw, &db.customization); err != nil {
-		log.Fatalln("Set Customization:", err)
+		msg := tools.CheckParsingError(raw, err)
+		log.Fatalln(msg)
 	}
 }
 

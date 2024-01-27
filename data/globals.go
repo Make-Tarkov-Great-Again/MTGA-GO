@@ -12,7 +12,8 @@ var weaponMastering = make(map[string]int16)
 func setGlobals() {
 	raw := tools.GetJSONRawMessage(globalsFilePath)
 	if err := json.UnmarshalNoEscape(raw, &db.core.Globals); err != nil {
-		log.Fatalln(err)
+		msg := tools.CheckParsingError(raw, err)
+		log.Fatalln(msg)
 	}
 
 	db.core.Globals.Config.Handbook.DefaultCategory = ""
@@ -47,7 +48,7 @@ type Globals struct {
 }
 
 type configAiming struct {
-	AimProceduralIntensity    int     `json:"AimProceduralIntensity"`
+	AimProceduralIntensity    float64 `json:"AimProceduralIntensity"`
 	CameraSnapGlobalMult      float64 `json:"CameraSnapGlobalMult"`
 	HeavyWeight               int     `json:"HeavyWeight"`
 	LightWeight               float64 `json:"LightWeight"`

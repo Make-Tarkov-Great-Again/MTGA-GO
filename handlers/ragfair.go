@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"MT-GO/pkg"
+	"MT-GO/tools"
 	"github.com/goccy/go-json"
 	"log"
 	"net/http"
@@ -50,7 +51,8 @@ func RagfairFind(w http.ResponseWriter, r *http.Request) {
 	if input, err := json.MarshalNoEscape(pkg.GetParsedBody(r)); err != nil {
 		log.Fatalln(err)
 	} else if err := json.UnmarshalNoEscape(input, &ragfair); err != nil {
-		log.Fatalln(err)
+		msg := tools.CheckParsingError(input, err)
+		log.Fatalln(msg)
 	}
 
 	flea, err := pkg.GetFlea(ragfair.HandbookId)

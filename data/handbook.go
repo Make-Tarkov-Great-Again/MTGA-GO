@@ -81,7 +81,8 @@ func setHandbook() {
 	}
 	raw := tools.GetJSONRawMessage(handbookPath)
 	if err := json.UnmarshalNoEscape(raw, &db.template.handbook); err != nil {
-		log.Fatalln(err)
+		msg := tools.CheckParsingError(raw, err)
+		log.Fatalln(msg)
 	}
 }
 

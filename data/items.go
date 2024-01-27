@@ -35,7 +35,8 @@ func ItemClone(item string) (*DatabaseItem, error) {
 	}
 
 	if err := json.UnmarshalNoEscape(data, &clone); err != nil {
-		log.Fatal(err)
+		msg := tools.CheckParsingError(data, err)
+		log.Fatalln(msg)
 	}
 
 	return clone, nil
@@ -180,7 +181,7 @@ func setItems() {
 	db.item = haxmap.New[string, *DatabaseItem]()
 	raw := tools.GetJSONRawMessage(itemsPath)
 	if err := json.Unmarshal(raw, &db.item); err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 		return
 	}
 }

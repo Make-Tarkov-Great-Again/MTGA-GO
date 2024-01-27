@@ -821,7 +821,8 @@ func setCachedResponses() {
 
 	data := tools.GetJSONRawMessage(cachePath)
 	if err := json.UnmarshalNoEscape(data, &db.cache.response); err != nil {
-		log.Fatalln(err)
+		msg := tools.CheckParsingError(data, err)
+		log.Fatalln(msg)
 	}
 	fmt.Println("This needs to be adjusted in the future for modifications")
 }

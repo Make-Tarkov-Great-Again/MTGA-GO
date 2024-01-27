@@ -50,8 +50,6 @@ func GetQuestByID(qid string) any {
 
 // region Quest setters
 const (
-	parent    string = "_parent"
-	props     string = "_props"
 	_type     string = "type"
 	ForFinish string = "AvailableForFinish"
 	ForStart  string = "AvailableForStart"
@@ -66,7 +64,8 @@ func setQuests() {
 	}
 	raw := tools.GetJSONRawMessage(questsPath)
 	if err := json.UnmarshalNoEscape(raw, &db.quest.quests); err != nil {
-		log.Fatalln(err)
+		msg := tools.CheckParsingError(raw, err)
+		log.Fatalln(msg)
 	}
 }
 
