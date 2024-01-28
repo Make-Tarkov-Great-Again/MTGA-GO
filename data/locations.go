@@ -14,6 +14,25 @@ func GetLocations() *Locations {
 	return &db.location.Bases
 }
 
+func GetLocationById(id string) *LocationBase {
+	location, ok := db.location.Bases.Locations[id]
+	if !ok {
+		log.Fatal("location doesn't exist")
+	}
+	return &location
+}
+
+// need to populate this bitch
+var locationIdByName = map[string]string{}
+
+func GetLocationIdByName(name string) (string, error) {
+	id, ok := locationIdByName[name]
+	if !ok {
+		return "", fmt.Errorf("no location by that name")
+	}
+	return id, nil
+}
+
 // #endregion
 
 // #region Location setters
@@ -24,7 +43,7 @@ func setLocations() {
 			Locations: make(map[string]LocationBase),
 			Paths:     make([]Path, 0),
 		},
-		Loot: make(map[string][][]map[string]any),
+		Loot: make(map[string][][]LootSpawn),
 	}
 
 	raw := tools.GetJSONRawMessage(filepath.Join(locationsPath, "locations.json"))
@@ -48,12 +67,14 @@ func setLocations() {
 			}
 			id = base.Id
 			db.location.Bases.Locations[id] = base
+
+			locationIdByName[base.NameId] = id
 		}
 
 		lootFilePath := filepath.Join(directory, "loot.json")
 		if tools.FileExist(lootFilePath) {
 			l := tools.GetJSONRawMessage(lootFilePath)
-			loot := make([][]map[string]any, 0)
+			loot := make([][]LootSpawn, 0)
 			if err := json.UnmarshalNoEscape(l, &loot); err != nil {
 				msg := tools.CheckParsingError(l, err)
 				log.Fatalln(msg)
@@ -65,18 +86,18 @@ func setLocations() {
 
 //make(map[string][]any)
 
-func GetLocalLootByNameAndIndex(name string, index int8) (any, error) {
-	location, ok := db.location.Loot[name]
+func GetLocalLootByNameAndIndex(id string, index int8) ([]LootSpawn, error) {
+	location, ok := db.location.Loot[id]
 	if !ok {
-		log.Println("Location", name, "doesn't exist in localLoot map")
-		return nil, fmt.Errorf("Location %s does not exist", name)
+		log.Println("Location", id, "doesn't exist in localLoot map")
+		return nil, fmt.Errorf("location %s does not exist", id)
 	}
 
 	loot := location[index]
 	if loot != nil {
 		return loot, nil
 	}
-	return nil, fmt.Errorf("loot index for %s does not exist", name)
+	return nil, fmt.Errorf("loot index for %s does not exist", id)
 }
 
 // #endregion
@@ -240,7 +261,7 @@ type Limit struct {
 // #region Location structs
 type Location struct {
 	Bases Locations
-	Loot  map[string][][]map[string]any
+	Loot  map[string][][]LootSpawn
 }
 
 type Locations struct {

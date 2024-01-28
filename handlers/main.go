@@ -450,26 +450,34 @@ type localLoot struct {
 
 func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 	loot := new(localLoot)
-	input, err := json.Marshal(pkg.GetParsedBody(r))
+	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	if err := json.Unmarshal(input, loot); err != nil {
+	if err := json.UnmarshalNoEscape(input, loot); err != nil {
 		log.Fatalln(err)
 	}
 
-	output, err := data.GetLocalLootByNameAndIndex(loot.LocationID, loot.VariantID)
+	id, err := data.GetLocationIdByName(loot.LocationID)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	output, err := data.GetLocalLootByNameAndIndex(id, loot.VariantID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	base := data.GetLocationById(id)
+	base.Loot = output
 
 	body := pkg.ApplyResponseBody(output)
 	pkg.SendZlibJSONReply(w, body)
 }
 
 func RaidConfiguration(w http.ResponseWriter, _ *http.Request) {
-	body := pkg.ApplyResponseBody(map[string]any{})
+	body := pkg.ApplyResponseBody(nil)
 	pkg.SendZlibJSONReply(w, body)
 }
 
