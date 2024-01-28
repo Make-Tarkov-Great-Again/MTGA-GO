@@ -23,6 +23,19 @@ func setFriends(path string) *Friends {
 	return output
 }
 
+func (friends *Friends) CreateFriends() *Friends {
+	return &Friends{
+		Friends:      make([]FriendRequest, 0),
+		Ignore:       make([]string, 0),
+		InIgnoreList: make([]string, 0),
+		Matching: Matching{
+			LookingForGroup: false,
+		},
+		FriendRequestInbox:  make([]any, 0),
+		FriendRequestOutbox: make([]any, 0),
+	}
+}
+
 func GetFriendsByID(uid string) (*Friends, error) {
 	profile, err := GetProfileByUID(uid)
 	if err != nil {

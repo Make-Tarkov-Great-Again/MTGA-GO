@@ -22,9 +22,9 @@ func setLocations() {
 	db.location = &Location{
 		Bases: Locations{
 			Locations: make(map[string]LocationBase),
-			Paths:     nil,
+			Paths:     make([]Path, 0),
 		},
-		Loot: make(map[string][]map[string]any),
+		Loot: make(map[string][][]map[string]any),
 	}
 
 	raw := tools.GetJSONRawMessage(filepath.Join(locationsPath, "locations.json"))
@@ -37,13 +37,6 @@ func setLocations() {
 	for dir := range directories {
 		directory := filepath.Join(locationsPath, dir)
 
-		l := tools.GetJSONRawMessage(filepath.Join(directory, "loot.json"))
-		loot := make([][]map[string]any, 0)
-		if err := json.UnmarshalNoEscape(l, &loot); err != nil {
-			msg := tools.CheckParsingError(l, err)
-			log.Fatalln(msg)
-		}
-
 		b := tools.GetJSONRawMessage(filepath.Join(directory, "base.json"))
 		base := LocationBase{}
 		if err := json.UnmarshalNoEscape(b, &base); err != nil {
@@ -51,6 +44,14 @@ func setLocations() {
 			log.Fatalln(msg)
 		}
 		db.location.Bases.Locations[base.Id] = base
+
+		l := tools.GetJSONRawMessage(filepath.Join(directory, "loot.json"))
+		loot := make([][]map[string]any, 0)
+		if err := json.UnmarshalNoEscape(l, &loot); err != nil {
+			msg := tools.CheckParsingError(l, err)
+			log.Fatalln(msg)
+		}
+		db.location.Loot[base.Id] = loot
 	}
 }
 
@@ -231,7 +232,7 @@ type Limit struct {
 // #region Location structs
 type Location struct {
 	Bases Locations
-	Loot  map[string][]map[string]any
+	Loot  map[string][][]map[string]any
 }
 
 type Locations struct {

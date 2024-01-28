@@ -81,15 +81,7 @@ func setProfiles() {
 			if tools.FileExist(path) {
 				profile.Storage = setStorage(path)
 			} else {
-				profile.Storage = &Storage{
-					Suites: make([]string, 0),
-					Builds: &Builds{
-						EquipmentBuilds: make([]*EquipmentBuild, 0),
-						WeaponBuilds:    make([]*WeaponBuild, 0),
-					},
-					Insurance: make([]any, 0),
-					Mailbox:   make([]*Notification, 0),
-				}
+				profile.Storage = profile.Storage.CreateStorage()
 			}
 			done <- struct{}{}
 		}()
@@ -109,7 +101,7 @@ func setProfiles() {
 			if tools.FileExist(path) {
 				profile.Friends = setFriends(path)
 			} else {
-				profile.Friends = &Friends{}
+				profile.Friends = profile.Friends.CreateFriends()
 			}
 			done <- struct{}{}
 		}()

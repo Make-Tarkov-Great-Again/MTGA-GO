@@ -34,6 +34,19 @@ func GetStorageByID(uid string) (*Storage, error) {
 	return nil, fmt.Errorf(storageNotExist, uid)
 }
 
+func (storage *Storage) CreateStorage() *Storage {
+	return &Storage{
+		Suites: make([]string, 0),
+		Builds: &Builds{
+			EquipmentBuilds: make([]*EquipmentBuild, 0),
+			WeaponBuilds:    make([]*WeaponBuild, 0),
+			MagazineBuilds:  make([]*struct{}, 0),
+		},
+		Insurance: make([]any, 0),
+		Mailbox:   make([]*Notification, 0),
+	}
+}
+
 func (storage *Storage) SaveStorage(sessionID string) error {
 	storageFilePath := filepath.Join(profilesPath, sessionID, "storage.json")
 

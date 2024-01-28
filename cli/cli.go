@@ -98,31 +98,21 @@ func registerAccount() {
 	account.UID = UID
 	account.AID = int(profiles.Len())
 
-	profiles.Set(UID, &data.Profile{
+	newProfile := &data.Profile{
 		Account: account,
 		Character: &data.Character[map[string]data.PlayerTradersInfo]{
 			ID: UID,
 		},
-		Friends: &data.Friends{
-			Friends:             []data.FriendRequest{},
-			Ignore:              []string{},
-			InIgnoreList:        []string{},
-			Matching:            data.Matching{},
-			FriendRequestInbox:  []any{},
-			FriendRequestOutbox: []any{},
-		},
-		Storage: &data.Storage{
-			Suites: []string{},
-			Builds: &data.Builds{
-				EquipmentBuilds: []*data.EquipmentBuild{},
-				WeaponBuilds:    []*data.WeaponBuild{},
-			},
-			Insurance: []any{},
-			Mailbox:   []*data.Notification{},
-		},
+		Friends:  new(data.Friends),
+		Storage:  new(data.Storage),
 		Dialogue: new(data.Dialogue),
 		Cache:    nil,
-	})
+	}
+
+	newProfile.Friends.CreateFriends()
+	newProfile.Storage.CreateStorage()
+
+	profiles.Set(UID, newProfile)
 
 	profile, ok := profiles.Get(UID)
 	if !ok {
