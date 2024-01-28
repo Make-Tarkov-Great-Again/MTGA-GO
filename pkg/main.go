@@ -305,12 +305,15 @@ func GetInsuranceCosts(sessionID string, traders []string, items []string) (map[
 
 		if traderInsurance != nil && traderInsurance.LoyaltyLevel != character.TradersInfo[tid].LoyaltyLevel {
 			traderInsurance.LoyaltyLevel = character.TradersInfo[tid].LoyaltyLevel
-			traderInsurance.PriceCoef = trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef
+			level := character.TradersInfo[tid].LoyaltyLevel - 1
+			traderInsurance.PriceCoef = trader.Base.LoyaltyLevels[level].InsurancePriceCoef
 			changed = 1
 		} else {
+			level := character.TradersInfo[tid].LoyaltyLevel - 1
+
 			traderInsurance = &data.Insurances{
 				LoyaltyLevel: character.TradersInfo[tid].LoyaltyLevel,
-				PriceCoef:    trader.Base.LoyaltyLevels[character.TradersInfo[tid].LoyaltyLevel].InsurancePriceCoef,
+				PriceCoef:    trader.Base.LoyaltyLevels[level].InsurancePriceCoef,
 				Items:        make(map[string]int32),
 			}
 		}
