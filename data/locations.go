@@ -20,8 +20,11 @@ func GetLocations() *Locations {
 
 func setLocations() {
 	db.location = &Location{
-		Bases: Locations{},
-		Loot:  make(map[string][]map[string]any),
+		Bases: Locations{
+			Locations: make(map[string]LocationBase),
+			Paths:     nil,
+		},
+		Loot: make(map[string][]map[string]any),
 	}
 
 	raw := tools.GetJSONRawMessage(filepath.Join(locationsPath, "locations.json"))
@@ -33,8 +36,21 @@ func setLocations() {
 	directories, _ := tools.GetDirectoriesFrom(locationsPath)
 	for dir := range directories {
 		directory := filepath.Join(locationsPath, dir)
-		files, _ := tools.GetFilesFrom(directory)
-		print(files)
+
+		l := tools.GetJSONRawMessage(filepath.Join(directory, "loot.json"))
+		loot := make([][]map[string]any, 0)
+		if err := json.UnmarshalNoEscape(l, &loot); err != nil {
+			msg := tools.CheckParsingError(l, err)
+			log.Fatalln(msg)
+		}
+
+		b := tools.GetJSONRawMessage(filepath.Join(directory, "base.json"))
+		base := LocationBase{}
+		if err := json.UnmarshalNoEscape(b, &base); err != nil {
+			msg := tools.CheckParsingError(b, err)
+			log.Fatalln(msg)
+		}
+		db.location.Bases.Locations[base.Id] = base
 	}
 }
 
@@ -229,7 +245,7 @@ type Path struct {
 }
 
 type LocationBase struct {
-	AccessKeys                     []string                     `json:"AccessKeys"`
+	AccessKeys                     []*string                    `json:"AccessKeys"`
 	AirdropParameters              []*AirdropParameter          `json:"AirdropParameters,omitempty"`
 	Area                           float32                      `json:"Area"`
 	AveragePlayTime                int32                        `json:"AveragePlayTime"`

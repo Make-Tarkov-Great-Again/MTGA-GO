@@ -25,15 +25,22 @@ func GetJSONRawMessage(path string) json.RawMessage {
 }
 
 func CheckParsingError(b []byte, err error) error {
-
 	var msg error
 	switch t := err.(type) {
 	case *json.SyntaxError:
-		jsn := string(b[t.Offset-50 : t.Offset])
+		var start int64 = 0
+		if t.Offset-50 > 0 {
+			start = t.Offset - 50
+		}
+		jsn := string(b[start:t.Offset])
 		jsn += "<--(Invalid Character)"
 		msg = fmt.Errorf("Invalid character at offset %v\n %s", t.Offset, jsn)
 	case *json.UnmarshalTypeError:
-		jsn := string(b[t.Offset-50 : t.Offset])
+		var start int64 = 0
+		if t.Offset-50 > 0 {
+			start = t.Offset - 50
+		}
+		jsn := string(b[start:t.Offset])
 		jsn += "<--(Invalid Type)"
 		msg = fmt.Errorf("Invalid value at offset %v\n %s", t.Offset, jsn)
 	default:

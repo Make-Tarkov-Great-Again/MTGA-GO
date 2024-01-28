@@ -2613,7 +2613,7 @@
                 "_tpl": "5449016a4bdc2d6f028b456f",
                 "location": {
                     "isSearched": true,
-                    "r": "Horizontal",
+                    "r": 0,
                     "x": 0,
                     "y": 0
                 },
@@ -2629,7 +2629,7 @@
                 "_tpl": "569668774bdc2da2298b4568",
                 "location": {
                     "isSearched": true,
-                    "r": "Horizontal",
+                    "r": 0,
                     "x": 1,
                     "y": 0
                 },
@@ -2645,7 +2645,7 @@
                 "_tpl": "5696686a4bdc2da3298b456a",
                 "location": {
                     "isSearched": true,
-                    "r": "Horizontal",
+                    "r": 0,
                     "x": 2,
                     "y": 0
                 },
@@ -2661,7 +2661,7 @@
                 "_tpl": "58ac60eb86f77401897560ff",
                 "location": {
                     "isSearched": true,
-                    "r": "Horizontal",
+                    "r": 0,
                     "x": 3,
                     "y": 0
                 },
