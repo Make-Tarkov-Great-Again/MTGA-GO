@@ -247,7 +247,7 @@ var locationsSet bool
 
 func MainLocations(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
-	if !locationsSet {
+	if !data.CheckRequestedResponseCache(route) {
 		input := data.GetLocations()
 		cache := pkg.CreateCachedResponse(input)
 		data.SetResponseCacheForRoute(route, cache)

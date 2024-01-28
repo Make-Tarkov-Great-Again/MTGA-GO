@@ -37,21 +37,29 @@ func setLocations() {
 	for dir := range directories {
 		directory := filepath.Join(locationsPath, dir)
 
-		b := tools.GetJSONRawMessage(filepath.Join(directory, "base.json"))
-		base := LocationBase{}
-		if err := json.UnmarshalNoEscape(b, &base); err != nil {
-			msg := tools.CheckParsingError(b, err)
-			log.Fatalln(msg)
+		baseFilePath := filepath.Join(directory, "base.json")
+		id := ""
+		if tools.FileExist(baseFilePath) {
+			b := tools.GetJSONRawMessage(filepath.Join(directory, "base.json"))
+			base := LocationBase{}
+			if err := json.UnmarshalNoEscape(b, &base); err != nil {
+				msg := tools.CheckParsingError(b, err)
+				log.Fatalln(msg)
+			}
+			id = base.Id
+			db.location.Bases.Locations[id] = base
 		}
-		db.location.Bases.Locations[base.Id] = base
 
-		l := tools.GetJSONRawMessage(filepath.Join(directory, "loot.json"))
-		loot := make([][]map[string]any, 0)
-		if err := json.UnmarshalNoEscape(l, &loot); err != nil {
-			msg := tools.CheckParsingError(l, err)
-			log.Fatalln(msg)
+		lootFilePath := filepath.Join(directory, "loot.json")
+		if tools.FileExist(lootFilePath) {
+			l := tools.GetJSONRawMessage(lootFilePath)
+			loot := make([][]map[string]any, 0)
+			if err := json.UnmarshalNoEscape(l, &loot); err != nil {
+				msg := tools.CheckParsingError(l, err)
+				log.Fatalln(msg)
+			}
+			db.location.Loot[id] = loot
 		}
-		db.location.Loot[base.Id] = loot
 	}
 }
 
