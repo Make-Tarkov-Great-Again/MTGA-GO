@@ -220,12 +220,12 @@ type Inventory struct {
 }
 
 type InventoryItem struct {
-	ID       string                 `json:"_id"`
-	TPL      string                 `json:"_tpl"`
-	ParentID string                 `json:"parentId,omitempty"`
-	SlotID   string                 `json:"slotId,omitempty"`
-	Location *InventoryItemLocation `json:"location,omitempty"` // this can also be an int, wow
-	UPD      *ItemUpdate            `json:"upd,omitempty"`
+	ID       string      `json:"_id"`
+	TPL      string      `json:"_tpl"`
+	ParentID string      `json:"parentId,omitempty"`
+	SlotID   string      `json:"slotId,omitempty"`
+	Location any         `json:"location,omitempty"` // this can also be an int, wow
+	UPD      *ItemUpdate `json:"upd,omitempty"`
 }
 
 type InventoryItemUpd struct {

@@ -177,7 +177,16 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 
 	for index := range ic.Lookup.Reverse {
 		itemInInventory := inventory.Items[index]
-		if itemInInventory.ParentID == "" || itemInInventory.ParentID != inventory.Stash || itemInInventory.SlotID != "hideout" || itemInInventory.Location == nil {
+
+		if itemInInventory.Location == nil {
+			continue
+		}
+
+		if _, ok := itemInInventory.Location.(float64); ok {
+			continue
+		}
+
+		if itemInInventory.ParentID == "" || itemInInventory.ParentID != inventory.Stash || itemInInventory.SlotID != "hideout" {
 			continue
 		}
 
@@ -224,6 +233,11 @@ func (ic *InventoryContainer) SetInventoryStash(inventory *Inventory) {
 }
 
 func (ic *InventoryContainer) CreateFlatMapLookup(height int8, width int8, itemInInventory *InventoryItem) *FlatMapLookup {
+	_, ok := itemInInventory.Location.(float64)
+	if ok {
+		return nil
+	}
+
 	output := new(FlatMapLookup)
 
 	if width != 0 {
@@ -233,7 +247,12 @@ func (ic *InventoryContainer) CreateFlatMapLookup(height int8, width int8, itemI
 		height--
 	}
 
-	if itemInInventory.Location.R.(float64) == 1 {
+	location, _ := itemInInventory.Location.(map[string]any)
+	r, _ := location["r"].(float64)
+	y, _ := location["y"].(float64)
+	x, _ := location["x"].(float64)
+
+	if r == 1 {
 		output.Height = width
 		output.Width = height
 	} else {
@@ -241,8 +260,8 @@ func (ic *InventoryContainer) CreateFlatMapLookup(height int8, width int8, itemI
 		output.Width = width
 	}
 
-	row := int16(itemInInventory.Location.Y.(float64)) * int16(ic.Stash.Container.Width)
-	output.StartX = int16(itemInInventory.Location.X.(float64)) + row
+	row := int16(y) * int16(ic.Stash.Container.Width)
+	output.StartX = int16(x) + row
 	output.EndX = output.StartX + int16(output.Width)
 
 	return output

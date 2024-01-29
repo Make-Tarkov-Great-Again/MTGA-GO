@@ -267,23 +267,35 @@ func MoveItemInStash(action map[string]any, sessionID string, event *data.Profil
 	index := cache.GetIndexOfItemByID(move.Item)
 	itemInInventory := &character.Inventory.Items[*index]
 
-	if move.To.Location != nil {
+	if move.To.Location == nil {
+		if move.To.Container == "cartridges" {
+			//TODO: fix this, this is terrible!
+			counter := 0
+			for _, item := range character.Inventory.Items {
+				if item.ParentID != move.To.ID {
+					continue
+				}
+				counter++
+			}
+
+			itemInInventory.Location = counter
+		} else {
+			itemInInventory.Location = nil
+		}
+	} else {
 		moveToLocation := move.To.Location
+
 		var rotation float64 = 0
 		if moveToLocation.R == "Vertical" || moveToLocation.R == "1" {
 			rotation++
 		}
 
-		if itemInInventory.Location == nil {
-			itemInInventory.Location = new(data.InventoryItemLocation)
+		itemInInventory.Location = data.InventoryItemLocation{
+			IsSearched: moveToLocation.IsSearched,
+			R:          rotation,
+			X:          moveToLocation.X,
+			Y:          moveToLocation.Y,
 		}
-
-		itemInInventory.Location.Y = moveToLocation.Y
-		itemInInventory.Location.X = moveToLocation.X
-		itemInInventory.Location.R = rotation
-		itemInInventory.Location.IsSearched = moveToLocation.IsSearched
-	} else {
-		itemInInventory.Location = nil
 	}
 
 	itemInInventory.ParentID = move.To.ID
@@ -295,8 +307,10 @@ func MoveItemInStash(action map[string]any, sessionID string, event *data.Profil
 	}
 
 	if itemInInventory.Location != nil {
-		cache.SetNewItemFlatMap([]data.InventoryItem{*itemInInventory})
-		cache.AddItemToContainerMap(move.Item)
+		if _, ok := itemInInventory.Location.(int); !ok {
+			cache.SetNewItemFlatMap([]data.InventoryItem{*itemInInventory})
+			cache.AddItemToContainerMap(move.Item)
+		}
 	}
 
 	//cache.SetInventoryIndex(&character.Inventory)
@@ -338,23 +352,35 @@ func SwapItemInStash(action map[string]any, sessionID string, event *data.Profil
 	index := *cache.GetIndexOfItemByID(swap.Item)
 	itemInInventory := &character.Inventory.Items[index]
 
-	if swap.To.Location != nil {
+	if swap.To.Location == nil {
+		if swap.To.Container == "cartridges" {
+			//TODO: fix this, this is terrible!
+			counter := 0
+			for _, item := range character.Inventory.Items {
+				if item.ParentID != swap.To.ID {
+					continue
+				}
+				counter++
+			}
+
+			itemInInventory.Location = counter
+		} else {
+			itemInInventory.Location = nil
+		}
+	} else {
 		moveToLocation := swap.To.Location
+
 		var rotation float64 = 0
 		if moveToLocation.R == "Vertical" || moveToLocation.R == "1" {
 			rotation++
 		}
 
-		if itemInInventory.Location == nil {
-			itemInInventory.Location = new(data.InventoryItemLocation)
+		itemInInventory.Location = data.InventoryItemLocation{
+			IsSearched: moveToLocation.IsSearched,
+			R:          rotation,
+			X:          moveToLocation.X,
+			Y:          moveToLocation.Y,
 		}
-
-		itemInInventory.Location.Y = moveToLocation.Y
-		itemInInventory.Location.X = moveToLocation.X
-		itemInInventory.Location.R = rotation
-		itemInInventory.Location.IsSearched = moveToLocation.IsSearched
-	} else {
-		itemInInventory.Location = nil
 	}
 
 	itemInInventory.ParentID = swap.To.ID
@@ -370,14 +396,12 @@ func SwapItemInStash(action map[string]any, sessionID string, event *data.Profil
 			rotation++
 		}
 
-		if itemInInventory.Location == nil {
-			itemInInventory.Location = new(data.InventoryItemLocation)
+		itemInInventory.Location = data.InventoryItemLocation{
+			IsSearched: moveToLocation.IsSearched,
+			R:          rotation,
+			X:          moveToLocation.X,
+			Y:          moveToLocation.Y,
 		}
-
-		itemInInventory.Location.Y = moveToLocation.Y
-		itemInInventory.Location.X = moveToLocation.X
-		itemInInventory.Location.R = rotation
-		itemInInventory.Location.IsSearched = moveToLocation.IsSearched
 	} else {
 		itemInInventory.Location = nil
 	}
@@ -584,17 +608,36 @@ func SplitItem(action map[string]any, sessionID string, event *data.ProfileChang
 
 	newItem.UPD.StackObjectsCount = split.Count
 
-	if split.Container.Location != nil {
-		newItem.Location = &data.InventoryItemLocation{
+	if split.Container.Location == nil {
+		if split.Container.Container == "cartridges" {
+			//TODO: fix this, this is terrible!
+			counter := 0
+			for _, item := range character.Inventory.Items {
+				if item.ParentID != split.Container.ID {
+					continue
+				}
+				counter++
+			}
+
+			newItem.Location = counter
+		} else {
+			newItem.Location = nil
+		}
+	} else {
+		location := data.InventoryItemLocation{
 			IsSearched: split.Container.Location.IsSearched,
 			X:          split.Container.Location.X,
 			Y:          split.Container.Location.Y,
+			R:          1,
 		}
+
 		if split.Container.Location.R == "Vertical" {
-			newItem.Location.R = float64(1)
+			location.R = float64(1)
 		} else {
-			newItem.Location.R = float64(0)
+			location.R = float64(0)
 		}
+
+		newItem.Location = location
 
 		height, width := data.MeasurePurchaseForInventoryMapping([]data.InventoryItem{*newItem})
 		itemFlatMap := invCache.CreateFlatMapLookup(height, width, newItem)
@@ -707,6 +750,11 @@ func ApplyInventoryChanges(action map[string]any, sessionID string) {
 		}
 		itemInInventory.SlotID = slotID
 
+		if location, ok := properties["location"].(float64); ok {
+			itemInInventory.Location = location
+			continue
+		}
+
 		location, ok := properties["location"].(map[string]any)
 		if !ok {
 			itemInInventory.Location = nil
@@ -719,23 +767,32 @@ func ApplyInventoryChanges(action map[string]any, sessionID string) {
 			return
 		}
 
+		itemLocation := data.InventoryItemLocation{
+			IsSearched: false,
+			R:          nil,
+			X:          nil,
+			Y:          nil,
+		}
+
 		if r == "Horizontal" || r == "1" {
-			itemInInventory.Location.R = float64(0)
+			itemLocation.R = float64(0)
 		} else {
-			itemInInventory.Location.R = float64(1)
+			itemLocation.R = float64(1)
 		}
 
 		if x, ok := location["r"].(float64); ok {
-			itemInInventory.Location.X = x
+			itemLocation.X = x
 		}
 
 		if isSearched, ok := location["isSearched"].(bool); ok {
-			itemInInventory.Location.IsSearched = isSearched
+			itemLocation.IsSearched = isSearched
 		}
 
 		if y, ok := location["r"].(float64); ok {
-			itemInInventory.Location.Y = y
+			itemLocation.Y = y
 		}
+
+		itemInInventory.Location = itemLocation
 	}
 	cache.SetInventoryIndex(&character.Inventory)
 	cache.SetInventoryStash(&character.Inventory)
