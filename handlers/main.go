@@ -470,9 +470,10 @@ func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	base := data.GetLocationById(id)
+	base.UnixDateTime = int32(tools.GetCurrentTimeInSeconds())
 	base.Loot = output
 
-	body := pkg.ApplyResponseBody(output)
+	body := pkg.ApplyResponseBody(base)
 	pkg.SendZlibJSONReply(w, body)
 }
 
