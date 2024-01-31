@@ -115,6 +115,7 @@ func QuestAccept(qid string, sessionID string, event *data.ProfileChangesEvent) 
 
 	if changes, ok := event.ProfileChanges.Get(character.ID); ok {
 		changes.Quests = quests
+		event.ProfileChanges.Set(character.ID, changes)
 	}
 	if err = dialogue.SaveDialogue(character.ID); err != nil {
 		return
@@ -122,6 +123,7 @@ func QuestAccept(qid string, sessionID string, event *data.ProfileChangesEvent) 
 	if err = character.SaveCharacter(); err != nil {
 		return
 	}
+
 }
 
 func ApplyQuestRewardsToCharacter(rewards *data.QuestRewards) {
@@ -280,7 +282,7 @@ func MoveItemInStash(action map[string]any, sessionID string, event *data.Profil
 
 			itemInInventory.Location = counter
 		} else {
-			itemInInventory.Location = nil
+			itemInInventory.Location = move.To.Location //nil
 		}
 	} else {
 		moveToLocation := move.To.Location
@@ -316,6 +318,7 @@ func MoveItemInStash(action map[string]any, sessionID string, event *data.Profil
 	//cache.SetInventoryIndex(&character.Inventory)
 	if changes, ok := event.ProfileChanges.Get(character.ID); ok {
 		changes.Production = nil
+		event.ProfileChanges.Set(character.ID, changes)
 	}
 }
 
@@ -411,6 +414,7 @@ func SwapItemInStash(action map[string]any, sessionID string, event *data.Profil
 
 	if changes, ok := event.ProfileChanges.Get(character.ID); ok {
 		changes.Production = nil
+		event.ProfileChanges.Set(character.ID, changes)
 	}
 }
 
@@ -458,6 +462,7 @@ func FoldItem(action map[string]any, sessionID string, event *data.ProfileChange
 	inventoryCache.ResetItemSizeInContainer(itemInInventory, &character.Inventory)
 	if changes, ok := event.ProfileChanges.Get(character.ID); ok {
 		changes.Production = nil
+		event.ProfileChanges.Set(character.ID, changes)
 	}
 }
 
@@ -530,6 +535,7 @@ func MergeItem(action map[string]any, sessionID string, event *data.ProfileChang
 	if changes, ok := event.ProfileChanges.Get(character.ID); ok {
 		changes.Items.Change = append(changes.Items.Change, mergeWith)
 		changes.Items.Del = append(changes.Items.Del, data.InventoryItem{ID: toMerge.ID})
+		event.ProfileChanges.Set(character.ID, changes)
 	}
 }
 
@@ -651,6 +657,7 @@ func SplitItem(action map[string]any, sessionID string, event *data.ProfileChang
 	if changes, ok := event.ProfileChanges.Get(character.ID); ok {
 		changes.Items.Change = append(changes.Items.Change, *originalItem)
 		changes.Items.Del = append(changes.Items.Del, data.InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
+		event.ProfileChanges.Set(character.ID, changes)
 	}
 }
 
@@ -694,6 +701,7 @@ func RemoveItem(action map[string]any, sessionID string, event *data.ProfileChan
 	inventoryCache.SetInventoryIndex(&character.Inventory)
 	if changes, ok := event.ProfileChanges.Get(character.ID); ok {
 		changes.Items.Del = append(changes.Items.Del, data.InventoryItem{ID: remove.ItemID})
+		event.ProfileChanges.Set(character.ID, changes)
 	}
 }
 
@@ -1058,6 +1066,7 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 	changes.TraderRelations[tradeConfirm.TID] = traderRelations
 	character.TradersInfo[tradeConfirm.TID] = traderRelations
 
+	event.ProfileChanges.Set(character.ID, changes)
 	log.Println(len(stackSlice), "of Item", tradeConfirm.ItemID, "purchased!")
 }
 
@@ -1190,6 +1199,8 @@ func sellToTrader(tradeConfirm *sellTo, character *data.Character[map[string]dat
 
 	changes.TraderRelations[tradeConfirm.TID] = traderRelations
 	character.TradersInfo[tradeConfirm.TID] = traderRelations
+
+	event.ProfileChanges.Set(character.ID, changes)
 }
 
 type buyCustomization struct {

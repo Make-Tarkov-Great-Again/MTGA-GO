@@ -332,7 +332,6 @@ func checkIfValidPath(path string) bool {
 
 	return true
 }
-
 func launchTarkov(account *data.Account) {
 	if !checkIfValidPath(account.TarkovPath) {
 		account.TarkovPath = setTarkovPath()
@@ -342,6 +341,7 @@ func launchTarkov(account *data.Account) {
 	}
 
 	cmdArgs := []string{
+		"--force-gfx-jobs native",
 		fmt.Sprintf(email, account.Username, account.Password),
 		fmt.Sprintf(token, account.UID),
 		fmt.Sprintf(config, data.GetMainAddress()),
