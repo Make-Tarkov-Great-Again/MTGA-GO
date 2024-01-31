@@ -613,34 +613,31 @@ type Cache struct {
 	profileChanges *ProfileChangesEvent
 }
 
-func GetProfileChangesEvent(id string) ProfileChangesEvent {
+func GetProfileChangesEvent(id string) *ProfileChangesEvent {
 	character, err := GetCharacterByID(id)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	change, ok := db.cache.profileChanges.ProfileChanges.GetOrSet(id, &ProfileChanges{
+	db.cache.profileChanges.ProfileChanges.Set(id, &ProfileChanges{
 		ID:              character.ID,
 		Experience:      character.Info.Experience,
 		Quests:          make([]any, 0),
+		QuestsStatus:    make([]CharacterQuest, 0),
 		RagfairOffers:   make([]any, 0),
 		WeaponBuilds:    make([]any, 0),
 		EquipmentBuilds: make([]any, 0),
-		Items:           ItemChanges{},
+		Items: ItemChanges{
+			New:    make([]InventoryItem, 0),
+			Change: make([]InventoryItem, 0),
+			Del:    make([]InventoryItem, 0),
+		},
 		Improvements:    make(map[string]any),
 		Skills:          character.Skills,
 		Health:          character.Health,
 		TraderRelations: make(map[string]PlayerTradersInfo),
-		QuestsStatus:    make([]CharacterQuest, 0),
 	})
-	if !ok {
-		return *db.cache.profileChanges
-	}
 
-	change.Experience = character.Info.Experience
-	change.Skills = character.Skills
-	change.Health = character.Health
-	db.cache.profileChanges.ProfileChanges.Set(id, change)
-	return *db.cache.profileChanges
+	return db.cache.profileChanges
 }
 
 type ProfileChangesEvent struct {

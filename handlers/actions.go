@@ -85,7 +85,7 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 		log.Printf(actionLog, i, length-1, action)
 
 		if handler, ok := actionHandlers[action]; ok {
-			handler(moveAction, sessionID, &profileChangeEvent)
+			handler(moveAction, sessionID, profileChangeEvent)
 		} else {
 			log.Printf(actionNotSupported, action)
 		}
