@@ -613,29 +613,33 @@ type Cache struct {
 	profileChanges *ProfileChangesEvent
 }
 
+var emptiedProfileChange = &ProfileChanges{
+	Quests:          make([]any, 0),
+	QuestsStatus:    make([]CharacterQuest, 0),
+	RagfairOffers:   make([]any, 0),
+	WeaponBuilds:    make([]any, 0),
+	EquipmentBuilds: make([]any, 0),
+	Items: ItemChanges{
+		New:    make([]InventoryItem, 0),
+		Change: make([]InventoryItem, 0),
+		Del:    make([]InventoryItem, 0),
+	},
+	Improvements:    make(map[string]any),
+	TraderRelations: make(map[string]PlayerTradersInfo),
+}
+
 func GetProfileChangesEvent(id string) *ProfileChangesEvent {
 	character, err := GetCharacterByID(id)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	db.cache.profileChanges.ProfileChanges.Set(id, &ProfileChanges{
-		ID:              character.ID,
-		Experience:      character.Info.Experience,
-		Quests:          make([]any, 0),
-		QuestsStatus:    make([]CharacterQuest, 0),
-		RagfairOffers:   make([]any, 0),
-		WeaponBuilds:    make([]any, 0),
-		EquipmentBuilds: make([]any, 0),
-		Items: ItemChanges{
-			New:    make([]InventoryItem, 0),
-			Change: make([]InventoryItem, 0),
-			Del:    make([]InventoryItem, 0),
-		},
-		Improvements:    make(map[string]any),
-		Skills:          character.Skills,
-		Health:          character.Health,
-		TraderRelations: make(map[string]PlayerTradersInfo),
-	})
+
+	emptiedProfileChange.ID = character.ID
+	emptiedProfileChange.Experience = character.Info.Experience
+	emptiedProfileChange.Skills = character.Skills
+	emptiedProfileChange.Health = character.Health
+
+	db.cache.profileChanges.ProfileChanges.Set(id, emptiedProfileChange)
 
 	return db.cache.profileChanges
 }

@@ -341,7 +341,7 @@ func launchTarkov(account *data.Account) {
 	}
 
 	cmdArgs := []string{
-		"--force-gfx-jobs native",
+		"force-gfx-jobs native",
 		fmt.Sprintf(email, account.Username, account.Password),
 		fmt.Sprintf(token, account.UID),
 		fmt.Sprintf(config, data.GetMainAddress()),
