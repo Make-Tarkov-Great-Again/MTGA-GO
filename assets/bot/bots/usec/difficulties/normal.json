@@ -353,6 +353,7 @@
         "MAX_AGGRO_BOT_DIST_SQR": 10000,
         "MAX_SHOOTS_TIME": 4,
         "MAX_START_AGGRESION_COEF": 3,
+      "MAY_BE_CALLED_FOR_HELP": false,
         "MIN_DAMAGE_SCARE": 250,
         "MIN_SHOOTS_TIME": 2,
         "MIN_START_AGGRESION_COEF": 1,

@@ -34,6 +34,10 @@ func GetPlayerScav() *Character[[]any] {
 	return db.core.Scav
 }
 
+func GetBotCore() *any {
+	return &db.core.Core
+}
+
 // #endregion
 
 // #region Core setters
@@ -105,7 +109,16 @@ func setCore() {
 		done <- struct{}{}
 	}()
 
-	for i := 0; i < 7; i++ {
+	go func() {
+		raw := tools.GetJSONRawMessage(filepath.Join(coreFilePath, "/core.json"))
+		if err := json.UnmarshalNoEscape(raw, &db.core.Core); err != nil {
+			msg := tools.CheckParsingError(raw, err)
+			log.Fatalln(msg)
+		}
+		done <- struct{}{}
+	}()
+
+	for i := 0; i < 8; i++ {
 		<-done
 	}
 }
@@ -122,6 +135,7 @@ type Core struct {
 	Globals           *Globals
 	MatchMetrics      *MatchMetrics
 	AirdropParameters *AirdropParameters
+	Core              any
 }
 
 type AirdropParameters struct {

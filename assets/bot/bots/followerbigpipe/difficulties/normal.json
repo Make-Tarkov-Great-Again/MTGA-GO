@@ -352,6 +352,13 @@
         "PISTOL_SHOTGUN_AMBUSH_DIST": 30,
         "PROTECT_DELTA_HEAL_SEC": 10,
         "PROTECT_TIME_REAL": true,
+      "REVENGE_BOT_TYPES": [
+        "exUsec",
+        "gifter",
+        "bossKnight",
+        "followerBigPipe",
+        "followerBirdEye"
+      ],
         "SEC_TO_MORE_DIST_TO_RUN": 10,
         "SHOOT_INSTEAD_DOG_FIGHT": 9,
         "SIMPLE_POINT_CHOOSE_COEF": 0.4,

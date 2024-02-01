@@ -331,7 +331,7 @@
         "DEFAULT_BEAR_BEHAVIOUR": "Attack",
         "DEFAULT_ENEMY_BEAR": true,
         "DEFAULT_ENEMY_USEC": true,
-        "DEFAULT_SAVAGE_BEHAVIOUR": "Attack",
+      "DEFAULT_SAVAGE_BEHAVIOUR": "Warn",
         "DEFAULT_USEC_BEHAVIOUR": "Attack",
         "DIST_TO_ENEMY_YO_CAN_HEAL": 130,
         "DIST_TO_FOUND_SQRT": 400,
@@ -340,6 +340,7 @@
         "DOG_FIGHT_OUT": 6,
         "ENEMY_LOOK_AT_ME_ANG": 15,
         "FIND_COVER_TO_GET_POSITION_WITH_SHOOT": 2,
+      "FOLLOWER_AND_BOSS_WARN_EQUAL_PRIORITY": true,
         "FRIENDLY_BOT_TYPES": [
             "exUsec"
         ],
@@ -368,6 +369,13 @@
         "PISTOL_SHOTGUN_AMBUSH_DIST": 30,
         "PROTECT_DELTA_HEAL_SEC": 10,
         "PROTECT_TIME_REAL": true,
+      "REVENGE_BOT_TYPES": [
+        "exUsec",
+        "gifter",
+        "bossKnight",
+        "followerBigPipe",
+        "followerBirdEye"
+      ],
         "SEARCH_TARGET": false,
         "SEC_TO_MORE_DIST_TO_RUN": 10,
         "SHOOT_INSTEAD_DOG_FIGHT": 9,
