@@ -601,19 +601,21 @@ func BotGenerate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: Send bots lol
-	bot := data.GetSacrificialBot()
+	//bot := data.GetSacrificialBot()
 
-	bots := make([]map[string]any, 0, 50)
-	for _, condition := range conditions.Conditions {
-		for i := int8(0); i < condition.Limit; i++ {
-			clone := bot.Clone()
-			clone["_id"] = tools.GenerateMongoID()
-			clone["aid"] = i
-			clone["Info"].(map[string]any)["Settings"].(map[string]any)["Role"] = condition.Role
-			clone["Info"].(map[string]any)["Settings"].(map[string]any)["BotDifficulty"] = condition.Difficulty
-			bots = append(bots, clone)
-		}
-	}
+	//bots := make([]map[string]any, 0, 50)
+	//for _, condition := range conditions.Conditions {
+	//	for i := int8(0); i < condition.Limit; i++ {
+	//		clone := bot.Clone()
+	//		clone["_id"] = tools.GenerateMongoID()
+	//		clone["aid"] = i
+	//		clone["Info"].(map[string]any)["Settings"].(map[string]any)["Role"] = condition.Role
+	//		clone["Info"].(map[string]any)["Settings"].(map[string]any)["BotDifficulty"] = condition.Difficulty
+	//		bots = append(bots, clone)
+	//	}
+	//}
+
+	bots := make([]map[string]any, 0)
 	body := pkg.ApplyResponseBody(bots)
 	pkg.SendZlibJSONReply(w, body)
 }
