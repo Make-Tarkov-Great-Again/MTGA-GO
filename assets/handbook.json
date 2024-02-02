@@ -2,24 +2,24 @@
     "Categories": [
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_barter_electronics.png",
-            "Id": "5b47574386f77428ca22b2ef",
+            "Icon": "/files/handbook/icon_medical.png",
+            "Id": "5b47574386f77428ca22b344",
+            "Order": "7",
+            "ParentId": null
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_barter_energy.png",
+            "Id": "5b47574386f77428ca22b2ed",
             "Order": "100",
             "ParentId": "5b47574386f77428ca22b33e"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_provisions_drinks.png",
-            "Id": "5b47574386f77428ca22b335",
+            "Icon": "/files/handbook/icon_ammo_rounds.png",
+            "Id": "5b47574386f77428ca22b33b",
             "Order": "100",
-            "ParentId": "5b47574386f77428ca22b340"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_barter_building.png",
-            "Id": "5b47574386f77428ca22b2ee",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33e"
+            "ParentId": "5b47574386f77428ca22b346"
         },
         {
             "Color": "",
@@ -30,38 +30,52 @@
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_gear_headwear.png",
-            "Id": "5b47574386f77428ca22b330",
+            "Icon": "/files/handbook/icon_barter_valuables.png",
+            "Id": "5b47574386f77428ca22b2f1",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_barter_tools.png",
+            "Id": "5b47574386f77428ca22b2f6",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/",
+            "Id": "5b5f749986f774094242f199",
+            "Order": "100",
+            "ParentId": "5b5f73ec86f774093e6cb4fd"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_barter_flammable.png",
+            "Id": "5b47574386f77428ca22b2f2",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_gear_facecovers.png",
+            "Id": "5b47574386f77428ca22b32f",
             "Order": "100",
             "ParentId": "5b47574386f77428ca22b33f"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_barter.png",
-            "Id": "5b47574386f77428ca22b33e",
-            "Order": "13",
-            "ParentId": null
+            "Icon": "/files/handbook/icon_mod_tactical.png",
+            "Id": "5b5f759686f774094242f19d",
+            "Order": "100",
+            "ParentId": "5b5f750686f774093e6cb503"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_keys.png",
-            "Id": "5b47574386f77428ca22b342",
-            "Order": "6",
+            "Icon": "/files/handbook/icon_ammo.png",
+            "Id": "5b47574386f77428ca22b346",
+            "Order": "9",
             "ParentId": null
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_gear_components.png",
-            "Id": "5b5f704686f77447ec5d76d7",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33f"
-        },
-        {
-            "Color": "#284e64",
-            "Icon": "/files/handbook/icon_mods_functional.png",
-            "Id": "5b5f71b386f774093f2ecf11",
-            "Order": "100",
-            "ParentId": "5b5f71a686f77447ed5636ab"
         },
         {
             "Color": "",
@@ -73,198 +87,9 @@
         {
             "Color": "",
             "Icon": "/files/handbook/",
-            "Id": "5b5f72f786f77447ec5d7702",
-            "Order": "100",
-            "ParentId": "5b5f724186f77447ed5636ad"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_mod_lightlaser.png",
-            "Id": "5b5f736886f774094242f193",
-            "Order": "100",
-            "ParentId": "5b5f71b386f774093f2ecf11"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_mod_aux.png",
-            "Id": "5b5f74cc86f77447ec5d770a",
-            "Order": "100",
-            "ParentId": "5b5f71b386f774093f2ecf11"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_mod_magazine.png",
-            "Id": "5b5f754a86f774094242f19b",
-            "Order": "100",
-            "ParentId": "5b5f750686f774093e6cb503"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_weapons_carbines.png",
-            "Id": "5b5f78e986f77447ed5636b1",
-            "Order": "100",
-            "ParentId": "5b5f78dc86f77409407a7f8e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_provisions_food.png",
-            "Id": "5b47574386f77428ca22b336",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b340"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_barter_tools.png",
-            "Id": "5b47574386f77428ca22b2f6",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_gear.png",
-            "Id": "5b47574386f77428ca22b33f",
-            "Order": "12",
-            "ParentId": null
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_info.png",
-            "Id": "5b47574386f77428ca22b341",
-            "Order": "5",
-            "ParentId": null
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/",
             "Id": "5b5f73ab86f774094242f195",
             "Order": "100",
             "ParentId": "5b5f736886f774094242f193"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/",
-            "Id": "5b5f73c486f77447ec5d7704",
-            "Order": "100",
-            "ParentId": "5b5f736886f774094242f193"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/",
-            "Id": "5b5f748386f774093e6cb501",
-            "Order": "100",
-            "ParentId": "5b5f73ec86f774093e6cb4fd"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_mod_launcher.png",
-            "Id": "5b5f752e86f774093e6cb505",
-            "Order": "100",
-            "ParentId": "5b5f750686f774093e6cb503"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_quest.png",
-            "Id": "5b619f1a86f77450a702a6f3",
-            "Order": "1",
-            "ParentId": null
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_medical_medkits.png",
-            "Id": "5b47574386f77428ca22b338",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b344"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_maps.png",
-            "Id": "5b47574386f77428ca22b343",
-            "Order": "3",
-            "ParentId": null
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_medical_injectors.png",
-            "Id": "5b47574386f77428ca22b33a",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b344"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_barter_household.png",
-            "Id": "5b47574386f77428ca22b2f0",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_barter_energy.png",
-            "Id": "5b47574386f77428ca22b2ed",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_gear_rigs.png",
-            "Id": "5b5f6f8786f77447ed563642",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33f"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_gear_facecovers.png",
-            "Id": "5b47574386f77428ca22b32f",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33f"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_money.png",
-            "Id": "5b5f78b786f77447ed5636af",
-            "Order": "2",
-            "ParentId": null
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_weapons_pistols.png",
-            "Id": "5b5f792486f77447ed5636b3",
-            "Order": "100",
-            "ParentId": "5b5f78dc86f77409407a7f8e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_weapons_smg.png",
-            "Id": "5b5f796a86f774093f2ed3c0",
-            "Order": "100",
-            "ParentId": "5b5f78dc86f77409407a7f8e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_weapons_melee.png",
-            "Id": "5b5f7a0886f77409407a7f96",
-            "Order": "100",
-            "ParentId": "5b5f78dc86f77409407a7f8e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_barter_flammable.png",
-            "Id": "5b47574386f77428ca22b2f2",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_medical_injury.png",
-            "Id": "5b47574386f77428ca22b339",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b344"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_mod_barrel.png",
-            "Id": "5b5f75c686f774094242f19f",
-            "Order": "100",
-            "ParentId": "5b5f75b986f77447ec5d7710"
         },
         {
             "Color": "",
@@ -275,36 +100,85 @@
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_weapons.png",
-            "Id": "5b5f78dc86f77409407a7f8e",
-            "Order": "10",
+            "Icon": "/files/handbook/icon_barter_others.png",
+            "Id": "6564b96a189fe36f356d177c",
+            "Order": "0",
             "ParentId": null
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_weapons_assaultrifles.png",
-            "Id": "5b5f78fc86f77409407a7f90",
-            "Order": "100",
-            "ParentId": "5b5f78dc86f77409407a7f8e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_barter_valuables.png",
-            "Id": "5b47574386f77428ca22b2f1",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_gear_armor.png",
-            "Id": "5b5f701386f774093f2ecf0f",
+            "Icon": "/files/handbook/icon_gear_visors.png",
+            "Id": "5b47574386f77428ca22b331",
             "Order": "100",
             "ParentId": "5b47574386f77428ca22b33f"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_gear_backpacks.png",
-            "Id": "5b5f6f6c86f774093f2ecf0b",
+            "Icon": "/files/handbook/icon_gear.png",
+            "Id": "5b47574386f77428ca22b33f",
+            "Order": "12",
+            "ParentId": null
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mod_gasblock.png",
+            "Id": "5b5f760586f774093e6cb509",
+            "Order": "100",
+            "ParentId": "5b5f75b986f77447ec5d7710"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mod_sight.png",
+            "Id": "5b5f73ec86f774093e6cb4fd",
+            "Order": "100",
+            "ParentId": "5b5f71b386f774093f2ecf11"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mod_reciever.png",
+            "Id": "5b5f764186f77447ec5d7714",
+            "Order": "100",
+            "ParentId": "5b5f75b986f77447ec5d7710"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mod_barrel.png",
+            "Id": "5b5f75c686f774094242f19f",
+            "Order": "100",
+            "ParentId": "5b5f75b986f77447ec5d7710"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_gear_secured.png",
+            "Id": "5b5f6fd286f774093f2ecf0d",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33f"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mods.png",
+            "Id": "5b5f71a686f77447ed5636ab",
+            "Order": "11",
+            "ParentId": null
+        },
+        {
+            "Color": "#284e64",
+            "Icon": "/files/handbook/icon_mods_functional.png",
+            "Id": "5b5f71b386f774093f2ecf11",
+            "Order": "100",
+            "ParentId": "5b5f71a686f77447ed5636ab"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_weapons_melee.png",
+            "Id": "5b5f7a0886f77409407a7f96",
+            "Order": "100",
+            "ParentId": "5b5f78dc86f77409407a7f8e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_gear_headwear.png",
+            "Id": "5b47574386f77428ca22b330",
             "Order": "100",
             "ParentId": "5b47574386f77428ca22b33f"
         },
@@ -317,24 +191,31 @@
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_gear_visors.png",
-            "Id": "5b47574386f77428ca22b331",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33f"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_gear_headsets.png",
-            "Id": "5b5f6f3c86f774094242ef87",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b33f"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_mod_sight.png",
-            "Id": "5b5f73ec86f774093e6cb4fd",
+            "Icon": "/files/handbook/icon_mod_bipod.png",
+            "Id": "5b5f71c186f77409407a7ec0",
             "Order": "100",
             "ParentId": "5b5f71b386f774093f2ecf11"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/",
+            "Id": "5b5f748386f774093e6cb501",
+            "Order": "100",
+            "ParentId": "5b5f73ec86f774093e6cb4fd"
+        },
+        {
+            "Color": "#1f4d2a",
+            "Icon": "/files/handbook/icon_mods_gear.png",
+            "Id": "5b5f750686f774093e6cb503",
+            "Order": "100",
+            "ParentId": "5b5f71a686f77447ed5636ab"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mod_magazine.png",
+            "Id": "5b5f754a86f774094242f19b",
+            "Order": "100",
+            "ParentId": "5b5f750686f774093e6cb503"
         },
         {
             "Color": "",
@@ -345,6 +226,83 @@
         },
         {
             "Color": "",
+            "Icon": "/files/handbook/icon_weapons_dmr.png",
+            "Id": "5b5f791486f774093f2ed3be",
+            "Order": "100",
+            "ParentId": "5b5f78dc86f77409407a7f8e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_keys.png",
+            "Id": "5b47574386f77428ca22b342",
+            "Order": "6",
+            "ParentId": null
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_gear_headsets.png",
+            "Id": "5b5f6f3c86f774094242ef87",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33f"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/",
+            "Id": "5b5f737886f774093e6cb4fb",
+            "Order": "100",
+            "ParentId": "5b5f736886f774094242f193"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_gear_armor.png",
+            "Id": "5b5f701386f774093f2ecf0f",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33f"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/",
+            "Id": "5b5f742686f774093e6cb4ff",
+            "Order": "100",
+            "ParentId": "5b5f73ec86f774093e6cb4fd"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/",
+            "Id": "5b5f72f786f77447ec5d7702",
+            "Order": "100",
+            "ParentId": "5b5f724186f77447ed5636ad"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_money.png",
+            "Id": "5b5f78b786f77447ed5636af",
+            "Order": "2",
+            "ParentId": null
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_weapons.png",
+            "Id": "5b5f78dc86f77409407a7f8e",
+            "Order": "10",
+            "ParentId": null
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/",
+            "Id": "5b5f740a86f77447ec5d7706",
+            "Order": "100",
+            "ParentId": "5b5f73ec86f774093e6cb4fd"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_weapons_pistols.png",
+            "Id": "5b5f792486f77447ed5636b3",
+            "Order": "100",
+            "ParentId": "5b5f78dc86f77409407a7f8e"
+        },
+        {
+            "Color": "",
             "Icon": "/files/handbook/icon_weapons_shotguns.png",
             "Id": "5b5f794b86f77409407a7f92",
             "Order": "100",
@@ -352,24 +310,73 @@
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_medical.png",
-            "Id": "5b47574386f77428ca22b344",
-            "Order": "7",
-            "ParentId": null
+            "Icon": "/files/handbook/icon_weapons_smg.png",
+            "Id": "5b5f796a86f774093f2ed3c0",
+            "Order": "100",
+            "ParentId": "5b5f78dc86f77409407a7f8e"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_mod_stock.png",
-            "Id": "5b5f757486f774093e6cb507",
+            "Icon": "/files/handbook/icon_weapons_throw.png",
+            "Id": "5b5f7a2386f774093f2ed3c4",
+            "Order": "100",
+            "ParentId": "5b5f78dc86f77409407a7f8e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_provisions_drinks.png",
+            "Id": "5b47574386f77428ca22b335",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b340"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_barter_household.png",
+            "Id": "5b47574386f77428ca22b2f0",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_barter_electronics.png",
+            "Id": "5b47574386f77428ca22b2ef",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_medical_injury.png",
+            "Id": "5b47574386f77428ca22b339",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b344"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_gear_components.png",
+            "Id": "5b5f704686f77447ec5d76d7",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33f"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mod_charge.png",
+            "Id": "5b5f751486f77447ec5d770c",
             "Order": "100",
             "ParentId": "5b5f750686f774093e6cb503"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_ammo_rounds.png",
-            "Id": "5b47574386f77428ca22b33b",
+            "Icon": "/files/handbook/icon_weapons_gl.png",
+            "Id": "5b5f79d186f774093f2ed3c2",
             "Order": "100",
-            "ParentId": "5b47574386f77428ca22b346"
+            "ParentId": "5b5f78dc86f77409407a7f8e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_weapons_special.png",
+            "Id": "5b5f79eb86f77447ed5636b7",
+            "Order": "100",
+            "ParentId": "5b5f78dc86f77409407a7f8e"
         },
         {
             "Color": "",
@@ -380,17 +387,45 @@
         },
         {
             "Color": "",
+            "Icon": "/files/handbook/icon_medical_injectors.png",
+            "Id": "5b47574386f77428ca22b33a",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b344"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mod_muzzle.png",
+            "Id": "5b5f724186f77447ed5636ad",
+            "Order": "100",
+            "ParentId": "5b5f71b386f774093f2ecf11"
+        },
+        {
+            "Color": "",
             "Icon": "/files/handbook/",
-            "Id": "5b5f744786f774094242f197",
+            "Id": "5b5f731a86f774093e6cb4f9",
+            "Order": "100",
+            "ParentId": "5b5f724186f77447ed5636ad"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/",
+            "Id": "5b5f746686f77447ec5d7708",
             "Order": "100",
             "ParentId": "5b5f73ec86f774093e6cb4fd"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_mod_tactical.png",
-            "Id": "5b5f759686f774094242f19d",
+            "Icon": "/files/handbook/icon_keys_electronic.png",
+            "Id": "5c518ed586f774119a772aee",
             "Order": "100",
-            "ParentId": "5b5f750686f774093e6cb503"
+            "ParentId": "5b47574386f77428ca22b342"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_medical_pills.png",
+            "Id": "5b47574386f77428ca22b337",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b344"
         },
         {
             "Color": "",
@@ -408,29 +443,64 @@
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/",
-            "Id": "5b5f746686f77447ec5d7708",
+            "Icon": "/files/handbook/icon_gear_rigs.png",
+            "Id": "5b5f6f8786f77447ed563642",
             "Order": "100",
-            "ParentId": "5b5f73ec86f774093e6cb4fd"
+            "ParentId": "5b47574386f77428ca22b33f"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/",
-            "Id": "5b5f749986f774094242f199",
+            "Icon": "/files/handbook/icon_weapons_assaultrifles.png",
+            "Id": "5b5f78fc86f77409407a7f90",
             "Order": "100",
-            "ParentId": "5b5f73ec86f774093e6cb4fd"
+            "ParentId": "5b5f78dc86f77409407a7f8e"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_medical_pills.png",
-            "Id": "5b47574386f77428ca22b337",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b344"
+            "Icon": "/files/handbook/icon_provisions.png",
+            "Id": "5b47574386f77428ca22b340",
+            "Order": "8",
+            "ParentId": null
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_gear_secured.png",
-            "Id": "5b5f6fd286f774093f2ecf0d",
+            "Icon": "/files/handbook/icon_info.png",
+            "Id": "5b47574386f77428ca22b341",
+            "Order": "5",
+            "ParentId": null
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mod_stock.png",
+            "Id": "5b5f757486f774093e6cb507",
+            "Order": "100",
+            "ParentId": "5b5f750686f774093e6cb503"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_weapons_carbines.png",
+            "Id": "5b5f78e986f77447ed5636b1",
+            "Order": "100",
+            "ParentId": "5b5f78dc86f77409407a7f8e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_barter.png",
+            "Id": "5b47574386f77428ca22b33e",
+            "Order": "13",
+            "ParentId": null
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_barter_building.png",
+            "Id": "5b47574386f77428ca22b2ee",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b33e"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_gear_cases.png",
+            "Id": "5b5f6fa186f77409407a7eb7",
             "Order": "100",
             "ParentId": "5b47574386f77428ca22b33f"
         },
@@ -443,38 +513,38 @@
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/",
-            "Id": "5b5f731a86f774093e6cb4f9",
+            "Icon": "/files/handbook/icon_mod_lightlaser.png",
+            "Id": "5b5f736886f774094242f193",
             "Order": "100",
-            "ParentId": "5b5f724186f77447ed5636ad"
+            "ParentId": "5b5f71b386f774093f2ecf11"
         },
         {
             "Color": "",
             "Icon": "/files/handbook/",
-            "Id": "5b5f740a86f77447ec5d7706",
+            "Id": "5b5f744786f774094242f197",
             "Order": "100",
             "ParentId": "5b5f73ec86f774093e6cb4fd"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/",
-            "Id": "5b5f742686f774093e6cb4ff",
+            "Icon": "/files/handbook/icon_mod_launcher.png",
+            "Id": "5b5f752e86f774093e6cb505",
             "Order": "100",
-            "ParentId": "5b5f73ec86f774093e6cb4fd"
+            "ParentId": "5b5f750686f774093e6cb503"
+        },
+        {
+            "Color": "#4d3427",
+            "Icon": "/files/handbook/icon_mods_vital.png",
+            "Id": "5b5f75b986f77447ec5d7710",
+            "Order": "100",
+            "ParentId": "5b5f71a686f77447ed5636ab"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_mod_gasblock.png",
-            "Id": "5b5f760586f774093e6cb509",
-            "Order": "100",
-            "ParentId": "5b5f75b986f77447ec5d7710"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_weapons_throw.png",
-            "Id": "5b5f7a2386f774093f2ed3c4",
-            "Order": "100",
-            "ParentId": "5b5f78dc86f77409407a7f8e"
+            "Icon": "/files/handbook/icon_quest.png",
+            "Id": "5b619f1a86f77450a702a6f3",
+            "Order": "1",
+            "ParentId": null
         },
         {
             "Color": "",
@@ -485,69 +555,6 @@
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_mod_muzzle.png",
-            "Id": "5b5f724186f77447ed5636ad",
-            "Order": "100",
-            "ParentId": "5b5f71b386f774093f2ecf11"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_mod_reciever.png",
-            "Id": "5b5f764186f77447ec5d7714",
-            "Order": "100",
-            "ParentId": "5b5f75b986f77447ec5d7710"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_weapons_gl.png",
-            "Id": "5b5f79d186f774093f2ed3c2",
-            "Order": "100",
-            "ParentId": "5b5f78dc86f77409407a7f8e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_keys_electronic.png",
-            "Id": "5c518ed586f774119a772aee",
-            "Order": "100",
-            "ParentId": "5b47574386f77428ca22b342"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_ammo.png",
-            "Id": "5b47574386f77428ca22b346",
-            "Order": "9",
-            "ParentId": null
-        },
-        {
-            "Color": "#1f4d2a",
-            "Icon": "/files/handbook/icon_mods_gear.png",
-            "Id": "5b5f750686f774093e6cb503",
-            "Order": "100",
-            "ParentId": "5b5f71a686f77447ed5636ab"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_weapons_dmr.png",
-            "Id": "5b5f791486f774093f2ed3be",
-            "Order": "100",
-            "ParentId": "5b5f78dc86f77409407a7f8e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_weapons_special.png",
-            "Id": "5b5f79eb86f77447ed5636b7",
-            "Order": "100",
-            "ParentId": "5b5f78dc86f77409407a7f8e"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/",
-            "Id": "5b5f737886f774093e6cb4fb",
-            "Order": "100",
-            "ParentId": "5b5f736886f774094242f193"
-        },
-        {
-            "Color": "",
             "Icon": "/files/handbook/icon_barter_others.png",
             "Id": "5b47574386f77428ca22b2f4",
             "Order": "110",
@@ -555,24 +562,45 @@
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_provisions.png",
-            "Id": "5b47574386f77428ca22b340",
-            "Order": "8",
+            "Icon": "/files/handbook/icon_provisions_food.png",
+            "Id": "5b47574386f77428ca22b336",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b340"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_medical_medkits.png",
+            "Id": "5b47574386f77428ca22b338",
+            "Order": "100",
+            "ParentId": "5b47574386f77428ca22b344"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_maps.png",
+            "Id": "5b47574386f77428ca22b343",
+            "Order": "3",
             "ParentId": null
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_gear_cases.png",
-            "Id": "5b5f6fa186f77409407a7eb7",
+            "Icon": "/files/handbook/icon_gear_backpacks.png",
+            "Id": "5b5f6f6c86f774093f2ecf0b",
             "Order": "100",
             "ParentId": "5b47574386f77428ca22b33f"
         },
         {
             "Color": "",
-            "Icon": "/files/handbook/icon_mods.png",
-            "Id": "5b5f71a686f77447ed5636ab",
-            "Order": "11",
-            "ParentId": null
+            "Icon": "/files/handbook/",
+            "Id": "5b5f73c486f77447ec5d7704",
+            "Order": "100",
+            "ParentId": "5b5f736886f774094242f193"
+        },
+        {
+            "Color": "",
+            "Icon": "/files/handbook/icon_mod_aux.png",
+            "Id": "5b5f74cc86f77447ec5d770a",
+            "Order": "100",
+            "ParentId": "5b5f71b386f774093f2ecf11"
         },
         {
             "Color": "",
@@ -580,34 +608,6 @@
             "Id": "5b5f755f86f77447ec5d770e",
             "Order": "100",
             "ParentId": "5b5f750686f774093e6cb503"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_mod_bipod.png",
-            "Id": "5b5f71c186f77409407a7ec0",
-            "Order": "100",
-            "ParentId": "5b5f71b386f774093f2ecf11"
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_barter_others.png",
-            "Id": "6564b96a189fe36f356d177c",
-            "Order": "0",
-            "ParentId": null
-        },
-        {
-            "Color": "",
-            "Icon": "/files/handbook/icon_mod_charge.png",
-            "Id": "5b5f751486f77447ec5d770c",
-            "Order": "100",
-            "ParentId": "5b5f750686f774093e6cb503"
-        },
-        {
-            "Color": "#4d3427",
-            "Icon": "/files/handbook/icon_mods_vital.png",
-            "Id": "5b5f75b986f77447ec5d7710",
-            "Order": "100",
-            "ParentId": "5b5f71a686f77447ed5636ab"
         }
     ],
     "Items": [
