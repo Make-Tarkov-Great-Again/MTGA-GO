@@ -244,21 +244,26 @@ type InventoryItemUpd struct {
 }
 
 type ItemUpdate struct {
-	StackObjectsCount     int32       `json:"StackObjectsCount,omitempty"`
-	FireMode              *FireMode   `json:"FireMode,omitempty"`
-	Foldable              *Foldable   `json:"Foldable,omitempty"`
-	Repairable            *Repairable `json:"Repairable,omitempty"`
-	Sight                 *Sight      `json:"Sight,omitempty"`
-	MedKit                *MedicalKit `json:"MedKit,omitempty"`
-	FoodDrink             *FoodDrink  `json:"FoodDrink,omitempty"`
-	RepairKit             *RepairKit  `json:"RepairKit,omitempty"`
-	Light                 *Light      `json:"Light,omitempty"`
-	Resource              *Resource   `json:"Resource,omitempty"`
-	Tag                   *Tag        `json:"Tag,omitempty"`
-	Togglable             *Toggle     `json:"Togglable,omitempty"`
-	BuyRestrictionCurrent int16       `json:"BuyRestrictionCurrent,omitempty"`
-	BuyRestrictionMax     int16       `json:"BuyRestrictionMax,omitempty"`
-	UnlimitedCount        bool        `json:"UnlimitedCount,omitempty"`
+	StackObjectsCount     int32            `json:"StackObjectsCount,omitempty"`
+	FireMode              *FireMode        `json:"FireMode,omitempty"`
+	Foldable              *Foldable        `json:"Foldable,omitempty"`
+	Repairable            *Repairable      `json:"Repairable,omitempty"`
+	Sight                 *Sight           `json:"Sight,omitempty"`
+	MedKit                *MedicalKit      `json:"MedKit,omitempty"`
+	FoodDrink             *FoodDrink       `json:"FoodDrink,omitempty"`
+	RepairKit             *RepairKit       `json:"RepairKit,omitempty"`
+	Light                 *Light           `json:"Light,omitempty"`
+	Resource              *Resource        `json:"Resource,omitempty"`
+	Tag                   *Tag             `json:"Tag,omitempty"`
+	Togglable             *Toggle          `json:"Togglable,omitempty"`
+	RecodableComponent    *RecodeComponent `json:"RecodableComponent,omitempty"`
+	BuyRestrictionCurrent int16            `json:"BuyRestrictionCurrent,omitempty"`
+	BuyRestrictionMax     int16            `json:"BuyRestrictionMax,omitempty"`
+	UnlimitedCount        bool             `json:"UnlimitedCount,omitempty"`
+}
+
+type RecodeComponent struct {
+	IsEncoded bool `json:"IsEncoded"`
 }
 
 type Toggle struct {
