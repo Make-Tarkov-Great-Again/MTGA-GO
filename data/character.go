@@ -270,19 +270,66 @@ type Counter struct {
 type EftStats struct {
 	SessionCounters        *Counter       `json:"SessionCounters"`
 	OverallCounters        Counter        `json:"OverallCounters"`
-	SessionExperienceMult  int            `json:"SessionExperienceMult"`
+	SessionExperienceMult  int            `json:"SessionExperienceMult,omitempty"`
 	ExperienceBonusMult    int            `json:"ExperienceBonusMult"`
 	TotalSessionExperience int            `json:"TotalSessionExperience"`
 	LastSessionDate        int            `json:"LastSessionDate"`
 	Aggressor              map[string]any `json:"Aggressor"`
-	DroppedItems           []any          `json:"DroppedItems"`
+	DroppedItems           []any          `json:"DroppedItems,omitempty"`
 	FoundInRaidItems       []any          `json:"FoundInRaidItems"`
 	Victims                []any          `json:"Victims"`
 	CarriedQuestItems      []any          `json:"CarriedQuestItems"`
-	DamageHistory          map[string]any `json:"DamageHistory"`
-	LastPlayerState        *float32       `json:"LastPlayerState"`
+	DamageHistory          DamageHistory  `json:"DamageHistory"`
+	DeathCause             *CauseOfDeath  `json:"DeathCause,omitempty"`
+	LastPlayerState        *LastState     `json:"LastPlayerState"`
 	TotalInGameTime        int            `json:"TotalInGameTime"`
 	SurvivorClass          string         `json:"SurvivorClass"`
+}
+
+type LastState struct {
+	Info          StateInfo
+	Customization map[string]string
+	Equipment     any
+}
+
+type StateInfo struct {
+	Nickname       string
+	Side           string
+	Level          uint8
+	MemberCategory MemberCategory
+}
+
+type CauseOfDeath struct {
+	DamageType string
+	Side       string
+	Role       string
+	WeaponId   string
+}
+
+type DamageHistory struct {
+	LethalDamagePart string
+	LethalDamage     *DamageStats
+	BodyParts        BodyPartDamageHistory
+}
+
+type BodyPartDamageHistory struct {
+	Head     []DamageStats
+	Chest    []DamageStats
+	Stomach  []DamageStats
+	LeftArm  []DamageStats
+	RightArm []DamageStats
+	LeftLeg  []DamageStats
+	RightLeg []DamageStats
+	Common   []DamageStats
+}
+
+type DamageStats struct {
+	Amount         uint16 `json:"Amount"`
+	Type           string `json:"Type"`
+	SourceId       string `json:"SourceId"`
+	OverDamageFrom string `json:"OverDamageFrom"`
+	Blunt          bool   `json:"Blunt"`
+	ImpactsCount   uint16 `json:"ImpactsCount"`
 }
 
 type SkillsCommon struct {

@@ -4807,7 +4807,7 @@
             "Aggressor": null,
             "CarriedQuestItems": [],
             "DamageHistory": {
-                "BodyParts": [],
+              "BodyParts": {},
                 "LethalDamage": null,
                 "LethalDamagePart": "Head"
             },

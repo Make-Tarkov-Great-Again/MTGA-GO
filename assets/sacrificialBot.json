@@ -444,7 +444,7 @@
       "DamageHistory": {
         "LethalDamagePart": "Head",
         "LethalDamage": null,
-        "BodyParts": []
+        "BodyParts": {}
       },
       "LastPlayerState": null,
       "TotalInGameTime": 0,

@@ -171,10 +171,10 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 	stats.FoundInRaidItems = make([]any, 0)
 	stats.Victims = make([]any, 0)
 	stats.CarriedQuestItems = make([]any, 0)
-	stats.DamageHistory = map[string]any{
-		"BodyParts":        []any{},
-		"LethalDamage":     nil,
-		"LethalDamagePart": "Head",
+	stats.DamageHistory = data.DamageHistory{
+		LethalDamagePart: "Head",
+		LethalDamage:     nil,
+		BodyParts:        data.BodyPartDamageHistory{},
 	}
 	stats.SurvivorClass = "Unknown"
 
