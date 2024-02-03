@@ -6,10 +6,15 @@
 
 ## Who are we, and why are we doing this?
 
-MTGA is a organization founded by a few Altered Escape developers.
+`Make Tarkov Great Again` (MTGA) was founded on the simple idea to do just that.
 
 We felt that there shouldn't just be one option for emulation and began development on MTGA.
-We are developing this emulator to offer an accessible experience, that is up-to-date and easy to modify to provide the best out-of-the-box experience for casuals and enthusiasts.
+
+The server is being written in Go-lang compared to its JS/TS counter-part because, on top of its incredible performance,
+it encourages rethinking why things were done the way they have been for so long.
+
+We are developing this emulator to offer the best out-of-the-box experience for casuals and enthusiasts, a simple and
+clean experience to not overwhelm you with anything but either playing or modifying your play experience.
 
 ## Community
 
