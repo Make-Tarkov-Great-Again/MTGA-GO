@@ -44,6 +44,21 @@ func CreateNewItem(TPL string, parent string) *InventoryItem {
 	return item
 }
 
+func (i *InventoryItem) Clone() *InventoryItem {
+	clone := new(InventoryItem)
+
+	data, err := json.MarshalNoEscape(i)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := json.UnmarshalNoEscape(data, &clone); err != nil {
+		log.Fatal(err)
+	}
+
+	return clone
+}
+
 // ConvertAssortItemsToInventoryItem converts AssortItem to InventoryItem, also reassigns IDs of all items
 // as well as their children; sets parent item to last index
 func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *string) []InventoryItem {

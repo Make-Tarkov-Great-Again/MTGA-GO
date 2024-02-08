@@ -913,16 +913,16 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 	traderRelations := character.TradersInfo[tradeConfirm.TID]
 
 	height, width := data.MeasurePurchaseForInventoryMapping(inventoryItems)
+	var copyOfInventoryItems []data.InventoryItem
+	if len(stackSlice) >= 1 {
+		copyOfInventoryItems = data.AssignNewIDs(inventoryItems)
+	} else {
+		copyOfInventoryItems = inventoryItems
+	}
 
 	for _, stack := range stackSlice {
-		var copyOfInventoryItems []data.InventoryItem
-		if len(stackSlice) >= 1 {
-			copyOfInventoryItems = data.AssignNewIDs(inventoryItems)
-		} else {
-			copyOfInventoryItems = inventoryItems
-		}
-
-		mainItem := &copyOfInventoryItems[len(copyOfInventoryItems)-1]
+		index := len(copyOfInventoryItems) - 1
+		mainItem := copyOfInventoryItems[index].Clone()
 
 		validLocation := invCache.GetValidLocationForItem(height, width)
 		if validLocation == nil {
@@ -934,6 +934,7 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 		if stackMaxSize > 1 {
 			mainItem.UPD.StackObjectsCount = stack
 		}
+
 		mainItem.Location = &data.InventoryItemLocation{
 			IsSearched: true,
 			R:          float64(0),
@@ -945,8 +946,10 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 		itemFlatMap.Coordinates = validLocation.MapInfo
 		invCache.AddItemToContainer(mainItem.ID, itemFlatMap)
 
+		copyOfInventoryItems[index] = *mainItem
 		toAdd = append(toAdd, copyOfInventoryItems...)
 	}
+	copyOfInventoryItems = nil
 	changes, ok := event.ProfileChanges.Get(character.ID)
 	if !ok {
 		log.Fatal("profile changes event does not exist")
