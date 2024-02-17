@@ -3,6 +3,7 @@ package pkg
 import (
 	"bytes"
 	"compress/zlib"
+	"fmt"
 	"github.com/goccy/go-json"
 	"io"
 	"log"
@@ -26,49 +27,51 @@ func SendZlibJSONReply(w http.ResponseWriter, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	compressed := ZlibDeflate(data)
-	_, err := w.Write(compressed)
+	compressed, err := ZlibDeflate(data)
+	if err != nil {
+		log.Printf("Failed to Deflate compressed data: %s", err)
+		return
+	}
+	_, err = w.Write(compressed)
 	if err != nil {
 		http.Error(w, "Failed to write compressed data", http.StatusInternalServerError)
 		return
 	}
 }
 
-func ZlibInflate(r *http.Request) *bytes.Buffer {
-	buffer := new(bytes.Buffer)
-
+func ZlibInflate(r *http.Request) ([]byte, error) {
 	// Inflate r.Body with zlib
 	reader, err := zlib.NewReader(r.Body)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, fmt.Errorf("failed to create zlib reader: %w", err)
 	}
 	defer func() {
 		if err := reader.Close(); err != nil {
-			log.Fatal(err)
+			log.Println("error closing zlib reader:", err)
 		}
 	}()
 
 	// Read the decompressed data
-	_, err = io.Copy(buffer, reader)
+	buffer, err := io.ReadAll(reader)
 	if err != nil {
-		log.Panicln(err)
+		return nil, fmt.Errorf("failed to decompress data: %w", err)
 	}
 
-	return buffer
+	return buffer, nil
 }
 
-func ZlibDeflate(data any) []byte {
+func ZlibDeflate(data any) ([]byte, error) {
 	input, err := json.MarshalNoEscape(data)
 	if err != nil {
 		log.Println("Failed to marshal data to JSON")
-		return nil
+		return nil, err
 	}
 
 	return compressZlib(input, zlib.BestSpeed)
 }
 
-func compressZlib(data []byte, speed int) []byte {
-	buffer := bytes.NewBuffer(nil)
+func compressZlib(data []byte, speed int) ([]byte, error) {
+	buffer := bytes.NewBuffer(make([]byte, 0, len(data)))
 	writer, err := zlib.NewWriterLevel(buffer, speed)
 	if err != nil {
 		log.Fatal(err)
@@ -89,10 +92,10 @@ func compressZlib(data []byte, speed int) []byte {
 		log.Panicln(err)
 	}
 
-	return buffer.Bytes()
+	return buffer.Bytes(), nil
 }
 
-func CreateCachedResponse(input any) []byte {
+func CreateCachedResponse(input any) ([]byte, error) {
 	dataData, err := json.MarshalNoEscape(ApplyResponseBody(input))
 	if err != nil {
 		log.Fatal(err)

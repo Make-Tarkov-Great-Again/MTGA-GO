@@ -13,35 +13,6 @@ const size int = 24
 var chars = []rune("abcdef0123456789")
 var alphabetLength = len(chars)
 
-//var length int = len(chars)
-
-func _GenerateMongoID() string {
-	mask := getMask(alphabetLength)
-	// estimate how many random bytes we will need for the ID, we might actually need more but this is tradeoff
-	// between average case and worst case
-	ceilArg := 1.6 * float64(mask*size) / float64(alphabetLength)
-	step := int(math.Ceil(ceilArg))
-
-	id := make([]rune, size)
-	bytes := make([]byte, step)
-	for j := 0; ; {
-		_, err := rand.Read(bytes)
-		if err != nil {
-			return ""
-		}
-		for i := 0; i < step; i++ {
-			currByte := bytes[i] & byte(mask)
-			if currByte < byte(alphabetLength) {
-				id[j] = chars[currByte]
-				j++
-				if j == size {
-					return string(id[:size])
-				}
-			}
-		}
-	}
-}
-
 // GenerateMongoID returns a random string of length 24
 func GenerateMongoID() string {
 	mask := getMask(alphabetLength)

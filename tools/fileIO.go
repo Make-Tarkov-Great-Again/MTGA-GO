@@ -21,8 +21,7 @@ const (
 // WriteToFile writes the given string of data to the specified file path
 func WriteToFile(filePath string, data any) error {
 	path := GetAbsolutePathFrom(filePath)
-	err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
 		return err
 	}
 
@@ -36,8 +35,7 @@ func WriteToFile(filePath string, data any) error {
 	encoder.SetEscapeHTML(false)  // don't escape Unicode
 	encoder.SetIndent("", "    ") //4 space indentation
 
-	err = encoder.Encode(data)
-	if err != nil {
+	if err := encoder.Encode(data); err != nil {
 		return err
 	}
 
@@ -61,8 +59,7 @@ func CreateDirectory(filePath string) error {
 		return fmt.Errorf(SsFormat, DirectoryExists, filePath)
 	}
 
-	err := os.MkdirAll(path, 0755)
-	if err != nil {
+	if err := os.MkdirAll(path, 0755); err != nil {
 		log.Fatal(err)
 	}
 	return nil
@@ -91,7 +88,7 @@ func ReadFile(filePath string) ([]byte, error) {
 }
 
 // GetDirectoriesFrom returns a list of directories from a file path
-func GetDirectoriesFrom(filePath string) (map[string]*struct{}, error) {
+func GetDirectoriesFrom(filePath string) (map[string]struct{}, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
 		return nil, fmt.Errorf(SsFormat, FileDoesNotExist, filePath)
@@ -102,17 +99,17 @@ func GetDirectoriesFrom(filePath string) (map[string]*struct{}, error) {
 		return nil, fmt.Errorf(SswFormat, FailToReadDirectory, filePath, err)
 	}
 
-	files := make(map[string]*struct{})
+	files := make(map[string]struct{})
 	for _, file := range directory {
 		if file.IsDir() {
-			files[file.Name()] = nil
+			files[file.Name()] = struct{}{}
 		}
 	}
 	return files, nil
 }
 
 // GetFilesFrom returns a list of files from a file path
-func GetFilesFrom(filePath string) (map[string]*struct{}, error) {
+func GetFilesFrom(filePath string) (map[string]struct{}, error) {
 	path := GetAbsolutePathFrom(filePath)
 	if !FileExist(path) {
 		return nil, fmt.Errorf(SsFormat, FileDoesNotExist, filePath)
@@ -123,10 +120,10 @@ func GetFilesFrom(filePath string) (map[string]*struct{}, error) {
 		return nil, fmt.Errorf(SswFormat, FailToReadDirectory, filePath, err)
 	}
 
-	files := make(map[string]*struct{})
+	files := make(map[string]struct{})
 	for _, file := range directory {
 		if !file.IsDir() {
-			files[file.Name()] = nil
+			files[file.Name()] = struct{}{}
 		}
 	}
 	return files, nil

@@ -75,7 +75,9 @@ func startInsecure(serverReady chan<- struct{}, mux *muxt) {
 	r := chi.NewRouter()
 
 	r.Use(middleware.URLFormat)
-	r.Use(logAndDecompress)
+	r.Use(logRoute)
+	r.Use(handleWebSocketUpgrade)
+	r.Use(decompress)
 	mux.initRoutes(r)
 
 	server := http.Server{
@@ -96,7 +98,10 @@ func startInsecure(serverReady chan<- struct{}, mux *muxt) {
 func startSecure(serverReady chan<- struct{}, certs *Certificate, mux *muxt) {
 	r := chi.NewRouter()
 
-	r.Use(logAndDecompress)
+	r.Use(middleware.URLFormat)
+	r.Use(logRoute)
+	r.Use(handleWebSocketUpgrade)
+	r.Use(decompress)
 
 	mux.initRoutes(r)
 

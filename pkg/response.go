@@ -172,10 +172,8 @@ func ServeFileLocal(w http.ResponseWriter, imagePath, mime string) {
 	}
 }
 
-type contextKey string
-
-const ParsedBodyKey contextKey = "ParsedBody"
+type ContextKey struct{}
 
 func GetParsedBody(r *http.Request) any {
-	return r.Context().Value(ParsedBodyKey)
+	return r.Context().Value(&ContextKey{})
 }

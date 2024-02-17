@@ -591,6 +591,7 @@ func SplitItem(action map[string]any, sessionID string, event *data.ProfileChang
 		return
 	}
 
+	//TODO: Splitting is being retarded
 	character, err := data.GetCharacterByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
@@ -1351,13 +1352,15 @@ func BindItem(action map[string]any, sessionID string) {
 	}
 	if _, ok := character.Inventory.FastPanel[bind.Index]; !ok {
 		character.Inventory.FastPanel[bind.Index] = bind.Item
-	} else {
-		if character.Inventory.FastPanel[bind.Index] == bind.Item {
-			character.Inventory.FastPanel[bind.Index] = ""
-		} else {
-			character.Inventory.FastPanel[bind.Index] = bind.Item
-		}
+		return
 	}
+
+	if character.Inventory.FastPanel[bind.Index] == bind.Item {
+		character.Inventory.FastPanel[bind.Index] = ""
+	} else {
+		character.Inventory.FastPanel[bind.Index] = bind.Item
+	}
+
 }
 
 type tagItem struct {
@@ -1369,12 +1372,12 @@ type tagItem struct {
 
 func TagItem(action map[string]any, sessionID string) {
 	tag := new(tagItem)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &tag); err != nil {
+	if err := json.UnmarshalNoEscape(input, &tag); err != nil {
 		log.Println(err)
 		return
 	}
@@ -1390,17 +1393,18 @@ func TagItem(action map[string]any, sessionID string) {
 	}
 
 	index := *cache.GetIndexOfItemByID(tag.Item)
-	switch {
-	case character.Inventory.Items[index].UPD == nil:
+	if character.Inventory.Items[index].UPD != nil {
+		if character.Inventory.Items[index].UPD.Tag != nil {
+			character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+			character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+			return
+		}
+		character.Inventory.Items[index].UPD.Tag = new(data.Tag)
+		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
+		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
+	} else {
 		character.Inventory.Items[index].UPD = new(data.ItemUpdate)
 		character.Inventory.Items[index].UPD.Tag = new(data.Tag)
-		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
-		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
-	case character.Inventory.Items[index].UPD.Tag == nil:
-		character.Inventory.Items[index].UPD.Tag = new(data.Tag)
-		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
-		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
-	default:
 		character.Inventory.Items[index].UPD.Tag.Color = tag.TagColor
 		character.Inventory.Items[index].UPD.Tag.Name = tag.TagName
 	}
@@ -1414,12 +1418,12 @@ type toggleItem struct {
 
 func ToggleItem(action map[string]any, sessionID string) {
 	toggle := new(toggleItem)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &toggle); err != nil {
+	if err := json.UnmarshalNoEscape(input, &toggle); err != nil {
 		log.Println(err)
 		return
 	}
@@ -1436,26 +1440,27 @@ func ToggleItem(action map[string]any, sessionID string) {
 
 	index := *cache.GetIndexOfItemByID(toggle.Item)
 	if character.Inventory.Items[index].UPD == nil {
+		if character.Inventory.Items[index].UPD.Togglable != nil {
+			character.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+			return
+		}
+
+		character.Inventory.Items[index].UPD.Togglable = new(data.Toggle)
+		character.Inventory.Items[index].UPD.Togglable.On = toggle.Value
+	} else {
 		character.Inventory.Items[index].UPD = new(data.ItemUpdate)
 		character.Inventory.Items[index].UPD.Togglable = new(data.Toggle)
-		character.Inventory.Items[index].UPD.Togglable.On = toggle.Value
-
-	} else if character.Inventory.Items[index].UPD.Togglable == nil {
-		character.Inventory.Items[index].UPD.Togglable = new(data.Toggle)
-		character.Inventory.Items[index].UPD.Togglable.On = toggle.Value
-
-	} else {
 		character.Inventory.Items[index].UPD.Togglable.On = toggle.Value
 	}
 }
 
 type hideoutUpgradeComplete struct {
 	Action    string
-	AreaType  int8    `json:"areaType"`
+	AreaType  uint8   `json:"areaType"`
 	TimeStamp float64 `json:"timeStamp"`
 }
 
-func HideoutUpgradeComplete(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
+func HideoutUpgradeComplete(action map[string]any, _ string, _ *data.ProfileChangesEvent) {
 	log.Println("HideoutUpgradeComplete")
 	upgradeComplete := new(hideoutUpgradeComplete)
 	input, err := json.Marshal(action)

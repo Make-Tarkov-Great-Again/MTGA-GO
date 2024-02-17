@@ -30,7 +30,11 @@ func MainMenuLocale(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input, _ := data.GetLocaleMenuByName(chi.URLParam(r, "id"))
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -46,7 +50,11 @@ func MainLanguages(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input := data.GetLanguages()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -59,7 +67,11 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 	sessionID := pkg.GetSessionID(r)
 	if !data.CheckRequestedResponseCache(route) {
 		input, _ := pkg.GetGameConfig(sessionID)
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -71,7 +83,11 @@ func MainItems(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
-		cache := pkg.CreateCachedResponse(data.GetItems())
+		cache, err := pkg.CreateCachedResponse(data.GetItems())
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -86,7 +102,11 @@ func MainCustomization(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input := data.GetCustomizations()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -98,7 +118,11 @@ func MainGlobals(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input := data.GetGlobals()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -110,7 +134,11 @@ func MainSettings(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input := data.GetMainSettings()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -136,7 +164,11 @@ func MainLocale(w http.ResponseWriter, r *http.Request) {
 	if !data.CheckRequestedResponseCache(route) {
 		lang := chi.URLParam(r, "id")
 		input, _ := data.GetLocaleGlobalByName(lang)
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -249,7 +281,11 @@ func MainLocations(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input := data.GetLocations()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 		locationsSet = true
 	}
@@ -262,7 +298,11 @@ func MainTemplates(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input := data.GetHandbook()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -274,7 +314,11 @@ func MainHideoutAreas(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input, _ := data.GetHideoutAreas()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -286,7 +330,11 @@ func MainHideoutQTE(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input, _ := data.GetHideoutQTE()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -298,7 +346,11 @@ func MainHideoutSettings(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input, _ := data.GetHideoutSettings()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -310,7 +362,11 @@ func MainHideoutRecipes(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input, _ := data.GetHideoutRecipes()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
@@ -322,7 +378,11 @@ func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		input, _ := data.GetHideoutScavcase()
-		cache := pkg.CreateCachedResponse(input)
+		cache, err := pkg.CreateCachedResponse(input)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		data.SetResponseCacheForRoute(route, cache)
 	}
 
