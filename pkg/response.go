@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"errors"
 	"github.com/go-chi/chi/v5"
 	"io"
 	"log"
@@ -32,8 +33,12 @@ const (
 )
 
 // GetSessionID returns current sessionID from the header, if available
-func GetSessionID(r *http.Request) string {
-	return r.Header.Get(cookieHeader)[10:]
+func GetSessionID(r *http.Request) (string, error) {
+	output := r.Header.Get(cookieHeader)[10:]
+	if output == "" {
+		return "", errors.New("cookie header is empty")
+	}
+	return output, nil
 }
 
 // ApplyCRCResponseBody appends data to CRCResponseBody and returns it

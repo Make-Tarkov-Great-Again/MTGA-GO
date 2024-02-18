@@ -64,9 +64,13 @@ func MainLanguages(w http.ResponseWriter, r *http.Request) {
 
 func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 	route := r.RequestURI
-	sessionID := pkg.GetSessionID(r)
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	if !data.CheckRequestedResponseCache(route) {
-		input, _ := pkg.GetGameConfig(sessionID)
+		input, _ := pkg.GetGameConfig(session)
 		cache, err := pkg.CreateCachedResponse(input)
 		if err != nil {
 			log.Fatal(err)
@@ -147,8 +151,12 @@ func MainSettings(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainProfileList(w http.ResponseWriter, r *http.Request) {
-	sessionID := pkg.GetSessionID(r)
-	profileList := pkg.GetMainProfileList(sessionID)
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	profileList := pkg.GetMainProfileList(session)
 	body := pkg.ApplyResponseBody(profileList)
 	pkg.SendZlibJSONReply(w, body)
 }
@@ -225,14 +233,23 @@ func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	sessionID := pkg.GetSessionID(r)
-	pkg.CreateProfile(sessionID, request.Side, request.Nickname, request.VoiceID, request.HeadID)
-	body := pkg.ApplyResponseBody(&profileCreate{UID: sessionID})
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	pkg.CreateProfile(session, request.Side, request.Nickname, request.VoiceID, request.HeadID)
+	body := pkg.ApplyResponseBody(&profileCreate{UID: session})
 	pkg.SendZlibJSONReply(w, body)
 }
 
 func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
-	notifier, err := pkg.GetChannelNotifier(pkg.GetSessionID(r))
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	notifier, err := pkg.GetChannelNotifier(session)
 	if err != nil {
 		log.Println(err)
 	}
@@ -242,7 +259,12 @@ func MainChannelCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
-	channel := pkg.GetChannel(pkg.GetSessionID(r))
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	channel := pkg.GetChannel(session)
 
 	body := pkg.ApplyResponseBody(channel)
 	pkg.SendZlibJSONReply(w, body)
@@ -251,14 +273,19 @@ func MainProfileSelect(w http.ResponseWriter, r *http.Request) {
 func ChangeVoice(w http.ResponseWriter, r *http.Request) {
 	parsed := pkg.GetParsedBody(r)
 	fmt.Println(parsed)
-	//character := data.GetCharacterByID(pkg.GetSessionID(r))
+	//character := data.GetCharacterByID(session)
 
 	body := pkg.ApplyResponseBody(nil)
 	pkg.SendZlibJSONReply(w, body)
 }
 
 func MainProfileStatus(w http.ResponseWriter, r *http.Request) {
-	statuses := pkg.GetProfileStatuses(pkg.GetSessionID(r))
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	statuses := pkg.GetProfileStatuses(session)
 
 	body := pkg.ApplyResponseBody(statuses)
 	pkg.SendZlibJSONReply(w, body)
@@ -391,7 +418,12 @@ func MainHideoutScavRecipes(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainBuildsList(w http.ResponseWriter, r *http.Request) {
-	builds, err := pkg.GetBuildsList(pkg.GetSessionID(r))
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	builds, err := pkg.GetBuildsList(session)
 	if err != nil {
 		log.Println(err)
 	}
@@ -401,7 +433,12 @@ func MainBuildsList(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainQuestList(w http.ResponseWriter, r *http.Request) {
-	quests, err := pkg.GetQuestList(pkg.GetSessionID(r))
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	quests, err := pkg.GetQuestList(session)
 	if err != nil {
 		log.Println(err)
 	}
@@ -479,7 +516,12 @@ func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainLogout(w http.ResponseWriter, r *http.Request) {
-	profile, err := data.GetProfileByUID(pkg.GetSessionID(r))
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	profile, err := data.GetProfileByUID(session)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -549,13 +591,21 @@ type insuranceList struct {
 
 func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	insurances := new(insuranceList)
-	if input, err := json.Marshal(pkg.GetParsedBody(r)); err != nil {
-		log.Println(err)
-	} else if err := json.Unmarshal(input, insurances); err != nil {
-		log.Println(err)
+	input, err := json.Marshal(pkg.GetParsedBody(r))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = json.Unmarshal(input, insurances)
+	if err != nil {
+		log.Fatalln(err)
 	}
 
-	costs, err := pkg.GetInsuranceCosts(pkg.GetSessionID(r), insurances.Traders, insurances.Items)
+	session, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	costs, err := pkg.GetInsuranceCosts(session, insurances.Traders, insurances.Items)
 	if err != nil {
 		log.Println(err)
 	}
@@ -565,8 +615,8 @@ func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 }
 
 func InsuranceItemsCost(w http.ResponseWriter, r *http.Request) {
-	parsedBody := pkg.GetParsedBody(r)
-	fmt.Println(parsedBody)
+	//parsedBody := pkg.GetParsedBody(r)
+	//fmt.Println(parsedBody)
 	fmt.Println(routeNotImplemented)
 	body := pkg.ApplyResponseBody(nil)
 	pkg.SendZlibJSONReply(w, body)

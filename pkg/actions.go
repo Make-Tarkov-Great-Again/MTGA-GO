@@ -142,12 +142,12 @@ type fromOwner struct {
 
 func ExamineItem(action map[string]any, sessionID string) {
 	examine := new(examine)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &examine); err != nil {
+	if err := json.UnmarshalNoEscape(input, &examine); err != nil {
 		log.Println(err)
 		return
 	}
@@ -246,12 +246,12 @@ type moveToLocation struct {
 
 func MoveItemInStash(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	move := new(move)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &move); err != nil {
+	if err := json.UnmarshalNoEscape(input, &move); err != nil {
 		log.Println(err)
 		return
 	}
@@ -332,12 +332,12 @@ type swap struct {
 
 func SwapItemInStash(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	swap := new(swap)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &swap); err != nil {
+	if err := json.UnmarshalNoEscape(input, &swap); err != nil {
 		log.Println(err)
 		return
 	}
@@ -426,12 +426,12 @@ type foldItem struct {
 
 func FoldItem(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	fold := new(foldItem)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &fold); err != nil {
+	if err := json.UnmarshalNoEscape(input, &fold); err != nil {
 		log.Println(err)
 		return
 	}
@@ -473,12 +473,12 @@ type readEncyclopedia struct {
 
 func ReadEncyclopedia(action map[string]any, sessionID string) {
 	readEncyclopedia := new(readEncyclopedia)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &readEncyclopedia); err != nil {
+	if err := json.UnmarshalNoEscape(input, &readEncyclopedia); err != nil {
 		log.Println(err)
 		return
 	}
@@ -500,12 +500,12 @@ type merge struct {
 
 func MergeItem(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	merge := new(merge)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &merge); err != nil {
+	if err := json.UnmarshalNoEscape(input, &merge); err != nil {
 		log.Println(err)
 		return
 	}
@@ -541,12 +541,12 @@ func MergeItem(action map[string]any, sessionID string, event *data.ProfileChang
 
 func TransferItem(action map[string]any, sessionID string) {
 	transfer := new(transfer)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &transfer); err != nil {
+	if err := json.UnmarshalNoEscape(input, &transfer); err != nil {
 		log.Println(err)
 		return
 	}
@@ -581,12 +581,12 @@ type split struct {
 
 func SplitItem(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	split := new(split)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &split); err != nil {
+	if err := json.UnmarshalNoEscape(input, &split); err != nil {
 		log.Println(err)
 		return
 	}
@@ -669,12 +669,12 @@ type remove struct {
 
 func RemoveItem(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	remove := new(remove)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &remove); err != nil {
+	if err := json.UnmarshalNoEscape(input, &remove); err != nil {
 		log.Println(err)
 		return
 	}
@@ -715,8 +715,8 @@ type applyInventoryChanges struct {
 
 func ApplyInventoryChanges(action map[string]any, sessionID string) {
 	applyInventoryChanges := new(applyInventoryChanges)
-	input, _ := json.Marshal(action)
-	if err := json.Unmarshal(input, &applyInventoryChanges); err != nil {
+	input, _ := json.MarshalNoEscape(action)
+	if err := json.UnmarshalNoEscape(input, &applyInventoryChanges); err != nil {
 		log.Println(err)
 		return
 	}
@@ -839,32 +839,34 @@ type soldItems struct {
 func TradingConfirm(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	character, err := data.GetCharacterByID(sessionID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
+	}
+
+	input, err := json.MarshalNoEscape(action)
+	if err != nil {
+		log.Println(err)
+		return
 	}
 
 	switch action["type"] {
 	case "buy_from_trader":
 		buy := new(buyFrom)
-		input, _ := json.Marshal(action)
-		err := json.Unmarshal(input, &buy)
-		if err != nil {
+		if err := json.UnmarshalNoEscape(input, &buy); err != nil {
 			log.Println(err)
 			return
 		}
-
 		buyFromTrader(buy, character, event)
 	case "sell_to_trader":
 		sell := new(sellTo)
-		input, _ := json.Marshal(action)
-		err := json.Unmarshal(input, &sell)
-		if err != nil {
+		if err := json.UnmarshalNoEscape(input, &sell); err != nil {
 			log.Println(err)
 			return
 		}
-
 		sellToTrader(sell, character, event)
 	default:
 		log.Println("YO! TRADINGCONFIRM.", action["type"], "ISNT SUPPORTED YET HAHAHHAHAHAHAHAHHAHAHHHHHHHHHHHHHAHAHAHAHAHHAHA")
+		return
 	}
 }
 
@@ -899,8 +901,8 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 		return
 	}
 
-	var stackMaxSize = item.GetStackMaxSize()
-	var stackSlice = GetCorrectAmountOfItemsPurchased(tradeConfirm.Count, stackMaxSize)
+	stackMaxSize := item.GetStackMaxSize()
+	stackSlice := GetCorrectAmountOfItemsPurchased(tradeConfirm.Count, stackMaxSize)
 	// Basically gets the correct amount of items to be created, based on StackSize
 
 	// Create copy-of Character.Inventory.Items for modification in the case of any failures to assign later
@@ -910,8 +912,6 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 	copyOfMap := invCache.Stash.Container
 
 	toAdd := make([]data.InventoryItem, 0, len(stackSlice))
-	toDelete := make(map[string]int16)
-	traderRelations := character.TradersInfo[tradeConfirm.TID]
 
 	height, width := data.MeasurePurchaseForInventoryMapping(inventoryItems)
 	var copyOfInventoryItems []data.InventoryItem
@@ -955,6 +955,9 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 	if !ok {
 		log.Fatal("profile changes event does not exist")
 	}
+
+	toDelete := make(map[string]int16)
+	traderRelations := character.TradersInfo[tradeConfirm.TID]
 	for _, scheme := range tradeConfirm.SchemeItems {
 		index := invCache.GetIndexOfItemByID(scheme.ID)
 		if index == nil {
@@ -1081,39 +1084,33 @@ func sellToTrader(tradeConfirm *sellTo, character *data.Character[map[string]dat
 		return
 	}
 
-	trader, err := data.GetTraderByUID(tradeConfirm.TID)
-	if err != nil {
+	var saleCurrency string
+	if trader, err := data.GetTraderByUID(tradeConfirm.TID); err != nil {
 		log.Println(err)
 		return
+	} else {
+		saleCurrency = *data.GetCurrencyByName(trader.Base.Currency)
 	}
 
-	saleCurrency := *data.GetCurrencyByName(trader.Base.Currency)
-
-	remainingBalance := tradeConfirm.Price
-
-	item, err := data.GetItemByID(saleCurrency)
-	if err != nil {
+	var stackMaxSize int32
+	if item, err := data.GetItemByID(saleCurrency); err != nil {
 		log.Println(err)
 		return
+	} else {
+		stackMaxSize = item.GetStackMaxSize()
 	}
-	stackMaxSize := item.GetStackMaxSize()
 
 	cache, err := data.GetInventoryCacheByID(character.ID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	copyOfMap := invCache.Stash.Container
-	copyOfItems := make([]data.InventoryItem, 0, len(character.Inventory.Items))
-	copyOfItems = append(copyOfItems, character.Inventory.Items...)
 
-	toDelete := make(map[string]int16)
-	for _, item := range tradeConfirm.Items {
-		index := *cache.GetIndexOfItemByID(item.ID)
-		toDelete[item.ID] = index
-	}
+	remainingBalance := tradeConfirm.Price
 
 	toChange := make([]data.InventoryItem, 0)
+	copyOfItems := make([]data.InventoryItem, 0, len(character.Inventory.Items))
+	copyOfItems = append(copyOfItems, character.Inventory.Items...)
 	for _, item := range copyOfItems {
 		if remainingBalance == 0 {
 			break
@@ -1144,6 +1141,7 @@ func sellToTrader(tradeConfirm *sellTo, character *data.Character[map[string]dat
 
 	if remainingBalance != 0 {
 		var toAdd []data.InventoryItem
+		copyOfMap := invCache.Stash.Container
 
 		//log.Println("If a new stack isn't made, we cry")
 
@@ -1184,6 +1182,12 @@ func sellToTrader(tradeConfirm *sellTo, character *data.Character[map[string]dat
 	changes.Items.Change = append(changes.Items.Change, toChange...)
 	character.Inventory.Items = copyOfItems
 
+	toDelete := make(map[string]int16)
+	for _, item := range tradeConfirm.Items {
+		index := *cache.GetIndexOfItemByID(item.ID)
+		toDelete[item.ID] = index
+	}
+
 	if len(toDelete) != 0 {
 		indices := make([]int16, 0, len(toDelete))
 		for id, idx := range toDelete {
@@ -1215,8 +1219,8 @@ type buyCustomization struct {
 
 func CustomizationBuy(action map[string]any, sessionID string) {
 	customizationBuy := new(buyCustomization)
-	input, _ := json.Marshal(action)
-	err := json.Unmarshal(input, &customizationBuy)
+	input, _ := json.MarshalNoEscape(action)
+	err := json.UnmarshalNoEscape(input, &customizationBuy)
 	if err != nil {
 		log.Println(err)
 		return
@@ -1268,8 +1272,8 @@ const (
 
 func CustomizationWear(action map[string]any, sessionID string) {
 	customizationWear := new(wearCustomization)
-	input, _ := json.Marshal(action)
-	err := json.Unmarshal(input, &customizationWear)
+	input, _ := json.MarshalNoEscape(action)
+	err := json.UnmarshalNoEscape(input, &customizationWear)
 	if err != nil {
 		log.Println(err)
 		return
@@ -1311,14 +1315,14 @@ type hideoutUpgrade struct {
 func HideoutUpgrade(action map[string]any, sessionID string, event *data.ProfileChangesEvent) {
 	log.Println("HideoutUpgrade")
 	upgrade := new(hideoutUpgrade)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	// character:= data.GetCharacterByID(sessionID)
-	if err := json.Unmarshal(input, &upgrade); err != nil {
+	if err := json.UnmarshalNoEscape(input, &upgrade); err != nil {
 		log.Println(err)
 		return
 	}
@@ -1336,12 +1340,12 @@ type bindItem struct {
 
 func BindItem(action map[string]any, sessionID string) {
 	bind := new(bindItem)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &bind); err != nil {
+	if err := json.UnmarshalNoEscape(input, &bind); err != nil {
 		log.Println(err)
 		return
 	}
@@ -1463,12 +1467,12 @@ type hideoutUpgradeComplete struct {
 func HideoutUpgradeComplete(action map[string]any, _ string, _ *data.ProfileChangesEvent) {
 	log.Println("HideoutUpgradeComplete")
 	upgradeComplete := new(hideoutUpgradeComplete)
-	input, err := json.Marshal(action)
+	input, err := json.MarshalNoEscape(action)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err := json.Unmarshal(input, &upgradeComplete); err != nil {
+	if err := json.UnmarshalNoEscape(input, &upgradeComplete); err != nil {
 		log.Println(err)
 		return
 	}
