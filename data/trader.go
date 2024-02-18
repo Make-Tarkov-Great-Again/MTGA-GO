@@ -59,18 +59,18 @@ func CloneTrader(name string) *Trader {
 	nt := new(Trader)
 	tc, err := GetTraderByName(name)
 	if err != nil {
-		log.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
+		log.Printf("Error Cloning Trader %s: %s\n", name, err)
 		return nil
 	}
 
 	TraderJSON, err := json.Marshal(tc)
 	if err != nil {
-		log.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
+		log.Printf("Error Cloning Trader %s: %s\n", name, err)
 		return nil
 	}
 
 	if err := json.Unmarshal(TraderJSON, &nt); err != nil {
-		log.Println("Error Cloning Trader %s: %s", tc.Base.ID, err)
+		log.Printf("Error Cloning Trader %s: %s\n", tc.Base.ID, err)
 		return nil
 	}
 	return nt

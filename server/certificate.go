@@ -1,4 +1,4 @@
-// Package certificate acquires a self-signed certificate
+// Package server acquires a self-signed certificate
 package server
 
 import (
@@ -188,7 +188,8 @@ func (cg *Certificate) removeCertificate() {
 				cmd := exec.Command("certutil", "-delstore", "-user", "Root", commonName)
 				output, err := cmd.CombinedOutput()
 				if err != nil {
-					exitErr, _ := err.(*exec.ExitError)
+					var exitErr *exec.ExitError
+					_ = errors.As(err, &exitErr)
 					if exitErr.ProcessState.Exited() {
 						log.Println("User cancelled the deletion of the certificate")
 						os.Exit(0)
