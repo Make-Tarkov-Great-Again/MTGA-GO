@@ -76,7 +76,11 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	body := pkg.GetParsedBody(r).(map[string]any)["data"].([]any)
 	length := int8(len(body))
 
-	sessionID := pkg.GetSessionID(r)
+	sessionID, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	profileChangeEvent := data.GetProfileChangesEvent(sessionID)
 
 	for i := int8(0); i != length; i++ {

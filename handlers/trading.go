@@ -11,7 +11,13 @@ import (
 )
 
 func TradingCustomizationStorage(w http.ResponseWriter, r *http.Request) {
-	suitesStorage, err := pkg.GetSuitesStorage(pkg.GetSessionID(r))
+	sessionID, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	suitesStorage, err := pkg.GetSuitesStorage(sessionID)
 	if err != nil {
 		log.Println(err)
 	}

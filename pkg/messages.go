@@ -19,18 +19,23 @@ func SendQueuedMessagesToPlayer(sessionID string) error {
 
 	connection := data.GetConnection(sessionID)
 	for _, v := range storage.Mailbox {
-		connection.SendMessage(v)
+		if err := connection.SendMessage(v); err != nil {
+			return err
+		}
 	}
 	storage.Mailbox = storage.Mailbox[:0]
-	err = storage.SaveStorage(sessionID)
-	if err != nil {
+	if err := storage.SaveStorage(sessionID); err != nil {
 		return err
 	}
 	return nil
 }
 
 func GetFriendsList(r *http.Request) (*FriendsList, error) {
-	friends, err := data.GetFriendsByID(GetSessionID(r))
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return nil, err
+	}
+	friends, err := data.GetFriendsByID(sessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +48,11 @@ func GetFriendsList(r *http.Request) (*FriendsList, error) {
 }
 
 func GetDialogueList(r *http.Request) ([]*data.DialogueInfo, error) {
-	dialogues, err := data.GetDialogueByID(GetSessionID(r))
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return nil, err
+	}
+	dialogues, err := data.GetDialogueByID(sessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +67,11 @@ func GetDialogueList(r *http.Request) ([]*data.DialogueInfo, error) {
 }
 
 func GetFriendRequestInbox(r *http.Request) (*FriendRequestMailbox, error) {
-	friends, err := data.GetFriendsByID(GetSessionID(r))
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return nil, err
+	}
+	friends, err := data.GetFriendsByID(sessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +82,11 @@ func GetFriendRequestInbox(r *http.Request) (*FriendRequestMailbox, error) {
 }
 
 func GetFriendRequestOutbox(r *http.Request) (*FriendRequestMailbox, error) {
-	friends, err := data.GetFriendsByID(GetSessionID(r))
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return nil, err
+	}
+	friends, err := data.GetFriendsByID(sessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -83,8 +100,11 @@ const dialogNotExist string = "Dialogue for %s does not exist"
 
 func GetMailDialogInfo(r *http.Request) (*data.DialogueInfo, error) {
 	dialogID, _ := GetParsedBody(r).(map[string]any)["dialogId"].(string)
-
-	dialogues, err := data.GetDialogueByID(GetSessionID(r))
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return nil, err
+	}
+	dialogues, err := data.GetDialogueByID(sessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +125,10 @@ func GetMailDialogView(r *http.Request) (*data.DialogMessageView, error) {
 		return nil, err
 	}
 
-	sessionID := GetSessionID(r)
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return nil, err
+	}
 	output := new(data.DialogMessageView)
 
 	dialogues, err := data.GetDialogueByID(sessionID)
@@ -152,7 +175,10 @@ func GetMailDialogView(r *http.Request) (*data.DialogMessageView, error) {
 }
 
 func PinMailDialog(r *http.Request) error {
-	sessionID := GetSessionID(r)
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return err
+	}
 	dialogID := GetParsedBody(r).(map[string]any)["dialogId"].(string)
 
 	dialogues, err := data.GetDialogueByID(sessionID)
@@ -173,7 +199,10 @@ func PinMailDialog(r *http.Request) error {
 }
 
 func UnpinMailDialog(r *http.Request) error {
-	sessionID := GetSessionID(r)
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return err
+	}
 	dialogID := GetParsedBody(r).(map[string]any)["dialogId"].(string)
 
 	dialogues, err := data.GetDialogueByID(sessionID)
@@ -194,7 +223,10 @@ func UnpinMailDialog(r *http.Request) error {
 }
 
 func RemoveMailDialog(r *http.Request) error {
-	sessionID := GetSessionID(r)
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return err
+	}
 
 	parsedData := GetParsedBody(r)
 	dialogID, _ := parsedData.(map[string]any)["dialogId"].(string)

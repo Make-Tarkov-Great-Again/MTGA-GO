@@ -9,7 +9,14 @@ import (
 
 func LobbyPushNotifier(w http.ResponseWriter, r *http.Request) {
 	log.Println("Push notification")
-	if chi.URLParam(r, "id") != pkg.GetSessionID(r) {
+
+	sessionID, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if chi.URLParam(r, "id") != sessionID {
 		log.Fatalln("AAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 	}
 	body := pkg.ApplyResponseBody([]any{})
@@ -18,7 +25,11 @@ func LobbyPushNotifier(w http.ResponseWriter, r *http.Request) {
 
 func LobbyGetWebSocket(w http.ResponseWriter, r *http.Request) {
 	log.Println("Get Websocket for, " + r.URL.String())
-	sessionID := pkg.GetSessionID(r)
+	sessionID, err := pkg.GetSessionID(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	if chi.URLParam(r, "id") != sessionID {
 		log.Fatalln("AAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 	}

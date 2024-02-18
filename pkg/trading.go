@@ -4,7 +4,6 @@ import (
 	"MT-GO/data"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"log"
 	"net/http"
 	"sort"
 )
@@ -73,14 +72,21 @@ func GetTraderSuits(id string) ([]data.TraderSuits, error) {
 }
 
 func GetTraderAssort(r *http.Request) (*data.Assort, error) {
-	character, err := data.GetCharacterByID(GetSessionID(r))
-	if err != nil {
-		log.Fatalln(err)
-	}
 	trader, err := data.GetTraderByUID(chi.URLParam(r, "id"))
 	if err != nil {
 		return nil, err
 	}
+
+	sessionID, err := GetSessionID(r)
+	if err != nil {
+		return nil, err
+	}
+
+	character, err := data.GetCharacterByID(sessionID)
+	if err != nil {
+		return nil, err
+	}
+
 	assort, err := trader.GetStrippedAssort(character)
 	if err != nil {
 		return nil, err
