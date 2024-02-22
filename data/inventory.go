@@ -67,18 +67,31 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 
 	input := make([]InventoryItem, 0, len(assortItems))
 	for _, assortItem := range assortItems {
-		data, err := json.Marshal(assortItem)
+		data, err := json.MarshalNoEscape(assortItem)
 		if err != nil {
 			log.Println("Failed to marshal Assort Item, returning empty output")
 			return input
 		}
 
 		inventoryItem := new(InventoryItem)
-		err = json.UnmarshalNoEscape(data, inventoryItem)
-		if err != nil {
+		if err := json.UnmarshalNoEscape(data, inventoryItem); err != nil {
 			log.Println("Failed to unmarshal Assort Item to Inventory Item, returning empty output")
 			return input
 		}
+
+		item, err := GetItemByID(inventoryItem.TPL)
+		if err != nil {
+			log.Println(err)
+			return input
+		}
+
+		upd, err := item.CreateItemUPD()
+		if err != nil {
+			log.Println(err)
+			return input
+		}
+
+		inventoryItem.UPD = upd
 
 		newID := tools.GenerateMongoID()
 		convertedIDs[inventoryItem.ID] = newID
@@ -87,9 +100,11 @@ func ConvertAssortItemsToInventoryItem(assortItems []*AssortItem, stashID *strin
 		if inventoryItem.SlotID == "hideout" && inventoryItem.ParentID == "hideout" {
 			inventoryItem.ParentID = *stashID
 
-			inventoryItem.UPD.BuyRestrictionMax = 0
-			inventoryItem.UPD.StackObjectsCount = 0
-			inventoryItem.UPD.UnlimitedCount = false
+			if inventoryItem.UPD != nil {
+				inventoryItem.UPD.BuyRestrictionMax = 0
+				inventoryItem.UPD.StackObjectsCount = 0
+				inventoryItem.UPD.UnlimitedCount = false
+			}
 
 			parent = *inventoryItem
 			continue
@@ -121,6 +136,7 @@ func AssignNewIDs(inventoryItems []InventoryItem) []InventoryItem {
 	for _, inventoryItem := range inventoryItems {
 		newID := tools.GenerateMongoID()
 		convertedIDs[inventoryItem.ID] = newID
+		inventoryItem.Clone()
 		inventoryItem.ID = newID
 
 		input = append(input, inventoryItem)

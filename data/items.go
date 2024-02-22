@@ -353,7 +353,8 @@ func (i *DatabaseItem) CreateItemUPD() (*ItemUpdate, error) {
 			return itemUpd, nil
 		}
 	default:
-		return nil, fmt.Errorf(i.Parent, "does not require a UPD")
+		log.Println(i.Parent, "does not require a UPD")
+		return nil, nil
 	}
 }
 

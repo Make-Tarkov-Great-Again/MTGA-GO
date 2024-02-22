@@ -591,7 +591,6 @@ func SplitItem(action map[string]any, sessionID string, event *data.ProfileChang
 		return
 	}
 
-	//TODO: Splitting is being retarded
 	character, err := data.GetCharacterByID(sessionID)
 	if err != nil {
 		log.Fatalln(err)
@@ -605,13 +604,10 @@ func SplitItem(action map[string]any, sessionID string, event *data.ProfileChang
 	originalItem := &character.Inventory.Items[*invCache.GetIndexOfItemByID(split.SplitItem)]
 	originalItem.UPD.StackObjectsCount -= split.Count
 
-	newItem := &data.InventoryItem{
-		ID:       split.NewItem,
-		TPL:      originalItem.TPL,
-		UPD:      originalItem.UPD,
-		ParentID: split.Container.ID,
-		SlotID:   split.Container.Container,
-	}
+	newItem := originalItem.Clone()
+	newItem.ID = split.NewItem
+	newItem.ParentID = split.Container.ID
+	newItem.SlotID = split.Container.Container
 
 	newItem.UPD.StackObjectsCount = split.Count
 
@@ -656,8 +652,8 @@ func SplitItem(action map[string]any, sessionID string, event *data.ProfileChang
 	invCache.SetSingleInventoryIndex(newItem.ID, int16(len(character.Inventory.Items)-1))
 
 	if changes, ok := event.ProfileChanges.Get(character.ID); ok {
-		changes.Items.Change = append(changes.Items.Change, *originalItem)
-		changes.Items.Del = append(changes.Items.Del, data.InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
+		//changes.Items.Change = append(changes.Items.Change, *originalItem)
+		changes.Items.New = append(changes.Items.New, data.InventoryItem{ID: newItem.ID, TPL: newItem.TPL, UPD: newItem.UPD})
 		event.ProfileChanges.Set(character.ID, changes)
 	}
 }
@@ -915,15 +911,12 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 
 	height, width := data.MeasurePurchaseForInventoryMapping(inventoryItems)
 	var copyOfInventoryItems []data.InventoryItem
-	if len(stackSlice) >= 1 {
-		copyOfInventoryItems = data.AssignNewIDs(inventoryItems)
-	} else {
-		copyOfInventoryItems = inventoryItems
-	}
 
 	for _, stack := range stackSlice {
+		copyOfInventoryItems = data.AssignNewIDs(inventoryItems)
+
 		index := len(copyOfInventoryItems) - 1
-		mainItem := copyOfInventoryItems[index].Clone()
+		mainItem := copyOfInventoryItems[index]
 
 		validLocation := invCache.GetValidLocationForItem(height, width)
 		if validLocation == nil {
@@ -943,11 +936,11 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 			Y:          float64(validLocation.Y),
 		}
 
-		itemFlatMap := invCache.CreateFlatMapLookup(height, width, mainItem)
+		itemFlatMap := invCache.CreateFlatMapLookup(height, width, &mainItem)
 		itemFlatMap.Coordinates = validLocation.MapInfo
 		invCache.AddItemToContainer(mainItem.ID, itemFlatMap)
 
-		copyOfInventoryItems[index] = *mainItem
+		copyOfInventoryItems[index] = mainItem
 		toAdd = append(toAdd, copyOfInventoryItems...)
 	}
 	copyOfInventoryItems = nil
@@ -1047,15 +1040,6 @@ func buyFromTrader(tradeConfirm *buyFrom, character *data.Character[map[string]d
 
 	copyOfItems = append(copyOfItems, toAdd...)
 	changes.Items.New = append(changes.Items.New, toAdd...)
-	/*	for i := len(inventoryItems) - 1; i < len(toAdd); i += len(inventoryItems) {
-		if toAdd[i].Location == nil && toAdd[i].SlotID != "hideout" {
-			continue
-		}
-		event.ProfileChanges[character.ID].Items.New = append(event.ProfileChanges[character.ID].Items.New, toAdd[i])
-
-	}*/
-
-	//Assign copy-of Character.Inventory.Items to original Character.Inventory.Items
 	character.Inventory.Items = copyOfItems
 
 	if len(toDelete) != 0 {

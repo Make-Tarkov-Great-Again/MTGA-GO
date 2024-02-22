@@ -189,6 +189,33 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 
 	hideout.Improvement = make(map[string]any)
 
+	convertedInventoryIDs := map[string]string{
+		pmc.Inventory.Equipment:       tools.GenerateMongoID(),
+		pmc.Inventory.Stash:           tools.GenerateMongoID(),
+		pmc.Inventory.SortingTable:    tools.GenerateMongoID(),
+		pmc.Inventory.QuestStashItems: tools.GenerateMongoID(),
+		pmc.Inventory.QuestRaidItems:  tools.GenerateMongoID(),
+	}
+	pmc.Inventory.Equipment = convertedInventoryIDs[pmc.Inventory.Equipment]
+	pmc.Inventory.Stash = convertedInventoryIDs[pmc.Inventory.Stash]
+	pmc.Inventory.SortingTable = convertedInventoryIDs[pmc.Inventory.SortingTable]
+	pmc.Inventory.QuestStashItems = convertedInventoryIDs[pmc.Inventory.QuestStashItems]
+	pmc.Inventory.QuestRaidItems = convertedInventoryIDs[pmc.Inventory.QuestRaidItems]
+
+	for idx, item := range pmc.Inventory.Items {
+		if _, ok := convertedInventoryIDs[item.ID]; ok {
+			pmc.Inventory.Items[idx].ID = convertedInventoryIDs[item.ID]
+			continue
+		}
+
+		if _, ok := convertedInventoryIDs[item.ParentID]; ok {
+			pmc.Inventory.Items[idx].ParentID = convertedInventoryIDs[item.ParentID]
+			continue
+		}
+	}
+	//The above only processes main containers
+	//TODO: Process Inventory so that ID's are unique
+
 	profile.Character = &pmc
 
 	data.SetProfileCache(sessionId)

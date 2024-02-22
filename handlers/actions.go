@@ -83,10 +83,10 @@ func MainItemsMoving(w http.ResponseWriter, r *http.Request) {
 	}
 	profileChangeEvent := data.GetProfileChangesEvent(sessionID)
 
-	for i := int8(0); i != length; i++ {
-		moveAction := body[i].(map[string]any)
+	for i, action := range body {
+		moveAction := action.(map[string]any)
 		action := moveAction["Action"].(string)
-		log.Printf(actionLog, i, length-1, action)
+		log.Printf(actionLog, i+1, length, action)
 
 		if handler, ok := actionHandlers[action]; ok {
 			handler(moveAction, sessionID, profileChangeEvent)
