@@ -189,31 +189,52 @@ func CreateProfile(sessionId string, side string, nickname string, voiceId strin
 
 	hideout.Improvement = make(map[string]any)
 
-	convertedInventoryIDs := map[string]string{
+	mainInventoryIDs := map[string]string{
 		pmc.Inventory.Equipment:       tools.GenerateMongoID(),
 		pmc.Inventory.Stash:           tools.GenerateMongoID(),
 		pmc.Inventory.SortingTable:    tools.GenerateMongoID(),
 		pmc.Inventory.QuestStashItems: tools.GenerateMongoID(),
 		pmc.Inventory.QuestRaidItems:  tools.GenerateMongoID(),
 	}
-	pmc.Inventory.Equipment = convertedInventoryIDs[pmc.Inventory.Equipment]
-	pmc.Inventory.Stash = convertedInventoryIDs[pmc.Inventory.Stash]
-	pmc.Inventory.SortingTable = convertedInventoryIDs[pmc.Inventory.SortingTable]
-	pmc.Inventory.QuestStashItems = convertedInventoryIDs[pmc.Inventory.QuestStashItems]
-	pmc.Inventory.QuestRaidItems = convertedInventoryIDs[pmc.Inventory.QuestRaidItems]
+
+	convertedInventoryIDs := make(map[string]string)
 
 	for idx, item := range pmc.Inventory.Items {
-		if _, ok := convertedInventoryIDs[item.ID]; ok {
-			pmc.Inventory.Items[idx].ID = convertedInventoryIDs[item.ID]
+		if CID, ok := mainInventoryIDs[item.ID]; ok {
+			pmc.Inventory.Items[idx].ID = CID
 			continue
 		}
 
-		if _, ok := convertedInventoryIDs[item.ParentID]; ok {
-			pmc.Inventory.Items[idx].ParentID = convertedInventoryIDs[item.ParentID]
+		if CID, ok := mainInventoryIDs[item.ParentID]; ok {
+			pmc.Inventory.Items[idx].ParentID = CID
+		}
+
+		newID := tools.GenerateMongoID()
+		if _, ok := convertedInventoryIDs[item.ID]; ok {
+			pmc.Inventory.Items[idx].ID = newID
+		} else {
+			convertedInventoryIDs[item.ID] = newID
+			pmc.Inventory.Items[idx].ID = newID
+		}
+	}
+
+	for idx, item := range pmc.Inventory.Items {
+		if CID, ok := mainInventoryIDs[item.ParentID]; ok {
+			pmc.Inventory.Items[idx].ParentID = CID
+			continue
+		}
+
+		if CID, ok := convertedInventoryIDs[item.ParentID]; ok {
+			pmc.Inventory.Items[idx].ParentID = CID
 			continue
 		}
 	}
 	//The above only processes main containers
+	pmc.Inventory.Equipment = mainInventoryIDs[pmc.Inventory.Equipment]
+	pmc.Inventory.Stash = mainInventoryIDs[pmc.Inventory.Stash]
+	pmc.Inventory.SortingTable = mainInventoryIDs[pmc.Inventory.SortingTable]
+	pmc.Inventory.QuestStashItems = mainInventoryIDs[pmc.Inventory.QuestStashItems]
+	pmc.Inventory.QuestRaidItems = mainInventoryIDs[pmc.Inventory.QuestRaidItems]
 	//TODO: Process Inventory so that ID's are unique
 
 	profile.Character = &pmc
