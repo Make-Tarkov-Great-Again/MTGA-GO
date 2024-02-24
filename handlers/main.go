@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"MT-GO/data"
+	"MT-GO/pkg"
+	"MT-GO/tools"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	probing "github.com/prometheus-community/pro-bing"
@@ -9,10 +11,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
-
-	"MT-GO/pkg"
-	"MT-GO/tools"
 
 	"github.com/goccy/go-json"
 )
@@ -84,7 +82,7 @@ func MainGameConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func MainItems(w http.ResponseWriter, r *http.Request) {
-	startTime := time.Now()
+	//startTime := time.Now()
 	route := r.RequestURI
 	if !data.CheckRequestedResponseCache(route) {
 		cache, err := pkg.CreateCachedResponse(data.GetItems())
@@ -97,9 +95,9 @@ func MainItems(w http.ResponseWriter, r *http.Request) {
 
 	input := data.GetRequestedResponseCache(route)
 	pkg.SendJSONReply(w, input)
-	endTime := time.Now()
-	elapsedTime := endTime.Sub(startTime)
-	fmt.Printf("Response Time: %v\n", elapsedTime)
+	//endTime := time.Now()
+	//elapsedTime := endTime.Sub(startTime)
+	//fmt.Printf("Response Time: %v\n", elapsedTime)
 }
 
 func MainCustomization(w http.ResponseWriter, r *http.Request) {
@@ -207,11 +205,11 @@ type nicknameValidate struct {
 
 func MainNicknameValidate(w http.ResponseWriter, r *http.Request) {
 	validate := new(nicknameValidate)
-	input, err := json.Marshal(pkg.GetParsedBody(r))
+	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
-	if err := json.Unmarshal(input, validate); err != nil {
+	if err := json.UnmarshalNoEscape(input, validate); err != nil {
 		log.Println(err)
 	}
 
@@ -225,11 +223,11 @@ type profileCreate struct {
 
 func MainProfileCreate(w http.ResponseWriter, r *http.Request) {
 	request := new(ProfileCreateRequest)
-	input, err := json.Marshal(pkg.GetParsedBody(r))
+	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
-	if err := json.Unmarshal(input, request); err != nil {
+	if err := json.UnmarshalNoEscape(input, request); err != nil {
 		log.Println(err)
 	}
 
@@ -541,7 +539,7 @@ func MainPrices(w http.ResponseWriter, _ *http.Request) {
 }
 
 func ExitFromMenu(w http.ResponseWriter, _ *http.Request) {
-	body := pkg.ApplyResponseBody(map[string]any{})
+	body := pkg.ApplyResponseBody(map[string]struct{}{})
 	pkg.SendZlibJSONReply(w, body)
 }
 
@@ -551,14 +549,18 @@ type localLoot struct {
 }
 
 func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
-	loot := new(localLoot)
 	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	loot := new(localLoot)
 	if err := json.UnmarshalNoEscape(input, loot); err != nil {
 		log.Fatalln(err)
+	}
+
+	if sessionID, err := pkg.GetSessionID(r); err == nil {
+		data.SetPlayerMap(sessionID, loot.LocationID)
 	}
 
 	id, err := data.GetLocationIdByName(loot.LocationID)
@@ -566,14 +568,14 @@ func GetLocalLoot(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	output, err := data.GetLocalLootByNameAndIndex(id, loot.VariantID)
-	if err != nil {
-		log.Fatal(err)
-	}
+	//output, err := data.GetLocalLootByNameAndIndex(id, loot.VariantID)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 
 	base := data.GetLocationById(id)
 	base.UnixDateTime = int32(tools.GetCurrentTimeInSeconds())
-	base.Loot = output
+	base.Loot = make([]data.LootSpawn, 0)
 
 	body := pkg.ApplyResponseBody(base)
 	pkg.SendZlibJSONReply(w, body)
@@ -591,11 +593,11 @@ type insuranceList struct {
 
 func InsuranceListCost(w http.ResponseWriter, r *http.Request) {
 	insurances := new(insuranceList)
-	input, err := json.Marshal(pkg.GetParsedBody(r))
+	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = json.Unmarshal(input, insurances)
+	err = json.UnmarshalNoEscape(input, insurances)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -623,7 +625,7 @@ func InsuranceItemsCost(w http.ResponseWriter, r *http.Request) {
 }
 
 func InviteCancelAll(w http.ResponseWriter, _ *http.Request) {
-	body := pkg.ApplyResponseBody(map[string]any{})
+	body := pkg.ApplyResponseBody(map[string]struct{}{})
 	pkg.SendZlibJSONReply(w, body)
 }
 
@@ -633,12 +635,12 @@ func MatchAvailable(w http.ResponseWriter, _ *http.Request) {
 }
 
 func RaidNotReady(w http.ResponseWriter, _ *http.Request) {
-	body := pkg.ApplyResponseBody(map[string]any{})
+	body := pkg.ApplyResponseBody(map[string]struct{}{})
 	pkg.SendZlibJSONReply(w, body)
 }
 
 func RaidReady(w http.ResponseWriter, _ *http.Request) {
-	body := pkg.ApplyResponseBody(map[string]any{})
+	body := pkg.ApplyResponseBody(map[string]struct{}{})
 	pkg.SendZlibJSONReply(w, body)
 }
 
@@ -669,27 +671,28 @@ func LookingForGroupStop(w http.ResponseWriter, _ *http.Request) {
 	pkg.SendZlibJSONReply(w, body)
 }
 
-type botDifficulties struct {
-	Easy       map[string]any `json:"easy"`
-	Normal     map[string]any `json:"normal"`
-	Hard       map[string]any `json:"hard"`
-	Impossible map[string]any `json:"impossible"`
-}
-
-func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
-	parsedBody := pkg.GetParsedBody(r)
-	botName := strings.ToLower(parsedBody.(map[string]any)["name"].(string))
-
-	difficulties := new(botDifficulties)
-	if bot, _ := data.GetBotByName(botName); bot != nil {
-		difficulties.Easy = bot.Difficulties["easy"]
-		difficulties.Normal = bot.Difficulties["normal"]
-		difficulties.Hard = bot.Difficulties["hard"]
-		difficulties.Impossible = bot.Difficulties["impossible"]
-	}
-
-	pkg.SendZlibJSONReply(w, difficulties)
-}
+//TODO: Remove
+//type botDifficulties struct {
+//	Easy       map[string]any `json:"easy"`
+//	Normal     map[string]any `json:"normal"`
+//	Hard       map[string]any `json:"hard"`
+//	Impossible map[string]any `json:"impossible"`
+//}
+//
+//func GetBotDifficulty(w http.ResponseWriter, r *http.Request) {
+//	parsedBody := pkg.GetParsedBody(r)
+//	botName := strings.ToLower(parsedBody.(map[string]any)["name"].(string))
+//
+//	difficulties := new(botDifficulties)
+//	if bot, _ := data.GetBotByName(botName); bot != nil {
+//		difficulties.Easy = bot.Difficulties["easy"]
+//		difficulties.Normal = bot.Difficulties["normal"]
+//		difficulties.Hard = bot.Difficulties["hard"]
+//		difficulties.Impossible = bot.Difficulties["impossible"]
+//	}
+//
+//	pkg.SendZlibJSONReply(w, difficulties)
+//}
 
 type botConditions struct {
 	Conditions []botCondition `json:"conditions"`
@@ -701,14 +704,14 @@ type botCondition struct {
 }
 
 func BotGenerate(w http.ResponseWriter, r *http.Request) {
-	conditions := new(botConditions)
-	input, err := json.Marshal(pkg.GetParsedBody(r))
-	if err != nil {
-		log.Println(err)
-	}
-	if err = json.Unmarshal(input, conditions); err != nil {
-		log.Println(err)
-	}
+	//conditions := new(botConditions)
+	//input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
+	//if err != nil {
+	//	log.Println(err)
+	//}
+	//if err = json.UnmarshalNoEscape(input, conditions); err != nil {
+	//	log.Println(err)
+	//}
 
 	//TODO: Send bots lol
 	//bot := data.GetSacrificialBot()
@@ -738,11 +741,11 @@ type offlineMatchEnd struct {
 
 func OfflineMatchEnd(w http.ResponseWriter, r *http.Request) {
 	matchEnd := new(offlineMatchEnd)
-	input, err := json.Marshal(pkg.GetParsedBody(r))
+	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
-	if err := json.Unmarshal(input, matchEnd); err != nil {
+	if err := json.UnmarshalNoEscape(input, matchEnd); err != nil {
 		log.Println(err)
 	}
 
@@ -776,11 +779,11 @@ type healthPart struct {
 
 func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	save := new(raidProfileSave)
-	input, err := json.Marshal(pkg.GetParsedBody(r))
+	input, err := json.MarshalNoEscape(pkg.GetParsedBody(r))
 	if err != nil {
 		log.Println(err)
 	}
-	if err := json.Unmarshal(input, &save); err != nil {
+	if err := json.UnmarshalNoEscape(input, &save); err != nil {
 		log.Println(err)
 	}
 
@@ -793,11 +796,6 @@ func RaidProfileSave(w http.ResponseWriter, r *http.Request) {
 	log.Println("Raid Profile Save not implemented yet!")
 	body := pkg.ApplyResponseBody(nil)
 	pkg.SendZlibJSONReply(w, body)
-}
-
-func AirdropConfig(w http.ResponseWriter, _ *http.Request) {
-	airdropParams := data.GetAirdropParameters()
-	pkg.SendZlibJSONReply(w, airdropParams)
 }
 
 func GetAchievements(w http.ResponseWriter, _ *http.Request) {

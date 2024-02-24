@@ -71,7 +71,8 @@ func SetPrimaryDatabase() {
 				channels: haxmap.New[string, Channel](),
 			},
 			server: &ServerData{
-				websocket: haxmap.New[string, *Connect](),
+				websocket:     haxmap.New[string, *Connect](),
+				playerRaidMap: haxmap.New[string, string](),
 			},
 			nicknames: haxmap.New[string, struct{}](),
 			profileChanges: &ProfileChangesEvent{

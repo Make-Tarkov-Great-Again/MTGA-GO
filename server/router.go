@@ -10,9 +10,8 @@ import (
 )
 
 var mainRouteHandlers = map[string]http.HandlerFunc{
-	"/sp/config/bots/difficulty":  handlers.GetBotDifficulty,
+	//"/sp/config/bots/difficulty":  handlers.GetBotDifficulty,
 	"/raid/profile/save":          handlers.RaidProfileSave,
-	"/sp/airdrop/config":          handlers.AirdropConfig,
 	"/files/{main}/{type}/{file}": pkg.ServeFiles,
 
 	"/client/game/start":                          handlers.MainGameStart,

@@ -681,10 +681,21 @@ type ProfileChanges struct {
 }
 
 type ServerData struct {
-	websocket *haxmap.Map[string, *Connect]
-	core      *serverData
-	servers   []ServerListing
+	websocket     *haxmap.Map[string, *Connect]
+	core          *serverData
+	servers       []ServerListing
+	playerRaidMap *haxmap.Map[string, string]
 }
+
+func GetPlayerMap(session string) string {
+	raidMap, _ := db.cache.server.playerRaidMap.Get(session)
+	return raidMap
+}
+
+func SetPlayerMap(session string, raidMap string) {
+	db.cache.server.playerRaidMap.Set(session, raidMap)
+}
+
 type BrandName map[string]string
 
 func GetBrandName() *BrandName {
