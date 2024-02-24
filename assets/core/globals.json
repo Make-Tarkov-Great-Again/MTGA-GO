@@ -21939,6 +21939,7 @@
         "BaseCheckTime": 3,
         "BaseLoadTime": 0.85,
         "BaseUnloadTime": 0.3,
+        "BluntDamageReduceFromSoftArmorMod": 0.6,
         "BotsEnabled": true,
         "BufferZone": {
             "CustomerAccessTime": 600,
@@ -23176,7 +23177,7 @@
                     "ScavEquipmentSpawnChanceModifier": 17
                 }
             },
-            "paidExitStandingNumerator": 0.4
+            "paidExitStandingNumerator": 0.2
         },
         "FractureCausedByBulletHit": {
             "B": 0.05,
@@ -25370,42 +25371,49 @@
                 "BodyPartsSettings": {
                     "Chest": {
                         "Default": 85,
+                        "EnvironmentDamageMultiplier": 0.25,
                         "Maximum": 85,
                         "Minimum": 0,
                         "OverDamageReceivedMultiplier": 0.7
                     },
                     "Head": {
                         "Default": 35,
+                        "EnvironmentDamageMultiplier": 0.125,
                         "Maximum": 35,
                         "Minimum": 0,
                         "OverDamageReceivedMultiplier": 0.7
                     },
                     "LeftArm": {
                         "Default": 60,
+                        "EnvironmentDamageMultiplier": 0.5,
                         "Maximum": 60,
                         "Minimum": 0,
                         "OverDamageReceivedMultiplier": 0.7
                     },
                     "LeftLeg": {
                         "Default": 65,
+                        "EnvironmentDamageMultiplier": 0.5,
                         "Maximum": 65,
                         "Minimum": 0,
                         "OverDamageReceivedMultiplier": 0.7
                     },
                     "RightArm": {
                         "Default": 60,
+                        "EnvironmentDamageMultiplier": 0.5,
                         "Maximum": 60,
                         "Minimum": 0,
                         "OverDamageReceivedMultiplier": 0.7
                     },
                     "RightLeg": {
                         "Default": 65,
+                        "EnvironmentDamageMultiplier": 0.5,
                         "Maximum": 65,
                         "Minimum": 0,
                         "OverDamageReceivedMultiplier": 0.7
                     },
                     "Stomach": {
                         "Default": 70,
+                        "EnvironmentDamageMultiplier": 0.17,
                         "Maximum": 70,
                         "Minimum": 0,
                         "OverDamageReceivedMultiplier": 0.7

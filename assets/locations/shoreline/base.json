@@ -42,24 +42,6 @@
     ],
     "BossLocationSpawn": [
         {
-            "BossChance": 25,
-            "BossDifficult": "normal",
-            "BossEscortAmount": "0",
-            "BossEscortDifficult": "normal",
-            "BossEscortType": "pmcBot",
-            "BossName": "gifter",
-            "BossPlayer": false,
-            "BossZone": "ZoneSanatorium1,ZonePort,ZonePowerStation",
-            "Delay": 0,
-            "ForceSpawn": false,
-            "IgnoreMaxBots": false,
-            "RandomTimeSpawn": false,
-            "Supports": [],
-            "Time": -1,
-            "TriggerId": "",
-            "TriggerName": ""
-        },
-        {
             "BossChance": 5,
             "BossDifficult": "normal",
             "BossEscortAmount": "2",

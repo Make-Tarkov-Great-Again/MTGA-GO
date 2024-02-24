@@ -42,7 +42,7 @@
     ],
     "BossLocationSpawn": [
         {
-            "BossChance": 11,
+            "BossChance": 20,
             "BossDifficult": "normal",
             "BossEscortAmount": "2",
             "BossEscortDifficult": "normal",
@@ -82,7 +82,7 @@
             "TriggerName": ""
         },
         {
-            "BossChance": 11,
+            "BossChance": 20,
             "BossDifficult": "normal",
             "BossEscortAmount": "6",
             "BossEscortDifficult": "normal",
@@ -177,7 +177,7 @@
     },
     "GenerateLocalLootCache": true,
     "GlobalContainerChanceModifier": 1,
-    "GlobalLootChanceModifier": 0.35,
+    "GlobalLootChanceModifier": 0.27,
     "IconX": 670,
     "IconY": 620,
     "Id": "TarkovStreets",
