@@ -871,42 +871,49 @@ type configHealth struct {
 				Default                      int     `json:"Default"`
 				Maximum                      int     `json:"Maximum"`
 				Minimum                      int     `json:"Minimum"`
+				EnvironmentDamageMultiplier  float64 `json:"EnvironmentDamageMultiplier"`
 				OverDamageReceivedMultiplier float64 `json:"OverDamageReceivedMultiplier"`
 			} `json:"Chest"`
 			Head struct {
 				Default                      int     `json:"Default"`
 				Maximum                      int     `json:"Maximum"`
 				Minimum                      int     `json:"Minimum"`
+				EnvironmentDamageMultiplier  float64 `json:"EnvironmentDamageMultiplier"`
 				OverDamageReceivedMultiplier float64 `json:"OverDamageReceivedMultiplier"`
 			} `json:"Head"`
 			LeftArm struct {
 				Default                      int     `json:"Default"`
 				Maximum                      int     `json:"Maximum"`
 				Minimum                      int     `json:"Minimum"`
+				EnvironmentDamageMultiplier  float64 `json:"EnvironmentDamageMultiplier"`
 				OverDamageReceivedMultiplier float64 `json:"OverDamageReceivedMultiplier"`
 			} `json:"LeftArm"`
 			LeftLeg struct {
 				Default                      int     `json:"Default"`
 				Maximum                      int     `json:"Maximum"`
 				Minimum                      int     `json:"Minimum"`
+				EnvironmentDamageMultiplier  float64 `json:"EnvironmentDamageMultiplier"`
 				OverDamageReceivedMultiplier float64 `json:"OverDamageReceivedMultiplier"`
 			} `json:"LeftLeg"`
 			RightArm struct {
 				Default                      int     `json:"Default"`
 				Maximum                      int     `json:"Maximum"`
 				Minimum                      int     `json:"Minimum"`
+				EnvironmentDamageMultiplier  float64 `json:"EnvironmentDamageMultiplier"`
 				OverDamageReceivedMultiplier float64 `json:"OverDamageReceivedMultiplier"`
 			} `json:"RightArm"`
 			RightLeg struct {
 				Default                      int     `json:"Default"`
 				Maximum                      int     `json:"Maximum"`
 				Minimum                      int     `json:"Minimum"`
+				EnvironmentDamageMultiplier  float64 `json:"EnvironmentDamageMultiplier"`
 				OverDamageReceivedMultiplier float64 `json:"OverDamageReceivedMultiplier"`
 			} `json:"RightLeg"`
 			Stomach struct {
 				Default                      int     `json:"Default"`
 				Maximum                      int     `json:"Maximum"`
 				Minimum                      int     `json:"Minimum"`
+				EnvironmentDamageMultiplier  float64 `json:"EnvironmentDamageMultiplier"`
 				OverDamageReceivedMultiplier float64 `json:"OverDamageReceivedMultiplier"`
 			} `json:"Stomach"`
 		} `json:"BodyPartsSettings"`
@@ -1724,6 +1731,7 @@ type Config struct {
 	BaseCheckTime                      int                             `json:"BaseCheckTime"`
 	BaseLoadTime                       float64                         `json:"BaseLoadTime"`
 	BaseUnloadTime                     float64                         `json:"BaseUnloadTime"`
+	BluntDamageReducedFromSoftArmorMod float64                         `json:"BluntDamageReduceFromSoftArmorMod"`
 	BotsEnabled                        bool                            `json:"BotsEnabled"`
 	BufferZone                         configBufferZone                `json:"BufferZone"`
 	CoopSettings                       configCoopSettings              `json:"CoopSettings"`

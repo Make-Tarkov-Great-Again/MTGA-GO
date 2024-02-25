@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"MT-GO/tools"
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"io"
@@ -8,9 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
-
-	"MT-GO/tools"
 )
 
 type ResponseBody struct {
@@ -61,8 +59,8 @@ func ApplyResponseBody(data any) *ResponseBody {
 }
 
 var mime = map[string]string{
-	".jpg": "image/jpeg",
 	".png": "image/png",
+	".jpg": "image/jpeg",
 }
 
 var downloadLocal bool
@@ -72,83 +70,92 @@ func SetDownloadLocal(result bool) {
 }
 
 func ServeFiles(w http.ResponseWriter, r *http.Request) {
-	imagePath := filepath.Join(imagesPath, chi.URLParam(r, "main"), chi.URLParam(r, "type"), strings.TrimSuffix(chi.URLParam(r, "file"), ".jpg"))
-
-	for ext, mimeType := range mime {
-		path := imagePath + ext
-		if !tools.FileExist(path) {
-			continue
-		}
-
-		log.Println("Image exists in", path, ", serving...")
-		ServeFileLocal(w, path, mimeType)
+	if err := os.MkdirAll(imagesPath, os.ModePerm); err != nil {
+		log.Println(err)
 		return
 	}
 
-	if tools.CheckInternet() {
-		client := &http.Client{}
-		prodURL := prod + strings.TrimSuffix(r.RequestURI, ".jpg")
+	main := chi.URLParam(r, "main")
+	typeOf := chi.URLParam(r, "type")
+	fileName := chi.URLParam(r, "file")
 
+	dir := filepath.Join(imagesPath, main, typeOf)
+
+	imagePath := filepath.Join(dir, fileName)
+	if files, _ := tools.GetFilesFrom(dir); files != nil {
 		for ext, mimeType := range mime {
-			path := prodURL + ext
-
-			req, err := http.NewRequest("GET", path, nil)
-			if err != nil {
-				log.Fatalln(err)
-			}
-
-			req.Header.Set("User-Agent", "ballsack")
-			response, err := client.Do(req)
-			if err != nil {
-				log.Fatalln(err)
-			}
-			defer func(Body io.ReadCloser) {
-				err := Body.Close()
-				if err != nil {
-					log.Fatalln(err)
-				}
-			}(response.Body)
-
-			if response.StatusCode != http.StatusOK {
-				err := response.Body.Close()
-				if err != nil {
-					log.Panicln(err)
-				}
+			path := filepath.Join(imagePath, ext)
+			if _, ok := files[path]; !ok {
 				continue
 			}
 
-			if downloadLocal {
-				imagePath += ext
-				dir := filepath.Dir(imagePath)
-				err = os.MkdirAll(dir, os.ModePerm)
-				if err != nil {
-					log.Fatalln(err)
-				}
-
-				file, err := os.Create(imagePath)
-				if err != nil {
-					log.Fatalln(err)
-				}
-				defer func(file *os.File) {
-					err := file.Close()
-					if err != nil {
-						log.Fatalln(err)
-					}
-				}(file)
-
-				_, err = io.Copy(file, response.Body)
-				if err != nil {
-					log.Fatalln(err)
-				}
-
-				log.Println("Successfully downloaded to", imagePath)
-				ServeFileLocal(w, imagePath, mimeType)
-			} else {
-				ServeFileURL(w, response.Body, mimeType)
-			}
+			log.Println("Image exists in", path, ", serving...")
+			ServeFileLocal(w, path, mimeType)
 			return
 		}
 	}
+
+	if !tools.CheckInternet() {
+		log.Println("Image does not exist in local directory, and we cannot fetch from servers so... here's a blank image!!!!")
+		return
+	}
+
+	//client := &http.Client{}
+	uri := r.RequestURI
+	prodURL := prod + uri[:len(uri)-4]
+
+	for ext, mimeType := range mime {
+		path := prodURL + ext
+
+		//req, err := http.Get(path)
+		//if err != nil {
+		//	log.Println(err)
+		//	continue
+		//}
+
+		//req.Header.Set("User-Agent", "ballsack")
+		response, err := http.Get(path)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		defer response.Body.Close()
+
+		if response.StatusCode != http.StatusOK {
+			if err := response.Body.Close(); err != nil {
+				log.Panicln(err)
+			}
+			continue
+		}
+
+		if !downloadLocal {
+			ServeFileURL(w, response.Body, mimeType)
+			return
+		}
+
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			log.Println(err)
+			continue
+		}
+
+		imagePath += ext
+		file, err := os.Create(imagePath)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		defer file.Close()
+
+		if _, err = io.Copy(file, response.Body); err != nil {
+			log.Println(err)
+			continue
+		}
+
+		log.Println("Successfully downloaded to", imagePath)
+		ServeFileLocal(w, imagePath, mimeType)
+		return
+	}
+
 }
 
 func ServeFileURL(w http.ResponseWriter, body io.ReadCloser, mime string) {

@@ -501,12 +501,12 @@ var version = &Version{
 }
 
 func MainCheckVersion(w http.ResponseWriter, r *http.Request) {
-	responseCache := data.GetCachedResponses()
+	//responseCache := data.GetCachedResponses()
 	check := strings.TrimPrefix(r.Header.Get("App-Version"), "EFT Client ")
-	if responseCache.Version != check {
-		responseCache.Version = check
-		responseCache.Save = true
-	}
+	//if responseCache.Version != check {
+	//	responseCache.Version = check
+	//	responseCache.Save = true
+	//}
 
 	version.LatestVersion = check
 	body := pkg.ApplyResponseBody(version)

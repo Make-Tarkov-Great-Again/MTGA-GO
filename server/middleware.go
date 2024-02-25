@@ -56,7 +56,8 @@ const incomingRoute string = "[%s] %s on %s\n"
 
 func logRoute(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf(incomingRoute, r.Method, r.URL.Path, strings.TrimPrefix(r.Host, "127.0.0.1"))
+		length := len(r.Host)
+		log.Printf(incomingRoute, r.Method, r.URL.Path, r.Host[length-5:length])
 		next.ServeHTTP(w, r)
 	})
 }
