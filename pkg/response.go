@@ -100,21 +100,20 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//client := &http.Client{}
-	uri := r.RequestURI
-	prodURL := prod + uri[:len(uri)-4]
+	client := &http.Client{}
+	prodURL := prod + r.RequestURI[:len(r.RequestURI)-4]
 
 	for ext, mimeType := range mime {
 		path := prodURL + ext
 
-		//req, err := http.Get(path)
-		//if err != nil {
-		//	log.Println(err)
-		//	continue
-		//}
+		req, err := http.NewRequest("GET", path, nil)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
 
-		//req.Header.Set("User-Agent", "ballsack")
-		response, err := http.Get(path)
+		req.Header.Set("User-Agent", "ballsack")
+		response, err := client.Do(req)
 		if err != nil {
 			log.Println(err)
 			continue
