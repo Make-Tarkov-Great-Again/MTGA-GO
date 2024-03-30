@@ -83,9 +83,7 @@ func decompress(next http.Handler) http.Handler {
 		if err != nil {
 			log.Println(err)
 			return
-		}
-
-		if buffer == nil || len(buffer) == 0 {
+		} else if buffer == nil || len(buffer) == 0 {
 			next.ServeHTTP(w, r)
 			return
 		}
